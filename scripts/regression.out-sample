@@ -1,0 +1,5394 @@
+INSERT INTO mastertable VALUES (5, false, 88);
+rows returned: 1
+5	0	88
+UPDATE mastertable set balance=7000;
+rows returned: 1
+5	0	7000
+UPDATE mastertable set accountid=33;
+rows returned: 1
+33	0	7000
+DELETE FROM mastertable;
+rows returned: 0
+rows returned: 10
+15	1	1500
+20	1	2000
+50	1	5000
+30	1	3000
+10	1	1000
+5	1	500
+25	1	2500
+45	1	4500
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid=25
+rows returned: 1
+25	1	2500
+SELECT * FROM mastertable WHERE accountid<>25
+rows returned: 9
+20	1	2000
+15	1	1500
+30	1	3000
+50	1	5000
+10	1	1000
+45	1	4500
+5	1	500
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid<25
+rows returned: 4
+15	1	1500
+20	1	2000
+10	1	1000
+5	1	500
+SELECT * FROM mastertable WHERE accountid>25
+rows returned: 5
+45	1	4500
+30	1	3000
+50	1	5000
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid<=25
+rows returned: 5
+15	1	1500
+20	1	2000
+10	1	1000
+25	1	2500
+5	1	500
+SELECT * FROM mastertable WHERE accountid>=25
+rows returned: 6
+25	1	2500
+45	1	4500
+30	1	3000
+50	1	5000
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid BETWEEN 10 and 40
+rows returned: 7
+15	1	1500
+20	1	2000
+10	1	1000
+25	1	2500
+30	1	3000
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid BETWEEN 22 and 22
+rows returned: 0
+SELECT * FROM mastertable WHERE accountid BETWEEN 30 and 30
+rows returned: 1
+30	1	3000
+SELECT * FROM mastertable WHERE accountid BETWEEN 43 and 4
+rows returned: 0
+SELECT * FROM mastertable WHERE accountid NOT BETWEEN 10 and 40
+rows returned: 3
+45	1	4500
+5	1	500
+50	1	5000
+SELECT * FROM mastertable WHERE accountid NOT BETWEEN 22 and 22
+rows returned: 10
+15	1	1500
+20	1	2000
+30	1	3000
+50	1	5000
+10	1	1000
+25	1	2500
+5	1	500
+45	1	4500
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid NOT BETWEEN 30 and 30
+rows returned: 9
+15	1	1500
+20	1	2000
+10	1	1000
+25	1	2500
+5	1	500
+45	1	4500
+35	1	3500
+40	1	4000
+50	1	5000
+SELECT * FROM mastertable WHERE accountid NOT BETWEEN 43 and 4
+rows returned: 10
+20	1	2000
+15	1	1500
+30	1	3000
+50	1	5000
+10	1	1000
+25	1	2500
+5	1	500
+45	1	4500
+35	1	3500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid IN (25)
+rows returned: 1
+25	1	2500
+SELECT * FROM mastertable WHERE accountid IN (25, 100000, 38, 40)
+rows returned: 2
+25	1	2500
+40	1	4000
+SELECT * FROM mastertable WHERE accountid IN (37, 12)
+rows returned: 0
+SELECT * FROM mastertable WHERE accountid NOT IN (25)
+rows returned: 9
+10	1	1000
+45	1	4500
+5	1	500
+35	1	3500
+40	1	4000
+50	1	5000
+30	1	3000
+15	1	1500
+20	1	2000
+SELECT * FROM mastertable WHERE accountid NOT IN (25, 100000, 38, 40)
+rows returned: 8
+10	1	1000
+45	1	4500
+5	1	500
+35	1	3500
+50	1	5000
+30	1	3000
+15	1	1500
+20	1	2000
+SELECT * FROM mastertable WHERE accountid NOT IN (37, 12)
+rows returned: 10
+10	1	1000
+25	1	2500
+5	1	500
+45	1	4500
+35	1	3500
+40	1	4000
+50	1	5000
+30	1	3000
+15	1	1500
+20	1	2000
+rows returned: 10
+25	1	25.5	E	EE        	EEE	250	1	250.5	E	EE        	EEE	2500	1	2500.5	E	EE        	EEE	25000	1	25000.5	E	EE        	EEE
+30	0	30.5	F	FF        	FFF	300	0	300.5	F	FF        	FFF	3000	0	3000.5	F	FF        	FFF	30000	0	30000.5	F	FF        	FFF
+10	0	10.5	B	BB        	BBB	100	0	100.5	B	BB        	BBB	1000	0	1000.5	B	BB        	BBB	10000	0	10000.5	B	BB        	BBB
+45	1	45.5	I	II        	III	450	1	450.5	I	II        	III	4500	1	4500.5	I	II        	III	45000	1	45000.5	I	II        	III
+20	0	20.5	D	DD        	DDD	200	0	200.5	D	DD        	DDD	2000	0	2000.5	D	DD        	DDD	20000	0	20000.5	D	DD        	DDD
+15	1	15.5	C	CC        	CCC	150	1	150.5	C	CC        	CCC	1500	1	1500.5	C	CC        	CCC	15000	1	15000.5	C	CC        	CCC
+5	1	5.5	A	AA        	AAA	50	1	50.5	A	AA        	AAA	500	1	500.5	A	AA        	AAA	5000	1	5000.5	A	AA        	AAA
+35	1	35.5	G	GG        	GGG	350	1	350.5	G	GG        	GGG	3500	1	3500.5	G	GG        	GGG	35000	1	35000.5	G	GG        	GGG
+40	0	40.5	H	HH        	HHH	400	0	400.5	H	HH        	HHH	4000	0	4000.5	H	HH        	HHH	40000	0	40000.5	H	HH        	HHH
+50	0	50.5	J	JJ        	JJJ	500	0	500.5	J	JJ        	JJJ	5000	0	5000.5	J	JJ        	JJJ	50000	0	50000.5	J	JJ        	JJJ
+SELECT intcol1 from manycolumns WHERE intcol1 = 25
+rows returned: 1
+25
+SELECT floatcol1 from manycolumns WHERE floatcol1 = 25.5
+rows returned: 1
+25.5
+SELECT charcol1 from manycolumns WHERE charcol1 = 'E'
+rows returned: 1
+E
+SELECT charxcol1 from manycolumns WHERE charxcol1 = 'EE'
+rows returned: 1
+EE        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 = 'EEE'
+rows returned: 1
+EEE
+SELECT boolcol1 from manycolumns WHERE boolcol1 = true
+rows returned: 5
+1
+1
+1
+1
+1
+SELECT intcol1 from manycolumns WHERE intcol1 <> 25
+rows returned: 9
+20
+15
+30
+5
+35
+40
+50
+10
+45
+SELECT floatcol1 from manycolumns WHERE floatcol1 <> 25.5
+rows returned: 9
+20.5
+15.5
+30.5
+5.5
+40.5
+35.5
+50.5
+45.5
+10.5
+SELECT charcol1 from manycolumns WHERE charcol1 <> 'E'
+rows returned: 9
+D
+C
+F
+J
+H
+G
+A
+B
+I
+SELECT charxcol1 from manycolumns WHERE charxcol1 <> 'EE'
+rows returned: 9
+DD        
+CC        
+FF        
+HH        
+GG        
+JJ        
+AA        
+II        
+BB        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 <> 'EEE'
+rows returned: 9
+AAA
+JJJ
+GGG
+HHH
+BBB
+III
+DDD
+CCC
+FFF
+SELECT boolcol1 from manycolumns WHERE boolcol1 <> true
+rows returned: 5
+0
+0
+0
+0
+0
+SELECT intcol1 from manycolumns WHERE intcol1 < 25
+rows returned: 4
+5
+10
+20
+15
+SELECT floatcol1 from manycolumns WHERE floatcol1 < 25.5
+rows returned: 4
+5.5
+10.5
+20.5
+15.5
+SELECT charcol1 from manycolumns WHERE charcol1 < 'E'
+rows returned: 4
+D
+C
+A
+B
+SELECT charxcol1 from manycolumns WHERE charxcol1 < 'EE'
+rows returned: 4
+DD        
+CC        
+AA        
+BB        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 < 'EEE'
+rows returned: 4
+DDD
+CCC
+AAA
+BBB
+SELECT intcol1 from manycolumns WHERE intcol1 > 25
+rows returned: 5
+35
+40
+50
+30
+45
+SELECT floatcol1 from manycolumns WHERE floatcol1 > 25.5
+rows returned: 5
+40.5
+35.5
+50.5
+30.5
+45.5
+SELECT charcol1 from manycolumns WHERE charcol1 > 'E'
+rows returned: 5
+F
+I
+J
+H
+G
+SELECT charxcol1 from manycolumns WHERE charxcol1 > 'EE'
+rows returned: 5
+FF        
+II        
+JJ        
+GG        
+HH        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 > 'EEE'
+rows returned: 5
+FFF
+GGG
+HHH
+JJJ
+III
+SELECT intcol1 from manycolumns WHERE intcol1 <= 25
+rows returned: 5
+20
+10
+5
+25
+15
+SELECT floatcol1 from manycolumns WHERE floatcol1 <= 25.5
+rows returned: 5
+20.5
+5.5
+25.5
+10.5
+15.5
+SELECT charcol1 from manycolumns WHERE charcol1 <= 'E'
+rows returned: 5
+B
+C
+E
+A
+D
+SELECT charxcol1 from manycolumns WHERE charxcol1 <= 'EE'
+rows returned: 5
+BB        
+CC        
+EE        
+AA        
+DD        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 <= 'EEE'
+rows returned: 5
+BBB
+CCC
+EEE
+AAA
+DDD
+SELECT intcol1 from manycolumns WHERE intcol1 >= 25
+rows returned: 6
+25
+30
+45
+35
+40
+50
+SELECT floatcol1 from manycolumns WHERE floatcol1 >= 25.5
+rows returned: 6
+45.5
+25.5
+30.5
+50.5
+35.5
+40.5
+SELECT charcol1 from manycolumns WHERE charcol1 >= 'E'
+rows returned: 6
+E
+F
+I
+J
+G
+H
+SELECT charxcol1 from manycolumns WHERE charxcol1 >= 'EE'
+rows returned: 6
+EE        
+FF        
+II        
+JJ        
+GG        
+HH        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 >= 'EEE'
+rows returned: 6
+III
+EEE
+FFF
+GGG
+HHH
+JJJ
+SELECT intcol2 from manycolumns WHERE intcol2 = 250
+rows returned: 1
+250
+SELECT floatcol2 from manycolumns WHERE floatcol2 = 250.5
+rows returned: 1
+250.5
+SELECT charcol2 from manycolumns WHERE charcol2 = 'E'
+rows returned: 1
+E
+SELECT charxcol2 from manycolumns WHERE charxcol2 = 'EE'
+rows returned: 1
+EE        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 = 'EEE'
+rows returned: 1
+EEE
+SELECT boolcol2 from manycolumns WHERE boolcol2 = true
+rows returned: 5
+1
+1
+1
+1
+1
+SELECT intcol2 from manycolumns WHERE intcol2 <> 250
+rows returned: 9
+450
+100
+150
+300
+200
+500
+350
+400
+50
+SELECT floatcol2 from manycolumns WHERE floatcol2 <> 250.5
+rows returned: 9
+100.5
+450.5
+150.5
+300.5
+200.5
+50.5
+350.5
+400.5
+500.5
+SELECT charcol2 from manycolumns WHERE charcol2 <> 'E'
+rows returned: 9
+I
+B
+C
+D
+F
+A
+H
+J
+G
+SELECT charxcol2 from manycolumns WHERE charxcol2 <> 'EE'
+rows returned: 9
+BB        
+II        
+CC        
+DD        
+FF        
+GG        
+JJ        
+HH        
+AA        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 <> 'EEE'
+rows returned: 9
+III
+BBB
+CCC
+DDD
+FFF
+JJJ
+HHH
+AAA
+GGG
+SELECT boolcol2 from manycolumns WHERE boolcol2 <> true
+rows returned: 5
+0
+0
+0
+0
+0
+SELECT intcol2 from manycolumns WHERE intcol2 < 250
+rows returned: 4
+150
+200
+50
+100
+SELECT floatcol2 from manycolumns WHERE floatcol2 < 250.5
+rows returned: 4
+150.5
+200.5
+50.5
+100.5
+SELECT charcol2 from manycolumns WHERE charcol2 < 'E'
+rows returned: 4
+C
+D
+A
+B
+SELECT charxcol2 from manycolumns WHERE charxcol2 < 'EE'
+rows returned: 4
+CC        
+DD        
+AA        
+BB        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 < 'EEE'
+rows returned: 4
+CCC
+DDD
+AAA
+BBB
+SELECT intcol2 from manycolumns WHERE intcol2 > 250
+rows returned: 5
+350
+400
+500
+450
+300
+SELECT floatcol2 from manycolumns WHERE floatcol2 > 250.5
+rows returned: 5
+350.5
+400.5
+500.5
+450.5
+300.5
+SELECT charcol2 from manycolumns WHERE charcol2 > 'E'
+rows returned: 5
+G
+H
+J
+I
+F
+SELECT charxcol2 from manycolumns WHERE charxcol2 > 'EE'
+rows returned: 5
+JJ        
+GG        
+HH        
+II        
+FF        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 > 'EEE'
+rows returned: 5
+HHH
+GGG
+JJJ
+III
+FFF
+SELECT intcol2 from manycolumns WHERE intcol2 <= 250
+rows returned: 5
+200
+100
+50
+250
+150
+SELECT floatcol2 from manycolumns WHERE floatcol2 <= 250.5
+rows returned: 5
+200.5
+50.5
+250.5
+100.5
+150.5
+SELECT charcol2 from manycolumns WHERE charcol2 <= 'E'
+rows returned: 5
+A
+E
+B
+C
+D
+SELECT charxcol2 from manycolumns WHERE charxcol2 <= 'EE'
+rows returned: 5
+AA        
+EE        
+BB        
+CC        
+DD        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 <= 'EEE'
+rows returned: 5
+BBB
+CCC
+DDD
+EEE
+AAA
+SELECT intcol2 from manycolumns WHERE intcol2 >= 250
+rows returned: 6
+250
+300
+450
+500
+350
+400
+SELECT floatcol2 from manycolumns WHERE floatcol2 >= 250.5
+rows returned: 6
+450.5
+250.5
+300.5
+350.5
+400.5
+500.5
+SELECT charcol2 from manycolumns WHERE charcol2 >= 'E'
+rows returned: 6
+G
+H
+J
+E
+F
+I
+SELECT charxcol2 from manycolumns WHERE charxcol2 >= 'EE'
+rows returned: 6
+II        
+EE        
+FF        
+JJ        
+GG        
+HH        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 >= 'EEE'
+rows returned: 6
+FFF
+EEE
+HHH
+GGG
+JJJ
+III
+SELECT intcol3 from manycolumns WHERE intcol3 = 2500
+rows returned: 1
+2500
+SELECT floatcol3 from manycolumns WHERE floatcol3 = 2500.5
+rows returned: 1
+2500.5
+SELECT charcol3 from manycolumns WHERE charcol3 = 'E'
+rows returned: 1
+E
+SELECT charxcol3 from manycolumns WHERE charxcol3 = 'EE'
+rows returned: 1
+EE        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 = 'EEE'
+rows returned: 1
+EEE
+SELECT boolcol3 from manycolumns WHERE boolcol3 = true
+rows returned: 5
+1
+1
+1
+1
+1
+SELECT intcol3 from manycolumns WHERE intcol3 <> 2500
+rows returned: 9
+1500
+3000
+4500
+1000
+2000
+500
+3500
+4000
+5000
+SELECT floatcol3 from manycolumns WHERE floatcol3 <> 2500.5
+rows returned: 9
+1000.5
+4500.5
+2000.5
+3500.5
+4000.5
+500.5
+5000.5
+3000.5
+1500.5
+SELECT charcol3 from manycolumns WHERE charcol3 <> 'E'
+rows returned: 9
+I
+B
+D
+A
+H
+G
+J
+F
+C
+SELECT charxcol3 from manycolumns WHERE charxcol3 <> 'EE'
+rows returned: 9
+BB        
+II        
+DD        
+HH        
+AA        
+GG        
+JJ        
+FF        
+CC        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 <> 'EEE'
+rows returned: 9
+III
+BBB
+DDD
+JJJ
+HHH
+GGG
+AAA
+FFF
+CCC
+SELECT boolcol3 from manycolumns WHERE boolcol3 <> true
+rows returned: 5
+0
+0
+0
+0
+0
+SELECT intcol3 from manycolumns WHERE intcol3 < 2500
+rows returned: 4
+1000
+500
+2000
+1500
+SELECT floatcol3 from manycolumns WHERE floatcol3 < 2500.5
+rows returned: 4
+500.5
+1500.5
+2000.5
+1000.5
+SELECT charcol3 from manycolumns WHERE charcol3 < 'E'
+rows returned: 4
+A
+C
+D
+B
+SELECT charxcol3 from manycolumns WHERE charxcol3 < 'EE'
+rows returned: 4
+AA        
+CC        
+DD        
+BB        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 < 'EEE'
+rows returned: 4
+AAA
+CCC
+DDD
+BBB
+SELECT intcol3 from manycolumns WHERE intcol3 > 2500
+rows returned: 5
+5000
+4000
+3500
+3000
+4500
+SELECT floatcol3 from manycolumns WHERE floatcol3 > 2500.5
+rows returned: 5
+5000.5
+4000.5
+3500.5
+3000.5
+4500.5
+SELECT charcol3 from manycolumns WHERE charcol3 > 'E'
+rows returned: 5
+H
+G
+J
+I
+F
+SELECT charxcol3 from manycolumns WHERE charxcol3 > 'EE'
+rows returned: 5
+HH        
+GG        
+JJ        
+II        
+FF        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 > 'EEE'
+rows returned: 5
+JJJ
+GGG
+HHH
+III
+FFF
+SELECT intcol3 from manycolumns WHERE intcol3 <= 2500
+rows returned: 5
+2000
+1500
+1000
+500
+2500
+SELECT floatcol3 from manycolumns WHERE floatcol3 <= 2500.5
+rows returned: 5
+2000.5
+1500.5
+500.5
+2500.5
+1000.5
+SELECT charcol3 from manycolumns WHERE charcol3 <= 'E'
+rows returned: 5
+D
+C
+A
+E
+B
+SELECT charxcol3 from manycolumns WHERE charxcol3 <= 'EE'
+rows returned: 5
+DD        
+CC        
+AA        
+EE        
+BB        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 <= 'EEE'
+rows returned: 5
+DDD
+CCC
+AAA
+EEE
+BBB
+SELECT intcol3 from manycolumns WHERE intcol3 >= 2500
+rows returned: 6
+5000
+4000
+3500
+3000
+2500
+4500
+SELECT floatcol3 from manycolumns WHERE floatcol3 >= 2500.5
+rows returned: 6
+5000.5
+4000.5
+3500.5
+3000.5
+2500.5
+4500.5
+SELECT charcol3 from manycolumns WHERE charcol3 >= 'E'
+rows returned: 6
+E
+F
+I
+H
+G
+J
+SELECT charxcol3 from manycolumns WHERE charxcol3 >= 'EE'
+rows returned: 6
+JJ        
+GG        
+HH        
+FF        
+EE        
+II        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 >= 'EEE'
+rows returned: 6
+FFF
+EEE
+III
+JJJ
+HHH
+GGG
+SELECT intcol4 from manycolumns WHERE intcol4 = 25000
+rows returned: 1
+25000
+SELECT floatcol4 from manycolumns WHERE floatcol4 = 25000.5
+rows returned: 1
+25000.5
+SELECT charcol4 from manycolumns WHERE charcol4 = 'E'
+rows returned: 1
+E
+SELECT charxcol4 from manycolumns WHERE charxcol4 = 'EE'
+rows returned: 1
+EE        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 = 'EEE'
+rows returned: 1
+EEE
+SELECT boolcol4 from manycolumns WHERE boolcol4 = true
+rows returned: 5
+1
+1
+1
+1
+1
+SELECT intcol4 from manycolumns WHERE intcol4 <> 25000
+rows returned: 9
+20000
+30000
+10000
+45000
+50000
+35000
+5000
+40000
+15000
+SELECT floatcol4 from manycolumns WHERE floatcol4 <> 25000.5
+rows returned: 9
+30000.5
+45000.5
+10000.5
+35000.5
+40000.5
+50000.5
+5000.5
+20000.5
+15000.5
+SELECT charcol4 from manycolumns WHERE charcol4 <> 'E'
+rows returned: 9
+B
+I
+A
+G
+H
+J
+D
+C
+F
+SELECT charxcol4 from manycolumns WHERE charxcol4 <> 'EE'
+rows returned: 9
+BB        
+II        
+HH        
+GG        
+JJ        
+AA        
+DD        
+CC        
+FF        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 <> 'EEE'
+rows returned: 9
+III
+BBB
+GGG
+HHH
+JJJ
+AAA
+DDD
+CCC
+FFF
+SELECT boolcol4 from manycolumns WHERE boolcol4 <> true
+rows returned: 5
+0
+0
+0
+0
+0
+SELECT intcol4 from manycolumns WHERE intcol4 < 25000
+rows returned: 4
+10000
+5000
+20000
+15000
+SELECT floatcol4 from manycolumns WHERE floatcol4 < 25000.5
+rows returned: 4
+10000.5
+5000.5
+20000.5
+15000.5
+SELECT charcol4 from manycolumns WHERE charcol4 < 'E'
+rows returned: 4
+B
+A
+D
+C
+SELECT charxcol4 from manycolumns WHERE charxcol4 < 'EE'
+rows returned: 4
+AA        
+DD        
+CC        
+BB        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 < 'EEE'
+rows returned: 4
+AAA
+DDD
+CCC
+BBB
+SELECT intcol4 from manycolumns WHERE intcol4 > 25000
+rows returned: 5
+50000
+40000
+35000
+30000
+45000
+SELECT floatcol4 from manycolumns WHERE floatcol4 > 25000.5
+rows returned: 5
+50000.5
+40000.5
+35000.5
+30000.5
+45000.5
+SELECT charcol4 from manycolumns WHERE charcol4 > 'E'
+rows returned: 5
+G
+H
+J
+I
+F
+SELECT charxcol4 from manycolumns WHERE charxcol4 > 'EE'
+rows returned: 5
+JJ        
+GG        
+HH        
+II        
+FF        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 > 'EEE'
+rows returned: 5
+JJJ
+GGG
+HHH
+III
+FFF
+SELECT intcol4 from manycolumns WHERE intcol4 <= 25000
+rows returned: 5
+15000
+10000
+5000
+25000
+20000
+SELECT floatcol4 from manycolumns WHERE floatcol4 <= 25000.5
+rows returned: 5
+15000.5
+10000.5
+5000.5
+25000.5
+20000.5
+SELECT charcol4 from manycolumns WHERE charcol4 <= 'E'
+rows returned: 5
+B
+D
+E
+A
+C
+SELECT charxcol4 from manycolumns WHERE charxcol4 <= 'EE'
+rows returned: 5
+CC        
+DD        
+AA        
+EE        
+BB        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 <= 'EEE'
+rows returned: 5
+DDD
+AAA
+EEE
+BBB
+CCC
+SELECT intcol4 from manycolumns WHERE intcol4 >= 25000
+rows returned: 6
+50000
+35000
+40000
+25000
+30000
+45000
+SELECT floatcol4 from manycolumns WHERE floatcol4 >= 25000.5
+rows returned: 6
+25000.5
+30000.5
+45000.5
+50000.5
+40000.5
+35000.5
+SELECT charcol4 from manycolumns WHERE charcol4 >= 'E'
+rows returned: 6
+F
+E
+J
+H
+G
+I
+SELECT charxcol4 from manycolumns WHERE charxcol4 >= 'EE'
+rows returned: 6
+II        
+EE        
+FF        
+HH        
+GG        
+JJ        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 >= 'EEE'
+rows returned: 6
+FFF
+EEE
+HHH
+GGG
+JJJ
+III
+SELECT intcol1 from manycolumns WHERE intcol1 BETWEEN 10 AND 40
+rows returned: 7
+20
+15
+30
+25
+35
+40
+10
+SELECT intcol1 from manycolumns WHERE intcol1 BETWEEN 22 and 22
+rows returned: 0
+SELECT intcol1 from manycolumns WHERE intcol1 BETWEEN 30 and 30
+rows returned: 1
+30
+SELECT intcol1 from manycolumns WHERE intcol1 BETWEEN 43 and 4
+rows returned: 0
+SELECT floatcol1 from manycolumns WHERE floatcol1 BETWEEN 10.5 AND 40.5
+rows returned: 7
+15.5
+30.5
+25.5
+40.5
+35.5
+10.5
+20.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 BETWEEN 22.5 and 22.5
+rows returned: 0
+SELECT floatcol1 from manycolumns WHERE floatcol1 BETWEEN 30.5 and 30.5
+rows returned: 1
+30.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 BETWEEN 43.5 and 4.5
+rows returned: 0
+SELECT charcol1 from manycolumns WHERE charcol1 BETWEEN 'B' AND 'H'
+rows returned: 7
+F
+E
+G
+H
+B
+D
+C
+SELECT charcol1 from manycolumns WHERE charcol1 BETWEEN 'T' and 'T'
+rows returned: 0
+SELECT charcol1 from manycolumns WHERE charcol1 BETWEEN 'F' and 'F'
+rows returned: 1
+F
+SELECT charcol1 from manycolumns WHERE charcol1 BETWEEN 'V' and 'Q'
+rows returned: 0
+SELECT charxcol1 from manycolumns WHERE charxcol1 BETWEEN 'BB' AND 'HH'
+rows returned: 7
+CC        
+DD        
+BB        
+EE        
+FF        
+GG        
+HH        
+SELECT charxcol1 from manycolumns WHERE charxcol1 BETWEEN 'TT' and 'TT'
+rows returned: 0
+SELECT charxcol1 from manycolumns WHERE charxcol1 BETWEEN 'FF' and 'FF'
+rows returned: 1
+FF        
+SELECT charxcol1 from manycolumns WHERE charxcol1 BETWEEN 'VV' and 'QQ'
+rows returned: 0
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 BETWEEN 'BBB' AND 'HHH'
+rows returned: 7
+CCC
+DDD
+EEE
+FFF
+BBB
+HHH
+GGG
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 BETWEEN 'TTT' and 'TTT'
+rows returned: 0
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 BETWEEN 'FFF' and 'FFF'
+rows returned: 1
+FFF
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 BETWEEN 'VVV' and 'QQQ'
+rows returned: 0
+SELECT intcol1 from manycolumns WHERE intcol1 NOT BETWEEN 10 AND 40
+rows returned: 3
+45
+5
+50
+SELECT intcol1 from manycolumns WHERE intcol1 NOT BETWEEN 22 and 22
+rows returned: 10
+20
+10
+25
+30
+45
+5
+35
+40
+50
+15
+SELECT intcol1 from manycolumns WHERE intcol1 NOT BETWEEN 30 and 30
+rows returned: 9
+20
+10
+25
+45
+5
+35
+40
+50
+15
+SELECT intcol1 from manycolumns WHERE intcol1 NOT BETWEEN 43 and 4
+rows returned: 10
+20
+10
+25
+30
+45
+5
+35
+40
+50
+15
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT BETWEEN 10.5 AND 40.5
+rows returned: 3
+45.5
+50.5
+5.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT BETWEEN 22.5 and 22.5
+rows returned: 10
+10.5
+45.5
+25.5
+30.5
+35.5
+50.5
+40.5
+5.5
+15.5
+20.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT BETWEEN 30.5 and 30.5
+rows returned: 9
+10.5
+45.5
+25.5
+35.5
+50.5
+40.5
+5.5
+15.5
+20.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT BETWEEN 43.5 and 4.5
+rows returned: 10
+10.5
+45.5
+25.5
+30.5
+35.5
+50.5
+40.5
+5.5
+15.5
+20.5
+SELECT charcol1 from manycolumns WHERE charcol1 NOT BETWEEN 'B' AND 'H'
+rows returned: 3
+I
+A
+J
+SELECT charcol1 from manycolumns WHERE charcol1 NOT BETWEEN 'T' and 'T'
+rows returned: 10
+E
+F
+I
+B
+A
+G
+J
+H
+C
+D
+SELECT charcol1 from manycolumns WHERE charcol1 NOT BETWEEN 'F' and 'F'
+rows returned: 9
+E
+I
+B
+A
+G
+J
+H
+C
+D
+SELECT charcol1 from manycolumns WHERE charcol1 NOT BETWEEN 'V' and 'Q'
+rows returned: 10
+E
+F
+I
+B
+A
+G
+J
+H
+C
+D
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT BETWEEN 'BB' AND 'HH'
+rows returned: 3
+II        
+AA        
+JJ        
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT BETWEEN 'TT' and 'TT'
+rows returned: 10
+BB        
+EE        
+FF        
+II        
+AA        
+GG        
+JJ        
+HH        
+CC        
+DD        
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT BETWEEN 'FF' and 'FF'
+rows returned: 9
+BB        
+EE        
+II        
+AA        
+GG        
+JJ        
+HH        
+CC        
+DD        
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT BETWEEN 'VV' and 'QQ'
+rows returned: 10
+AA        
+GG        
+JJ        
+HH        
+FF        
+EE        
+CC        
+DD        
+II        
+BB        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT BETWEEN 'BBB' AND 'HHH'
+rows returned: 3
+III
+JJJ
+AAA
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT BETWEEN 'TTT' and 'TTT'
+rows returned: 10
+CCC
+FFF
+EEE
+BBB
+III
+AAA
+GGG
+JJJ
+HHH
+DDD
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT BETWEEN 'FFF' and 'FFF'
+rows returned: 9
+CCC
+EEE
+BBB
+III
+AAA
+GGG
+JJJ
+HHH
+DDD
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT BETWEEN 'VVV' and 'QQQ'
+rows returned: 10
+CCC
+FFF
+EEE
+BBB
+III
+AAA
+GGG
+JJJ
+HHH
+DDD
+SELECT intcol2 from manycolumns WHERE intcol2 BETWEEN 100 AND 400
+rows returned: 7
+200
+150
+350
+400
+100
+250
+300
+SELECT intcol2 from manycolumns WHERE intcol2 BETWEEN 220 and 220
+rows returned: 0
+SELECT intcol2 from manycolumns WHERE intcol2 BETWEEN 300 and 300
+rows returned: 1
+300
+SELECT intcol2 from manycolumns WHERE intcol2 BETWEEN 430 and 40
+rows returned: 0
+SELECT floatcol2 from manycolumns WHERE floatcol2 BETWEEN 100.5 AND 400.5
+rows returned: 7
+150.5
+350.5
+400.5
+100.5
+250.5
+300.5
+200.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 BETWEEN 220.5 and 220.5
+rows returned: 0
+SELECT floatcol2 from manycolumns WHERE floatcol2 BETWEEN 300.5 and 300.5
+rows returned: 1
+300.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 BETWEEN 430.5 and 40.5
+rows returned: 0
+SELECT charcol2 from manycolumns WHERE charcol2 BETWEEN 'B' AND 'H'
+rows returned: 7
+B
+E
+F
+D
+C
+H
+G
+SELECT charcol2 from manycolumns WHERE charcol2 BETWEEN 'T' and 'T'
+rows returned: 0
+SELECT charcol2 from manycolumns WHERE charcol2 BETWEEN 'F' and 'F'
+rows returned: 1
+F
+SELECT charcol2 from manycolumns WHERE charcol2 BETWEEN 'V' and 'Q'
+rows returned: 0
+SELECT charxcol2 from manycolumns WHERE charxcol2 BETWEEN 'BB' AND 'HH'
+rows returned: 7
+CC        
+GG        
+HH        
+DD        
+FF        
+EE        
+BB        
+SELECT charxcol2 from manycolumns WHERE charxcol2 BETWEEN 'TT' and 'TT'
+rows returned: 0
+SELECT charxcol2 from manycolumns WHERE charxcol2 BETWEEN 'FF' and 'FF'
+rows returned: 1
+FF        
+SELECT charxcol2 from manycolumns WHERE charxcol2 BETWEEN 'VV' and 'QQ'
+rows returned: 0
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 BETWEEN 'BBB' AND 'HHH'
+rows returned: 7
+CCC
+GGG
+HHH
+FFF
+EEE
+DDD
+BBB
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 BETWEEN 'TTT' and 'TTT'
+rows returned: 0
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 BETWEEN 'FFF' and 'FFF'
+rows returned: 1
+FFF
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 BETWEEN 'VVV' and 'QQQ'
+rows returned: 0
+SELECT intcol2 from manycolumns WHERE intcol2 NOT BETWEEN 100 AND 400
+rows returned: 3
+50
+500
+450
+SELECT intcol2 from manycolumns WHERE intcol2 NOT BETWEEN 220 and 220
+rows returned: 10
+150
+50
+350
+400
+500
+300
+250
+200
+450
+100
+SELECT intcol2 from manycolumns WHERE intcol2 NOT BETWEEN 300 and 300
+rows returned: 9
+150
+200
+100
+450
+250
+350
+400
+500
+50
+SELECT intcol2 from manycolumns WHERE intcol2 NOT BETWEEN 430 and 40
+rows returned: 10
+150
+200
+300
+250
+100
+450
+350
+400
+500
+50
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT BETWEEN 100.5 AND 400.5
+rows returned: 3
+450.5
+50.5
+500.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT BETWEEN 220.5 and 220.5
+rows returned: 10
+150.5
+200.5
+300.5
+250.5
+100.5
+450.5
+350.5
+400.5
+50.5
+500.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT BETWEEN 300.5 and 300.5
+rows returned: 9
+150.5
+200.5
+100.5
+450.5
+250.5
+350.5
+400.5
+50.5
+500.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT BETWEEN 430.5 and 40.5
+rows returned: 10
+150.5
+200.5
+300.5
+250.5
+100.5
+450.5
+350.5
+400.5
+50.5
+500.5
+SELECT charcol2 from manycolumns WHERE charcol2 NOT BETWEEN 'B' AND 'H'
+rows returned: 3
+J
+A
+I
+SELECT charcol2 from manycolumns WHERE charcol2 NOT BETWEEN 'T' and 'T'
+rows returned: 10
+C
+D
+F
+E
+H
+J
+G
+A
+I
+B
+SELECT charcol2 from manycolumns WHERE charcol2 NOT BETWEEN 'F' and 'F'
+rows returned: 9
+C
+D
+H
+J
+G
+A
+E
+I
+B
+SELECT charcol2 from manycolumns WHERE charcol2 NOT BETWEEN 'V' and 'Q'
+rows returned: 10
+C
+D
+F
+E
+H
+J
+G
+A
+I
+B
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT BETWEEN 'BB' AND 'HH'
+rows returned: 3
+JJ        
+AA        
+II        
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT BETWEEN 'TT' and 'TT'
+rows returned: 10
+CC        
+DD        
+FF        
+EE        
+GG        
+JJ        
+HH        
+AA        
+II        
+BB        
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT BETWEEN 'FF' and 'FF'
+rows returned: 9
+CC        
+DD        
+GG        
+JJ        
+HH        
+AA        
+II        
+EE        
+BB        
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT BETWEEN 'VV' and 'QQ'
+rows returned: 10
+CC        
+DD        
+FF        
+EE        
+GG        
+JJ        
+HH        
+AA        
+II        
+BB        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT BETWEEN 'BBB' AND 'HHH'
+rows returned: 3
+AAA
+JJJ
+III
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT BETWEEN 'TTT' and 'TTT'
+rows returned: 10
+CCC
+DDD
+FFF
+EEE
+HHH
+AAA
+GGG
+JJJ
+BBB
+III
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT BETWEEN 'FFF' and 'FFF'
+rows returned: 9
+CCC
+DDD
+HHH
+AAA
+GGG
+JJJ
+EEE
+BBB
+III
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT BETWEEN 'VVV' and 'QQQ'
+rows returned: 10
+CCC
+DDD
+FFF
+EEE
+HHH
+AAA
+GGG
+JJJ
+BBB
+III
+SELECT intcol3 from manycolumns WHERE intcol3 BETWEEN 1000 AND 4000
+rows returned: 7
+1500
+3000
+2500
+4000
+3500
+2000
+1000
+SELECT intcol3 from manycolumns WHERE intcol3 BETWEEN 2200 and 2200
+rows returned: 0
+SELECT intcol3 from manycolumns WHERE intcol3 BETWEEN 3000 and 3000
+rows returned: 1
+3000
+SELECT intcol3 from manycolumns WHERE intcol3 BETWEEN 4300 and 400
+rows returned: 0
+SELECT floatcol3 from manycolumns WHERE floatcol3 BETWEEN 1000.5 AND 4000.5
+rows returned: 7
+1500.5
+3000.5
+2500.5
+4000.5
+3500.5
+2000.5
+1000.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 BETWEEN 2200.5 and 2200.5
+rows returned: 0
+SELECT floatcol3 from manycolumns WHERE floatcol3 BETWEEN 3000.5 and 3000.5
+rows returned: 1
+3000.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 BETWEEN 4300.5 and 400.5
+rows returned: 0
+SELECT charcol3 from manycolumns WHERE charcol3 BETWEEN 'B' AND 'H'
+rows returned: 7
+C
+F
+E
+G
+H
+D
+B
+SELECT charcol3 from manycolumns WHERE charcol3 BETWEEN 'T' and 'T'
+rows returned: 0
+SELECT charcol3 from manycolumns WHERE charcol3 BETWEEN 'F' and 'F'
+rows returned: 1
+F
+SELECT charcol3 from manycolumns WHERE charcol3 BETWEEN 'V' and 'Q'
+rows returned: 0
+SELECT charxcol3 from manycolumns WHERE charxcol3 BETWEEN 'BB' AND 'HH'
+rows returned: 7
+CC        
+FF        
+EE        
+DD        
+BB        
+GG        
+HH        
+SELECT charxcol3 from manycolumns WHERE charxcol3 BETWEEN 'TT' and 'TT'
+rows returned: 0
+SELECT charxcol3 from manycolumns WHERE charxcol3 BETWEEN 'FF' and 'FF'
+rows returned: 1
+FF        
+SELECT charxcol3 from manycolumns WHERE charxcol3 BETWEEN 'VV' and 'QQ'
+rows returned: 0
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 BETWEEN 'BBB' AND 'HHH'
+rows returned: 7
+FFF
+EEE
+DDD
+HHH
+GGG
+CCC
+BBB
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 BETWEEN 'TTT' and 'TTT'
+rows returned: 0
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 BETWEEN 'FFF' and 'FFF'
+rows returned: 1
+FFF
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 BETWEEN 'VVV' and 'QQQ'
+rows returned: 0
+SELECT intcol3 from manycolumns WHERE intcol3 NOT BETWEEN 1000 AND 4000
+rows returned: 3
+5000
+500
+4500
+SELECT intcol3 from manycolumns WHERE intcol3 NOT BETWEEN 2200 and 2200
+rows returned: 10
+3000
+2500
+2000
+1500
+1000
+4500
+5000
+4000
+500
+3500
+SELECT intcol3 from manycolumns WHERE intcol3 NOT BETWEEN 3000 and 3000
+rows returned: 9
+1500
+500
+3500
+5000
+4000
+4500
+1000
+2500
+2000
+SELECT intcol3 from manycolumns WHERE intcol3 NOT BETWEEN 4300 and 400
+rows returned: 10
+1500
+5000
+500
+3500
+4000
+4500
+1000
+2500
+3000
+2000
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT BETWEEN 1000.5 AND 4000.5
+rows returned: 3
+5000.5
+500.5
+4500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT BETWEEN 2200.5 and 2200.5
+rows returned: 10
+1000.5
+2500.5
+3000.5
+4500.5
+2000.5
+1500.5
+3500.5
+4000.5
+5000.5
+500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT BETWEEN 3000.5 and 3000.5
+rows returned: 9
+1000.5
+2500.5
+4500.5
+2000.5
+1500.5
+3500.5
+4000.5
+5000.5
+500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT BETWEEN 4300.5 and 400.5
+rows returned: 10
+1000.5
+2500.5
+3000.5
+4500.5
+2000.5
+1500.5
+3500.5
+4000.5
+5000.5
+500.5
+SELECT charcol3 from manycolumns WHERE charcol3 NOT BETWEEN 'B' AND 'H'
+rows returned: 3
+I
+A
+J
+SELECT charcol3 from manycolumns WHERE charcol3 NOT BETWEEN 'T' and 'T'
+rows returned: 10
+F
+E
+C
+D
+B
+I
+J
+A
+H
+G
+SELECT charcol3 from manycolumns WHERE charcol3 NOT BETWEEN 'F' and 'F'
+rows returned: 9
+C
+D
+B
+E
+I
+J
+A
+H
+G
+SELECT charcol3 from manycolumns WHERE charcol3 NOT BETWEEN 'V' and 'Q'
+rows returned: 10
+D
+B
+E
+F
+I
+A
+H
+G
+J
+C
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT BETWEEN 'BB' AND 'HH'
+rows returned: 3
+II        
+AA        
+JJ        
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT BETWEEN 'TT' and 'TT'
+rows returned: 10
+FF        
+EE        
+CC        
+DD        
+II        
+BB        
+AA        
+GG        
+JJ        
+HH        
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT BETWEEN 'FF' and 'FF'
+rows returned: 9
+DD        
+CC        
+II        
+BB        
+EE        
+AA        
+HH        
+GG        
+JJ        
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT BETWEEN 'VV' and 'QQ'
+rows returned: 10
+FF        
+EE        
+CC        
+BB        
+II        
+AA        
+GG        
+JJ        
+HH        
+DD        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT BETWEEN 'BBB' AND 'HHH'
+rows returned: 3
+III
+AAA
+JJJ
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT BETWEEN 'TTT' and 'TTT'
+rows returned: 10
+III
+BBB
+EEE
+FFF
+GGG
+HHH
+JJJ
+AAA
+DDD
+CCC
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT BETWEEN 'FFF' and 'FFF'
+rows returned: 9
+GGG
+HHH
+JJJ
+AAA
+DDD
+CCC
+III
+BBB
+EEE
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT BETWEEN 'VVV' and 'QQQ'
+rows returned: 10
+GGG
+HHH
+JJJ
+AAA
+DDD
+FFF
+EEE
+CCC
+BBB
+III
+SELECT intcol4 from manycolumns WHERE intcol4 BETWEEN 10000 AND 40000
+rows returned: 7
+35000
+40000
+20000
+30000
+25000
+15000
+10000
+SELECT intcol4 from manycolumns WHERE intcol4 BETWEEN 22000 and 22000
+rows returned: 0
+SELECT intcol4 from manycolumns WHERE intcol4 BETWEEN 30000 and 30000
+rows returned: 1
+30000
+SELECT intcol4 from manycolumns WHERE intcol4 BETWEEN 43000 and 4000
+rows returned: 0
+SELECT floatcol4 from manycolumns WHERE floatcol4 BETWEEN 10000.5 AND 40000.5
+rows returned: 7
+30000.5
+25000.5
+15000.5
+10000.5
+40000.5
+35000.5
+20000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 BETWEEN 22000.5 and 22000.5
+rows returned: 0
+SELECT floatcol4 from manycolumns WHERE floatcol4 BETWEEN 30000.5 and 30000.5
+rows returned: 1
+30000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 BETWEEN 43000.5 and 4000.5
+rows returned: 0
+SELECT charcol4 from manycolumns WHERE charcol4 BETWEEN 'B' AND 'H'
+rows returned: 7
+F
+E
+C
+B
+H
+G
+D
+SELECT charcol4 from manycolumns WHERE charcol4 BETWEEN 'T' and 'T'
+rows returned: 0
+SELECT charcol4 from manycolumns WHERE charcol4 BETWEEN 'F' and 'F'
+rows returned: 1
+F
+SELECT charcol4 from manycolumns WHERE charcol4 BETWEEN 'V' and 'Q'
+rows returned: 0
+SELECT charxcol4 from manycolumns WHERE charxcol4 BETWEEN 'BB' AND 'HH'
+rows returned: 7
+FF        
+EE        
+CC        
+BB        
+GG        
+HH        
+DD        
+SELECT charxcol4 from manycolumns WHERE charxcol4 BETWEEN 'TT' and 'TT'
+rows returned: 0
+SELECT charxcol4 from manycolumns WHERE charxcol4 BETWEEN 'FF' and 'FF'
+rows returned: 1
+FF        
+SELECT charxcol4 from manycolumns WHERE charxcol4 BETWEEN 'VV' and 'QQ'
+rows returned: 0
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 BETWEEN 'BBB' AND 'HHH'
+rows returned: 7
+FFF
+EEE
+CCC
+BBB
+GGG
+HHH
+DDD
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 BETWEEN 'TTT' and 'TTT'
+rows returned: 0
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 BETWEEN 'FFF' and 'FFF'
+rows returned: 1
+FFF
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 BETWEEN 'VVV' and 'QQQ'
+rows returned: 0
+SELECT intcol4 from manycolumns WHERE intcol4 NOT BETWEEN 10000 AND 40000
+rows returned: 3
+45000
+50000
+5000
+SELECT intcol4 from manycolumns WHERE intcol4 NOT BETWEEN 22000 and 22000
+rows returned: 10
+30000
+25000
+15000
+10000
+45000
+35000
+40000
+50000
+5000
+20000
+SELECT intcol4 from manycolumns WHERE intcol4 NOT BETWEEN 30000 and 30000
+rows returned: 9
+15000
+10000
+45000
+25000
+35000
+40000
+50000
+5000
+20000
+SELECT intcol4 from manycolumns WHERE intcol4 NOT BETWEEN 43000 and 4000
+rows returned: 10
+30000
+25000
+15000
+10000
+45000
+35000
+40000
+50000
+5000
+20000
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT BETWEEN 10000.5 AND 40000.5
+rows returned: 3
+45000.5
+5000.5
+50000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT BETWEEN 22000.5 and 22000.5
+rows returned: 10
+30000.5
+25000.5
+15000.5
+45000.5
+10000.5
+35000.5
+5000.5
+40000.5
+50000.5
+20000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT BETWEEN 30000.5 and 30000.5
+rows returned: 9
+25000.5
+45000.5
+10000.5
+40000.5
+50000.5
+5000.5
+35000.5
+20000.5
+15000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT BETWEEN 43000.5 and 4000.5
+rows returned: 10
+10000.5
+25000.5
+30000.5
+45000.5
+40000.5
+50000.5
+35000.5
+5000.5
+15000.5
+20000.5
+SELECT charcol4 from manycolumns WHERE charcol4 NOT BETWEEN 'B' AND 'H'
+rows returned: 3
+I
+A
+J
+SELECT charcol4 from manycolumns WHERE charcol4 NOT BETWEEN 'T' and 'T'
+rows returned: 10
+E
+F
+I
+B
+A
+H
+J
+G
+C
+D
+SELECT charcol4 from manycolumns WHERE charcol4 NOT BETWEEN 'F' and 'F'
+rows returned: 9
+E
+I
+B
+A
+H
+J
+G
+C
+D
+SELECT charcol4 from manycolumns WHERE charcol4 NOT BETWEEN 'V' and 'Q'
+rows returned: 10
+E
+F
+I
+B
+A
+H
+J
+G
+C
+D
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT BETWEEN 'BB' AND 'HH'
+rows returned: 3
+II        
+AA        
+JJ        
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT BETWEEN 'TT' and 'TT'
+rows returned: 10
+BB        
+EE        
+FF        
+II        
+AA        
+GG        
+JJ        
+HH        
+CC        
+DD        
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT BETWEEN 'FF' and 'FF'
+rows returned: 9
+AA        
+GG        
+JJ        
+HH        
+CC        
+DD        
+BB        
+EE        
+II        
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT BETWEEN 'VV' and 'QQ'
+rows returned: 10
+FF        
+EE        
+AA        
+GG        
+JJ        
+HH        
+CC        
+DD        
+II        
+BB        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT BETWEEN 'BBB' AND 'HHH'
+rows returned: 3
+JJJ
+AAA
+III
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT BETWEEN 'TTT' and 'TTT'
+rows returned: 10
+GGG
+HHH
+JJJ
+AAA
+CCC
+DDD
+EEE
+FFF
+III
+BBB
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT BETWEEN 'FFF' and 'FFF'
+rows returned: 9
+CCC
+DDD
+EEE
+III
+BBB
+HHH
+JJJ
+AAA
+GGG
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT BETWEEN 'VVV' and 'QQQ'
+rows returned: 10
+FFF
+EEE
+JJJ
+AAA
+GGG
+HHH
+CCC
+DDD
+BBB
+III
+SELECT intcol1 from manycolumns WHERE intcol1 IN (25)
+rows returned: 1
+25
+SELECT intcol1 from manycolumns WHERE intcol1 IN (25,100000,38,40)
+rows returned: 2
+40
+25
+SELECT intcol1 from manycolumns WHERE intcol1 IN (37,12)
+rows returned: 0
+SELECT floatcol1 from manycolumns WHERE floatcol1 IN (25.5)
+rows returned: 1
+25.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 IN (25.5,100000.5,38.5,40.5)
+rows returned: 2
+40.5
+25.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 IN (37.5,12.5)
+rows returned: 0
+SELECT charcol1 from manycolumns WHERE charcol1 IN ('E')
+rows returned: 1
+E
+SELECT charcol1 from manycolumns WHERE charcol1 IN ('E','r','O','H')
+rows returned: 2
+H
+E
+SELECT charcol1 from manycolumns WHERE charcol1 IN ('e','L')
+rows returned: 0
+SELECT charxcol1 from manycolumns WHERE charxcol1 IN ('EE')
+rows returned: 1
+EE        
+SELECT charxcol1 from manycolumns WHERE charxcol1 IN ('EE','rr','OO','HH')
+rows returned: 2
+HH        
+EE        
+SELECT charxcol1 from manycolumns WHERE charxcol1 IN ('ee','LL')
+rows returned: 0
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 IN ('EEE')
+rows returned: 1
+EEE
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 IN ('EEE','rrr','OOO','HHH')
+rows returned: 2
+HHH
+EEE
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 IN ('eee','LLL')
+rows returned: 0
+SELECT intcol1 from manycolumns WHERE intcol1 NOT IN (25)
+rows returned: 9
+5
+35
+40
+50
+20
+30
+15
+10
+45
+SELECT intcol1 from manycolumns WHERE intcol1 NOT IN (25,100000,38,40)
+rows returned: 8
+5
+35
+50
+20
+30
+15
+10
+45
+SELECT intcol1 from manycolumns WHERE intcol1 NOT IN (37,12)
+rows returned: 10
+5
+35
+40
+50
+20
+30
+25
+15
+10
+45
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT IN (25.5)
+rows returned: 9
+5.5
+40.5
+35.5
+50.5
+20.5
+30.5
+15.5
+45.5
+10.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT IN (25.5,100000.5,38.5,40.5)
+rows returned: 8
+5.5
+35.5
+50.5
+20.5
+30.5
+45.5
+10.5
+15.5
+SELECT floatcol1 from manycolumns WHERE floatcol1 NOT IN (37.5,12.5)
+rows returned: 10
+5.5
+40.5
+35.5
+50.5
+20.5
+30.5
+25.5
+45.5
+10.5
+15.5
+SELECT charcol1 from manycolumns WHERE charcol1 NOT IN ('E')
+rows returned: 9
+G
+H
+J
+A
+C
+F
+D
+I
+B
+SELECT charcol1 from manycolumns WHERE charcol1 NOT IN ('E','r','O','H')
+rows returned: 8
+G
+J
+A
+C
+F
+D
+I
+B
+SELECT charcol1 from manycolumns WHERE charcol1 NOT IN ('e','L')
+rows returned: 10
+G
+H
+J
+A
+C
+F
+E
+D
+I
+B
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT IN ('EE')
+rows returned: 9
+CC        
+DD        
+II        
+BB        
+GG        
+JJ        
+AA        
+HH        
+FF        
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT IN ('EE','rr','OO','HH')
+rows returned: 8
+CC        
+DD        
+II        
+BB        
+GG        
+JJ        
+AA        
+FF        
+SELECT charxcol1 from manycolumns WHERE charxcol1 NOT IN ('ee','LL')
+rows returned: 10
+CC        
+DD        
+II        
+BB        
+EE        
+FF        
+GG        
+JJ        
+HH        
+AA        
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT IN ('EEE')
+rows returned: 9
+GGG
+JJJ
+AAA
+HHH
+FFF
+CCC
+DDD
+BBB
+III
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT IN ('EEE','rrr','OOO','HHH')
+rows returned: 8
+GGG
+JJJ
+AAA
+FFF
+CCC
+DDD
+BBB
+III
+SELECT varcharcol1 from manycolumns WHERE varcharcol1 NOT IN ('eee','LLL')
+rows returned: 10
+GGG
+JJJ
+HHH
+AAA
+DDD
+CCC
+EEE
+FFF
+BBB
+III
+SELECT intcol2 from manycolumns WHERE intcol2 IN (250)
+rows returned: 1
+250
+SELECT intcol2 from manycolumns WHERE intcol2 IN (250,1000000,380,400)
+rows returned: 2
+400
+250
+SELECT intcol2 from manycolumns WHERE intcol2 IN (370,120)
+rows returned: 0
+SELECT floatcol2 from manycolumns WHERE floatcol2 IN (250.5)
+rows returned: 1
+250.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 IN (250.5,1000000.5,380.5,400.5)
+rows returned: 2
+400.5
+250.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 IN (370.5,120.5)
+rows returned: 0
+SELECT charcol2 from manycolumns WHERE charcol2 IN ('E')
+rows returned: 1
+E
+SELECT charcol2 from manycolumns WHERE charcol2 IN ('E','r','O','H')
+rows returned: 2
+H
+E
+SELECT charcol2 from manycolumns WHERE charcol2 IN ('e','L')
+rows returned: 0
+SELECT charxcol2 from manycolumns WHERE charxcol2 IN ('EE')
+rows returned: 1
+EE        
+SELECT charxcol2 from manycolumns WHERE charxcol2 IN ('EE','rr','OO','HH')
+rows returned: 2
+HH        
+EE        
+SELECT charxcol2 from manycolumns WHERE charxcol2 IN ('ee','LL')
+rows returned: 0
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 IN ('EEE')
+rows returned: 1
+EEE
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 IN ('EEE','rrr','OOO','HHH')
+rows returned: 2
+HHH
+EEE
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 IN ('eee','LLL')
+rows returned: 0
+SELECT intcol2 from manycolumns WHERE intcol2 NOT IN (250)
+rows returned: 9
+150
+200
+300
+350
+400
+50
+500
+100
+450
+SELECT intcol2 from manycolumns WHERE intcol2 NOT IN (250,1000000,380,400)
+rows returned: 8
+200
+300
+350
+50
+500
+100
+450
+150
+SELECT intcol2 from manycolumns WHERE intcol2 NOT IN (370,120)
+rows returned: 10
+250
+300
+100
+450
+150
+200
+500
+350
+400
+50
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT IN (250.5)
+rows returned: 9
+100.5
+450.5
+150.5
+200.5
+50.5
+350.5
+400.5
+500.5
+300.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT IN (250.5,1000000.5,380.5,400.5)
+rows returned: 8
+100.5
+450.5
+150.5
+200.5
+50.5
+350.5
+500.5
+300.5
+SELECT floatcol2 from manycolumns WHERE floatcol2 NOT IN (370.5,120.5)
+rows returned: 10
+100.5
+450.5
+250.5
+300.5
+200.5
+150.5
+50.5
+350.5
+400.5
+500.5
+SELECT charcol2 from manycolumns WHERE charcol2 NOT IN ('E')
+rows returned: 9
+F
+C
+J
+G
+H
+A
+D
+I
+B
+SELECT charcol2 from manycolumns WHERE charcol2 NOT IN ('E','r','O','H')
+rows returned: 8
+F
+C
+J
+G
+A
+D
+I
+B
+SELECT charcol2 from manycolumns WHERE charcol2 NOT IN ('e','L')
+rows returned: 10
+F
+E
+C
+J
+G
+H
+A
+D
+I
+B
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT IN ('EE')
+rows returned: 9
+CC        
+GG        
+JJ        
+HH        
+AA        
+DD        
+II        
+BB        
+FF        
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT IN ('EE','rr','OO','HH')
+rows returned: 8
+AA        
+GG        
+JJ        
+DD        
+II        
+BB        
+FF        
+CC        
+SELECT charxcol2 from manycolumns WHERE charxcol2 NOT IN ('ee','LL')
+rows returned: 10
+HH        
+AA        
+GG        
+JJ        
+DD        
+FF        
+EE        
+CC        
+II        
+BB        
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT IN ('EEE')
+rows returned: 9
+GGG
+JJJ
+HHH
+AAA
+DDD
+FFF
+BBB
+III
+CCC
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT IN ('EEE','rrr','OOO','HHH')
+rows returned: 8
+GGG
+JJJ
+AAA
+DDD
+FFF
+BBB
+III
+CCC
+SELECT varcharcol2 from manycolumns WHERE varcharcol2 NOT IN ('eee','LLL')
+rows returned: 10
+GGG
+JJJ
+HHH
+AAA
+DDD
+FFF
+EEE
+BBB
+III
+CCC
+SELECT intcol3 from manycolumns WHERE intcol3 IN (2500)
+rows returned: 1
+2500
+SELECT intcol3 from manycolumns WHERE intcol3 IN (2500,10000000,3800,4000)
+rows returned: 2
+4000
+2500
+SELECT intcol3 from manycolumns WHERE intcol3 IN (3700,1200)
+rows returned: 0
+SELECT floatcol3 from manycolumns WHERE floatcol3 IN (2500.5)
+rows returned: 1
+2500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 IN (2500.5,10000000.5,3800.5,4000.5)
+rows returned: 2
+4000.5
+2500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 IN (3700.5,1200.5)
+rows returned: 0
+SELECT charcol3 from manycolumns WHERE charcol3 IN ('E')
+rows returned: 1
+E
+SELECT charcol3 from manycolumns WHERE charcol3 IN ('E','r','O','H')
+rows returned: 2
+H
+E
+SELECT charcol3 from manycolumns WHERE charcol3 IN ('e','L')
+rows returned: 0
+SELECT charxcol3 from manycolumns WHERE charxcol3 IN ('EE')
+rows returned: 1
+EE        
+SELECT charxcol3 from manycolumns WHERE charxcol3 IN ('EE','rr','OO','HH')
+rows returned: 2
+HH        
+EE        
+SELECT charxcol3 from manycolumns WHERE charxcol3 IN ('ee','LL')
+rows returned: 0
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 IN ('EEE')
+rows returned: 1
+EEE
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 IN ('EEE','rrr','OOO','HHH')
+rows returned: 2
+HHH
+EEE
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 IN ('eee','LLL')
+rows returned: 0
+SELECT intcol3 from manycolumns WHERE intcol3 NOT IN (2500)
+rows returned: 9
+500
+3500
+5000
+4000
+4500
+1000
+3000
+2000
+1500
+SELECT intcol3 from manycolumns WHERE intcol3 NOT IN (2500,10000000,3800,4000)
+rows returned: 8
+4500
+1000
+2000
+1500
+3000
+500
+3500
+5000
+SELECT intcol3 from manycolumns WHERE intcol3 NOT IN (3700,1200)
+rows returned: 10
+4500
+1000
+2500
+3000
+2000
+1500
+500
+3500
+5000
+4000
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT IN (2500.5)
+rows returned: 9
+1000.5
+4500.5
+2000.5
+1500.5
+3000.5
+3500.5
+4000.5
+5000.5
+500.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT IN (2500.5,10000000.5,3800.5,4000.5)
+rows returned: 8
+3000.5
+1500.5
+2000.5
+5000.5
+500.5
+3500.5
+4500.5
+1000.5
+SELECT floatcol3 from manycolumns WHERE floatcol3 NOT IN (3700.5,1200.5)
+rows returned: 10
+3000.5
+2500.5
+1500.5
+2000.5
+5000.5
+4000.5
+500.5
+3500.5
+4500.5
+1000.5
+SELECT charcol3 from manycolumns WHERE charcol3 NOT IN ('E')
+rows returned: 9
+D
+G
+A
+H
+J
+B
+I
+F
+C
+SELECT charcol3 from manycolumns WHERE charcol3 NOT IN ('E','r','O','H')
+rows returned: 8
+D
+G
+A
+J
+B
+I
+F
+C
+SELECT charcol3 from manycolumns WHERE charcol3 NOT IN ('e','L')
+rows returned: 10
+F
+E
+C
+D
+H
+J
+G
+A
+I
+B
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT IN ('EE')
+rows returned: 9
+DD        
+CC        
+II        
+BB        
+HH        
+GG        
+JJ        
+AA        
+FF        
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT IN ('EE','rr','OO','HH')
+rows returned: 8
+AA        
+GG        
+JJ        
+FF        
+CC        
+BB        
+II        
+DD        
+SELECT charxcol3 from manycolumns WHERE charxcol3 NOT IN ('ee','LL')
+rows returned: 10
+AA        
+GG        
+JJ        
+HH        
+FF        
+EE        
+CC        
+BB        
+II        
+DD        
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT IN ('EEE')
+rows returned: 9
+CCC
+III
+BBB
+DDD
+HHH
+GGG
+JJJ
+AAA
+FFF
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT IN ('EEE','rrr','OOO','HHH')
+rows returned: 8
+FFF
+CCC
+BBB
+III
+DDD
+AAA
+JJJ
+GGG
+SELECT varcharcol3 from manycolumns WHERE varcharcol3 NOT IN ('eee','LLL')
+rows returned: 10
+FFF
+EEE
+CCC
+BBB
+III
+DDD
+AAA
+JJJ
+HHH
+GGG
+SELECT intcol4 from manycolumns WHERE intcol4 IN (25000)
+rows returned: 1
+25000
+SELECT intcol4 from manycolumns WHERE intcol4 IN (25000,100000000,38000,40000)
+rows returned: 2
+25000
+40000
+SELECT intcol4 from manycolumns WHERE intcol4 IN (37000,12000)
+rows returned: 0
+SELECT floatcol4 from manycolumns WHERE floatcol4 IN (25000.5)
+rows returned: 1
+25000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 IN (25000.5,100000000.5,38000.5,40000.5)
+rows returned: 2
+25000.5
+40000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 IN (37000.5,12000.5)
+rows returned: 0
+SELECT charcol4 from manycolumns WHERE charcol4 IN ('E')
+rows returned: 1
+E
+SELECT charcol4 from manycolumns WHERE charcol4 IN ('E','r','O','H')
+rows returned: 2
+E
+H
+SELECT charcol4 from manycolumns WHERE charcol4 IN ('e','L')
+rows returned: 0
+SELECT charxcol4 from manycolumns WHERE charxcol4 IN ('EE')
+rows returned: 1
+EE        
+SELECT charxcol4 from manycolumns WHERE charxcol4 IN ('EE','rr','OO','HH')
+rows returned: 2
+EE        
+HH        
+SELECT charxcol4 from manycolumns WHERE charxcol4 IN ('ee','LL')
+rows returned: 0
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 IN ('EEE')
+rows returned: 1
+EEE
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 IN ('EEE','rrr','OOO','HHH')
+rows returned: 2
+EEE
+HHH
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 IN ('eee','LLL')
+rows returned: 0
+SELECT intcol4 from manycolumns WHERE intcol4 NOT IN (25000)
+rows returned: 9
+10000
+45000
+20000
+50000
+35000
+40000
+5000
+30000
+15000
+SELECT intcol4 from manycolumns WHERE intcol4 NOT IN (25000,100000000,38000,40000)
+rows returned: 8
+10000
+45000
+20000
+50000
+35000
+5000
+30000
+15000
+SELECT intcol4 from manycolumns WHERE intcol4 NOT IN (37000,12000)
+rows returned: 10
+25000
+30000
+10000
+45000
+20000
+50000
+35000
+40000
+5000
+15000
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT IN (25000.5)
+rows returned: 9
+45000.5
+10000.5
+20000.5
+35000.5
+5000.5
+40000.5
+50000.5
+30000.5
+15000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT IN (25000.5,100000000.5,38000.5,40000.5)
+rows returned: 8
+45000.5
+10000.5
+20000.5
+15000.5
+30000.5
+5000.5
+50000.5
+35000.5
+SELECT floatcol4 from manycolumns WHERE floatcol4 NOT IN (37000.5,12000.5)
+rows returned: 10
+25000.5
+30000.5
+45000.5
+10000.5
+20000.5
+15000.5
+5000.5
+40000.5
+50000.5
+35000.5
+SELECT charcol4 from manycolumns WHERE charcol4 NOT IN ('E')
+rows returned: 9
+B
+I
+D
+C
+F
+A
+H
+J
+G
+SELECT charcol4 from manycolumns WHERE charcol4 NOT IN ('E','r','O','H')
+rows returned: 8
+F
+J
+G
+A
+I
+B
+C
+D
+SELECT charcol4 from manycolumns WHERE charcol4 NOT IN ('e','L')
+rows returned: 10
+F
+E
+H
+J
+G
+A
+I
+B
+C
+D
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT IN ('EE')
+rows returned: 9
+FF        
+AA        
+GG        
+JJ        
+HH        
+BB        
+II        
+CC        
+DD        
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT IN ('EE','rr','OO','HH')
+rows returned: 8
+FF        
+AA        
+GG        
+JJ        
+BB        
+II        
+CC        
+DD        
+SELECT charxcol4 from manycolumns WHERE charxcol4 NOT IN ('ee','LL')
+rows returned: 10
+FF        
+EE        
+AA        
+GG        
+JJ        
+HH        
+BB        
+II        
+CC        
+DD        
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT IN ('EEE')
+rows returned: 9
+FFF
+JJJ
+AAA
+GGG
+HHH
+BBB
+III
+CCC
+DDD
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT IN ('EEE','rrr','OOO','HHH')
+rows returned: 8
+FFF
+JJJ
+AAA
+GGG
+BBB
+III
+CCC
+DDD
+SELECT varcharcol4 from manycolumns WHERE varcharcol4 NOT IN ('eee','LLL')
+rows returned: 10
+FFF
+EEE
+DDD
+CCC
+BBB
+III
+JJJ
+AAA
+HHH
+GGG
+INSERT INTO liketable VALUES ('abcdefghijklmnopqrstuvwxyz', 'abcdefghijklmnopqrstuvwxyz')
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'abcdefghijklmnopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABCDEFG'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE '%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE '%EFG'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abc%'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABC%'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abc%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABC%EFG'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abc%lmn%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABC%EFG%QRS'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE '_bcdefghijklmnopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE '_BCD'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abcdefghijklmnopqrstuvwxy_'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'DEF_'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abcdefghijklm_opqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABCD_WXY'
+rows returned: 0
+SELECT * from liketable WHERE charxcol LIKE 'abc%jkl_nopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol LIKE 'ABC%FGH_RSTU'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abcdefghijklmnopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABCDEFG'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE '%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE '%EFG'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abc%'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABC%'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abc%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABC%EFG'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abc%lmn%xyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABC%EFG%QRS'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE '_bcdefghijklmnopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE '_BCD'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abcdefghijklmnopqrstuvwxy_'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'DEF_'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abcdefghijklm_opqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABCD_WXY'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol LIKE 'abc%jkl_nopqrstuvwxyz'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol LIKE 'ABC%FGH_RSTU'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'abcdefghijklmnopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABCDEFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE '%xyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE '%EFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abc%'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABC%'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abc%xyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABC%EFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abc%lmn%xyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABC%EFG%QRS'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE '_bcdefghijklmnopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE '_BCD'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abcdefghijklmnopqrstuvwxy_'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'DEF_'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abcdefghijklm_opqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABCD_WXY'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE charxcol NOT LIKE 'abc%jkl_nopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE charxcol NOT LIKE 'ABC%FGH_RSTU'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abcdefghijklmnopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABCDEFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE '%xyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE '%EFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abc%'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABC%'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abc%xyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABC%EFG'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abc%lmn%xyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABC%EFG%QRS'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE '_bcdefghijklmnopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE '_BCD'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abcdefghijklmnopqrstuvwxy_'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'DEF_'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abcdefghijklm_opqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABCD_WXY'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+SELECT * from liketable WHERE varcharcol NOT LIKE 'abc%jkl_nopqrstuvwxyz'
+rows returned: 0
+SELECT * from liketable WHERE varcharcol NOT LIKE 'ABC%FGH_RSTU'
+rows returned: 1
+abcdefghijklmnopqrstuvwxyz    	abcdefghijklmnopqrstuvwxyz
+rows returned: 3
+has values	1	2	3.3	4.4	1	0	a	b	aa        	bb        	aaa	bbb	5
+null values1													
+null values2													
+SELECT keycol FROM nulltable WHERE intunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE intnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE floatunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE floatnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE boolunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE boolnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE charunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE charnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE charxunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE charxnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE varcharunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE varcharnonunique IS NULL
+rows returned: 2
+null values2
+null values1
+SELECT keycol FROM nulltable WHERE intunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE intnonunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE floatunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE floatnonunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE boolunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE boolnonunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE charunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE charnonunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE charxunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE charxnonunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE varcharunique IS NOT NULL
+rows returned: 1
+has values
+SELECT keycol FROM nulltable WHERE varcharnonunique IS NOT NULL
+rows returned: 1
+has values
+INSERT INTO nonuniquetable VALUES ('control1-1',5,50,true,true,5.5,50.5,'A','a','AA','aa','AAA','aaa')
+INSERT INTO nonuniquetable VALUES ('control2-1',5,50,true,true,5.5,50.5,'A','a','AA','aa','AAA','aaa')
+INSERT INTO nonuniquetable VALUES ('control1-2',10,100,false,false,10.5,100.5,'B','b','BB','bb','BBB','bbb')
+INSERT INTO nonuniquetable VALUES ('control2-2',10,100,false,false,10.5,100.5,'B','b','BB','bb','BBB','bbb')
+INSERT INTO nonuniquetable VALUES ('control1-3',15,150,true,true,15.5,150.5,'C','c','CC','cc','CCC','ccc')
+INSERT INTO nonuniquetable VALUES ('control2-3',15,150,true,true,15.5,150.5,'C','c','CC','cc','CCC','ccc')
+INSERT INTO nonuniquetable VALUES ('control1-4',20,200,false,false,20.5,200.5,'D','d','DD','dd','DDD','ddd')
+INSERT INTO nonuniquetable VALUES ('control2-4',20,200,false,false,20.5,200.5,'D','d','DD','dd','DDD','ddd')
+INSERT INTO nonuniquetable VALUES ('control1-5',25,250,true,true,25.5,250.5,'E','e','EE','ee','EEE','eee')
+INSERT INTO nonuniquetable VALUES ('control2-5',25,250,true,true,25.5,250.5,'E','e','EE','ee','EEE','eee')
+INSERT INTO nonuniquetable VALUES ('control1-6',30,300,false,false,30.5,300.5,'F','f','FF','ff','FFF','fff')
+INSERT INTO nonuniquetable VALUES ('control2-6',30,300,false,false,30.5,300.5,'F','f','FF','ff','FFF','fff')
+INSERT INTO nonuniquetable VALUES ('control1-7',35,350,true,true,35.5,350.5,'G','g','GG','gg','GGG','ggg')
+INSERT INTO nonuniquetable VALUES ('control2-7',35,350,true,true,35.5,350.5,'G','g','GG','gg','GGG','ggg')
+INSERT INTO nonuniquetable VALUES ('control1-8',40,400,false,false,40.5,400.5,'H','h','HH','hh','HHH','hhh')
+INSERT INTO nonuniquetable VALUES ('control2-8',40,400,false,false,40.5,400.5,'H','h','HH','hh','HHH','hhh')
+INSERT INTO nonuniquetable VALUES ('control1-9',45,450,true,true,45.5,450.5,'I','i','II','ii','III','iii')
+INSERT INTO nonuniquetable VALUES ('control2-9',45,450,true,true,45.5,450.5,'I','i','II','ii','III','iii')
+INSERT INTO nonuniquetable VALUES ('control1-10',50,500,false,false,50.5,500.5,'J','j','JJ','jj','JJJ','jjj')
+INSERT INTO nonuniquetable VALUES ('control2-10',50,500,false,false,50.5,500.5,'J','j','JJ','jj','JJJ','jjj')
+rows returned: 20
+control2-8	40	400	0	0	40.5	400.5	H	h	HH                  	hh                  	HHH	hhh
+control2-10	50	500	0	0	50.5	500.5	J	j	JJ                  	jj                  	JJJ	jjj
+control1-7	35	350	1	1	35.5	350.5	G	g	GG                  	gg                  	GGG	ggg
+control1-6	30	300	0	0	30.5	300.5	F	f	FF                  	ff                  	FFF	fff
+control1-2	10	100	0	0	10.5	100.5	B	b	BB                  	bb                  	BBB	bbb
+control2-1	5	50	1	1	5.5	50.5	A	a	AA                  	aa                  	AAA	aaa
+control1-3	15	150	1	1	15.5	150.5	C	c	CC                  	cc                  	CCC	ccc
+control2-2	10	100	0	0	10.5	100.5	B	b	BB                  	bb                  	BBB	bbb
+control2-5	25	250	1	1	25.5	250.5	E	e	EE                  	ee                  	EEE	eee
+control2-7	35	350	1	1	35.5	350.5	G	g	GG                  	gg                  	GGG	ggg
+control1-1	5	50	1	1	5.5	50.5	A	a	AA                  	aa                  	AAA	aaa
+control1-8	40	400	0	0	40.5	400.5	H	h	HH                  	hh                  	HHH	hhh
+control1-10	50	500	0	0	50.5	500.5	J	j	JJ                  	jj                  	JJJ	jjj
+control1-9	45	450	1	1	45.5	450.5	I	i	II                  	ii                  	III	iii
+control2-3	15	150	1	1	15.5	150.5	C	c	CC                  	cc                  	CCC	ccc
+control2-4	20	200	0	0	20.5	200.5	D	d	DD                  	dd                  	DDD	ddd
+control2-9	45	450	1	1	45.5	450.5	I	i	II                  	ii                  	III	iii
+control1-4	20	200	0	0	20.5	200.5	D	d	DD                  	dd                  	DDD	ddd
+control1-5	25	250	1	1	25.5	250.5	E	e	EE                  	ee                  	EEE	eee
+control2-6	30	300	0	0	30.5	300.5	F	f	FF                  	ff                  	FFF	fff
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique = 25
+rows returned: 2
+control2-5	25
+control1-5	25
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull = 250
+rows returned: 2
+control2-5	25
+control1-5	25
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique = 25.5
+rows returned: 2
+control2-5	25.5
+control1-5	25.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull = 250.5
+rows returned: 2
+control2-5	250.5
+control1-5	250.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique = 'E'
+rows returned: 2
+control2-5	E
+control1-5	E
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull = 'e'
+rows returned: 2
+control2-5	e
+control1-5	e
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique = 'EE'
+rows returned: 2
+control2-5	EE                  
+control1-5	EE                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull = 'ee'
+rows returned: 2
+control2-5	ee                  
+control1-5	ee                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique = 'EEE'
+rows returned: 2
+control2-5	EEE
+control1-5	EEE
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull = 'eee'
+rows returned: 2
+control2-5	eee
+control1-5	eee
+SELECT keycol, boolnonunique from nonuniquetable WHERE boolnonunique = true
+rows returned: 10
+control2-7	1
+control2-5	1
+control2-3	1
+control1-7	1
+control1-9	1
+control2-9	1
+control2-1	1
+control1-3	1
+control1-5	1
+control1-1	1
+SELECT keycol, boolnonuniquenotnull from nonuniquetable WHERE boolnonuniquenotnull = false
+rows returned: 10
+control2-8	0
+control2-10	0
+control2-2	0
+control1-2	0
+control1-6	0
+control2-6	0
+control1-8	0
+control2-4	0
+control1-4	0
+control1-10	0
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique <> 25
+rows returned: 18
+control1-8	40
+control1-1	5
+control2-4	20
+control1-7	35
+control2-8	40
+control2-10	50
+control2-3	15
+control1-2	10
+control2-1	5
+control2-2	10
+control1-3	15
+control1-9	45
+control2-9	45
+control1-10	50
+control1-4	20
+control2-7	35
+control2-6	30
+control1-6	30
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull <> 250
+rows returned: 18
+control1-8	40
+control1-1	5
+control1-2	10
+control2-1	5
+control1-3	15
+control2-2	10
+control2-10	50
+control1-7	35
+control2-8	40
+control2-3	15
+control2-4	20
+control1-9	45
+control2-9	45
+control1-10	50
+control1-4	20
+control2-7	35
+control2-6	30
+control1-6	30
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique <> 25.5
+rows returned: 18
+control1-8	40.5
+control1-1	5.5
+control2-4	20.5
+control1-2	10.5
+control2-1	5.5
+control1-3	15.5
+control2-2	10.5
+control2-10	50.5
+control1-7	35.5
+control2-8	40.5
+control2-3	15.5
+control1-9	45.5
+control2-9	45.5
+control1-10	50.5
+control1-4	20.5
+control2-7	35.5
+control2-6	30.5
+control1-6	30.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull <> 250.5
+rows returned: 18
+control1-8	400.5
+control1-1	50.5
+control1-2	100.5
+control2-1	50.5
+control1-3	150.5
+control2-2	100.5
+control2-4	200.5
+control2-10	500.5
+control1-7	350.5
+control2-8	400.5
+control1-9	450.5
+control2-9	450.5
+control2-3	150.5
+control1-10	500.5
+control1-4	200.5
+control2-7	350.5
+control2-6	300.5
+control1-6	300.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique <> 'E'
+rows returned: 18
+control1-8	H
+control1-1	A
+control1-2	B
+control2-1	A
+control1-3	C
+control2-2	B
+control2-3	C
+control1-9	I
+control2-9	I
+control2-4	D
+control2-10	J
+control1-7	G
+control2-8	H
+control1-10	J
+control1-4	D
+control2-6	F
+control1-6	F
+control2-7	G
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull <> 'e'
+rows returned: 18
+control1-8	h
+control1-1	a
+control2-4	d
+control2-10	j
+control1-7	g
+control2-8	h
+control2-3	c
+control1-9	i
+control2-9	i
+control2-2	b
+control1-3	c
+control1-2	b
+control2-1	a
+control1-10	j
+control1-4	d
+control2-6	f
+control1-6	f
+control2-7	g
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique <> 'EE'
+rows returned: 18
+control1-8	HH                  
+control1-1	AA                  
+control2-3	CC                  
+control1-9	II                  
+control2-9	II                  
+control2-4	DD                  
+control1-7	GG                  
+control2-8	HH                  
+control2-10	JJ                  
+control2-2	BB                  
+control1-3	CC                  
+control1-2	BB                  
+control2-1	AA                  
+control1-10	JJ                  
+control1-4	DD                  
+control2-7	GG                  
+control2-6	FF                  
+control1-6	FF                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull <> 'ee'
+rows returned: 18
+control1-8	hh                  
+control1-1	aa                  
+control1-2	bb                  
+control2-1	aa                  
+control1-3	cc                  
+control2-2	bb                  
+control2-10	jj                  
+control1-7	gg                  
+control2-8	hh                  
+control2-4	dd                  
+control1-9	ii                  
+control2-9	ii                  
+control2-3	cc                  
+control1-10	jj                  
+control1-4	dd                  
+control2-7	gg                  
+control2-6	ff                  
+control1-6	ff                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique <> 'EEE'
+rows returned: 18
+control1-8	HHH
+control1-1	AAA
+control2-4	DDD
+control1-9	III
+control2-9	III
+control1-7	GGG
+control2-8	HHH
+control2-10	JJJ
+control1-2	BBB
+control2-1	AAA
+control2-2	BBB
+control1-3	CCC
+control2-3	CCC
+control1-10	JJJ
+control1-4	DDD
+control2-6	FFF
+control1-6	FFF
+control2-7	GGG
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull <> 'eee'
+rows returned: 18
+control1-8	hhh
+control1-1	aaa
+control1-9	iii
+control2-9	iii
+control2-3	ccc
+control1-2	bbb
+control2-1	aaa
+control1-3	ccc
+control2-2	bbb
+control2-4	ddd
+control1-7	ggg
+control2-8	hhh
+control2-10	jjj
+control1-10	jjj
+control1-4	ddd
+control2-6	fff
+control1-6	fff
+control2-7	ggg
+SELECT keycol, boolnonunique from nonuniquetable WHERE boolnonunique <> true
+rows returned: 10
+control1-8	0
+control1-2	0
+control2-2	0
+control2-4	0
+control1-10	0
+control2-8	0
+control2-10	0
+control1-4	0
+control2-6	0
+control1-6	0
+SELECT keycol, boolnonuniquenotnull from nonuniquetable WHERE boolnonuniquenotnull <> false
+rows returned: 10
+control2-5	1
+control2-7	1
+control2-3	1
+control1-7	1
+control1-9	1
+control2-9	1
+control1-1	1
+control2-1	1
+control1-3	1
+control1-5	1
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique < 25
+rows returned: 8
+control2-4	20
+control2-3	15
+control1-2	10
+control1-3	15
+control2-1	5
+control2-2	10
+control1-1	5
+control1-4	20
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull < 250
+rows returned: 8
+control2-3	15
+control2-4	20
+control1-2	10
+control1-3	15
+control2-1	5
+control2-2	10
+control1-1	5
+control1-4	20
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique < 25.5
+rows returned: 8
+control2-4	20.5
+control1-2	10.5
+control1-3	15.5
+control2-1	5.5
+control2-2	10.5
+control2-3	15.5
+control1-1	5.5
+control1-4	20.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull < 250.5
+rows returned: 8
+control1-3	150.5
+control2-1	50.5
+control2-2	100.5
+control1-2	100.5
+control1-4	200.5
+control2-3	150.5
+control2-4	200.5
+control1-1	50.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique < 'E'
+rows returned: 8
+control1-3	C
+control2-1	A
+control2-2	B
+control1-2	B
+control1-4	D
+control2-3	C
+control2-4	D
+control1-1	A
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull < 'e'
+rows returned: 8
+control2-2	b
+control1-2	b
+control2-1	a
+control1-3	c
+control2-4	d
+control2-3	c
+control1-1	a
+control1-4	d
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique < 'EE'
+rows returned: 8
+control1-1	AA                  
+control2-3	CC                  
+control1-2	BB                  
+control1-3	CC                  
+control2-1	AA                  
+control2-2	BB                  
+control2-4	DD                  
+control1-4	DD                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull < 'ee'
+rows returned: 8
+control2-2	bb                  
+control2-1	aa                  
+control1-3	cc                  
+control1-2	bb                  
+control1-4	dd                  
+control2-3	cc                  
+control2-4	dd                  
+control1-1	aa                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique < 'EEE'
+rows returned: 8
+control1-1	AAA
+control2-4	DDD
+control1-2	BBB
+control2-1	AAA
+control1-3	CCC
+control2-2	BBB
+control2-3	CCC
+control1-4	DDD
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull < 'eee'
+rows returned: 8
+control1-1	aaa
+control1-2	bbb
+control1-3	ccc
+control2-1	aaa
+control2-2	bbb
+control2-4	ddd
+control2-3	ccc
+control1-4	ddd
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique > 25
+rows returned: 10
+control1-8	40
+control1-10	50
+control1-7	35
+control2-8	40
+control2-10	50
+control1-9	45
+control2-9	45
+control2-6	30
+control1-6	30
+control2-7	35
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull > 250
+rows returned: 10
+control1-8	40
+control1-10	50
+control1-7	35
+control2-8	40
+control2-10	50
+control1-9	45
+control2-9	45
+control2-6	30
+control1-6	30
+control2-7	35
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique > 25.5
+rows returned: 10
+control1-8	40.5
+control2-6	30.5
+control1-6	30.5
+control2-8	40.5
+control2-10	50.5
+control1-7	35.5
+control1-10	50.5
+control2-7	35.5
+control1-9	45.5
+control2-9	45.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull > 250.5
+rows returned: 10
+control1-8	400.5
+control2-6	300.5
+control1-6	300.5
+control2-8	400.5
+control2-10	500.5
+control1-7	350.5
+control2-7	350.5
+control1-9	450.5
+control2-9	450.5
+control1-10	500.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique > 'E'
+rows returned: 10
+control2-10	J
+control1-7	G
+control2-8	H
+control1-6	F
+control2-6	F
+control2-7	G
+control1-9	I
+control2-9	I
+control1-10	J
+control1-8	H
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull > 'e'
+rows returned: 10
+control2-7	g
+control1-6	f
+control2-6	f
+control2-10	j
+control1-7	g
+control2-8	h
+control1-9	i
+control2-9	i
+control1-10	j
+control1-8	h
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique > 'EE'
+rows returned: 10
+control2-7	GG                  
+control2-10	JJ                  
+control1-7	GG                  
+control2-8	HH                  
+control1-6	FF                  
+control2-6	FF                  
+control1-9	II                  
+control2-9	II                  
+control1-10	JJ                  
+control1-8	HH                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull > 'ee'
+rows returned: 10
+control1-7	gg                  
+control2-8	hh                  
+control2-10	jj                  
+control1-9	ii                  
+control2-9	ii                  
+control1-10	jj                  
+control1-8	hh                  
+control2-6	ff                  
+control1-6	ff                  
+control2-7	gg                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique > 'EEE'
+rows returned: 10
+control1-7	GGG
+control2-8	HHH
+control2-10	JJJ
+control1-9	III
+control2-9	III
+control1-10	JJJ
+control1-8	HHH
+control2-6	FFF
+control1-6	FFF
+control2-7	GGG
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull > 'eee'
+rows returned: 10
+control1-9	iii
+control2-9	iii
+control1-7	ggg
+control2-8	hhh
+control2-10	jjj
+control1-10	jjj
+control1-8	hhh
+control2-6	fff
+control1-6	fff
+control2-7	ggg
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique <= 25
+rows returned: 10
+control2-3	15
+control2-4	20
+control1-2	10
+control1-3	15
+control2-1	5
+control2-2	10
+control1-1	5
+control2-5	25
+control1-4	20
+control1-5	25
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull <= 250
+rows returned: 10
+control2-3	15
+control1-2	10
+control1-3	15
+control2-1	5
+control2-2	10
+control2-4	20
+control1-1	5
+control2-5	25
+control1-4	20
+control1-5	25
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique <= 25.5
+rows returned: 10
+control1-3	15.5
+control2-1	5.5
+control2-2	10.5
+control1-2	10.5
+control1-5	25.5
+control1-4	20.5
+control2-3	15.5
+control2-4	20.5
+control1-1	5.5
+control2-5	25.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull <= 250.5
+rows returned: 10
+control1-5	250.5
+control2-1	50.5
+control1-3	150.5
+control2-2	100.5
+control1-2	100.5
+control1-4	200.5
+control2-3	150.5
+control2-4	200.5
+control1-1	50.5
+control2-5	250.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique <= 'E'
+rows returned: 10
+control2-1	A
+control1-3	C
+control2-2	B
+control1-2	B
+control1-4	D
+control1-5	E
+control1-1	A
+control2-5	E
+control2-4	D
+control2-3	C
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull <= 'e'
+rows returned: 10
+control1-3	c
+control2-1	a
+control2-2	b
+control1-2	b
+control1-5	e
+control1-4	d
+control2-5	e
+control1-1	a
+control2-3	c
+control2-4	d
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique <= 'EE'
+rows returned: 10
+control1-5	EE                  
+control1-3	CC                  
+control2-1	AA                  
+control2-2	BB                  
+control1-2	BB                  
+control1-4	DD                  
+control2-5	EE                  
+control1-1	AA                  
+control2-3	CC                  
+control2-4	DD                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull <= 'ee'
+rows returned: 10
+control1-4	dd                  
+control2-1	aa                  
+control1-3	cc                  
+control2-2	bb                  
+control1-2	bb                  
+control1-5	ee                  
+control2-5	ee                  
+control1-1	aa                  
+control2-4	dd                  
+control2-3	cc                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique <= 'EEE'
+rows returned: 10
+control2-1	AAA
+control1-3	CCC
+control1-2	BBB
+control2-2	BBB
+control1-5	EEE
+control1-4	DDD
+control2-5	EEE
+control1-1	AAA
+control2-3	CCC
+control2-4	DDD
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull <= 'eee'
+rows returned: 10
+control2-1	aaa
+control1-3	ccc
+control1-2	bbb
+control2-2	bbb
+control1-4	ddd
+control1-5	eee
+control2-5	eee
+control1-1	aaa
+control2-4	ddd
+control2-3	ccc
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonunique >= 25
+rows returned: 12
+control1-5	25
+control2-6	30
+control1-6	30
+control2-8	40
+control1-7	35
+control2-10	50
+control1-8	40
+control2-5	25
+control2-7	35
+control1-10	50
+control1-9	45
+control2-9	45
+SELECT keycol, intnonunique from nonuniquetable WHERE intnonuniquenotnull >= 250
+rows returned: 12
+control1-5	25
+control2-6	30
+control1-6	30
+control2-8	40
+control1-7	35
+control2-10	50
+control2-5	25
+control2-7	35
+control1-8	40
+control1-10	50
+control1-9	45
+control2-9	45
+SELECT keycol, floatnonunique from nonuniquetable WHERE floatnonunique >= 25.5
+rows returned: 12
+control1-10	50.5
+control2-8	40.5
+control1-7	35.5
+control2-10	50.5
+control2-5	25.5
+control2-7	35.5
+control1-8	40.5
+control1-9	45.5
+control2-9	45.5
+control1-6	30.5
+control2-6	30.5
+control1-5	25.5
+SELECT keycol, floatnonuniquenotnull from nonuniquetable WHERE floatnonuniquenotnull >= 250.5
+rows returned: 12
+control1-10	500.5
+control2-8	400.5
+control1-7	350.5
+control2-10	500.5
+control1-8	400.5
+control2-5	250.5
+control2-7	350.5
+control1-9	450.5
+control2-9	450.5
+control1-6	300.5
+control2-6	300.5
+control1-5	250.5
+SELECT keycol, charnonunique from nonuniquetable WHERE charnonunique >= 'E'
+rows returned: 12
+control1-10	J
+control2-8	H
+control1-7	G
+control2-10	J
+control2-5	E
+control2-7	G
+control1-8	H
+control1-9	I
+control2-9	I
+control1-6	F
+control2-6	F
+control1-5	E
+SELECT keycol, charnonuniquenotnull from nonuniquetable WHERE charnonuniquenotnull >= 'e'
+rows returned: 12
+control1-9	i
+control2-9	i
+control1-7	g
+control2-10	j
+control2-8	h
+control1-6	f
+control2-6	f
+control2-7	g
+control2-5	e
+control1-5	e
+control1-10	j
+control1-8	h
+SELECT keycol, charxnonunique from nonuniquetable WHERE charxnonunique >= 'EE'
+rows returned: 12
+control1-7	GG                  
+control2-10	JJ                  
+control2-8	HH                  
+control1-9	II                  
+control2-9	II                  
+control2-7	GG                  
+control2-5	EE                  
+control1-6	FF                  
+control2-6	FF                  
+control1-5	EE                  
+control1-10	JJ                  
+control1-8	HH                  
+SELECT keycol, charxnonuniquenotnull from nonuniquetable WHERE charxnonuniquenotnull >= 'ee'
+rows returned: 12
+control1-9	ii                  
+control2-9	ii                  
+control1-7	gg                  
+control2-10	jj                  
+control2-8	hh                  
+control2-7	gg                  
+control2-5	ee                  
+control1-6	ff                  
+control2-6	ff                  
+control1-5	ee                  
+control1-10	jj                  
+control1-8	hh                  
+SELECT keycol, varcharnonunique from nonuniquetable WHERE varcharnonunique >= 'EEE'
+rows returned: 12
+control2-7	GGG
+control2-5	EEE
+control1-6	FFF
+control2-6	FFF
+control2-10	JJJ
+control2-8	HHH
+control1-7	GGG
+control1-5	EEE
+control1-10	JJJ
+control1-8	HHH
+control1-9	III
+control2-9	III
+SELECT keycol, varcharnonuniquenotnull from nonuniquetable WHERE varcharnonuniquenotnull >= 'eee'
+rows returned: 12
+control1-6	fff
+control2-6	fff
+control2-7	ggg
+control2-5	eee
+control2-10	jjj
+control2-8	hhh
+control1-7	ggg
+control1-5	eee
+control1-10	jjj
+control1-8	hhh
+control1-9	iii
+control2-9	iii
+INSERT INTO intuniquetable VALUES (1, 1)
+INSERT INTO intuniquetable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+DELETE FROM intuniquetable WHERE intunique1 = 50
+rows returned: 1
+1	1
+INSERT INTO intuniquetable VALUES (50, 50)
+rows returned: 2
+50	50
+1	1
+UPDATE intuniquetable set intunique2=60 WHERE intunique2=50
+rows returned: 2
+50	60
+1	1
+DELETE FROM intuniquetable WHERE intunique2 = 60
+rows returned: 1
+1	1
+INSERT INTO intuniquetable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+UPDATE intuniquetable set intunique1=60 WHERE intunique1=50
+rows returned: 2
+1	1
+60	50
+DELETE FROM intuniquetable WHERE intunique1 = 60
+rows returned: 1
+1	1
+INSERT INTO intuniquetable VALUES (50, 50)
+rows returned: 2
+50	50
+1	1
+UPDATE intuniquetable set intunique2=60 WHERE intunique2=50
+rows returned: 2
+50	60
+1	1
+UPDATE intuniquetable set intunique1=70 WHERE intunique2=60
+rows returned: 2
+1	1
+70	60
+DELETE FROM intuniquetable WHERE intunique1 = 70
+rows returned: 1
+1	1
+INSERT INTO intuniquetable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+UPDATE intuniquetable set intunique1=60 WHERE intunique1=50
+rows returned: 2
+1	1
+60	50
+UPDATE intuniquetable set intunique2=70 WHERE intunique1=60
+rows returned: 2
+60	70
+1	1
+DELETE FROM intuniquetable WHERE intunique2 = 70
+rows returned: 1
+1	1
+INSERT INTO intuniquenotnulltable VALUES (1, 1)
+INSERT INTO intuniquenotnulltable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+DELETE FROM intuniquenotnulltable WHERE intuniquenotnull1 = 50
+rows returned: 1
+1	1
+INSERT INTO intuniquenotnulltable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+UPDATE intuniquenotnulltable set intuniquenotnull2=60 WHERE intuniquenotnull2=50
+rows returned: 2
+1	1
+50	60
+DELETE FROM intuniquenotnulltable WHERE intuniquenotnull2 = 60
+rows returned: 1
+1	1
+INSERT INTO intuniquenotnulltable VALUES (50, 50)
+rows returned: 2
+1	1
+50	50
+UPDATE intuniquenotnulltable set intuniquenotnull1=60 WHERE intuniquenotnull1=50
+rows returned: 2
+60	50
+1	1
+DELETE FROM intuniquenotnulltable WHERE intuniquenotnull1 = 60
+rows returned: 1
+1	1
+INSERT INTO intuniquenotnulltable VALUES (50, 50)
+rows returned: 2
+50	50
+1	1
+UPDATE intuniquenotnulltable set intuniquenotnull2=60 WHERE intuniquenotnull2=50
+rows returned: 2
+50	60
+1	1
+UPDATE intuniquenotnulltable set intuniquenotnull1=70 WHERE intuniquenotnull2=60
+rows returned: 2
+1	1
+70	60
+DELETE FROM intuniquenotnulltable WHERE intuniquenotnull1 = 70
+rows returned: 1
+1	1
+INSERT INTO intuniquenotnulltable VALUES (50, 50)
+rows returned: 2
+50	50
+1	1
+UPDATE intuniquenotnulltable set intuniquenotnull1=60 WHERE intuniquenotnull1=50
+rows returned: 2
+1	1
+60	50
+UPDATE intuniquenotnulltable set intuniquenotnull2=70 WHERE intuniquenotnull1=60
+rows returned: 2
+1	1
+60	70
+DELETE FROM intuniquenotnulltable WHERE intuniquenotnull2 = 70
+rows returned: 1
+1	1
+INSERT INTO intnonuniquetable VALUES (1, 1)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+rows returned: 3
+50	50
+50	50
+1	1
+DELETE FROM intnonuniquetable WHERE intnonunique1 = 50
+rows returned: 1
+1	1
+INSERT INTO intnonuniquetable VALUES (50, 50)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+rows returned: 3
+1	1
+50	50
+50	50
+UPDATE intnonuniquetable set intnonunique2=60 WHERE intnonunique2=50
+rows returned: 3
+1	1
+50	60
+50	60
+DELETE FROM intnonuniquetable WHERE intnonunique2 = 60
+rows returned: 1
+1	1
+INSERT INTO intnonuniquetable VALUES (50, 50)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+rows returned: 3
+1	1
+50	50
+50	50
+UPDATE intnonuniquetable set intnonunique1=60 WHERE intnonunique1=50
+rows returned: 3
+60	50
+60	50
+1	1
+DELETE FROM intnonuniquetable WHERE intnonunique1 = 60
+rows returned: 1
+1	1
+INSERT INTO intnonuniquetable VALUES (50, 50)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+rows returned: 3
+1	1
+50	50
+50	50
+UPDATE intnonuniquetable set intnonunique2=60 WHERE intnonunique2=50
+rows returned: 3
+1	1
+50	60
+50	60
+UPDATE intnonuniquetable set intnonunique1=70 WHERE intnonunique2=60
+rows returned: 3
+70	60
+1	1
+70	60
+DELETE FROM intnonuniquetable WHERE intnonunique1 = 70
+rows returned: 1
+1	1
+INSERT INTO intnonuniquetable VALUES (50, 50)
+INSERT INTO intnonuniquetable VALUES (50, 50)
+rows returned: 3
+50	50
+50	50
+1	1
+UPDATE intnonuniquetable set intnonunique1=60 WHERE intnonunique1=50
+rows returned: 3
+1	1
+60	50
+60	50
+UPDATE intnonuniquetable set intnonunique2=70 WHERE intnonunique1=60
+rows returned: 3
+1	1
+60	70
+60	70
+DELETE FROM intnonuniquetable WHERE intnonunique2 = 70
+rows returned: 1
+1	1
+INSERT INTO intnonuniquenotnulltable VALUES (1, 1)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+rows returned: 3
+1	1
+50	50
+50	50
+DELETE FROM intnonuniquenotnulltable WHERE intnonuniquenotnull1 = 50
+rows returned: 1
+1	1
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+rows returned: 3
+50	50
+50	50
+1	1
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull2=60 WHERE intnonuniquenotnull2=50
+rows returned: 3
+1	1
+50	60
+50	60
+DELETE FROM intnonuniquenotnulltable WHERE intnonuniquenotnull2 = 60
+rows returned: 1
+1	1
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+rows returned: 3
+50	50
+50	50
+1	1
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull1=60 WHERE intnonuniquenotnull1=50
+rows returned: 3
+1	1
+60	50
+60	50
+DELETE FROM intnonuniquenotnulltable WHERE intnonuniquenotnull1 = 60
+rows returned: 1
+1	1
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+rows returned: 3
+50	50
+1	1
+50	50
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull2=60 WHERE intnonuniquenotnull2=50
+rows returned: 3
+50	60
+1	1
+50	60
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull1=70 WHERE intnonuniquenotnull2=60
+rows returned: 3
+1	1
+70	60
+70	60
+DELETE FROM intnonuniquenotnulltable WHERE intnonuniquenotnull1 = 70
+rows returned: 1
+1	1
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+INSERT INTO intnonuniquenotnulltable VALUES (50, 50)
+rows returned: 3
+50	50
+1	1
+50	50
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull1=60 WHERE intnonuniquenotnull1=50
+rows returned: 3
+60	50
+1	1
+60	50
+UPDATE intnonuniquenotnulltable set intnonuniquenotnull2=70 WHERE intnonuniquenotnull1=60
+rows returned: 3
+60	70
+1	1
+60	70
+DELETE FROM intnonuniquenotnulltable WHERE intnonuniquenotnull2 = 70
+rows returned: 1
+1	1
+INSERT INTO boolnonuniquetable VALUES (false, false)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+rows returned: 3
+1	1
+1	1
+0	0
+DELETE FROM boolnonuniquetable WHERE boolnonunique1 = true
+rows returned: 1
+0	0
+INSERT INTO boolnonuniquetable VALUES (true, true)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+rows returned: 3
+0	0
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique2=false WHERE boolnonunique2=true
+rows returned: 3
+0	0
+1	1
+1	1
+DELETE FROM boolnonuniquetable WHERE boolnonunique2 = false
+rows returned: 2
+1	1
+1	1
+INSERT INTO boolnonuniquetable VALUES (true, true)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique1=false WHERE boolnonunique1=true
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+DELETE FROM boolnonuniquetable WHERE boolnonunique1 = false
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+INSERT INTO boolnonuniquetable VALUES (true, true)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique2=false WHERE boolnonunique2=true
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique1=true WHERE boolnonunique2=false
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+DELETE FROM boolnonuniquetable WHERE boolnonunique1 = true
+rows returned: 0
+INSERT INTO boolnonuniquetable VALUES (true, true)
+INSERT INTO boolnonuniquetable VALUES (true, true)
+rows returned: 2
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique1=false WHERE boolnonunique1=true
+rows returned: 2
+1	1
+1	1
+UPDATE boolnonuniquetable set boolnonunique2=true WHERE boolnonunique1=false
+rows returned: 2
+1	1
+1	1
+DELETE FROM boolnonuniquetable WHERE boolnonunique2 = true
+rows returned: 0
+INSERT INTO boolnonuniquenotnulltable VALUES (false, false)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+rows returned: 3
+0	0
+1	1
+1	1
+DELETE FROM boolnonuniquenotnulltable WHERE boolnonuniquenotnull1 = true
+rows returned: 1
+0	0
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+rows returned: 3
+0	0
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull2=false WHERE boolnonuniquenotnull2=true
+rows returned: 3
+1	1
+1	1
+0	0
+DELETE FROM boolnonuniquenotnulltable WHERE boolnonuniquenotnull2 = false
+rows returned: 2
+1	1
+1	1
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull1=false WHERE boolnonuniquenotnull1=true
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+DELETE FROM boolnonuniquenotnulltable WHERE boolnonuniquenotnull1 = false
+rows returned: 4
+1	1
+1	1
+1	1
+1	1
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull2=false WHERE boolnonuniquenotnull2=true
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull1=true WHERE boolnonuniquenotnull2=false
+rows returned: 6
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+DELETE FROM boolnonuniquenotnulltable WHERE boolnonuniquenotnull1 = true
+rows returned: 0
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+INSERT INTO boolnonuniquenotnulltable VALUES (true, true)
+rows returned: 2
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull1=false WHERE boolnonuniquenotnull1=true
+rows returned: 2
+1	1
+1	1
+UPDATE boolnonuniquenotnulltable set boolnonuniquenotnull2=true WHERE boolnonuniquenotnull1=false
+rows returned: 2
+1	1
+1	1
+DELETE FROM boolnonuniquenotnulltable WHERE boolnonuniquenotnull2 = true
+rows returned: 0
+INSERT INTO charuniquetable VALUES ('A', 'A')
+INSERT INTO charuniquetable VALUES ('B', 'B')
+rows returned: 2
+B	B
+A	A
+DELETE FROM charuniquetable WHERE charunique1 = 'B'
+rows returned: 1
+A	A
+INSERT INTO charuniquetable VALUES ('B', 'B')
+rows returned: 2
+B	B
+A	A
+UPDATE charuniquetable set charunique2='C' WHERE charunique2='B'
+rows returned: 2
+B	C
+A	A
+DELETE FROM charuniquetable WHERE charunique2 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charuniquetable VALUES ('B', 'B')
+rows returned: 2
+A	A
+B	B
+UPDATE charuniquetable set charunique1='C' WHERE charunique1='B'
+rows returned: 2
+A	A
+C	B
+DELETE FROM charuniquetable WHERE charunique1 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charuniquetable VALUES ('B', 'B')
+rows returned: 2
+B	B
+A	A
+UPDATE charuniquetable set charunique2='C' WHERE charunique2='B'
+rows returned: 2
+A	A
+B	C
+UPDATE charuniquetable set charunique1='D' WHERE charunique2='C'
+rows returned: 2
+A	A
+D	C
+DELETE FROM charuniquetable WHERE charunique1 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charuniquetable VALUES ('B', 'B')
+rows returned: 2
+B	B
+A	A
+UPDATE charuniquetable set charunique1='C' WHERE charunique1='B'
+rows returned: 2
+C	B
+A	A
+UPDATE charuniquetable set charunique2='D' WHERE charunique1='C'
+rows returned: 2
+A	A
+C	D
+DELETE FROM charuniquetable WHERE charunique2 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charuniquenotnulltable VALUES ('A', 'A')
+INSERT INTO charuniquenotnulltable VALUES ('B', 'B')
+rows returned: 2
+A	A
+B	B
+DELETE FROM charuniquenotnulltable WHERE charuniquenotnull1 = 'B'
+rows returned: 1
+A	A
+INSERT INTO charuniquenotnulltable VALUES ('B', 'B')
+rows returned: 2
+A	A
+B	B
+UPDATE charuniquenotnulltable set charuniquenotnull2='C' WHERE charuniquenotnull2='B'
+rows returned: 2
+B	C
+A	A
+DELETE FROM charuniquenotnulltable WHERE charuniquenotnull2 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charuniquenotnulltable VALUES ('B', 'B')
+rows returned: 2
+A	A
+B	B
+UPDATE charuniquenotnulltable set charuniquenotnull1='C' WHERE charuniquenotnull1='B'
+rows returned: 2
+A	A
+C	B
+DELETE FROM charuniquenotnulltable WHERE charuniquenotnull1 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charuniquenotnulltable VALUES ('B', 'B')
+rows returned: 2
+A	A
+B	B
+UPDATE charuniquenotnulltable set charuniquenotnull2='C' WHERE charuniquenotnull2='B'
+rows returned: 2
+A	A
+B	C
+UPDATE charuniquenotnulltable set charuniquenotnull1='D' WHERE charuniquenotnull2='C'
+rows returned: 2
+D	C
+A	A
+DELETE FROM charuniquenotnulltable WHERE charuniquenotnull1 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charuniquenotnulltable VALUES ('B', 'B')
+rows returned: 2
+B	B
+A	A
+UPDATE charuniquenotnulltable set charuniquenotnull1='C' WHERE charuniquenotnull1='B'
+rows returned: 2
+A	A
+C	B
+UPDATE charuniquenotnulltable set charuniquenotnull2='D' WHERE charuniquenotnull1='C'
+rows returned: 2
+A	A
+C	D
+DELETE FROM charuniquenotnulltable WHERE charuniquenotnull2 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquetable VALUES ('A', 'A')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+rows returned: 3
+B	B
+B	B
+A	A
+DELETE FROM charnonuniquetable WHERE charnonunique1 = 'B'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+rows returned: 3
+B	B
+B	B
+A	A
+UPDATE charnonuniquetable set charnonunique2='C' WHERE charnonunique2='B'
+rows returned: 3
+A	A
+B	C
+B	C
+DELETE FROM charnonuniquetable WHERE charnonunique2 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+rows returned: 3
+B	B
+B	B
+A	A
+UPDATE charnonuniquetable set charnonunique1='C' WHERE charnonunique1='B'
+rows returned: 3
+A	A
+C	B
+C	B
+DELETE FROM charnonuniquetable WHERE charnonunique1 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+rows returned: 3
+A	A
+B	B
+B	B
+UPDATE charnonuniquetable set charnonunique2='C' WHERE charnonunique2='B'
+rows returned: 3
+B	C
+B	C
+A	A
+UPDATE charnonuniquetable set charnonunique1='D' WHERE charnonunique2='C'
+rows returned: 3
+D	C
+A	A
+D	C
+DELETE FROM charnonuniquetable WHERE charnonunique1 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+INSERT INTO charnonuniquetable VALUES ('B', 'B')
+rows returned: 3
+B	B
+A	A
+B	B
+UPDATE charnonuniquetable set charnonunique1='C' WHERE charnonunique1='B'
+rows returned: 3
+C	B
+A	A
+C	B
+UPDATE charnonuniquetable set charnonunique2='D' WHERE charnonunique1='C'
+rows returned: 3
+C	D
+A	A
+C	D
+DELETE FROM charnonuniquetable WHERE charnonunique2 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquenotnulltable VALUES ('A', 'A')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+rows returned: 3
+A	A
+B	B
+B	B
+DELETE FROM charnonuniquenotnulltable WHERE charnonuniquenotnull1 = 'B'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+rows returned: 3
+B	B
+B	B
+A	A
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull2='C' WHERE charnonuniquenotnull2='B'
+rows returned: 3
+A	A
+B	C
+B	C
+DELETE FROM charnonuniquenotnulltable WHERE charnonuniquenotnull2 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+rows returned: 3
+A	A
+B	B
+B	B
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull1='C' WHERE charnonuniquenotnull1='B'
+rows returned: 3
+A	A
+C	B
+C	B
+DELETE FROM charnonuniquenotnulltable WHERE charnonuniquenotnull1 = 'C'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+rows returned: 3
+B	B
+A	A
+B	B
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull2='C' WHERE charnonuniquenotnull2='B'
+rows returned: 3
+A	A
+B	C
+B	C
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull1='D' WHERE charnonuniquenotnull2='C'
+rows returned: 3
+D	C
+A	A
+D	C
+DELETE FROM charnonuniquenotnulltable WHERE charnonuniquenotnull1 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+INSERT INTO charnonuniquenotnulltable VALUES ('B', 'B')
+rows returned: 3
+B	B
+A	A
+B	B
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull1='C' WHERE charnonuniquenotnull1='B'
+rows returned: 3
+A	A
+C	B
+C	B
+UPDATE charnonuniquenotnulltable set charnonuniquenotnull2='D' WHERE charnonuniquenotnull1='C'
+rows returned: 3
+A	A
+C	D
+C	D
+DELETE FROM charnonuniquenotnulltable WHERE charnonuniquenotnull2 = 'D'
+rows returned: 1
+A	A
+INSERT INTO charxuniquetable VALUES ('AA', 'AA')
+INSERT INTO charxuniquetable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+DELETE FROM charxuniquetable WHERE charxunique1 = 'BB'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquetable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquetable set charxunique2='CC' WHERE charxunique2='BB'
+rows returned: 2
+AA                  	AA                  
+BB                  	CC                  
+DELETE FROM charxuniquetable WHERE charxunique2 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquetable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquetable set charxunique1='CC' WHERE charxunique1='BB'
+rows returned: 2
+AA                  	AA                  
+CC                  	BB                  
+DELETE FROM charxuniquetable WHERE charxunique1 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquetable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquetable set charxunique2='CC' WHERE charxunique2='BB'
+rows returned: 2
+BB                  	CC                  
+AA                  	AA                  
+UPDATE charxuniquetable set charxunique1='DD' WHERE charxunique2='CC'
+rows returned: 2
+DD                  	CC                  
+AA                  	AA                  
+DELETE FROM charxuniquetable WHERE charxunique1 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquetable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquetable set charxunique1='CC' WHERE charxunique1='BB'
+rows returned: 2
+AA                  	AA                  
+CC                  	BB                  
+UPDATE charxuniquetable set charxunique2='DD' WHERE charxunique1='CC'
+rows returned: 2
+AA                  	AA                  
+CC                  	DD                  
+DELETE FROM charxuniquetable WHERE charxunique2 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquenotnulltable VALUES ('AA', 'AA')
+INSERT INTO charxuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 2
+BB                  	BB                  
+AA                  	AA                  
+DELETE FROM charxuniquenotnulltable WHERE charxuniquenotnull1 = 'BB'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull2='CC' WHERE charxuniquenotnull2='BB'
+rows returned: 2
+AA                  	AA                  
+BB                  	CC                  
+DELETE FROM charxuniquenotnulltable WHERE charxuniquenotnull2 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull1='CC' WHERE charxuniquenotnull1='BB'
+rows returned: 2
+CC                  	BB                  
+AA                  	AA                  
+DELETE FROM charxuniquenotnulltable WHERE charxuniquenotnull1 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull2='CC' WHERE charxuniquenotnull2='BB'
+rows returned: 2
+AA                  	AA                  
+BB                  	CC                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull1='DD' WHERE charxuniquenotnull2='CC'
+rows returned: 2
+AA                  	AA                  
+DD                  	CC                  
+DELETE FROM charxuniquenotnulltable WHERE charxuniquenotnull1 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 2
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull1='CC' WHERE charxuniquenotnull1='BB'
+rows returned: 2
+AA                  	AA                  
+CC                  	BB                  
+UPDATE charxuniquenotnulltable set charxuniquenotnull2='DD' WHERE charxuniquenotnull1='CC'
+rows returned: 2
+AA                  	AA                  
+CC                  	DD                  
+DELETE FROM charxuniquenotnulltable WHERE charxuniquenotnull2 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquetable VALUES ('AA', 'AA')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+BB                  	BB                  
+AA                  	AA                  
+DELETE FROM charxnonuniquetable WHERE charxnonunique1 = 'BB'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+rows returned: 3
+AA                  	AA                  
+BB                  	BB                  
+BB                  	BB                  
+UPDATE charxnonuniquetable set charxnonunique2='CC' WHERE charxnonunique2='BB'
+rows returned: 3
+AA                  	AA                  
+BB                  	CC                  
+BB                  	CC                  
+DELETE FROM charxnonuniquetable WHERE charxnonunique2 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+BB                  	BB                  
+AA                  	AA                  
+UPDATE charxnonuniquetable set charxnonunique1='CC' WHERE charxnonunique1='BB'
+rows returned: 3
+AA                  	AA                  
+CC                  	BB                  
+CC                  	BB                  
+DELETE FROM charxnonuniquetable WHERE charxnonunique1 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+rows returned: 3
+AA                  	AA                  
+BB                  	BB                  
+BB                  	BB                  
+UPDATE charxnonuniquetable set charxnonunique2='CC' WHERE charxnonunique2='BB'
+rows returned: 3
+AA                  	AA                  
+BB                  	CC                  
+BB                  	CC                  
+UPDATE charxnonuniquetable set charxnonunique1='DD' WHERE charxnonunique2='CC'
+rows returned: 3
+DD                  	CC                  
+AA                  	AA                  
+DD                  	CC                  
+DELETE FROM charxnonuniquetable WHERE charxnonunique1 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquetable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+BB                  	BB                  
+AA                  	AA                  
+UPDATE charxnonuniquetable set charxnonunique1='CC' WHERE charxnonunique1='BB'
+rows returned: 3
+CC                  	BB                  
+AA                  	AA                  
+CC                  	BB                  
+UPDATE charxnonuniquetable set charxnonunique2='DD' WHERE charxnonunique1='CC'
+rows returned: 3
+CC                  	DD                  
+AA                  	AA                  
+CC                  	DD                  
+DELETE FROM charxnonuniquetable WHERE charxnonunique2 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquenotnulltable VALUES ('AA', 'AA')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+BB                  	BB                  
+AA                  	AA                  
+DELETE FROM charxnonuniquenotnulltable WHERE charxnonuniquenotnull1 = 'BB'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 3
+AA                  	AA                  
+BB                  	BB                  
+BB                  	BB                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull2='CC' WHERE charxnonuniquenotnull2='BB'
+rows returned: 3
+BB                  	CC                  
+BB                  	CC                  
+AA                  	AA                  
+DELETE FROM charxnonuniquenotnulltable WHERE charxnonuniquenotnull2 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+BB                  	BB                  
+AA                  	AA                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull1='CC' WHERE charxnonuniquenotnull1='BB'
+rows returned: 3
+CC                  	BB                  
+AA                  	AA                  
+CC                  	BB                  
+DELETE FROM charxnonuniquenotnulltable WHERE charxnonuniquenotnull1 = 'CC'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull2='CC' WHERE charxnonuniquenotnull2='BB'
+rows returned: 3
+BB                  	CC                  
+AA                  	AA                  
+BB                  	CC                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull1='DD' WHERE charxnonuniquenotnull2='CC'
+rows returned: 3
+AA                  	AA                  
+DD                  	CC                  
+DD                  	CC                  
+DELETE FROM charxnonuniquenotnulltable WHERE charxnonuniquenotnull1 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+INSERT INTO charxnonuniquenotnulltable VALUES ('BB', 'BB')
+rows returned: 3
+BB                  	BB                  
+AA                  	AA                  
+BB                  	BB                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull1='CC' WHERE charxnonuniquenotnull1='BB'
+rows returned: 3
+CC                  	BB                  
+AA                  	AA                  
+CC                  	BB                  
+UPDATE charxnonuniquenotnulltable set charxnonuniquenotnull2='DD' WHERE charxnonuniquenotnull1='CC'
+rows returned: 3
+CC                  	DD                  
+AA                  	AA                  
+CC                  	DD                  
+DELETE FROM charxnonuniquenotnulltable WHERE charxnonuniquenotnull2 = 'DD'
+rows returned: 1
+AA                  	AA                  
+INSERT INTO varcharuniquetable VALUES ('AAA', 'AAA')
+INSERT INTO varcharuniquetable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+DELETE FROM varcharuniquetable WHERE varcharunique1 = 'BBB'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquetable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+UPDATE varcharuniquetable set varcharunique2='CCC' WHERE varcharunique2='BBB'
+rows returned: 2
+AAA	AAA
+BBB	CCC
+DELETE FROM varcharuniquetable WHERE varcharunique2 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquetable VALUES ('BBB', 'BBB')
+rows returned: 2
+BBB	BBB
+AAA	AAA
+UPDATE varcharuniquetable set varcharunique1='CCC' WHERE varcharunique1='BBB'
+rows returned: 2
+CCC	BBB
+AAA	AAA
+DELETE FROM varcharuniquetable WHERE varcharunique1 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquetable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+UPDATE varcharuniquetable set varcharunique2='CCC' WHERE varcharunique2='BBB'
+rows returned: 2
+AAA	AAA
+BBB	CCC
+UPDATE varcharuniquetable set varcharunique1='DDD' WHERE varcharunique2='CCC'
+rows returned: 2
+AAA	AAA
+DDD	CCC
+DELETE FROM varcharuniquetable WHERE varcharunique1 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquetable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+UPDATE varcharuniquetable set varcharunique1='CCC' WHERE varcharunique1='BBB'
+rows returned: 2
+AAA	AAA
+CCC	BBB
+UPDATE varcharuniquetable set varcharunique2='DDD' WHERE varcharunique1='CCC'
+rows returned: 2
+AAA	AAA
+CCC	DDD
+DELETE FROM varcharuniquetable WHERE varcharunique2 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquenotnulltable VALUES ('AAA', 'AAA')
+INSERT INTO varcharuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+DELETE FROM varcharuniquenotnulltable WHERE varcharuniquenotnull1 = 'BBB'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 2
+BBB	BBB
+AAA	AAA
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull2='CCC' WHERE varcharuniquenotnull2='BBB'
+rows returned: 2
+BBB	CCC
+AAA	AAA
+DELETE FROM varcharuniquenotnulltable WHERE varcharuniquenotnull2 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull1='CCC' WHERE varcharuniquenotnull1='BBB'
+rows returned: 2
+CCC	BBB
+AAA	AAA
+DELETE FROM varcharuniquenotnulltable WHERE varcharuniquenotnull1 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 2
+BBB	BBB
+AAA	AAA
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull2='CCC' WHERE varcharuniquenotnull2='BBB'
+rows returned: 2
+BBB	CCC
+AAA	AAA
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull1='DDD' WHERE varcharuniquenotnull2='CCC'
+rows returned: 2
+DDD	CCC
+AAA	AAA
+DELETE FROM varcharuniquenotnulltable WHERE varcharuniquenotnull1 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 2
+AAA	AAA
+BBB	BBB
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull1='CCC' WHERE varcharuniquenotnull1='BBB'
+rows returned: 2
+CCC	BBB
+AAA	AAA
+UPDATE varcharuniquenotnulltable set varcharuniquenotnull2='DDD' WHERE varcharuniquenotnull1='CCC'
+rows returned: 2
+CCC	DDD
+AAA	AAA
+DELETE FROM varcharuniquenotnulltable WHERE varcharuniquenotnull2 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquetable VALUES ('AAA', 'AAA')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+DELETE FROM varcharnonuniquetable WHERE varcharnonunique1 = 'BBB'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+rows returned: 3
+AAA	AAA
+BBB	BBB
+BBB	BBB
+UPDATE varcharnonuniquetable set varcharnonunique2='CCC' WHERE varcharnonunique2='BBB'
+rows returned: 3
+AAA	AAA
+BBB	CCC
+BBB	CCC
+DELETE FROM varcharnonuniquetable WHERE varcharnonunique2 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+rows returned: 3
+AAA	AAA
+BBB	BBB
+BBB	BBB
+UPDATE varcharnonuniquetable set varcharnonunique1='CCC' WHERE varcharnonunique1='BBB'
+rows returned: 3
+AAA	AAA
+CCC	BBB
+CCC	BBB
+DELETE FROM varcharnonuniquetable WHERE varcharnonunique1 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+UPDATE varcharnonuniquetable set varcharnonunique2='CCC' WHERE varcharnonunique2='BBB'
+rows returned: 3
+BBB	CCC
+AAA	AAA
+BBB	CCC
+UPDATE varcharnonuniquetable set varcharnonunique1='DDD' WHERE varcharnonunique2='CCC'
+rows returned: 3
+DDD	CCC
+DDD	CCC
+AAA	AAA
+DELETE FROM varcharnonuniquetable WHERE varcharnonunique1 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquetable VALUES ('BBB', 'BBB')
+rows returned: 3
+AAA	AAA
+BBB	BBB
+BBB	BBB
+UPDATE varcharnonuniquetable set varcharnonunique1='CCC' WHERE varcharnonunique1='BBB'
+rows returned: 3
+AAA	AAA
+CCC	BBB
+CCC	BBB
+UPDATE varcharnonuniquetable set varcharnonunique2='DDD' WHERE varcharnonunique1='CCC'
+rows returned: 3
+AAA	AAA
+CCC	DDD
+CCC	DDD
+DELETE FROM varcharnonuniquetable WHERE varcharnonunique2 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquenotnulltable VALUES ('AAA', 'AAA')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+DELETE FROM varcharnonuniquenotnulltable WHERE varcharnonuniquenotnull1 = 'BBB'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 3
+AAA	AAA
+BBB	BBB
+BBB	BBB
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull2='CCC' WHERE varcharnonuniquenotnull2='BBB'
+rows returned: 3
+AAA	AAA
+BBB	CCC
+BBB	CCC
+DELETE FROM varcharnonuniquenotnulltable WHERE varcharnonuniquenotnull2 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull1='CCC' WHERE varcharnonuniquenotnull1='BBB'
+rows returned: 3
+AAA	AAA
+CCC	BBB
+CCC	BBB
+DELETE FROM varcharnonuniquenotnulltable WHERE varcharnonuniquenotnull1 = 'CCC'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull2='CCC' WHERE varcharnonuniquenotnull2='BBB'
+rows returned: 3
+BBB	CCC
+AAA	AAA
+BBB	CCC
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull1='DDD' WHERE varcharnonuniquenotnull2='CCC'
+rows returned: 3
+DDD	CCC
+AAA	AAA
+DDD	CCC
+DELETE FROM varcharnonuniquenotnulltable WHERE varcharnonuniquenotnull1 = 'DDD'
+rows returned: 1
+AAA	AAA
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+INSERT INTO varcharnonuniquenotnulltable VALUES ('BBB', 'BBB')
+rows returned: 3
+BBB	BBB
+AAA	AAA
+BBB	BBB
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull1='CCC' WHERE varcharnonuniquenotnull1='BBB'
+rows returned: 3
+AAA	AAA
+CCC	BBB
+CCC	BBB
+UPDATE varcharnonuniquenotnulltable set varcharnonuniquenotnull2='DDD' WHERE varcharnonuniquenotnull1='CCC'
+rows returned: 3
+AAA	AAA
+CCC	DDD
+CCC	DDD
+DELETE FROM varcharnonuniquenotnulltable WHERE varcharnonuniquenotnull2 = 'DDD'
+rows returned: 1
+AAA	AAA
+stored procedurerows returned: 10
+40	800
+100	2000
+30	600
+10	200
+70	1400
+20	400
+60	1200
+80	1600
+50	1000
+90	1800
+taking 35 from accountid 20 and adding it to accountid 90
+rows returned: 1
+0
+rows returned: 10
+100	2000
+40	800
+30	600
+10	200
+70	1400
+50	1000
+20	365
+60	1200
+80	1600
+90	1835

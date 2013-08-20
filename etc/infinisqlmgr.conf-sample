@@ -1,0 +1,151 @@
+[DEFAULT]
+DEPLOYMENT_DIRECTORY=/home/mtravis/infinisql_built
+
+username: mtravis
+sshkey: /home/mtravis/.ssh/id_rsa
+ssh: /usr/bin/ssh
+infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log
+globaladminpassword: passw0rd
+# IP:port that the node is to listen on, or *:port for all interfaces, or
+# <interface>:port to listen to all addresses on a particular interface, such
+# as eth0, eth1, etc.
+# for receiving management commands
+cfghostport: *:11520
+# IP:port via which the manager is to reach the node
+cfgremotehostport: %(IPADDR)s:11520
+# hostname or ip to log into to launch node, copy files, and so on.
+# Leave blank to not ssh (but also means that username cannot change)
+mgmthost: %(IPADDR)s
+# node listens on this address for servicing requests, * (or empty) for all
+listenhost: *
+# port for servicing requests
+listenport: 11521
+# inbound instance 0 listens on IP:port. Each additional instance listens
+# on additional ports
+ibgatewayhostport: %(IPADDR)s:11530
+# for postgresql client connections
+pghost: *
+pgport: 15432
+pgsockfile: %(DEPLOYMENT_DIRECTORY)s/run/pgsock.1
+
+transactionagents: 6
+engines: 6
+ibgateways: 1
+obgateways: 1
+
+anonymousping: 1
+badloginmessages: 1
+
+[global]
+userschemamgrnode: 1
+deadlockmgrnode: 1
+activereplica: 0
+
+[node_1]
+IPADDR=127.0.0.1
+replica: 0
+member: 0
+
+#[node_2]
+#IPADDR=10.101.101.102
+#replica: 0
+#member: 1
+# FOLLOWING FOR MULTIPLE PROCESSES ON SINGLE HOST
+#cfghostport: *:21520
+#cfgremotehostport: %(IPADDR)s:21520
+#listenport: 21521
+#ibgatewayhostport: *:21530
+#logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld2.log
+#pgport: 15433
+#pgsockfile: %(DEPLOYMENT_DIRECTORY)s/run/pgsock.2
+# END MULTIPLE NODES SINGLE HOST CONFIG
+
+#[node_3]
+#IPADDR=10.101.101.103
+#replica: 0
+#member: 2
+#[node_4]
+#IPADDR=10.101.101.104
+#replica: 0
+#member: 3
+#[node_5]
+#IPADDR=10.101.101.105
+#replica: 0
+#member: 4
+#[node_6]
+#IPADDR=10.101.101.106
+#replica: 0
+#member: 5
+#[node_7]
+#IPADDR=10.101.101.107
+#replica: 0
+#member: 6
+#[node_8]
+#IPADDR=10.101.101.108
+#replica: 0
+#member: 7
+#[node_9]
+#IPADDR=10.101.101.109
+#replica: 0
+#member: 8
+#[node_10]
+#IPADDR=10.101.101.110
+#replica: 0
+#member: 9
+#[node_11]
+#IPADDR=10.101.101.111
+#replica: 0
+#member: 10
+#[node_12]
+#IPADDR=10.101.101.112
+#replica: 0
+#member: 11
+#[node_13]
+#IPADDR=10.101.101.113
+#replica: 0
+#member: 12
+#[node_14]
+#IPADDR=10.101.101.114
+#replica: 0
+#member: 13
+#[node_15]
+#IPADDR=10.101.101.115
+#replica: 0
+#member: 14
+#[node_16]
+#IPADDR=10.101.101.116
+#replica: 0
+#member: 15
+#[node_17]
+#IPADDR=10.101.101.117
+#replica: 0
+#member: 16
+#[node_18]
+#IPADDR=10.101.101.118
+#replica: 0
+#member: 17
+#[node_19]
+#IPADDR=10.101.101.119
+#replica: 0
+#member: 18
+#[node_20]
+#IPADDR=10.101.101.120
+#replica: 0
+#member: 19
+#[node_21]
+#IPADDR=10.101.101.121
+#replica: 0
+#member: 20
+#[node_22]
+#IPADDR=10.101.101.122
+#replica: 0
+#member: 21
+#[node_23]
+#IPADDR=10.101.101.123
+#replica: 0
+#member: 22
+#[node_24]
+#IPADDR=10.101.101.124
+#replica: 0
+#member: 23

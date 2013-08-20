@@ -1,0 +1,19 @@
+Apply this patch to PostgreSQL 9.2.4 source tree and build to use the
+modified version of pgbench.
+
+Place pgbench_persecond-v1.patch into top level of postgresql-9.2.4
+source directory. Then change into that directory and run:
+	patch -p1 < pgbench_persecond-v1.patch
+
+Configure and build PostgreSQL, then build the patched version of
+pgbench:
+	./configure
+	make
+	cd contrib/pgbench
+	make
+
+More information about building PostgreSQL is supplied with its
+sources.
+
+Copyright and license for this patch is granted to the PostgreSQL
+project.

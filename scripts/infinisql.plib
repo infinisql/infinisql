@@ -1,0 +1,92 @@
+# Copyright (c) 2013 Mark Travis <mtravis15432+src@gmail.com>
+# All rights reserved. No warranty, explicit or implicit, provided.
+#
+# This file is part of InfiniSQL (tm) as the perl API for communicating
+# to an InfiniSQL server process. It is available either under the
+# GNU Lesser Public License or under a commercial license. Contact the
+# copyright holder for information about a commercial license if terms
+# of the GNU Lesser Public License do not suit you.
+#
+# This copy of this InfiniSQL file is free software: you can redistribute
+# it and/or modify it under the terms of the GNU Lesser Public License
+# as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# InfiniSQL is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser Public License for more details.
+#
+# You should have received a copy of the GNU Lesser Public License
+# along with InfiniSQL. It should be in the top level of the source
+# directory in a file entitled "COPYING".
+# If not, see <http://www.gnu.org/licenses/>.
+
+$SCRIPTDIR="/home/mtravis/infinisql/scripts";
+$PROCDIR="/home/mtravis/infinisql_built/procs";
+
+use IO::Socket;
+use Data::MessagePack;
+use Config;
+
+sub connect {
+  $sock = new IO::Socket::INET ( PeerAddr => $_[0],
+        PeerPort => $_[1],
+        Proto => 'tcp', );
+
+  die "Could not create socket: $!\n" unless $sock;
+}
+
+sub send {
+  my $operation = $_[0];
+  my @arg;
+  my $n;
+  for ($n=1; $n <= $#{_}; $n++) {
+    push(@arg, $_[$n]);
+  }
+  my $packed=Data::MessagePack->pack(\@arg);
+
+  print $sock pack('Q>', length($operation) + 1 + length($packed)) . chr(length($operation)) . $operation . $packed;
+
+  $sock->recv(my $response, 4096);
+  $response;
+}
+
+sub fireforget {
+  my $operation = $_[0];
+  my @arg;
+  my $n;
+  for ($n=1; $n <= $#{_}; $n++) {
+    push(@arg, $_[$n]);
+  }
+  my $packed=Data::MessagePack->pack(\@arg);
+
+  print $sock pack('Q>', length($operation) + 1 + length($packed)) . chr(length($operation)) . $operation . $packed;
+}
+
+sub disconnect {
+  close($sock);
+}
+
+sub describeresponse {
+  my $response = $_[0];
+  my $len=length($response);
+  (my $a, my $b, my $c) = unpack("Q> Q> a*", $response);
+
+  print join("\t", $len, $a, $b) . "\n";
+  my $unpacked = Data::MessagePack->unpack($c);
+  print join("\t", @{$unpacked}) . "\n";
+}
+
+sub getcommand {
+  print "Enter command & args, 1 per line, then ctrl-d:\n";
+  my @input = <STDIN>;
+  for (my $n = 0; $n <= $#input; $n++) {
+    chomp($input[$n]);
+  }
+  @input;
+}
+
+
+1;
+

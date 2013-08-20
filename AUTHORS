@@ -1,0 +1,8 @@
+August 19, 2013
+
+Mark Travis <mtravis15432+src@gmail.com> is the author and owner of
+all InfiniSQL source code, with the exception of code in the following
+source files in the infinisqld directory: pgoids.h,
+infinisql_spooky.h, and spooky.cc. Various scripts are included as
+part of GNU autotools to help build InfiniSQL, and have their own
+owners and copyright.

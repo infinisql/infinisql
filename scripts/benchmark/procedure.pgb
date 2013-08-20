@@ -1,0 +1,8 @@
+\set nbranches 1000000 * :scale
+\set ntellers 1000000 * :scale
+\set naccounts 1000000 * :scale
+\setrandom aid 1 :naccounts
+\setrandom bid 1 :nbranches
+\setrandom tid 1 :ntellers
+\setrandom delta -5000 5000
+SELECT Pgbench (:delta, :aid, :tid, :bid);

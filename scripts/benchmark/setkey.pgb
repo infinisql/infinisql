@@ -1,0 +1,2 @@
+\setrandom key 1 1000000
+select Setkey (:key, 'initial value for this key key the quick brown fox jumped over the lazy dog. i slit a sheet upon the sea shore');
