@@ -1,8 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.68])
-AC_INIT([infinisql], [0.1.0alpha], [mtravis15432 AT gmail DOT com])
+AC_INIT([infinisql], [0.1.0alpha], [mtravis15432+src@gmail.com])
 AM_INIT_AUTOMAKE
 LT_INIT
 AC_CONFIG_SRCDIR([infinisqld/infinisql_defs.h])
@@ -27,7 +26,7 @@ AC_CHECK_LIB([pcre], [main])
 AC_CHECK_LIB([zmq], [main])
 
 # Checks for header files.
-AC_CHECK_HEADERS([farter.h fcntl.h memory.h netdb.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/socket.h])
+AC_CHECK_HEADERS([fcntl.h memory.h netdb.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
