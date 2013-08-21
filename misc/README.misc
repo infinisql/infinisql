@@ -11,6 +11,7 @@ pgbench:
 	make
 	cd contrib/pgbench
 	make
+	sudo cp pgbench /usr/local/bin
 
 More information about building PostgreSQL is supplied with its
 sources.

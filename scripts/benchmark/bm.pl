@@ -25,9 +25,12 @@
 
 # ssh into a list of hosts, and call "moforker.pl" with a list of commands
 # to execute
+
+require '../infinisql.plib';
+
 $CLIENTS="$SCRIPTDIR/benchmark/clients";
 $DAEMONS="$SCRIPTDIR/benchmark/daemons";
-$MOFORKERDIR="/home/mtravis/build/infinisql/scripts/benchmark";
+$MOFORKERDIR="$SCRIPTDIR/benchmark";
 $PGBENCH="nohup /usr/local/bin/pgbench -s 1 -c 200 -j 1 -n -U benchmark -I -P benchmark --per-second=100";
 
 use Getopt::Long;

@@ -39,7 +39,6 @@
 #include "infinisql_spooky.h"
 
 // sys C++
-#include <unordered_map>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
