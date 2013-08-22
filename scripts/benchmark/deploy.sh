@@ -23,15 +23,17 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
-DEPLOYMENT_DIRECTORY=$1
+DEPLOYMENT_DIRECTORY1=$1
+DEPLOYMENT_DIRECTORY2=$2
 
-for HOST in `cut -f 1 daemons | sort | uniq`
+for HOST in `cat clients` `cut -f 1 daemons | sort | uniq`
 do
   if `echo $HOST | grep -q '^#'`
   then
     continue
   fi
   echo $HOST
-  rsync -a $DEPLOYMENT_DIRECTORY/ $HOST:$DEPLOYMENT_DIRECTORY/
+  rsync -a --delete $DEPLOYMENT_DIRECTORY1/ $HOST:$DEPLOYMENT_DIRECTORY1/
+  rsync -a --delete $DEPLOYMENT_DIRECTORY2/ $HOST:$DEPLOYMENT_DIRECTORY2/
 done
 

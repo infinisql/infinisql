@@ -22,7 +22,7 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
-$SCRIPTDIR="/home/mtravis/infinisql/scripts";
+$SCRIPTDIR="/home/mtravis/build/infinisql/scripts";
 $PROCDIR="/home/mtravis/infinisql_built/procs";
 
 use IO::Socket;
