@@ -29,6 +29,8 @@ import os
 os.environ["LD_PRELOAD"] = "/usr/local/lib/libllalloc.so.1.4"
 
 # launch and configure each node
-for n in cfg.nodes:
-  n.enable()
+for id in sorted(cfg.nodes):
+#  print "enable " + str(id) + ", " + str(cfg.nodes[id].id)
+  cfg.nodes[id].enable()
+#  n.enable()
 

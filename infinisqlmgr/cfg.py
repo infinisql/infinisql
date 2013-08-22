@@ -34,7 +34,8 @@ import io
 import cfgenum
 import topology
 
-nodes=[]
+#nodes=[]
+nodes=dict()
 
 def parseargs():
   parser = argparse.ArgumentParser(description="InfiniSQL manager")
@@ -317,13 +318,16 @@ class node:
     allactors = []
     for n in nodes:
       ts = []
-      allactors.append(int(n.id))
-      for x in n.actors:
+      allactors.append(int(n))
+#      allactors.append(int(n.id))
+      for x in nodes[n].actors:
+#      for x in n.actors:
         ts.append(int(x[0]))
       allactors.append(ts)
 
     for n in nodes:
-      if n.enabled:
+      if nodes[n].enabled:
+#      if n.enabled:
         vector = [ cfgenum.cfgforwarddict['CMDGLOBALCONFIG'],
             topo.activereplica, replicaids, nodeids, actorids,
             ibgatewaynodes, ibgatewayinstances, ibgatewayhostports,
@@ -343,7 +347,8 @@ class node:
           vector.append(instance)
         for x in allactors:
           vector.append(x)
-        returnit = sendcmd(n, serialize(vector))
+        returnit = sendcmd(nodes[n], serialize(vector))
+#        returnit = sendcmd(n, serialize(vector))
 
   def nodeupdate(self):
     types = []
@@ -396,7 +401,8 @@ def cfg(cfgfile):
       n.pgport = config.get(s, 'pgport')
       n.pgsockfile = config.get(s, 'pgsockfile')
 
-      nodes.append(n)
+      nodes[n.id]=n
+#      nodes.append(n)
 
 # main of this module
 topo = topology.globaltopology()
