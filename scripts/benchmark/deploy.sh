@@ -23,6 +23,12 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
+if [ -z "$2" ]
+then
+  echo there must be 2 directories passed on the command line
+  exit 1
+fi
+
 DEPLOYMENT_DIRECTORY1=$1
 DEPLOYMENT_DIRECTORY2=$2
 

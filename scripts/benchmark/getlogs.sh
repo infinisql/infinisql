@@ -12,5 +12,6 @@ do
   echo $LOGDIR
   mkdir $LOGDIR
   rsync -a $HOST:/home/mtravis/infinisql_built/var/ $LOGDIR
+  ssh $HOST "rm /home/mtravis/infinisql_built/var/*"
 done
 
