@@ -23,29 +23,32 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LISTENER_H
-#define LISTENER_H
+#ifndef CONNECTIONHANDLER_H
+#define	CONNECTIONHANDLER_H
 
 #include "infinisql_gch.h"
 
-class Listener
+class ConnectionHandler
 {
 public:
-  Listener(Topology::partitionAddress *);
-  virtual ~Listener();
+  ConnectionHandler(Topology::partitionAddress *);
+  virtual ~ConnectionHandler();
+//private:
 
-  int startsocket(string &, string &);
-  void closesocket(int);
-
-  //private:
   class Mboxes mboxes;
   Topology::partitionAddress myIdentity;
   class Topology myTopology;
-
+  
+  pthread_mutex_t connectionsMutex;
+  int epollfd;
+  vector<class MboxProducer *> socketAffinity;
+  vector<listenertype_e> listenerTypes;
+  /*
   boost::unordered_map<int, class MboxProducer *> socketAffinity;
   boost::unordered_map<int, listenertype_e> listenerTypeMap;
+   */
 };
 
-void *listener(void *);
+void *connectionHandler(void *);
 
-#endif  /* LISTENER_H */
+#endif	/* CONNECTIONHANDLER_H */

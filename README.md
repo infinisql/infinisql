@@ -4,6 +4,7 @@ Refer to http://www.infinisql.org for information about InfiniSQL (tm).
 
 but briefly:
 
+libtoolize
 autoreconf --force --install
 ./configure --prefix=/some/where (/usr/local probably not a good choice)
 make

@@ -35,7 +35,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   mboxes.update(myTopology);
   updateRemoteGateways();
 
-  // connect to connectionhandler (on local system), first instance
+  // connect to listener (on local system), first instance
   int pgsockfd=0;
 
   if (myIdentity.instance==0)
@@ -43,14 +43,14 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     pgsockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     struct sockaddr_un pgremote;
     pgremote.sun_family = AF_UNIX;
-    strncpy(pgremote.sun_path, connectionhandlersockfile.c_str(),
-            connectionhandlersockfile.size());
+    strncpy(pgremote.sun_path, listenerudsockfile.c_str(),
+            listenerudsockfile.size());
     socklen_t remotelen = strlen(pgremote.sun_path)+sizeof(pgremote.sun_family);
 
     if (connect(pgsockfd, (struct sockaddr *)&pgremote, remotelen) == -1)
     {
-      printf("%s %i can't connect to connectionhandlersockfile %s errno %i\n",
-             __FILE__, __LINE__, connectionhandlersockfile.c_str(), errno);
+      printf("%s %i can't connect to listenersockfile %s errno %i\n",
+             __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
       exit(1);
     }
   }
@@ -82,7 +82,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         {
           class MessageSocket *msg =
               new class MessageSocket(((class MessageSocket *)msgrcv)->socket,
-                                          0, LISTENER_NONE);
+                                          0, LISTENER_NONE, 0);
           send(pgsockfd, &msg, sizeof(msg), 0);
         }
         break;
@@ -147,10 +147,9 @@ void ObGateway::updateRemoteGateways()
 {
   map< int64_t, vector<string> >::iterator it;
 
-  if (!myTopology.ibGateways.empty())
+  if (!myTopology.ibGateways.empty() &&
+          (int64_t)remoteGateways.size() < myTopology.ibGateways.rbegin()->first+1)
   {
-    allRemoteGateways.resize(myTopology.ibGateways.rbegin()->first+1,
-                             vector<int>());
     remoteGateways.resize(myTopology.ibGateways.rbegin()->first+1, 0);
   }
 
@@ -158,64 +157,56 @@ void ObGateway::updateRemoteGateways()
        it++)
   {
     vector<string> &vecstringRef = it->second;
-
-    if (it->first != myTopology.nodeid)
+    
+    if (it->first==myTopology.nodeid)
     {
-      if (allRemoteGateways[it->first].size() != vecstringRef.size())
+      continue;
+    }
+    if ((int64_t)myTopology.ibGateways[it->first].size() < myIdentity.instance+1)
+    {
+      continue;
+    }
+    
+    if (remoteGateways[it->first]==0)
+    {
+      // connect to server
+      int sockfd;
+      size_t found = vecstringRef[myIdentity.instance].find(':');
+      string node = vecstringRef[myIdentity.instance].substr(0, found);
+      string service = vecstringRef[myIdentity.instance].substr(found+1,
+              vecstringRef[myIdentity.instance].size()-(found+1));
+      struct addrinfo hints;
+      memset(&hints, 0, sizeof(struct addrinfo));
+      hints.ai_family = AF_INET;
+      hints.ai_socktype = SOCK_STREAM;
+      hints.ai_flags = AI_PASSIVE;
+      struct addrinfo *servinfo;
+
+      if (getaddrinfo(node.c_str(), service.c_str(), &hints,
+              &servinfo))
       {
-        allRemoteGateways[it->first].resize(vecstringRef.size(), 0);
-
-        for (size_t n=0; n < vecstringRef.size(); n++)
-        {
-          if (allRemoteGateways[it->first][n] == 0)
-          {
-            // connect to server
-            int sockfd;
-            size_t found = vecstringRef[n].find(':');
-            string node = vecstringRef[n].substr(0, found);
-            string service = vecstringRef[n].substr(found+1,
-                                                    vecstringRef[n].size()-(found+1));
-            struct addrinfo hints;
-
-            memset(&hints, 0, sizeof(struct addrinfo));
-            hints.ai_family = AF_INET;
-            hints.ai_socktype = SOCK_STREAM;
-            hints.ai_flags = AI_PASSIVE;
-            struct addrinfo *servinfo;
-
-            if (getaddrinfo(node.c_str(), service.c_str(), &hints,
-                            &servinfo))
-            {
-              printf("%s %i getaddrinfo\n", __FILE__, __LINE__);
-              return;
-            }
-
-            sockfd = socket(servinfo->ai_family, servinfo->ai_socktype,
-                            servinfo->ai_protocol);
-
-            if (sockfd == -1)
-            {
-              printf("%s %i socket\n", __FILE__, __LINE__);
-              return;
-            }
-
-            if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen))
-            {
-              printf("%s %i connect errno %i '%s:%s'\n", __FILE__, __LINE__,
-                     errno, node.c_str(), service.c_str());
-              return;
-            }
-
-            freeaddrinfo(servinfo);
-
-            allRemoteGateways[it->first][n] = sockfd;
-          }
-        }
-
-        remoteGateways[it->first] =
-          allRemoteGateways[it->first][myIdentity.instance %
-                                       allRemoteGateways[it->first].size()];
+        printf("%s %i getaddrinfo\n", __FILE__, __LINE__);
+        return;
       }
+
+      sockfd = socket(servinfo->ai_family, servinfo->ai_socktype,
+              servinfo->ai_protocol);
+      if (sockfd == -1)
+      {
+        printf("%s %i socket\n", __FILE__, __LINE__);
+        return;
+      }
+
+      if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen))
+      {
+        printf("%s %i connect errno %i '%s:%s'\n", __FILE__, __LINE__,
+                errno, node.c_str(), service.c_str());
+        return;
+      }
+
+      freeaddrinfo(servinfo);
+
+      remoteGateways[it->first] = sockfd;
     }
   }
 }

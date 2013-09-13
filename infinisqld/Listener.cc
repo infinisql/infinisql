@@ -23,12 +23,13 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "infinisql_Listener.h"
 #include "infinisql_ConnectionHandler.h"
-#line 28 "ConnectionHandler.cc"
+#line 29 "Listener.cc"
 
 #define EPOLLEVENTS 1024
 
-ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
+Listener::Listener(Topology::partitionAddress *myIdentityArg)
   : myIdentity(*myIdentityArg)
 {
   delete myIdentityArg;
@@ -58,13 +59,12 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
   // accept() on unix domain socket
   struct sockaddr_un remotesock;
   socklen_t remotesocklen = sizeof(remotesock);
-  int udsockfd = accept(connectionhandlersockfd, (struct sockaddr *)&remotesock,
+  int udsockfd = accept(listenerudsockfd, (struct sockaddr *)&remotesock,
                         &remotesocklen);
-
   if (udsockfd==-1)
   {
-    printf("%s %i can't accept on connectionhandlersockfile %s errno %i\n",
-           __FILE__, __LINE__, connectionhandlersockfile.c_str(), errno);
+    printf("%s %i can't accept on listenerudsockfile %s errno %i\n",
+           __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
     exit(1);
   }
 
@@ -81,6 +81,7 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
   socklen_t sin_size = sizeof(their_addr);
 
   int roundrobin = 0;
+  int64_t roundrobinconnectionhandler = 0;
 
   struct epoll_event events[EPOLLEVENTS];
 
@@ -110,16 +111,34 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
               printf("%s %i accept errno %i\n", __FILE__, __LINE__, errno);
               break;
             }
+            if (newfd > NUMSOCKETS)
+            {
+              fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, newfd,
+                      NUMSOCKETS);
+              close(newfd);
+              continue;
+            }
 
             fcntl(newfd, F_SETFL, O_NONBLOCK);
             int optval = 1;
             setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                        sizeof(optval));
             ev.data.fd = newfd;
+            /*
             epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
             listenerTypeMap[newfd] = LISTENER_RAW;
             socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
                                     myTopology.numtransactionagents];
+             */
+            class ConnectionHandler &chPtrRef=
+                *myTopology.connectionHandlers[roundrobinconnectionhandler++ %
+                myTopology.numconnectionhandlers];
+            pthread_mutex_lock(&chPtrRef.connectionsMutex);
+            chPtrRef.socketAffinity[newfd]=
+                mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
+            chPtrRef.listenerTypes[newfd]=LISTENER_RAW;
+            pthread_mutex_unlock(&chPtrRef.connectionsMutex);
+            epoll_ctl(chPtrRef.epollfd, EPOLL_CTL_ADD, newfd, &ev);
           }
         }
         else if (fd==pglistenersockfd)
@@ -140,16 +159,34 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
                 break;
               }
             }
+            if (newfd > NUMSOCKETS)
+            {
+              fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, newfd,
+                      NUMSOCKETS);
+              close(newfd);
+              continue;
+            }
 
             fcntl(newfd, F_SETFL, O_NONBLOCK);
             int optval = 1;
             setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                        sizeof(optval));
             ev.data.fd = newfd;
+            /*
             epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
             listenerTypeMap[newfd] = LISTENER_PG;
             socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
                                     myTopology.numtransactionagents];
+             */
+            class ConnectionHandler &chPtrRef=
+                *myTopology.connectionHandlers[roundrobinconnectionhandler++ %
+                myTopology.numconnectionhandlers];
+            pthread_mutex_lock(&chPtrRef.connectionsMutex);
+            chPtrRef.socketAffinity[newfd]=
+                mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
+            chPtrRef.listenerTypes[newfd]=LISTENER_PG;
+            pthread_mutex_unlock(&chPtrRef.connectionsMutex);
+            epoll_ctl(chPtrRef.epollfd, EPOLL_CTL_ADD, newfd, &ev);
           }
         }
         else //udsockfd
@@ -176,7 +213,7 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
           //          else
           //          {
           socketAffinity[fd]->sendMsg(*(new class MessageSocket(fd, event,
-                                        listenerTypeMap[fd])));
+                                        listenerTypeMap[fd], 0)));
           //          }
         }
         else
@@ -185,22 +222,20 @@ ConnectionHandler::ConnectionHandler(Topology::partitionAddress *myIdentityArg)
         }
       }
     }
-
-    //    memset(events, 0, eventcount * sizeof(epoll_event));
   }
 }
 
-ConnectionHandler::~ConnectionHandler()
+Listener::~Listener()
 {
 }
 
-void *connectionHandler(void *identity)
+void *listener(void *identity)
 {
-  ConnectionHandler((Topology::partitionAddress *)identity);
+  Listener((Topology::partitionAddress *)identity);
   return NULL;
 }
 
-int ConnectionHandler::startsocket(string &node, string &service)
+int Listener::startsocket(string &node, string &service)
 {
   struct addrinfo hints = {};
   hints.ai_family = AF_INET;
@@ -276,7 +311,7 @@ int ConnectionHandler::startsocket(string &node, string &service)
   return sockfd;
 }
 
-void ConnectionHandler::closesocket(int socket)
+void Listener::closesocket(int socket)
 {
   epoll_ctl(myIdentity.epollfd, EPOLL_CTL_DEL, socket, NULL);
   socketAffinity.erase(socket);

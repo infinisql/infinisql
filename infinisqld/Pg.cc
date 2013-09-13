@@ -26,15 +26,17 @@
 #include "infinisql_Pg.h"
 #include "pgoids.h"
 #include "infinisql_TransactionAgent.h"
-#line 30 "Pg.cc"
+#include "infinisql_ConnectionHandler.h"
+#line 31 "Pg.cc"
 
 /* implemented based on http://www.postgresql.org/docs/9.2/static/protocol.html */
 
-Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg)
-  : state(STATE_BEGIN),
+Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg,
+    int64_t connectionhandlerinstancearg) : state(STATE_BEGIN),
     sockfd(sockfdarg), pgcmdtype('\0'), size(0),
     outcmd('\0'), userid(-1), schemaPtr(NULL),
-    session_isautocommit(true), isintransactionblock(false)
+    session_isautocommit(true), isintransactionblock(false),
+    connectionhandlerinstance (connectionhandlerinstancearg)
 {
   domainid=-1;
   taPtr = taPtrarg;
@@ -239,7 +241,7 @@ void Pg::cont()
                                             -1, -1));
       operationRef.sockfd = sockfd;
 
-    class MessageUserSchema *msg =
+      class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_OPERATION);
       msg->caller = 1;
       msg->callerstate = 1;
@@ -372,7 +374,7 @@ void Pg::closesocket(class TransactionAgent &taRef)
 {
   state=STATE_EXITING;
   taRef.Pgs.erase(sockfd);
-  pgclosesocket(taRef, sockfd);
+  pgclosesocket(taRef, sockfd, connectionhandlerinstance);
   sockfd=-1;
 
   if (transactionPtr != NULL)
@@ -391,9 +393,29 @@ void Pg::closesocket(class TransactionAgent &taRef)
   }
 }
 
-void Pg::pgclosesocket(class TransactionAgent &taRef, int socket)
+void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd,
+        int64_t chinstance)
 {
-  taRef.Pgs.erase(socket);
+  taRef.Pgs.erase(socketfd);
+  // NEW WAY
+  class ConnectionHandler &chRef=*taRef.myTopology.connectionHandlers[chinstance];
+  epoll_ctl(chRef.epollfd, EPOLL_CTL_DEL, socketfd, NULL);
+  if (socketfd <= NUMSOCKETS)
+  {
+    pthread_mutex_lock(&chRef.connectionsMutex);
+    chRef.socketAffinity[socketfd]=0;
+    chRef.listenerTypes[socketfd]=LISTENER_NONE;
+    pthread_mutex_unlock(&chRef.connectionsMutex);
+  }
+  else
+  {
+    fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, socketfd,
+            NUMSOCKETS);
+  }
+  close(socketfd);
+
+  // OLD WAY
+  /*
   class MessageSocket msg(socket, 0, LISTENER_PG);
   msg.topic=TOPIC_CLOSESOCKET;
 
@@ -407,15 +429,6 @@ void Pg::pgclosesocket(class TransactionAgent &taRef, int socket)
       taRef.mboxes.actoridToProducers[n]->sendMsg(*nmsg);
       break;
     }
-  }
-
-  /*
-  class MessageSocket &msgrcvref = *(class MessageSocket *)taRef.msgrcv;
-  boost::unordered_map<int, class Pg *>::iterator it;
-  it = taRef.Pgs.find(msgrcvref.socket);
-  if (it != taRef.Pgs.end())
-  {
-    taRef.Pgs.erase(it->first);
   }
    */
 }

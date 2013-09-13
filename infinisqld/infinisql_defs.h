@@ -37,12 +37,6 @@
 #define APISTATUS_DEADLOCK 8
 #define APISTATUS_LOCK 9
 
-// types of MBOXES (for label argument to mbox_create), but probably
-// actually doesn't matter
-#define MBOXCONNECTIONHANDLER 1
-#define MBOXTRANSACTIONAGENT 2
-#define MBOXENGINE 3
-
 // message topics
 #define TOPICMBOXES 1
 #define TOPICEPOLLEVENT 2
@@ -91,6 +85,7 @@
 #define BUILTIN_STATUS_NOTOK 1
 
 #define PAYLOADSIZE 128
+#define NUMSOCKETS 1048576
 
 enum listenertype_e
 {
@@ -406,8 +401,8 @@ extern cfg_s cfgs;
 extern FILE *logfile;
 extern string zmqsocket;
 extern void *zmqcontext;
-extern string connectionhandlersockfile;
-extern int connectionhandlersockfd;
+extern string listenerudsockfile;
+extern int listenerudsockfd;
 extern string storedprocprefix;
 
 typedef struct

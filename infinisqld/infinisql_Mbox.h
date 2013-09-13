@@ -112,7 +112,7 @@ public:
   class MboxProducer topologyMgr;
   class MboxProducer userSchemaMgr;
   class MboxProducer deadlockMgr;
-  class MboxProducer connectionHandler;
+  class MboxProducer listener;
   class MboxProducer obGateway;
   class MboxProducer ibGateway;
   vector<class MboxProducer> transactionAgents;
@@ -125,7 +125,7 @@ public:
   class MboxProducer *topologyMgrPtr;
   location_s userSchemaMgrLocation;
   location_s deadlockMgrLocation;
-  class MboxProducer *connectionHandlerPtr;
+  class MboxProducer *listenerPtr;
   class MboxProducer *obGatewayPtr;
 
   vector<location_s> partitionToProducers;

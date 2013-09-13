@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for HOST in `cut -f 1 daemons | sort | uniq`
+for HOST in `cat daemonhosts`
 do
   if `echo $HOST | grep -q '^#'`
   then

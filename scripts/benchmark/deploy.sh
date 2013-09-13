@@ -32,7 +32,7 @@ fi
 DEPLOYMENT_DIRECTORY1=$1
 DEPLOYMENT_DIRECTORY2=$2
 
-for HOST in `cat clients` `cut -f 1 daemons | sort | uniq`
+for HOST in `cat clients daemonhosts`
 do
   if `echo $HOST | grep -q '^#'`
   then

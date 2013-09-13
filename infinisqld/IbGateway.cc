@@ -27,6 +27,8 @@
 #line 28 "IbGateway.cc"
 
 #define EPOLLEVENTS 1024
+// 6400MTU is 10GBE
+#define INBUFSIZE 64000
 
 IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
   myIdentity(*myIdentityArg), fds(NULL), nfds(0)
@@ -35,8 +37,7 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
 
   mboxes.nodeid = myIdentity.address.nodeid;
   mboxes.update(myTopology);
-
-  // start socket
+  
   size_t found = myIdentity.argstring.find(':');
   string node = myIdentity.argstring.substr(0, found);
   string service = myIdentity.argstring.substr(found+1,
@@ -114,6 +115,7 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
   while (1)
   {
     int eventcount = poll(fds, nfds, -1);
+//    fprintf(logfile, "%s %i polled eventcount %i nfds %li\n", __FILE__, __LINE__, eventcount, nfds);
 
     if (eventcount < 0)
     {
@@ -140,8 +142,6 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
       // if it's the listening socket, then accept(), otherwise
       if (fds[n].fd==sockfd)
       {
-        //        if ((event & EPOLLRDHUP) || (event & EPOLLERR) ||
-        //            (event & EPOLLHUP))
         if ((event & EPOLLERR) || (event & EPOLLHUP))
         {
           continue;
@@ -162,8 +162,6 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
         }
       }
 
-      //      if ((event & EPOLLRDHUP) || (event & EPOLLERR) ||
-      //          (event & EPOLLHUP))
       if ((event & EPOLLERR) || (event & EPOLLHUP))
       {
         close(fds[n].fd);
@@ -172,12 +170,12 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
       }
       else if (event & POLLIN)
       {
-        char inbuf[16384];
+        char inbuf[INBUFSIZE];
         ssize_t readed;
 
         do
         {
-          readed = read(fds[n].fd, inbuf, 16384);
+          readed = read(fds[n].fd, inbuf, INBUFSIZE);
 
           if (readed == -1)
           {

@@ -23,7 +23,7 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
-for HOST in `cut -f 1 daemons | sort | uniq`
+for HOST in `cat daemonhosts`
 do
   if `echo $HOST | grep -q '^#'`
   then

@@ -44,7 +44,7 @@ chdir($DIR);
 for ($n=0; $n <= $#CMDS; $n++) {
   if (fork() == 0) {
     exec($CMDS[$n]);
-    sleep(1);
+    sleep(2);
   }
 }
 

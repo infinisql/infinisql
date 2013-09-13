@@ -101,8 +101,10 @@ public:
   size_t numtransactionagents;
   size_t numengines;
   size_t numobgateways;
+  size_t numconnectionhandlers;
 
   vector<actor_s> actorList;
+  vector<class ConnectionHandler *> connectionHandlers;
 
   //global
   size_t numpartitions;

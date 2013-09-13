@@ -12,7 +12,6 @@ AC_CONFIG_FILES([Makefile infinisqld/Makefile infinisqld/version.h])
 : ${CXXFLAGS=""}
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_RANLIB
 AC_PROG_YACC
 AC_PROG_LEX
 

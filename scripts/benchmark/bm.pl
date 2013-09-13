@@ -31,7 +31,7 @@ require '../infinisql.plib';
 $CLIENTS="$SCRIPTDIR/benchmark/clients";
 $DAEMONS="$SCRIPTDIR/benchmark/daemons";
 $MOFORKERDIR="$SCRIPTDIR/benchmark";
-$PGBENCH="nohup /usr/local/bin/pgbench -s 1 -c 100 -j 1 -n -U benchmark -I -P benchmark --per-second=100";
+$PGBENCH="nohup /usr/local/bin/pgbench -s 1 -c 200 -j 1 -n -U benchmark -I -P benchmark --per-second=100";
 
 use Getopt::Long;
 # for prepare test: rows equal in accounts, tellers, branches, in 100000 row

@@ -40,12 +40,8 @@ public:
   class Topology myTopology;
 
 private:
-  /*
-  vector<void *> remoteGateways;
-  vector< vector<void *> > allRemoteGateways;
-   */
+  // remoteGateways[nodeid]=socket for corresponding ibgw's
   vector<int> remoteGateways;
-  vector< vector<int> > allRemoteGateways;
   boost::unordered_map<int64_t, msgpack::sbuffer> pendingMessagesSbuf;
   boost::unordered_map< int64_t, msgpack::packer<msgpack::sbuffer> *>
   pendingMessagesPack;

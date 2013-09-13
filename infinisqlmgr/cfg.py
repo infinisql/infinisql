@@ -30,6 +30,7 @@ import zmq
 import msgpack
 import sys
 import io
+import time
 
 import cfgenum
 import topology
@@ -69,6 +70,7 @@ class node:
                            # Listener: 4
                            # connectionHandler: 5
                            # pghandler: 6
+    self.nextconnectionhandlerinstance = -1
     self.nexttainstance = -1
     self.nextengineinstance = -1
     self.nextibgatewayinstance = -1
@@ -78,6 +80,10 @@ class node:
   def getnextactorid(self):
     self.nextactorid += 1
     return self.nextactorid
+
+  def getnextconnectionhandlerinstance(self):
+    self.nextconnectionhandlerinstance += 1
+    return self.nextconnectionhandlerinstance
 
   def getnexttainstance(self):
     self.nexttainstance += 1
@@ -104,8 +110,6 @@ class node:
       print 'node ' + str(self.id) + ' problem setanonymousping'
     if self.setbadloginmessages():
       print 'node ' + str(self.id) + ' problem setbadloginmessages'
-#    if self.startlistener():
-#      print 'node ' + str(self.id) + ' problem startlistener'
     if topo.deadlockmgrnode==self.id:
       if self.startdeadlockmgr():
         print 'node ' + str(self.id) + ' problem startdeadlockmgr'
@@ -123,15 +127,19 @@ class node:
     for engine in range(self.engines):
       if self.startengine():
         print 'node ' + str(self.id) + ' problem startengine ' + str(engine)
-    # ch & ibgw & pghandler need to start last (for now, 1/20/31) because
-    # can't know of new tas
-    if self.startconnectionhandler():
-      print 'node ' + str(self.id) + ' problem startconnectionhandler'
+    # listener & connectionhandler & ibgw & pghandler need to start last
+    # (for now, 1/20/31) because can't know of new tas
+    for ch in range(self.connectionhandlers):
+      if self.startconnectionhandler():
+        print 'node ' + str(self.id) + ' problem startconnectionhandler ' + \
+            str(ch)
+    # must ensure that ch's can prepare themselves
+    time.sleep(2)
+    if self.startlistener():
+      print 'node ' + str(self.id) + ' problem startlistener'
     for ibgateway in range(self.ibgateways):
       if self.startibgateway():
         print 'node ' + str(self.id) + 'problem startibgateway'
-#    if self.startpghandler():
-#      print 'node ' + str(self.id) + ' problem startpghandler'
 
     self.globalupdate()
 
@@ -182,10 +190,13 @@ class node:
   def startlistener(self):
     returnit = sendcmd(self, serialize( [cfgenum.cfgforwarddict['CMDSTART'],
       cfgenum.cfgforwarddict['CMDLISTENER'], 4, self.listenhost,
-      self.listenport] ))
+      self.listenport, self.pghost, self.pgport] ))
     if cfgenum.cfgreversedict[returnit.next()] != 'CMDOK':
       return 1
+    self.addactor(4, cfgenum.actortypesforwarddict['ACTOR_LISTENER'],
+        -1, returnit.next())
     # has no mbox 
+    self.nodeupdate()
     return 0
 
   def startpghandler(self):
@@ -198,13 +209,15 @@ class node:
     return 0
 
   def startconnectionhandler(self):
+    actorid = self.getnextactorid()
+    instance = self.getnextconnectionhandlerinstance()
     returnit = sendcmd(self, serialize( [cfgenum.cfgforwarddict['CMDSTART'],
-        cfgenum.cfgforwarddict['CMDCONNECTIONHANDLER'], 5, self.listenhost,
-        self.listenport, self.pghost, self.pgport] ))
+        cfgenum.cfgforwarddict['CMDCONNECTIONHANDLER'], actorid, instance] ))
     if cfgenum.cfgreversedict[returnit.next()] != 'CMDOK':
       return 1
-    self.addactor(5, cfgenum.actortypesforwarddict['ACTOR_CONNECTIONHANDLER'],
-        -1, returnit.next())
+    self.addactor(actorid,
+        cfgenum.actortypesforwarddict['ACTOR_CONNECTIONHANDLER'],
+        instance, returnit.next())
     self.nodeupdate()
     return 0
 
@@ -389,6 +402,7 @@ def cfg(cfgfile):
       n.listenhost = config.get(s, 'listenhost')
       n.listenport = config.get(s, 'listenport')
       n.ibgatewayhostport = config.get(s, 'ibgatewayhostport')
+      n.connectionhandlers = config.getint(s, 'connectionhandlers')
       n.transactionagents = config.getint(s, 'transactionagents')
       n.engines = config.getint(s, 'engines')
       n.ibgateways = config.getint(s, 'ibgateways')

@@ -42,7 +42,7 @@ public:
     STATE_EXITING
   };
 
-  Pg(class TransactionAgent *, int);
+  Pg(class TransactionAgent *, int, int64_t);
   virtual ~Pg();
 
   /* for the ApiInterface base class */
@@ -67,7 +67,7 @@ public:
 
   bool readsocket(string &);
   void closesocket(class TransactionAgent &);
-  static void pgclosesocket(class TransactionAgent &, int);
+  static void pgclosesocket(class TransactionAgent &, int, int64_t);
   void cont();
   short initcmd(string &);
   void replymsg();
@@ -139,6 +139,7 @@ public:
   // autocommit a command that started without being in a transaction block
   bool command_autocommit;
   bool isintransactionblock;
+  int64_t connectionhandlerinstance;
 };
 
 #endif  /* PG_H */

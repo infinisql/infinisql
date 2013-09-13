@@ -37,9 +37,10 @@ string zmqsocket;
 class Topology nodeTopology;
 pthread_mutex_t nodeTopologyMutex;
 void *zmqcontext;
-string connectionhandlersockfile;
-int connectionhandlersockfd;
+string listenerudsockfile;
+int listenerudsockfd;
 string storedprocprefix = "InfiniSQL_";
+
 
 int main(int argc, char **argv)
 {
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
         break;
 
       case 'p':
-        connectionhandlersockfile.assign(optarg, strlen(optarg));
+        listenerudsockfile.assign(optarg, strlen(optarg));
         break;
 
       case 'h':
@@ -101,39 +102,39 @@ int main(int argc, char **argv)
 
   setlinebuf(logfile);
 
-  /* create socket for connectionhandler. needs to be here because
-   * connectionhandler doesn't start before obgw
+  /* create socket for listener. needs to be here because
+   * listener doesn't start before obgw
    */
 
-  if (!access(connectionhandlersockfile.c_str(), F_OK))
+  if (!access(listenerudsockfile.c_str(), F_OK))
   {
-    if (unlink(connectionhandlersockfile.c_str()))
+    if (unlink(listenerudsockfile.c_str()))
     {
-      printf("%s %i can't remove connectionhandlersockfile %s errno %i\n",
-             __FILE__, __LINE__, connectionhandlersockfile.c_str(), errno);
+      printf("%s %i can't remove listenersockfile %s errno %i\n",
+             __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
       exit(1);
     }
   }
 
-  connectionhandlersockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+  listenerudsockfd = socket(AF_UNIX, SOCK_STREAM, 0);
   struct sockaddr_un sun;
   sun.sun_family = AF_UNIX;
-  strncpy(sun.sun_path, connectionhandlersockfile.c_str(),
-          connectionhandlersockfile.size()+1);
+  strncpy(sun.sun_path, listenerudsockfile.c_str(),
+          listenerudsockfile.size()+1);
   //  printf("%s %i sun.sun_path '%s'\n", __FILE__, __LINE__, sun.sun_path);
 
-  if (bind(connectionhandlersockfd, (struct sockaddr *)&sun,
+  if (bind(listenerudsockfd, (struct sockaddr *)&sun,
            strlen(sun.sun_path)+sizeof(sun.sun_family))==-1)
   {
-    printf("%s %i can't bind connectionhandlersockfile %s errno %i\n", __FILE__,
-           __LINE__, connectionhandlersockfile.c_str(), errno);
+    printf("%s %i can't bind listenersockfile %s errno %i\n", __FILE__,
+           __LINE__, listenerudsockfile.c_str(), errno);
     exit(1);
   }
 
-  chmod(connectionhandlersockfile.c_str(), S_IRUSR | S_IWUSR);
-  listen(connectionhandlersockfd, 1);
-  /* have connectionhandler do the accept(). listen() needs to happen now so
-   * obgw can connect() to it before connectionhandler is started
+  chmod(listenerudsockfile.c_str(), S_IRUSR | S_IWUSR);
+  listen(listenerudsockfd, 1);
+  /* have listener do the accept(). listen() needs to happen now so
+   * obgw can connect() to it before listener is started
    */
 
   /*

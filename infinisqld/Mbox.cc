@@ -177,12 +177,12 @@ Mboxes::Mboxes()
 }
 
 Mboxes::Mboxes(int64_t nodeidarg) : nodeid(nodeidarg),
-  topologyMgrPtr(NULL), connectionHandlerPtr(NULL), obGatewayPtr(NULL)
+  topologyMgrPtr(NULL), listenerPtr(NULL), obGatewayPtr(NULL)
 {
   topologyMgr.mbox = NULL;
   userSchemaMgr.mbox = NULL;
   deadlockMgr.mbox = NULL;
-  connectionHandler.mbox = NULL;
+  listener.mbox = NULL;
   ibGateway.mbox = NULL;
   obGateway.mbox = NULL;
 
@@ -242,8 +242,8 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
           topologyMgrPtr = actoridToProducers[n];
           break;
 
-        case ACTOR_CONNECTIONHANDLER:
-          connectionHandlerPtr = actoridToProducers[n];
+        case ACTOR_LISTENER:
+          listenerPtr = actoridToProducers[n];
           break;
 
         case ACTOR_USERSCHEMAMGR:
@@ -266,17 +266,14 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
           break;
 
         case ACTOR_OBGATEWAY:
-
-          /*
-          if (top.actorList[n].instance ==
-              (int64_t)(myInstance % top.numobgateways))
-           */
           if ((int64_t)(myActorid % top.numobgateways) ==
               top.actorList[n].instance)
           {
             obGatewayPtr = actoridToProducers[n];
           }
-
+          break;
+          
+        case ACTOR_CONNECTIONHANDLER:
           break;
 
         case ACTOR_NONE:

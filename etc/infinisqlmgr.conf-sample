@@ -29,6 +29,7 @@ pghost: *
 pgport: 15432
 pgsockfile: %(DEPLOYMENT_DIRECTORY)s/run/pgsock.1
 
+connectionhandlers: 1
 transactionagents: 6
 engines: 6
 ibgateways: 1
