@@ -24,8 +24,7 @@
  */
 
 #include "infinisql_Listener.h"
-#include "infinisql_ConnectionHandler.h"
-#line 29 "Listener.cc"
+#line 28 "Listener.cc"
 
 #define EPOLLEVENTS 1024
 
@@ -56,38 +55,20 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
     fprintf(logfile, "%s %i epoll_ctl errno %i\n", __FILE__, __LINE__, errno);
   }
 
-  // accept() on unix domain socket
-  struct sockaddr_un remotesock;
-  socklen_t remotesocklen = sizeof(remotesock);
-  int udsockfd = accept(listenerudsockfd, (struct sockaddr *)&remotesock,
-                        &remotesocklen);
-  if (udsockfd==-1)
-  {
-    printf("%s %i can't accept on listenerudsockfile %s errno %i\n",
-           __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
-    exit(1);
-  }
-
-  fcntl(udsockfd, F_SETFL, O_NONBLOCK);
-  ev.data.fd = udsockfd;
-
-  if (epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, udsockfd, &ev) == -1)
-  {
-    fprintf(logfile, "%s %i epoll_ctl errno %i\n", __FILE__, __LINE__, errno);
-  }
-
   struct sockaddr_in their_addr; // connector's address information
 
   socklen_t sin_size = sizeof(their_addr);
 
   int roundrobin = 0;
-  int64_t roundrobinconnectionhandler = 0;
 
   struct epoll_event events[EPOLLEVENTS];
 
-  //  char peekbuf[64];
-  //  ssize_t peeked=0;
+  socketAffinity.resize(NUMSOCKETS+1, 0);
+  listenerTypes.resize(NUMSOCKETS+1, LISTENER_NONE);
 
+  class MboxProducer *producer=NULL;
+  listenertype_e listenertype=LISTENER_NONE;
+  
   while (1)
   {
     //    memset(events, 0, EPOLLEVENTS * sizeof(epoll_event));
@@ -98,7 +79,7 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
       int fd = events[n].data.fd;
       int event = events[n].events;
 
-      if (fd==listenersockfd || fd==pglistenersockfd || fd==udsockfd)
+      if (fd==listenersockfd || fd==pglistenersockfd)
       {
         if (fd==listenersockfd)
         {
@@ -130,15 +111,12 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
             socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
                                     myTopology.numtransactionagents];
              */
-            class ConnectionHandler &chPtrRef=
-                *myTopology.connectionHandlers[roundrobinconnectionhandler++ %
-                myTopology.numconnectionhandlers];
-            pthread_mutex_lock(&chPtrRef.connectionsMutex);
-            chPtrRef.socketAffinity[newfd]=
+            pthread_mutex_lock(&connectionsMutex);
+            socketAffinity[newfd]=
                 mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
-            chPtrRef.listenerTypes[newfd]=LISTENER_RAW;
-            pthread_mutex_unlock(&chPtrRef.connectionsMutex);
-            epoll_ctl(chPtrRef.epollfd, EPOLL_CTL_ADD, newfd, &ev);
+            listenerTypes[newfd]=LISTENER_RAW;
+            pthread_mutex_unlock(&connectionsMutex);
+            epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
           }
         }
         else if (fd==pglistenersockfd)
@@ -178,48 +156,32 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
             socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
                                     myTopology.numtransactionagents];
              */
-            class ConnectionHandler &chPtrRef=
-                *myTopology.connectionHandlers[roundrobinconnectionhandler++ %
-                myTopology.numconnectionhandlers];
-            pthread_mutex_lock(&chPtrRef.connectionsMutex);
-            chPtrRef.socketAffinity[newfd]=
+            pthread_mutex_lock(&connectionsMutex);
+            socketAffinity[newfd]=
                 mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
-            chPtrRef.listenerTypes[newfd]=LISTENER_PG;
-            pthread_mutex_unlock(&chPtrRef.connectionsMutex);
-            epoll_ctl(chPtrRef.epollfd, EPOLL_CTL_ADD, newfd, &ev);
-          }
-        }
-        else //udsockfd
-        {
-          class MessageSocket *m = NULL;
-
-          while (recv(fd, &m, sizeof(class MessageSocket *), 0)==
-                 sizeof(class MessageSocket *))
-          {
-            closesocket(m->socket);
-            delete m;
+            listenerTypes[newfd]=LISTENER_PG;
+            pthread_mutex_unlock(&connectionsMutex);
+            epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
           }
         }
       }
       else
-      {
-        if (socketAffinity.count(fd))
+      { // already established socket activity
+        pthread_mutex_lock(&connectionsMutex);
+        if (socketAffinity[fd])
         {
-          //          peeked=recv(fd, peekbuf, 64, MSG_PEEK);
-          //          if (peeked==0 || peeked==-1)
-          //          {
-          //            closesocket(fd);
-          //          }
-          //          else
-          //          {
-          socketAffinity[fd]->sendMsg(*(new class MessageSocket(fd, event,
-                                        listenerTypeMap[fd], 0)));
-          //          }
+          producer=socketAffinity[fd];
+          listenertype=listenerTypes[fd];
         }
         else
         {
-          printf("%s %i event %i on spurious sockfd %i\n", __FILE__, __LINE__, event, fd);
+          pthread_mutex_unlock(&connectionsMutex);
+          fprintf(logfile, "%s %i event %i on spurious sockfd %i\n", __FILE__,
+                  __LINE__, event, fd);
+          continue;
         }
+        pthread_mutex_unlock(&connectionsMutex);
+        producer->sendMsg(*(new class MessageSocket(fd, event, listenertype)));
       }
     }
   }
@@ -309,12 +271,4 @@ int Listener::startsocket(string &node, string &service)
   }
 
   return sockfd;
-}
-
-void Listener::closesocket(int socket)
-{
-  epoll_ctl(myIdentity.epollfd, EPOLL_CTL_DEL, socket, NULL);
-  socketAffinity.erase(socket);
-  listenerTypeMap.erase(socket);
-  close(socket);
 }

@@ -27,9 +27,7 @@ ibgatewayhostport: %(IPADDR)s:11530
 # for postgresql client connections
 pghost: *
 pgport: 15432
-pgsockfile: %(DEPLOYMENT_DIRECTORY)s/run/pgsock.1
 
-connectionhandlers: 1
 transactionagents: 6
 engines: 6
 ibgateways: 1
@@ -59,7 +57,6 @@ member: 0
 #ibgatewayhostport: *:21530
 #logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld2.log
 #pgport: 15433
-#pgsockfile: %(DEPLOYMENT_DIRECTORY)s/run/pgsock.2
 # END MULTIPLE NODES SINGLE HOST CONFIG
 
 #[node_3]

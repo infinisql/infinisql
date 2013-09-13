@@ -323,9 +323,8 @@ MessageSocket::MessageSocket()
 }
 
 MessageSocket::MessageSocket(int socketarg, uint32_t eventsarg,
-    listenertype_e listenertypearg, int64_t connectionhandlerinstancearg) :
-    socket(socketarg), events(eventsarg), listenertype(listenertypearg),
-        connectionhandlerinstance (connectionhandlerinstancearg)
+    listenertype_e listenertypearg) :
+    socket(socketarg), events(eventsarg), listenertype(listenertypearg)
 {
   topic = TOPIC_SOCKET;
   payloadtype = PAYLOADSOCKET;
@@ -342,7 +341,6 @@ void MessageSocket::serialize(msgpack::packer<msgpack::sbuffer> &pack)
   pack.pack_int(socket);
   pack.pack_uint32(events);
   pack.pack_int(listenertype);
-  pack.pack_int64(connectionhandlerinstance);
 }
 
 void MessageSocket::deserialize(msgpack::unpacker &unpack, class Message &msg)
@@ -357,7 +355,6 @@ void MessageSocket::deserialize(msgpack::unpacker &unpack, class Message &msg)
   getitem(unpack, obj)->convert(&socket);
   getitem(unpack, obj)->convert(&events);
   getitem(unpack, obj)->convert((int *)&listenertype);
-  getitem(unpack, obj)->convert(&connectionhandlerinstance);
 }
 
 MessageUserSchema::MessageUserSchema()

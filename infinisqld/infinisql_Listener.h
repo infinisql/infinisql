@@ -35,15 +35,20 @@ public:
   virtual ~Listener();
 
   int startsocket(string &, string &);
-  void closesocket(int);
 
   //private:
   class Mboxes mboxes;
   Topology::partitionAddress myIdentity;
   class Topology myTopology;
 
+  /*
+  vector<class MboxProducer *> socketAffinity;
+  vector<listenertype_e> listenerTypes;
+   */
+  /*
   boost::unordered_map<int, class MboxProducer *> socketAffinity;
   boost::unordered_map<int, listenertype_e> listenerTypeMap;
+   */
 };
 
 void *listener(void *);

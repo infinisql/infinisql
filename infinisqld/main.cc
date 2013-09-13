@@ -36,11 +36,11 @@ cfg_s cfgs;
 string zmqsocket;
 class Topology nodeTopology;
 pthread_mutex_t nodeTopologyMutex;
+pthread_mutex_t connectionsMutex;
 void *zmqcontext;
-string listenerudsockfile;
-int listenerudsockfd;
 string storedprocprefix = "InfiniSQL_";
-
+vector<class MboxProducer *> socketAffinity;
+vector<listenertype_e> listenerTypes;
 
 int main(int argc, char **argv)
 {
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   string logfilename;
   int c;
 
-  while ((c = getopt(argc, argv, "l:m:n:hp:v")) != -1)
+  while ((c = getopt(argc, argv, "l:m:n:hv")) != -1)
   {
     switch (c)
     {
@@ -66,10 +66,6 @@ int main(int argc, char **argv)
 
       case 'n':
         nodeTopology.nodeid = atol(optarg);
-        break;
-
-      case 'p':
-        listenerudsockfile.assign(optarg, strlen(optarg));
         break;
 
       case 'h':
@@ -102,54 +98,10 @@ int main(int argc, char **argv)
 
   setlinebuf(logfile);
 
-  /* create socket for listener. needs to be here because
-   * listener doesn't start before obgw
-   */
-
-  if (!access(listenerudsockfile.c_str(), F_OK))
-  {
-    if (unlink(listenerudsockfile.c_str()))
-    {
-      printf("%s %i can't remove listenersockfile %s errno %i\n",
-             __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
-      exit(1);
-    }
-  }
-
-  listenerudsockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-  struct sockaddr_un sun;
-  sun.sun_family = AF_UNIX;
-  strncpy(sun.sun_path, listenerudsockfile.c_str(),
-          listenerudsockfile.size()+1);
-  //  printf("%s %i sun.sun_path '%s'\n", __FILE__, __LINE__, sun.sun_path);
-
-  if (bind(listenerudsockfd, (struct sockaddr *)&sun,
-           strlen(sun.sun_path)+sizeof(sun.sun_family))==-1)
-  {
-    printf("%s %i can't bind listenersockfile %s errno %i\n", __FILE__,
-           __LINE__, listenerudsockfile.c_str(), errno);
-    exit(1);
-  }
-
-  chmod(listenerudsockfile.c_str(), S_IRUSR | S_IWUSR);
-  listen(listenerudsockfd, 1);
-  /* have listener do the accept(). listen() needs to happen now so
-   * obgw can connect() to it before listener is started
-   */
-
-  /*
-  urandomsockfd = open("/dev/urandom", O_RDONLY);
-  if (urandomsockfd == -1)
-  {
-    printf("%s %i can't open /dev/urandom errno %i\n", __FILE__, __LINE__,
-        errno);
-    exit(1);
-  }
-  */
-
   pthread_mutexattr_t attr;
   attr.__align = PTHREAD_MUTEX_ADAPTIVE_NP;
   pthread_mutex_init(&nodeTopologyMutex, &attr);
+  pthread_mutex_init(&connectionsMutex, &attr);
   pthread_t topologyMgrThread;
   Topology::partitionAddress *arg = new Topology::partitionAddress();
   arg->type = ACTOR_TOPOLOGYMGR;

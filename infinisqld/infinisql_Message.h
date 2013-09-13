@@ -64,7 +64,7 @@ class MessageSocket : public Message
 {
 public:
   MessageSocket();
-  MessageSocket(int, uint32_t, listenertype_e, int64_t);
+  MessageSocket(int, uint32_t, listenertype_e);
   virtual ~MessageSocket();
 
   void serialize(msgpack::packer<msgpack::sbuffer> &);
@@ -73,7 +73,6 @@ public:
   int socket;
   uint32_t events;
   listenertype_e listenertype;
-  int64_t connectionhandlerinstance;
 };
 
 class MessageUserSchema : public Message

@@ -190,7 +190,6 @@ enum topic_e
   TOPIC_PROCEDURE2 = 36,
   TOPIC_APPLY = 37,
   TOPIC_ACKAPPLY = 38,
-  TOPIC_CLOSESOCKET = 40,
   TOPIC_OPERATION = 41,
   TOPIC_COMPILE = 42,
   TOPIC_TABLENAME = 43,
@@ -401,8 +400,6 @@ extern cfg_s cfgs;
 extern FILE *logfile;
 extern string zmqsocket;
 extern void *zmqcontext;
-extern string listenerudsockfile;
-extern int listenerudsockfd;
 extern string storedprocprefix;
 
 typedef struct
@@ -593,6 +590,9 @@ enum deadlockchange_e
 class Topology;
 extern class Topology nodeTopology;
 extern pthread_mutex_t nodeTopologyMutex;
+extern pthread_mutex_t connectionsMutex;
+extern vector<class MboxProducer *> socketAffinity;
+extern vector<listenertype_e> listenerTypes;
 
 void msgpack2Vector(vector<string> *, char *, int64_t);
 

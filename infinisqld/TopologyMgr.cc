@@ -33,11 +33,8 @@ void *listener(void *);
 void *transactionAgent(void *);
 void *engine(void *);
 void *deadlockMgr(void *);
-//void *listener(void *);
 void *ibGateway(void *);
 void *obGateway(void *);
-void *connectionHandler(void *);
-//void *pgHandler(void *);
 
 void replyToManager(void *, msgpack::sbuffer &);
 
@@ -311,43 +308,6 @@ HECK:
           }
           break;
           
-          case CMDCONNECTIONHANDLER:
-          {
-            if (pac.next(&result)==false)
-            {
-              replypk.pack_int(CMDNOTOK);
-              replyToManager(zmqresponder, replysbuf);
-              zmq_msg_close(&zmqrecvmsg);
-              goto HECK;
-            }
-
-            int64_t instance;
-            msgpack::object obj4 = result.get();
-            obj4.convert(&instance);
-
-            newmbox = new class Mbox;
-            Topology::partitionAddress *paddr =
-              nodeTopology.newActor(ACTOR_CONNECTIONHANDLER, newmbox, epollfd,
-                    string(), actorid, vector<string>(), vector<string>());
-            paddr->instance = instance;
-
-            if (pthread_create(&tid, NULL, connectionHandler, paddr)==-1)
-            {
-              fprintf(logfile, "%s %i pthread_create errno %i\n", __FILE__,
-                      __LINE__, errno);
-              replypk.pack_int(CMDNOTOK);
-              replyToManager(zmqresponder, replysbuf);
-              zmq_msg_close(&zmqrecvmsg);
-              goto HECK;
-            }
-            else
-            {
-              replypk.pack_int(CMDOK);
-              replypk.pack_int64((int64_t)newmbox);
-            }
-          }
-          break;
-
           case CMDUSERSCHEMAMGR:
           {
             if (pac.next(&result)==false)
@@ -684,12 +644,6 @@ void TopologyMgr::updateLocalConfig(msgpack::unpacker &pac,
   addr.address.actorid = 4;
   addr.mbox = (class Mbox *)nodeTopology.actorList[4].mbox;
   addr.type = ACTOR_LISTENER;
-
-  /*
-  addr.address.actorid = 5;
-  addr.mbox = (class Mbox *)nodeTopology.actorList[5].mbox;
-  addr.type = ACTOR_CONNECTIONHANDLER;
-   */
 
   //  if (nodeTopology.actorList[]
   vector<Topology::partitionAddress> tas;

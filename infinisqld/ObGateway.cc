@@ -35,26 +35,6 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   mboxes.update(myTopology);
   updateRemoteGateways();
 
-  // connect to listener (on local system), first instance
-  int pgsockfd=0;
-
-  if (myIdentity.instance==0)
-  {
-    pgsockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    struct sockaddr_un pgremote;
-    pgremote.sun_family = AF_UNIX;
-    strncpy(pgremote.sun_path, listenerudsockfile.c_str(),
-            listenerudsockfile.size());
-    socklen_t remotelen = strlen(pgremote.sun_path)+sizeof(pgremote.sun_family);
-
-    if (connect(pgsockfd, (struct sockaddr *)&pgremote, remotelen) == -1)
-    {
-      printf("%s %i can't connect to listenersockfile %s errno %i\n",
-             __FILE__, __LINE__, listenerudsockfile.c_str(), errno);
-      exit(1);
-    }
-  }
-
   int waitfor = 100;
 
   while (1)
@@ -78,17 +58,8 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
           updateRemoteGateways();
           break;
 
-        case TOPIC_CLOSESOCKET:
-        {
-          class MessageSocket *msg =
-              new class MessageSocket(((class MessageSocket *)msgrcv)->socket,
-                                          0, LISTENER_NONE, 0);
-          send(pgsockfd, &msg, sizeof(msg), 0);
-        }
-        break;
-
         default: // destined for remote host
-      {
+        {
           boost::unordered_map< int64_t,
                 msgpack::packer<msgpack::sbuffer> *>::iterator it;
           it = pendingMessagesPack.find(msgrcv->destAddr.nodeid);

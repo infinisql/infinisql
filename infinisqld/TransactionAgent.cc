@@ -267,13 +267,11 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
                     (msgrcvref.events & EPOLLHUP))
                 {
                   fprintf(logfile, "\t%s %i hanging it up\n", __FILE__, __LINE__);
-                  Pg::pgclosesocket(*this, msgrcvref.socket,
-                          msgrcvref.connectionhandlerinstance);
+                  Pg::pgclosesocket(*this, msgrcvref.socket);
                   break;
                 }
 
-                new class Pg(this, msgrcvref.socket,
-                        msgrcvref.connectionhandlerinstance);
+                new class Pg(this, msgrcvref.socket);
               }
               else
               {

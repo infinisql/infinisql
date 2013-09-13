@@ -68,9 +68,7 @@ class node:
                            # DeadlockMgr: 2
                            # UserSchemaMgr: 3
                            # Listener: 4
-                           # connectionHandler: 5
                            # pghandler: 6
-    self.nextconnectionhandlerinstance = -1
     self.nexttainstance = -1
     self.nextengineinstance = -1
     self.nextibgatewayinstance = -1
@@ -80,10 +78,6 @@ class node:
   def getnextactorid(self):
     self.nextactorid += 1
     return self.nextactorid
-
-  def getnextconnectionhandlerinstance(self):
-    self.nextconnectionhandlerinstance += 1
-    return self.nextconnectionhandlerinstance
 
   def getnexttainstance(self):
     self.nexttainstance += 1
@@ -127,14 +121,8 @@ class node:
     for engine in range(self.engines):
       if self.startengine():
         print 'node ' + str(self.id) + ' problem startengine ' + str(engine)
-    # listener & connectionhandler & ibgw & pghandler need to start last
+    # listener & ibgw need to start last
     # (for now, 1/20/31) because can't know of new tas
-    for ch in range(self.connectionhandlers):
-      if self.startconnectionhandler():
-        print 'node ' + str(self.id) + ' problem startconnectionhandler ' + \
-            str(ch)
-    # must ensure that ch's can prepare themselves
-    time.sleep(2)
     if self.startlistener():
       print 'node ' + str(self.id) + ' problem startlistener'
     for ibgateway in range(self.ibgateways):
@@ -147,7 +135,7 @@ class node:
     if len(self.mgmthost)==0:
       # just start daemon
       retval = subprocess.call([self.infinisqld, "-n" + str(self.id), "-l" +
-          self.logfile, "-m" + self.cfghostport, "-p" + self.pgsockfile])
+          self.logfile, "-m" + self.cfghostport])
       if retval:
         print "problem starting node " + str(self.id)
         return retval
@@ -156,7 +144,7 @@ class node:
       subprocess.call([self.ssh, "-i" + self.sshkey, self.mgmthost, 
           " LD_PRELOAD=/usr/local/lib/libllalloc.so.1.4 " +
           self.infinisqld, "-n" + str(self.id), "-l" + self.logfile,
-          "-m" + self.cfghostport, "-p" + self.pgsockfile, " >" + 
+          "-m" + self.cfghostport, " >" + 
           self.logfile + ".out 2>" + self.logfile + ".err "])
 
   def connect(self):
@@ -206,19 +194,6 @@ class node:
     if cfgenum.cfgreversedict[returnit.next()] != 'CMDOK':
       return 1
     # has no mbox 
-    return 0
-
-  def startconnectionhandler(self):
-    actorid = self.getnextactorid()
-    instance = self.getnextconnectionhandlerinstance()
-    returnit = sendcmd(self, serialize( [cfgenum.cfgforwarddict['CMDSTART'],
-        cfgenum.cfgforwarddict['CMDCONNECTIONHANDLER'], actorid, instance] ))
-    if cfgenum.cfgreversedict[returnit.next()] != 'CMDOK':
-      return 1
-    self.addactor(actorid,
-        cfgenum.actortypesforwarddict['ACTOR_CONNECTIONHANDLER'],
-        instance, returnit.next())
-    self.nodeupdate()
     return 0
 
   def startuserschemamgr(self):
@@ -402,7 +377,6 @@ def cfg(cfgfile):
       n.listenhost = config.get(s, 'listenhost')
       n.listenport = config.get(s, 'listenport')
       n.ibgatewayhostport = config.get(s, 'ibgatewayhostport')
-      n.connectionhandlers = config.getint(s, 'connectionhandlers')
       n.transactionagents = config.getint(s, 'transactionagents')
       n.engines = config.getint(s, 'engines')
       n.ibgateways = config.getint(s, 'ibgateways')
@@ -413,7 +387,6 @@ def cfg(cfgfile):
       n.member = config.getint(s, 'member')
       n.pghost = config.get(s, 'pghost')
       n.pgport = config.get(s, 'pgport')
-      n.pgsockfile = config.get(s, 'pgsockfile')
 
       nodes[n.id]=n
 #      nodes.append(n)

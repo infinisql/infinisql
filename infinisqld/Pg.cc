@@ -26,17 +26,14 @@
 #include "infinisql_Pg.h"
 #include "pgoids.h"
 #include "infinisql_TransactionAgent.h"
-#include "infinisql_ConnectionHandler.h"
-#line 31 "Pg.cc"
+#line 30 "Pg.cc"
 
 /* implemented based on http://www.postgresql.org/docs/9.2/static/protocol.html */
 
-Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg,
-    int64_t connectionhandlerinstancearg) : state(STATE_BEGIN),
+Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg) : state(STATE_BEGIN),
     sockfd(sockfdarg), pgcmdtype('\0'), size(0),
     outcmd('\0'), userid(-1), schemaPtr(NULL),
-    session_isautocommit(true), isintransactionblock(false),
-    connectionhandlerinstance (connectionhandlerinstancearg)
+    session_isautocommit(true), isintransactionblock(false)
 {
   domainid=-1;
   taPtr = taPtrarg;
@@ -374,7 +371,7 @@ void Pg::closesocket(class TransactionAgent &taRef)
 {
   state=STATE_EXITING;
   taRef.Pgs.erase(sockfd);
-  pgclosesocket(taRef, sockfd, connectionhandlerinstance);
+  pgclosesocket(taRef, sockfd);
   sockfd=-1;
 
   if (transactionPtr != NULL)
@@ -393,19 +390,17 @@ void Pg::closesocket(class TransactionAgent &taRef)
   }
 }
 
-void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd,
-        int64_t chinstance)
+void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd)
 {
   taRef.Pgs.erase(socketfd);
   // NEW WAY
-  class ConnectionHandler &chRef=*taRef.myTopology.connectionHandlers[chinstance];
-  epoll_ctl(chRef.epollfd, EPOLL_CTL_DEL, socketfd, NULL);
+  epoll_ctl(taRef.myIdentity.epollfd, EPOLL_CTL_DEL, socketfd, NULL);
   if (socketfd <= NUMSOCKETS)
   {
-    pthread_mutex_lock(&chRef.connectionsMutex);
-    chRef.socketAffinity[socketfd]=0;
-    chRef.listenerTypes[socketfd]=LISTENER_NONE;
-    pthread_mutex_unlock(&chRef.connectionsMutex);
+    pthread_mutex_lock(&connectionsMutex);
+    socketAffinity[socketfd]=0;
+    listenerTypes[socketfd]=LISTENER_NONE;
+    pthread_mutex_unlock(&connectionsMutex);
   }
   else
   {

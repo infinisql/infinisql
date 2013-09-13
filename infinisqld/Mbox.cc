@@ -273,9 +273,6 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
           }
           break;
           
-        case ACTOR_CONNECTIONHANDLER:
-          break;
-
         case ACTOR_NONE:
           break;
 
