@@ -34,7 +34,7 @@ $MOFORKERDIR="$SCRIPTDIR/benchmark";
 $PGBENCH="nohup /usr/local/bin/pgbench -s 1 -c 200 -j 1 -n -U benchmark -I -P benchmark --per-second=100";
 
 use Getopt::Long;
-# for prepare test: rows equal in accounts, tellers, branches, in 100000 row
+# for prepare test: rows equal in accounts, tellers, branches, in 10000 row
 # batches
 GetOptions("test=s" => \$TEST,
            "accountids=i" => \$ACCOUNTIDS,
@@ -70,7 +70,7 @@ $nowsec=time();
 # a different fill.pl cmd per batch
 if ($TEST eq "preparepgbench") {
 
-  $batchsize=100000;
+  $batchsize=10000;
   if ($ACCOUNTIDS % $batchsize || !$ACCOUNTIDS) {
     die "accountids must be in multiples of $batchsize";
   }
@@ -85,7 +85,7 @@ if ($TEST eq "preparepgbench") {
 
 } elsif ($TEST eq "preparekeyval") {
 
-  $batchsize=100000;
+  $batchsize=10000;
   if ($ACCOUNTIDS % $batchsize || !$ACCOUNTIDS) {
     die "accountids must be in multiples of $batchsize";
   }

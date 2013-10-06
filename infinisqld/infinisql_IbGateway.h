@@ -41,12 +41,13 @@ public:
 private:
   void inbufhandler(int, const char *, ssize_t);
   boost::unordered_map<int, string> pendingReads;
+  void addtofds(int);
+  void removefds();
 
   boost::unordered_set<int> fdremoveset;
   struct pollfd *fds;
   nfds_t nfds;
-  void addtofds(int);
-  void removefds();
+  char *inbuf;
 };
 
 void *ibGateway(void *);

@@ -27,7 +27,7 @@
 #line 28 "ObGateway.cc"
 
 ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
-  myIdentity(*myIdentityArg)
+  myIdentity(*myIdentityArg), so_sndbuf(16777216)
 {
   delete myIdentityArg;
 
@@ -35,7 +35,15 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   mboxes.update(myTopology);
   updateRemoteGateways();
 
+  optlen=sizeof(so_sndbuf);
   int waitfor = 100;
+  
+  bool buildup=true;
+
+  /*  
+  uint32_t D_sends=0;
+  uint64_t D_sendbytes=0;
+   */
 
   while (1)
   {
@@ -78,6 +86,14 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       }
     }
 
+    if (buildup==true)
+    {
+      usleep(100);
+      buildup=false;
+      continue;
+    }
+    buildup=true;
+
     // send all pendings
     boost::unordered_map<int64_t, msgpack::sbuffer>::iterator it;
 
@@ -92,6 +108,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       memcpy(&sendstr[sizeof(size_t)], sbufRef.data(), sbufRef.size());
       ssize_t sended = send(remoteGateways[it->first], sendstr.c_str(),
                             sendstr.size(), 0);
+      
       ssize_t ss;
       memcpy(&ss, &sendstr[0], sizeof(ssize_t));
 
@@ -101,6 +118,15 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
                __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
                (int)it->first, remoteGateways[it->first]);
       }
+      /*
+      D_sendbytes+=sended;
+      if (!(++D_sends % 1000))
+      {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
+      }
+       */
 
       delete pendingMessagesPack[it->first];
     }
@@ -156,7 +182,7 @@ void ObGateway::updateRemoteGateways()
       if (getaddrinfo(node.c_str(), service.c_str(), &hints,
               &servinfo))
       {
-        printf("%s %i getaddrinfo\n", __FILE__, __LINE__);
+        fprintf(logfile, "%s %i getaddrinfo\n", __FILE__, __LINE__);
         return;
       }
 
@@ -164,15 +190,22 @@ void ObGateway::updateRemoteGateways()
               servinfo->ai_protocol);
       if (sockfd == -1)
       {
-        printf("%s %i socket\n", __FILE__, __LINE__);
+        fprintf(logfile, "%s %i socket\n", __FILE__, __LINE__);
         return;
       }
 
       if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen))
       {
-        printf("%s %i connect errno %i '%s:%s'\n", __FILE__, __LINE__,
+        fprintf(logfile, "%s %i connect errno %i '%s:%s'\n", __FILE__, __LINE__,
                 errno, node.c_str(), service.c_str());
         return;
+      }
+    
+      if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &so_sndbuf, sizeof(so_sndbuf))==-1)
+      {
+        fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__, __LINE__,
+                errno);
+        continue;
       }
 
       freeaddrinfo(servinfo);

@@ -39,8 +39,8 @@ $BATCHES=$opt_b;
 
 $dbh=DBI->connect("dbi:Pg:dbname=benchmark;host=$HOSTNAME;port=$PORT;", "benchmark", "benchmark", {pg_server_prepare => 0});
 
-$startpoint=($STARTBATCH-1)*100000 + 1;
-$endpoint=$startpoint-1 + $BATCHES*100000;
+$startpoint=($STARTBATCH-1)*10000 + 1;
+$endpoint=$startpoint-1 + $BATCHES*10000;
 
 #$dbh->do("BEGIN");
 for (my $aid=$startpoint; $aid <= $endpoint; $aid++) {

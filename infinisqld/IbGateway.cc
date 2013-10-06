@@ -27,8 +27,6 @@
 #line 28 "IbGateway.cc"
 
 #define EPOLLEVENTS 1024
-// 6400MTU is 10GBE
-#define INBUFSIZE 64000
 
 IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
   myIdentity(*myIdentityArg), fds(NULL), nfds(0)
@@ -62,6 +60,14 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
   int sockfd = 0;
   int yes = 1;
   struct addrinfo *p=NULL;
+  int so_rcvbuf=16777216;
+  socklen_t optlen=sizeof(so_rcvbuf);
+  inbuf=new (std::nothrow) char[so_rcvbuf];
+  if (inbuf==NULL)
+  {
+    fprintf(logfile, "%s %i malloc inbuf failed\n", __FILE__, __LINE__);
+    exit(1);
+  }
 
   for (p = servinfo; p != NULL; p = p->ai_next)
   {
@@ -80,6 +86,13 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
       continue;
     }
 
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &so_rcvbuf, optlen)==-1)
+    {
+      fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__, __LINE__,
+              errno);
+      continue;
+    }
+   
     if (bind(sockfd, p->ai_addr, p->ai_addrlen)==-1)
     {
       close(sockfd);
@@ -115,7 +128,6 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
   while (1)
   {
     int eventcount = poll(fds, nfds, -1);
-//    fprintf(logfile, "%s %i polled eventcount %i nfds %li\n", __FILE__, __LINE__, eventcount, nfds);
 
     if (eventcount < 0)
     {
@@ -155,7 +167,12 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
             printf("%s %i accept errno %i\n", __FILE__, __LINE__, errno);
             continue;
           }
-
+          if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &so_rcvbuf, optlen)==-1)
+          {
+            fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__, __LINE__,
+                    errno);
+            continue;
+          }
           fcntl(newfd, F_SETFL, O_NONBLOCK);
           addtofds(newfd);
           continue;
@@ -166,16 +183,16 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
       {
         close(fds[n].fd);
         fdremoveset.insert(fds[n].fd);
+        fprintf(logfile, "%s %i instance %li n %lu\n", __FILE__, __LINE__, myIdentity.instance, n);
         continue;
       }
       else if (event & POLLIN)
       {
-        char inbuf[INBUFSIZE];
         ssize_t readed;
 
         do
         {
-          readed = read(fds[n].fd, inbuf, INBUFSIZE);
+          readed = read(fds[n].fd, inbuf, so_rcvbuf);
 
           if (readed == -1)
           {
@@ -212,7 +229,7 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
 
 IbGateway::~IbGateway()
 {
-
+  delete inbuf;
 }
 
 void IbGateway::inbufhandler(int fd, const char *buf, ssize_t bufsize)
@@ -264,7 +281,6 @@ void IbGateway::addtofds(int newfd)
   }
 
   newfds[nfds-1] = {newfd, EPOLLIN | EPOLLERR | EPOLLHUP, 0};
-  //  newfds[nfds-1] = {newfd, POLLIN | POLLRDHUP | POLLERR | POLLHUP, 0};
 
   if (fds != NULL)
   {
@@ -297,6 +313,7 @@ void IbGateway::removefds()
   fds = newfds;
   nfds -= fdremoveset.size();
   fdremoveset.clear();
+  fprintf(logfile, "%s %i instance %li removefds nfds %lu\n", __FILE__, __LINE__, myIdentity.instance, nfds);
 }
 
 // launcher, regular function
