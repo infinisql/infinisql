@@ -39,8 +39,9 @@ public:
   class Topology myTopology;
 
 private:
-  void inbufhandler(int, const char *, ssize_t);
+  void inbufhandler(const char *, size_t);
   boost::unordered_map<int, string> pendingReads;
+  
   void addtofds(int);
   void removefds();
 

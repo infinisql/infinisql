@@ -189,34 +189,67 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
       else if (event & POLLIN)
       {
         ssize_t readed;
+        int readfd=fds[n].fd;
 
         do
         {
-          readed = read(fds[n].fd, inbuf, so_rcvbuf);
-
-          if (readed == -1)
+          readed=read(readfd, inbuf, so_rcvbuf);
+          switch (readed)
           {
-            if (errno != EAGAIN && errno != EWOULDBLOCK)
-            {
-              close(fds[n].fd);
-              fdremoveset.insert(fds[n].fd);
-              pendingReads.erase(fds[n].fd);
+            case -1:
+              if (errno==EAGAIN || errno==EWOULDBLOCK)
+              {
+                close(readfd);
+                fdremoveset.insert(readfd);
+                pendingReads.erase(readfd);
+                break;
+              }
+              else
+              {
+                if (pendingReads.count(readfd))
+                {
+                  string &strRef=pendingReads[readfd];
+                  if (*(size_t *)strRef.c_str() == strRef.size())
+                  {
+                    inbufhandler(strRef.c_str(), strRef.size());
+                    pendingReads.erase(readfd);
+                  }
+                }
+              }
               break;
+              
+            case 0:
+              close(readfd);
+              fdremoveset.insert(readfd);
+              pendingReads.erase(readfd);
+              break;
+              
+            default:
+            {
+              if (pendingReads.count(readfd))
+              {
+                pendingReads[readfd].append(inbuf, readed);
+              }
+              else
+              {
+                if ((size_t)readed<sizeof(size_t))
+                {
+                  pendingReads[readfd].assign(inbuf, readed);
+                }
+                else
+                {
+                  if (*(size_t *)inbuf != (size_t)readed)
+                  {
+                    pendingReads[readfd].assign(inbuf, readed);
+                  }
+                  else
+                  {
+                    // handle it
+                    inbufhandler(inbuf, readed);
+                  }
+                }
+              }
             }
-
-            continue;
-          }
-
-          if (readed && pendingReads.count(fds[n].fd))
-          {
-            string instr = pendingReads[fds[n].fd];
-            pendingReads.erase(fds[n].fd);
-            instr.append(inbuf, readed);
-            inbufhandler(fds[n].fd, instr.c_str(), instr.size());
-          }
-          else
-          {
-            inbufhandler(fds[n].fd, inbuf, readed);
           }
         }
         while (readed > 0);
@@ -232,42 +265,19 @@ IbGateway::~IbGateway()
   delete inbuf;
 }
 
-void IbGateway::inbufhandler(int fd, const char *buf, ssize_t bufsize)
+// have read everything before processing
+void IbGateway::inbufhandler(const char *buf, size_t bufsize)
 {
-  ssize_t pos = 0;
-
-  while (pos < bufsize)
+  size_t pos=sizeof(size_t); // i already know the whole size, it's bufsize
+  while (pos<bufsize)
   {
-    if (bufsize - pos < (ssize_t)sizeof(ssize_t))
-    {
-      pendingReads[fd].assign(buf+pos, bufsize-pos);
-      return;
-    }
-
-    ssize_t len;
-    memcpy(&len, buf+pos, sizeof(ssize_t));
-
-    if (len > bufsize-(pos+(ssize_t)sizeof(ssize_t)))
-    {
-      pendingReads[fd].assign(buf+pos, bufsize-pos);
-      return;
-    }
-
-    msgpack::sbuffer sbuf;
-    sbuf.write(buf+pos+sizeof(ssize_t), len);
-    msgpack::unpacker unpack;
-    unpack.reserve_buffer(sbuf.size());
-    memcpy(unpack.buffer(), sbuf.data(), sbuf.size());
-    unpack.buffer_consumed(sbuf.size());
-
-    class Message *msg;
-
-    while ((msg = Message::deser(unpack)) != NULL)
-    {
-      mboxes.toActor(msg->sourceAddr, msg->destAddr, *msg);
-    }
-
-    pos += sizeof(ssize_t) + len;
+    size_t s=*(size_t *)(buf+pos);
+    pos += sizeof(s);
+    string *serstr=new string(buf+pos, s);
+    pos += s;
+    class MessageSerialized *msgsnd=new class MessageSerialized(serstr);
+    mboxes.toActor(msgsnd->messageStruct.sourceAddr,
+            msgsnd->messageStruct.destAddr, *msgsnd);
   }
 }
 

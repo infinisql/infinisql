@@ -194,7 +194,7 @@ public:
   int64_t transactionid;
   int64_t domainid;
   class Schema *schemaPtr;
-  map<int64_t, int64_t> engineToSubTransactionids;
+  boost::unordered_map<int64_t, int64_t> engineToSubTransactionids;
   transactionstate_e state;
   pendingprimitive_e pendingcmd;
   int64_t pendingcmdid;

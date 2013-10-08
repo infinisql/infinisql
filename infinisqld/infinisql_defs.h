@@ -193,7 +193,8 @@ enum topic_e
   TOPIC_OPERATION = 41,
   TOPIC_COMPILE = 42,
   TOPIC_TABLENAME = 43,
-  TOPIC_FIELDNAME = 44
+  TOPIC_FIELDNAME = 44,
+  TOPIC_SERIALIZED = 45
 };
 
 enum payloadtype_e
@@ -208,7 +209,8 @@ enum payloadtype_e
   PAYLOADDISPATCH,
   PAYLOADACKDISPATCH,
   PAYLOADAPPLY,
-  PAYLOADACKAPPLY
+  PAYLOADACKAPPLY,
+  PAYLOADSERIALIZED
 };
 
 enum operationtype_e
@@ -457,7 +459,6 @@ typedef struct
   int64_t tableid;
   int64_t rowid; // used both for row's rowid, and index value
   int64_t fieldid;
-  fieldValue_s fieldVal;
   int64_t engineid; // used with rowid for index value if
   bool deleteindexentry; // true = add, false = remove, for delete unique entry,
   // add/delete nonunique, add/delete null
@@ -465,6 +466,8 @@ typedef struct
   bool isreplace;
   int64_t newrowid;
   int64_t newengineid;
+
+  fieldValue_s fieldVal;
 } rowOrField_s;
 
 typedef struct
@@ -485,23 +488,17 @@ typedef nonLockingIndexEntry_s indexEntry_s;
 typedef struct
 {
   int64_t status;
-
   bool isrow;
-
   int64_t rowid;
   int64_t tableid;
   string row;
   locktype_e locktype;
-
   int64_t forward_rowid;
   int64_t forward_engineid;
-
-  // for index
   int64_t fieldid;
   int64_t engineid; // index also uses rowid
-  fieldValue_s fieldVal;
 
-  // for select
+  fieldValue_s fieldVal;
   vector<nonLockingIndexEntry_s> indexHits;
   searchParams_s searchParameters;
   vector<int64_t> rowids;

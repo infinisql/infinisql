@@ -126,16 +126,16 @@ void ApiInterface::insertRow(apifPtr re, int64_t recmd, void *reptr,
   }
 
   // now, prepare message for Engine, which expects:
-  // transaction_enginecmd NEWROW, transaction_payloadtype SUBTRANSACTIONCMDPAYLOAD
+  // transaction_enginecmd NEWROW, transaction_messageStruct.payloadtype SUBTRANSACTIONCMDPAYLOAD
   // reentrypoint 1
   // tableid, row
   // expects in return: rowid
   class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
   class MessageSubtransactionCmd &msgref = *msg;
-  msgref.cmd.tableid = tableid;
+  msgref.subtransactionStruct.tableid=tableid;
 
   if (transactionPtr->currentCmdState.tablePtr->
-      makerow(&transactionPtr->fieldValues, &msgref.cmd.row)==false)
+      makerow(&transactionPtr->fieldValues, &msgref.row)==false)
   {
     transactionPtr->reenter(APISTATUS_FIELD);
     delete msg;
@@ -144,8 +144,8 @@ void ApiInterface::insertRow(apifPtr re, int64_t recmd, void *reptr,
 
   // put unmake row here and print the fields, just to see if make/unmake are the problem
   vector<fieldValue_s> f;
-  transactionPtr->currentCmdState.tablePtr->unmakerow(&msgref.cmd.row, &f);
-  transactionPtr->currentCmdState.row = msgref.cmd.row;
+  transactionPtr->currentCmdState.tablePtr->unmakerow(&msgref.row, &f);
+  transactionPtr->currentCmdState.row = msgref.row;
   transactionPtr->sendTransaction(NEWROW, PAYLOADSUBTRANSACTION, 1,
                                   transactionPtr->currentCmdState.rowEngineid, (void *)msg);
 }
@@ -178,8 +178,8 @@ void ApiInterface::deleteRow(apifPtr re, int64_t recmd, void *reptr,
   // tableid,rowid,DELETEROW,SUBTRANSACTIONCMDPAYLOAD, returns status
   class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
   class MessageSubtransactionCmd &msgref = *msg;
-  msgref.cmd.rowid = transactionPtr->currentCmdState.originaluur.rowid;
-  msgref.cmd.tableid = transactionPtr->currentCmdState.originaluur.tableid;
+  msgref.subtransactionStruct.rowid = transactionPtr->currentCmdState.originaluur.rowid;
+  msgref.subtransactionStruct.tableid = transactionPtr->currentCmdState.originaluur.tableid;
   transactionPtr->sendTransaction(DELETEROW, PAYLOADSUBTRANSACTION, 1,
                                   transactionPtr->currentCmdState.originaluur.engineid, (void *)msg);
 }

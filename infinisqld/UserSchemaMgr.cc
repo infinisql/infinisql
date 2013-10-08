@@ -31,7 +31,6 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
   myIdentity(*myIdentityArg)
 {
   delete myIdentityArg;
-  class Mbox &mymbox = *myIdentity.mbox;
   mboxes.nodeid = myIdentity.address.nodeid;
   mboxes.update(myTopology);
 
@@ -75,26 +74,27 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
   {
     do
     {
-      msgrcv = mymbox.receive(1000);
+//      msgrcv = mymbox.receive(1000);
+      GETMSG(msgrcv, myIdentity.mbox, 1000)
     }
     while (msgrcv==NULL);
 
     class MessageUserSchema &msgrcvref =
           *(class MessageUserSchema *)msgrcv;
 
-    if (msgrcvref.topic != TOPIC_TOPOLOGY && msgrcvref.topic != TOPIC_OPERATION
-        && msgrcvref.topic != TOPIC_NONE)
+    if (msgrcvref.messageStruct.topic != TOPIC_TOPOLOGY && msgrcvref.messageStruct.topic != TOPIC_OPERATION
+        && msgrcvref.messageStruct.topic != TOPIC_NONE)
   {
-      argsize = msgrcvref.argsize;
-      tainstance = msgrcvref.instance;
-      operationid = msgrcvref.operationid;
-      domainid = msgrcvref.domainid;
-      userid = msgrcvref.userid;
+      argsize = msgrcvref.userschemaStruct.argsize;
+      tainstance = msgrcvref.userschemaStruct.instance;
+      operationid = msgrcvref.userschemaStruct.operationid;
+      domainid = msgrcvref.userschemaStruct.domainid;
+      userid = msgrcvref.userschemaStruct.userid;
       resultVector = new vector<string>;
       msgpack2Vector(resultVector, (char *)msgrcvref.argstring.c_str(), argsize);
     }
 
-    switch (msgrcv->topic)
+    switch (msgrcv->messageStruct.topic)
     {
       case TOPIC_LOGIN:
         login();
@@ -121,7 +121,7 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
         break;
 
       case TOPIC_SCHEMAREQUEST:
-        switch (msgrcvref.builtincmd)
+        switch (msgrcvref.userschemaStruct.builtincmd)
         {
           case BUILTINCREATESCHEMA:
           {
@@ -151,7 +151,7 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
 
           default:
             fprintf(logfile, "UserSchemaMgr bad schema builtin %li\n",
-                    msgrcvref.builtincmd);
+                    msgrcvref.userschemaStruct.builtincmd);
         }
 
         break;
@@ -165,11 +165,11 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
         break;
 
       default:
-        fprintf(logfile, "UserSchemaMgr bad topic %i\n", msgrcv->topic);
+        fprintf(logfile, "UserSchemaMgr bad topic %i\n", msgrcv->messageStruct.topic);
     }
 
-    if (msgrcvref.topic != TOPIC_TOPOLOGY && msgrcvref.topic != TOPIC_OPERATION
-        && msgrcvref.topic != TOPIC_NONE)
+    if (msgrcvref.messageStruct.topic != TOPIC_TOPOLOGY && msgrcvref.messageStruct.topic != TOPIC_OPERATION
+        && msgrcvref.messageStruct.topic != TOPIC_NONE)
     {
       delete resultVector;
     }
@@ -196,7 +196,7 @@ void UserSchemaMgr::login(void)
   {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINFAIL);
     //    replyTa(this, TOPIC_LOGINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -208,7 +208,7 @@ void UserSchemaMgr::login(void)
   {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINFAIL);
     //    replyTa(this, TOPIC_LOGINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -219,7 +219,7 @@ void UserSchemaMgr::login(void)
   {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINFAIL);
     //    replyTa(this, TOPIC_LOGINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -231,7 +231,7 @@ void UserSchemaMgr::login(void)
   {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINFAIL);
     //    replyTa(this, TOPIC_LOGINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -244,7 +244,7 @@ void UserSchemaMgr::login(void)
   {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINFAIL);
     //    replyTa(this, TOPIC_LOGINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -252,7 +252,7 @@ void UserSchemaMgr::login(void)
   domainid=did;
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGINOK);
   msg->domainname=resultVector->at(0);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void UserSchemaMgr::changepassword(void)
@@ -264,7 +264,7 @@ void UserSchemaMgr::changepassword(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CHANGEPASSWORDFAIL);
     //    replyTa(this, TOPIC_CHANGEPASSWORDFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -274,7 +274,7 @@ void UserSchemaMgr::changepassword(void)
 {
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_CHANGEPASSWORDFAIL);
     //    replyTa(this, TOPIC_CHANGEPASSWORDFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -283,7 +283,7 @@ void UserSchemaMgr::changepassword(void)
   class MessageUserSchema *msg =
         new class MessageUserSchema(TOPIC_CHANGEPASSWORDOK);
   //  replyTa(this, TOPIC_CHANGEPASSWORDOK, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void UserSchemaMgr::createdomain(void)
@@ -294,7 +294,7 @@ void UserSchemaMgr::createdomain(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEDOMAINFAIL);
     //    replyTa(this, TOPIC_CREATEDOMAINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -306,7 +306,7 @@ void UserSchemaMgr::createdomain(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEDOMAINFAIL);
     //    replyTa(this, TOPIC_CREATEDOMAINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -321,7 +321,7 @@ void UserSchemaMgr::createdomain(void)
 class MessageUserSchema *msg =
         new class MessageUserSchema(TOPIC_CREATEDOMAINOK);
   //  replyTa(this, TOPIC_CREATEDOMAINOK, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 // must be _global admin
@@ -332,7 +332,7 @@ void UserSchemaMgr::createuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEUSERFAIL);
     //    replyTa(this, TOPIC_CREATEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -343,7 +343,7 @@ void UserSchemaMgr::createuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEUSERFAIL);
     //    replyTa(this, TOPIC_CREATEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -357,7 +357,7 @@ void UserSchemaMgr::createuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEUSERFAIL);
     //    replyTa(this, TOPIC_CREATEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -371,7 +371,7 @@ void UserSchemaMgr::createuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_CREATEUSERFAIL);
     //    replyTa(this, TOPIC_CREATEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -388,7 +388,7 @@ void UserSchemaMgr::createuser(void)
   userid = newuserid;
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_CREATEUSEROK);
   //  replyTa(this, TOPIC_CREATEUSEROK, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 // must be _global admin, domainname,username
@@ -399,7 +399,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -410,7 +410,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -424,7 +424,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -435,7 +435,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -450,7 +450,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -464,7 +464,7 @@ void UserSchemaMgr::deleteuser(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEUSERFAIL);
     //    replyTa(this, TOPIC_DELETEUSERFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -474,7 +474,7 @@ void UserSchemaMgr::deleteuser(void)
 class MessageUserSchema *msg =
         new class MessageUserSchema(TOPIC_DELETEUSEROK);
   //  replyTa(this, TOPIC_DELETEUSEROK, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void UserSchemaMgr::deletedomain(void)
@@ -485,7 +485,7 @@ void UserSchemaMgr::deletedomain(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEDOMAINFAIL);
     //    replyTa(this, TOPIC_DELETEDOMAINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -502,7 +502,7 @@ void UserSchemaMgr::deletedomain(void)
     class MessageUserSchema *msg =
           new class MessageUserSchema(TOPIC_DELETEDOMAINFAIL);
     //    replyTa(this, TOPIC_DELETEDOMAINFAIL, msg);
-    TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     return;
   }
 
@@ -518,7 +518,7 @@ void UserSchemaMgr::deletedomain(void)
 class MessageUserSchema *msg =
         new class MessageUserSchema(TOPIC_DELETEDOMAINOK);
   //  replyTa(this, TOPIC_DELETEDOMAINOK, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 // builtins for schema
@@ -530,7 +530,7 @@ void UserSchemaMgr::createschema(builtincmds_e cmd)
     {
       createSchema(this);
       class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
       break;
     }
 
@@ -581,14 +581,14 @@ void UserSchemaMgr::createtable(builtincmds_e cmd)
       if (status==BUILTIN_STATUS_OK)
     {
         schemaPtr->tableNameToId[resultVector->at(0)] = tid;
-        msgref.tableid = tid;
+        msgref.userschemaStruct.tableid = tid;
 
-        msgref.domainid = domainid;
+        msgref.userschemaStruct.domainid = domainid;
         msgref.argstring = resultVector->at(0);
       }
 
       //      replyTa(this, TOPIC_SCHEMAREPLY, msg);
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     }
     break;
 
@@ -622,7 +622,7 @@ void UserSchemaMgr::addcolumn(builtincmds_e cmd)
         // map string not found, doh!
         status = BUILTIN_STATUS_NOTOK;
         //        replyTa(this, TOPIC_SCHEMAREPLY, msg);
-        TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+        TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
         return;
       }
 
@@ -636,7 +636,7 @@ void UserSchemaMgr::addcolumn(builtincmds_e cmd)
       if (!indexTypeMap.count(stringidxtype))
       {
         status = BUILTIN_STATUS_NOTOK;
-        TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+        TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
         return;
       }
 
@@ -645,7 +645,7 @@ void UserSchemaMgr::addcolumn(builtincmds_e cmd)
       if (!domainidsToSchemata.count(domainid))
       {
         status = BUILTIN_STATUS_NOTOK;
-        TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+        TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
         return;
       }
 
@@ -655,7 +655,7 @@ void UserSchemaMgr::addcolumn(builtincmds_e cmd)
       {
         status = BUILTIN_STATUS_NOTOK;
         //        replyTa(this, TOPIC_SCHEMAREPLY, msg);
-        TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+        TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
         return;
       }
 
@@ -666,23 +666,23 @@ void UserSchemaMgr::addcolumn(builtincmds_e cmd)
         // column already exists
         status = BUILTIN_STATUS_NOTOK;
         //        replyTa(this, TOPIC_SCHEMAREPLY, msg);
-        TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+        TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
         return;
       }
 
-      msgref.fieldid = tablePtr->addfield(type, len, name, idxtype);
-      schemaPtr->fieldNameToId[tid][name] = msgref.fieldid;
+      msgref.userschemaStruct.fieldid = tablePtr->addfield(type, len, name, idxtype);
+      schemaPtr->fieldNameToId[tid][name] = msgref.userschemaStruct.fieldid;
       status = BUILTIN_STATUS_OK;
-      msgref.tableid = tid;
-      msgref.fieldlen = len;
-      msgref.fieldtype = type;
-      msgref.indextype = idxtype;
+      msgref.userschemaStruct.tableid = tid;
+      msgref.userschemaStruct.fieldlen = len;
+      msgref.userschemaStruct.fieldtype = type;
+      msgref.userschemaStruct.indextype = idxtype;
 
-      msgref.domainid = domainid;
+      msgref.userschemaStruct.domainid = domainid;
       msgref.argstring = name;
-      msgref.argsize = 0;
+      msgref.userschemaStruct.argsize = 0;
 
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     }
     break;
 
@@ -704,7 +704,7 @@ void UserSchemaMgr::deleteindex(builtincmds_e cmd)
       status = BUILTIN_STATUS_OK;
       class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
       //      replyTa(this, TOPIC_SCHEMAREPLY, msg);
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     }
     break;
 
@@ -727,7 +727,7 @@ void UserSchemaMgr::deletetable(builtincmds_e cmd)
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_SCHEMAREPLY);
       //      replyTa(this, TOPIC_SCHEMAREPLY, msg);
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     }
     break;
 
@@ -750,7 +750,7 @@ void UserSchemaMgr::deleteschema(builtincmds_e cmd)
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_SCHEMAREPLY);
       //      replyTa(this, TOPIC_SCHEMAREPLY, msg);
-      TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+      TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
     }
     break;
 
@@ -787,24 +787,24 @@ void UserSchemaMgr::operationHandler(class MessageUserSchema &msgrcvref)
         new class MessageUserSchema(TOPIC_OPERATION);
   class MessageUserSchema &replyMsgRef = *replyMsg;
 
-  switch ((operationtype_e)msgrcvref.operationtype)
+  switch ((operationtype_e)msgrcvref.userschemaStruct.operationtype)
 {
     case OPERATION_LOGIN:
-      replyMsgRef.status = operationLogin(msgrcvref.username,
-                                          msgrcvref.domainname, msgrcvref.password, &replyMsgRef.userid,
-                                          &replyMsgRef.domainid);
+      replyMsgRef.userschemaStruct.status = operationLogin(msgrcvref.username,
+                                          msgrcvref.domainname, msgrcvref.password, &replyMsgRef.userschemaStruct.userid,
+                                          &replyMsgRef.userschemaStruct.domainid);
       replyMsgRef.domainname=msgrcvref.domainname;
       break;
 
     default:
       printf("%s %i anomaly operationtype %i\n", __FILE__, __LINE__,
-             msgrcvref.operationtype);
+             msgrcvref.userschemaStruct.operationtype);
   }
 
-  replyMsgRef.operationid = msgrcvref.operationid;
-  replyMsgRef.caller = msgrcvref.caller;
-  replyMsgRef.callerstate = msgrcvref.callerstate;
-  mboxes.toActor(myIdentity.address, msgrcvref.sourceAddr, replyMsgRef);
+  replyMsgRef.userschemaStruct.operationid = msgrcvref.userschemaStruct.operationid;
+  replyMsgRef.userschemaStruct.caller = msgrcvref.userschemaStruct.caller;
+  replyMsgRef.userschemaStruct.callerstate = msgrcvref.userschemaStruct.callerstate;
+  mboxes.toActor(myIdentity.address, msgrcvref.messageStruct.sourceAddr, replyMsgRef);
 }
 
 int64_t UserSchemaMgr::operationLogin(string &username, string &domainname,

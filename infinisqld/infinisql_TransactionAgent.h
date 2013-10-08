@@ -155,6 +155,7 @@ public:
   int64_t tainstance;
   //public for createSchema:
   class Message *msgrcv;
+  REUSEMESSAGES
   domainidToSchemaMap domainidsToSchemata;
 
   // needs to be all/mostly public for stored procedures
@@ -249,13 +250,8 @@ public:
         }
 
         struct epoll_event ev;
-
         ev.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLET;
-
-        //        ev.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLET;
-
         ev.data.fd = sockfd;
-
         if (epoll_ctl(epollfd, EPOLL_CTL_MOD, sockfd, &ev))
         {
           printf("%s %i endConnection\n", __FILE__, __LINE__);
@@ -276,11 +272,11 @@ public:
   static void usmReply(T actor, Topology::addressStruct &dest,
                        class MessageUserSchema &msg)
   {
-    msg.payloadtype = PAYLOADUSERSCHEMA;
-    msg.operationid = actor->operationid;
-    msg.domainid = actor->domainid;
-    msg.userid = actor->userid;
-    msg.status = actor->status;
+    msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+    msg.userschemaStruct.operationid = actor->operationid;
+    msg.userschemaStruct.domainid = actor->domainid;
+    msg.userschemaStruct.userid = actor->userid;
+    msg.userschemaStruct.status = actor->status;
 
     actor->mboxes.toActor(actor->myIdentity.address, dest, msg);
   }
@@ -344,12 +340,12 @@ void replyTa(T servent, topic_e result, void *msg)
 {
   class MessageUserSchema &msgref = *(class MessageUserSchema *)msg;
   servent->msgsnd.data = (void *)msg;
-  ((class Message *)servent->msgsnd.data)->topic = result;
-  ((class Message *)servent->msgsnd.data)->payloadtype = PAYLOADUSERSCHEMA;
-  msgref.operationid = servent->operationid;
-  msgref.domainid = servent->domainid;
-  msgref.userid = servent->userid;
-  msgref.status = servent->status;
+  ((class Message *)servent->msgsnd.data)->messageStruct.topic = result;
+  ((class Message *)servent->msgsnd.data)->messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+  msgref.userschemaStruct.operationid = servent->operationid;
+  msgref.userschemaStruct.domainid = servent->domainid;
+  msgref.userschemaStruct.userid = servent->userid;
+  msgref.userschemaStruct.status = servent->status;
 }
 
 void *transactionAgent(void *);

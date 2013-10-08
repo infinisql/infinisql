@@ -33,8 +33,8 @@
 Mbox::Mbox() : counter(8888)
 {
   firstMsg = new class Message();
-  firstMsg->payloadtype = PAYLOADNONE;
-  firstMsg->nextmsg = getInt128FromPointer(NULL, 5000);
+  firstMsg->messageStruct.payloadtype = PAYLOADNONE;
+  firstMsg->messageStruct.nextmsg = getInt128FromPointer(NULL, 5000);
   currentMsg = firstMsg;
   lastMsg = firstMsg;
   myLastMsg = firstMsg;
@@ -66,7 +66,7 @@ class Message *Mbox::receive(int timeout)
 
   while (1)
   {
-    mynext = __atomic_load_n(&(getPtr(current)->nextmsg), __ATOMIC_SEQ_CST);
+    mynext = __atomic_load_n(&(getPtr(current)->messageStruct.nextmsg), __ATOMIC_SEQ_CST);
 
     if (getPtr(mynext)==NULL)
     {
@@ -94,7 +94,7 @@ class Message *Mbox::receive(int timeout)
 
       delete getPtr(current);
       current = mynext;
-      return getPtr(current);
+      return getPtr(current);      
     }
   }
 }
@@ -123,7 +123,8 @@ MboxProducer::MboxProducer()
   mbox = NULL;
 }
 
-MboxProducer::MboxProducer(class Mbox *mboxarg) : mbox(mboxarg)
+MboxProducer::MboxProducer(class Mbox *mboxarg, int64_t nodeidarg) :
+          mbox(mboxarg), nodeid(nodeidarg)
 {
 }
 
@@ -131,9 +132,21 @@ MboxProducer::~MboxProducer()
 {
 }
 
-void MboxProducer::sendMsg(class Message &msg)
+void MboxProducer::sendMsg(class Message &msgsnd)
 {
-  msg.nextmsg = Mbox::getInt128FromPointer(NULL, 5555);
+  class Message *msgptr;
+  if (nodeid != msgsnd.messageStruct.destAddr.nodeid)
+  { // must be sending to obgw then, so serialize here
+    msgptr=new class MessageSerialized(msgsnd.sermsg());
+    delete &msgsnd;
+  }
+  else
+  {
+    msgptr=&msgsnd;
+  }
+  class Message &msg=*msgptr;
+  
+  msg.messageStruct.nextmsg = Mbox::getInt128FromPointer(NULL, 5555);
 
   __int128 mytail;
   __int128 mynext;
@@ -141,13 +154,13 @@ void MboxProducer::sendMsg(class Message &msg)
   while (1)
   {
     mytail = __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST);
-    mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->nextmsg), __ATOMIC_SEQ_CST);
+    mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->messageStruct.nextmsg), __ATOMIC_SEQ_CST);
 
     if (mytail == __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST))
     {
       if (Mbox::getPtr(mynext) == NULL)
       {
-        if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext,
+        if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->messageStruct.nextmsg), &mynext,
                                         Mbox::getInt128FromPointer(&msg,
                                             __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)),
                                         false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
@@ -224,7 +237,8 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
     {
       if (top.actorList[n].type != ACTOR_NONE)
       {
-        actoridToProducers[n] = new class MboxProducer(top.actorList[n].mbox);
+        actoridToProducers[n] = new class MboxProducer(top.actorList[n].mbox,
+                top.nodeid);
       }
 
       switch (top.actorList[n].type)
@@ -375,7 +389,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
     {
       if (allActors[n][m] == (int)type)
       {
-        switch (msg.payloadtype)
+        switch (msg.messageStruct.payloadtype)
         {
           case PAYLOADMESSAGE:
           {
@@ -427,7 +441,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
           break;
 
           default:
-            printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.payloadtype);
+            printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.messageStruct.payloadtype);
         }
 
         tally++;
@@ -455,7 +469,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
         printf("%s %i n m %lu %lu allActors %i allActorsThisReplica %i\n",
                __FILE__, __LINE__, it->first, m, allActors[it->first][m], allActorsThisReplica[it->first][m]);
 
-        switch (msg.payloadtype)
+        switch (msg.messageStruct.payloadtype)
         {
           case PAYLOADMESSAGE:
           {
@@ -507,7 +521,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
           break;
 
           default:
-            printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.payloadtype);
+            printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.messageStruct.payloadtype);
         }
 
         tally++;

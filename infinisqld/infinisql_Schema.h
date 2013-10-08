@@ -61,14 +61,14 @@ void createSchema(T servent)
   class MessageUserSchema &msgref =
         *(class MessageUserSchema *)servent->msgrcv;
 
-  if (servent->domainidsToSchemata.count(msgref.domainid))
+  if (servent->domainidsToSchemata.count(msgref.userschemaStruct.domainid))
 {
     servent->status = BUILTIN_STATUS_NOTOK;
   }
   else
   {
-    class Schema *sptr = new class Schema(msgref.domainid);
-    servent->domainidsToSchemata[msgref.domainid] = sptr;
+    class Schema *sptr = new class Schema(msgref.userschemaStruct.domainid);
+    servent->domainidsToSchemata[msgref.userschemaStruct.domainid] = sptr;
     servent->status = BUILTIN_STATUS_OK;
   }
 }

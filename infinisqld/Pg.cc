@@ -62,13 +62,13 @@ void Pg::cont()
 
   string newdata;
 
-  if ((msgrcvref.events & EPOLLERR) || (msgrcvref.events & EPOLLHUP))
+  if ((msgrcvref.socketStruct.events & EPOLLERR) || (msgrcvref.socketStruct.events & EPOLLHUP))
   {
     closesocket(*taPtr);
     return;
   }
 
-  if (msgrcvref.events & EPOLLIN)
+  if (msgrcvref.socketStruct.events & EPOLLIN)
   {
     // read stuff from the socket
     if (readsocket(newdata)==false)
@@ -83,7 +83,7 @@ void Pg::cont()
       return;
     }
   }
-  else if (msgrcvref.events & EPOLLOUT)
+  else if (msgrcvref.socketStruct.events & EPOLLOUT)
   {
     if (rewritesocket()==-1)
     {
@@ -94,7 +94,7 @@ void Pg::cont()
   }
   else
   {
-    printf("%s %i anomaly events %u\n", __FILE__, __LINE__, msgrcvref.events);
+    printf("%s %i anomaly events %u\n", __FILE__, __LINE__, msgrcvref.socketStruct.events);
     return;
   }
 
@@ -240,10 +240,10 @@ void Pg::cont()
 
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_OPERATION);
-      msg->caller = 1;
-      msg->callerstate = 1;
-      msg->operationid = operationRef.operationid;
-      msg->operationtype = OPERATION_LOGIN;
+      msg->userschemaStruct.caller = 1;
+      msg->userschemaStruct.callerstate = 1;
+      msg->userschemaStruct.operationid = operationRef.operationid;
+      msg->userschemaStruct.operationtype = OPERATION_LOGIN;
 
       msg->username = startupArgs["user"];
       msg->domainname = startupArgs["database"];
@@ -412,7 +412,7 @@ void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd)
   // OLD WAY
   /*
   class MessageSocket msg(socket, 0, LISTENER_PG);
-  msg.topic=TOPIC_CLOSESOCKET;
+  msg.messageStruct.topic=TOPIC_CLOSESOCKET;
 
   for (size_t n=0; n < taRef.mboxes.allActors[taRef.myTopology.nodeid].size();
        n++)
@@ -784,7 +784,6 @@ short Pg::writesocket()
         outbuf.swap(backgroundstr);
         struct epoll_event epevent;
         epevent.events = EPOLLOUT | EPOLLHUP | EPOLLET;
-        //        epevent.events = EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLET;
         epevent.data.fd = sockfd;
         epoll_ctl(taPtr->myIdentity.epollfd, EPOLL_CTL_MOD, sockfd, &epevent);
         return 1;
@@ -813,7 +812,6 @@ short Pg::rewritesocket()
     {
       struct epoll_event epevent;
       epevent.events = EPOLLIN | EPOLLHUP | EPOLLET;
-      //      epevent.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLET;
       epevent.data.fd=sockfd;
       epoll_ctl(taPtr->myIdentity.epollfd, EPOLL_CTL_MOD, sockfd, &epevent);
       return 0;
@@ -832,10 +830,10 @@ short Pg::rewritesocket()
 
 void Pg::continueLogin(int cmdstate, class MessageUserSchema &msgrcvref)
 {
-  if (msgrcvref.status==STATUS_OK)
+  if (msgrcvref.userschemaStruct.status==STATUS_OK)
   {
-    userid = msgrcvref.userid;
-    domainid = msgrcvref.domainid;
+    userid = msgrcvref.userschemaStruct.userid;
+    domainid = msgrcvref.userschemaStruct.domainid;
     procedureprefix.assign(storedprocprefix);
     procedureprefix.append(msgrcvref.domainname);
     procedureprefix.append("_");

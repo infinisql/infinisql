@@ -37,7 +37,6 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
   profilecount = 0; //profiling
   profiles = new PROFILERENGINECOMPREHENSIVE[PROFILEENGINEENTRIES];
 #endif
-  class Mbox &mymbox = *myIdentity.mbox;
   mboxes.nodeid = myIdentity.address.nodeid;
   mboxes.update(myTopology, instance);
   getMyPartitionid();
@@ -55,7 +54,8 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
 
     for (size_t inmsg=0; inmsg < 50; inmsg++)
     {
-      msgrcv = mymbox.receive(waitfor);
+//      msgrcv = mymbox.receive(waitfor);
+      GETMSG(msgrcv, myIdentity.mbox, waitfor)
 
       if (msgrcv==NULL)
       {
@@ -65,21 +65,20 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
 
       waitfor = 0;
 
-      if (msgrcv->payloadtype==PAYLOADUSERSCHEMA)
+      if (msgrcv->messageStruct.payloadtype==PAYLOADUSERSCHEMA)
       {
         class MessageUserSchema &msgrcvRef =
               *(class MessageUserSchema *)msgrcv;
 
-        argsize = msgrcvRef.argsize;
-        taAddr = msgrcvRef.sourceAddr;
-        //        tainstance = msgrcvRef.instance;
-        operationid = msgrcvRef.operationid;
-        domainid = msgrcvRef.domainid;
-        userid = msgrcvRef.userid;
-        builtincmd = msgrcvRef.builtincmd;
+        argsize = msgrcvRef.userschemaStruct.argsize;
+        taAddr = msgrcvRef.messageStruct.sourceAddr;
+        operationid = msgrcvRef.userschemaStruct.operationid;
+        domainid = msgrcvRef.userschemaStruct.domainid;
+        userid = msgrcvRef.userschemaStruct.userid;
+        builtincmd = msgrcvRef.userschemaStruct.builtincmd;
       }
 
-      switch (msgrcv->topic)
+      switch (msgrcv->messageStruct.topic)
     {
         case TOPIC_SCHEMAREQUEST:
           switch (builtincmd)
@@ -125,16 +124,16 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
 #endif
 
           // create SubTransaction if no subtransaction
-          if (msgrcvRef.subtransactionid <= 0)
+          if (msgrcvRef.transactionStruct.subtransactionid <= 0)
         {
             class SubTransaction *subTransactionidPtr =
-                new class SubTransaction(msgrcvRef.sourceAddr,
-                                             msgrcvRef.transactionid, msgrcvRef.domainid, this);
+                new class SubTransaction(msgrcvRef.messageStruct.sourceAddr,
+                                             msgrcvRef.transactionStruct.transactionid, msgrcvRef.transactionStruct.domainid, this);
             subTransactionidPtr->processTransactionMessage(msgrcv);
           }
-          else if (SubTransactions.count(msgrcvRef.subtransactionid))
+          else if (SubTransactions.count(msgrcvRef.transactionStruct.subtransactionid))
         {
-            SubTransactions[msgrcvRef.subtransactionid]->processTransactionMessage(msgrcv);
+            SubTransactions[msgrcvRef.transactionStruct.subtransactionid]->processTransactionMessage(msgrcv);
           }
         }
         break;
@@ -144,7 +143,7 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
           class MessageTransaction &msgrcvRef =
                 *(class MessageTransaction *)msgrcv;
 
-          if (SubTransactions.count(msgrcvRef.subtransactionid))
+          if (SubTransactions.count(msgrcvRef.transactionStruct.subtransactionid))
         {
 #ifdef PROFILE
             class SubTransaction &subTransactionRef =
@@ -161,7 +160,7 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
 
             profiles[profilecount++ % PROFILEENGINEENTRIES] = p;
 #endif
-            delete SubTransactions[msgrcvRef.subtransactionid];
+            delete SubTransactions[msgrcvRef.transactionStruct.subtransactionid];
           }
         }
         break;
@@ -240,7 +239,7 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
 
         default:
           printf("%s %i Engine bad topic %i\n", __FILE__, __LINE__,
-                 msgrcv->topic);
+                 msgrcv->messageStruct.topic);
       }
     }
   }
@@ -263,7 +262,7 @@ void Engine::createschema(void)
 {
   createSchema(this);
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void Engine::createtable(void)
@@ -272,10 +271,9 @@ void Engine::createtable(void)
   class MessageUserSchema &msgrcvRef = *(class MessageUserSchema *)msgrcv;
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status =
-    domainidsToSchemata[msgrcvRef.domainid]->createTable(msgrcvRef.tableid);
-  msg->tableid = msgrcvRef.tableid;
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+    domainidsToSchemata[msgrcvRef.userschemaStruct.domainid]->createTable(msgrcvRef.userschemaStruct.tableid);
+  msg->userschemaStruct.tableid = msgrcvRef.userschemaStruct.tableid;
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void Engine::addcolumn(void)
@@ -284,12 +282,12 @@ void Engine::addcolumn(void)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   // either succeeds or fails :-)
   class Schema &schemaRef = *domainidsToSchemata[domainid];
-  class Table &tableRef = *schemaRef.tables[msgrcvRef.tableid];
-  msg->fieldid = tableRef.addfield((fieldtype_e) msgrcvRef.fieldtype,
-                                   msgrcvRef.fieldlen, "", (indextype_e) msgrcvRef.indextype);
+  class Table &tableRef = *schemaRef.tables[msgrcvRef.userschemaStruct.tableid];
+  msg->userschemaStruct.fieldid = tableRef.addfield((fieldtype_e) msgrcvRef.userschemaStruct.fieldtype,
+                                   msgrcvRef.userschemaStruct.fieldlen, "", (indextype_e) msgrcvRef.userschemaStruct.indextype);
   status = BUILTIN_STATUS_OK;
   //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void Engine::deleteindex(void)
@@ -298,7 +296,7 @@ void Engine::deleteindex(void)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
   //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void Engine::deletetable(void)
@@ -307,7 +305,7 @@ void Engine::deletetable(void)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
   //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void Engine::deleteschema(void)
@@ -316,7 +314,7 @@ void Engine::deleteschema(void)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
   //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 int64_t Engine::getnextsubtransactionid(void)
@@ -340,7 +338,6 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                        MessageDispatch::record_s &record)
 {
   class Table &tableRef = *schemaRef.tables[record.tableid];
-  //  class Table &tableRef = *domainidsToSchemata[domainid]->tables[record.tableid];
 
   switch (record.primitive)
   {
@@ -765,11 +762,11 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
 void Engine::apply()
 {
   class MessageApply &inmsg = *(class MessageApply *)msgrcv;
-  class Schema &schemaRef = *domainidsToSchemata[inmsg.domainid];
+  class Schema &schemaRef = *domainidsToSchemata[inmsg.applyStruct.domainid];
 
   for (size_t n=0; n < inmsg.rows.size(); n++)
   {
-    if (applyItem(inmsg.subtransactionid, schemaRef, inmsg.rows[n])==false)
+    if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef, inmsg.rows[n])==false)
     {
       background(inmsg, inmsg.rows[n]);
     }
@@ -777,18 +774,18 @@ void Engine::apply()
 
   for (size_t n=0; n < inmsg.indices.size(); n++)
   {
-    if (applyItem(inmsg.subtransactionid, schemaRef, inmsg.indices[n])==false)
+    if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef, inmsg.indices[n])==false)
     {
       background(inmsg, inmsg.indices[n]);
     }
   }
 
-  if (!backgrounded.count(inmsg.subtransactionid))
+  if (!backgrounded.count(inmsg.applyStruct.subtransactionid))
   {
     class MessageAckApply *ackmsg =
-        new class MessageAckApply(inmsg.subtransactionid, inmsg.applierid,
+        new class MessageAckApply(inmsg.applyStruct.subtransactionid, inmsg.applyStruct.applierid,
                                       -1, STATUS_OK);
-    mboxes.toActor(myIdentity.address, inmsg.sourceAddr, *ackmsg);
+    mboxes.toActor(myIdentity.address, inmsg.messageStruct.sourceAddr, *ackmsg);
   }
 
   // now, walk through backgrounded items
@@ -831,28 +828,28 @@ void Engine::apply()
 void Engine::background(class MessageApply &inmsg,
                         MessageDispatch::record_s &item)
 {
-  if (!backgrounded.count(inmsg.subtransactionid))
+  if (!backgrounded.count(inmsg.applyStruct.subtransactionid))
   {
     background_s b;
-    b.applierid = inmsg.applierid;
-    b.taAddress = inmsg.sourceAddr;
-    backgrounded[inmsg.subtransactionid]=b;
+    b.applierid = inmsg.applyStruct.applierid;
+    b.taAddress = inmsg.messageStruct.sourceAddr;
+    backgrounded[inmsg.applyStruct.subtransactionid]=b;
   }
 
-  backgrounded[inmsg.subtransactionid].rows.push_back(item);
+  backgrounded[inmsg.applyStruct.subtransactionid].rows.push_back(item);
 }
 
 void Engine::background(class MessageApply &inmsg,
                         MessageApply::applyindex_s &item)
 {
-  if (!backgrounded.count(inmsg.subtransactionid))
+  if (!backgrounded.count(inmsg.applyStruct.subtransactionid))
   {
     background_s b;
-    b.applierid = inmsg.applierid;
-    b.taAddress = inmsg.sourceAddr;
-    backgrounded[inmsg.subtransactionid]=b;
+    b.applierid = inmsg.applyStruct.applierid;
+    b.taAddress = inmsg.messageStruct.sourceAddr;
+    backgrounded[inmsg.applyStruct.subtransactionid]=b;
   }
 
-  backgrounded[inmsg.subtransactionid].indices.push_back(item);
+  backgrounded[inmsg.applyStruct.subtransactionid].indices.push_back(item);
 }
 

@@ -57,7 +57,7 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 #endif
   msgrcv = msgrcvarg;
 
-  switch (msgrcv->payloadtype)
+  switch (msgrcv->messageStruct.payloadtype)
   {
     case PAYLOADSUBTRANSACTION:
     {
@@ -66,43 +66,43 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
       class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd;
       class MessageSubtransactionCmd &msgref = *msg;
 
-      switch ((enginecmd_e) subtransactionCmdRef.transaction_enginecmd)
+      switch ((enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd)
     {
         case NEWROW:
         {
-          msgref.cmd.rowid = newrow(subtransactionCmdRef.cmd.tableid,
-                                    subtransactionCmdRef.cmd.row);
-          msgref.cmd.locktype = WRITELOCK;
+          msgref.subtransactionStruct.rowid = newrow(subtransactionCmdRef.subtransactionStruct.tableid,
+                                    subtransactionCmdRef.row);
+          msgref.subtransactionStruct.locktype = WRITELOCK;
         }
         break;
 
         case UNIQUEINDEX:
         {
-          msgref.cmd.locktype = uniqueIndex(subtransactionCmdRef.cmd.tableid,
-                                            subtransactionCmdRef.cmd.fieldid, subtransactionCmdRef.cmd.rowid,
-                                            subtransactionCmdRef.cmd.engineid,
-                                            &subtransactionCmdRef.cmd.fieldVal);
-          msgref.cmd.tableid = subtransactionCmdRef.cmd.tableid;
-          msgref.cmd.fieldid = subtransactionCmdRef.cmd.fieldid;
-          msgref.cmd.fieldVal = subtransactionCmdRef.cmd.fieldVal;
+          msgref.subtransactionStruct.locktype = uniqueIndex(subtransactionCmdRef.subtransactionStruct.tableid,
+                                            subtransactionCmdRef.subtransactionStruct.fieldid, subtransactionCmdRef.subtransactionStruct.rowid,
+                                            subtransactionCmdRef.subtransactionStruct.engineid,
+                                            &subtransactionCmdRef.fieldVal);
+          msgref.subtransactionStruct.tableid = subtransactionCmdRef.subtransactionStruct.tableid;
+          msgref.subtransactionStruct.fieldid = subtransactionCmdRef.subtransactionStruct.fieldid;
+          msgref.fieldVal = subtransactionCmdRef.fieldVal;
         }
         break;
 
         case UPDATEROW:
         {
-          msgref.cmd.status = updaterow(subtransactionCmdRef.cmd.tableid,
-                                        subtransactionCmdRef.cmd.rowid, &subtransactionCmdRef.cmd.row);
-          msgref.cmd.locktype=WRITELOCK;
+          msgref.subtransactionStruct.status = updaterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                                        subtransactionCmdRef.subtransactionStruct.rowid, &subtransactionCmdRef.row);
+          msgref.subtransactionStruct.locktype=WRITELOCK;
         }
         break;
 
         case DELETEROW:
         {
-          msgref.cmd.rowid = subtransactionCmdRef.cmd.rowid;
-          msgref.cmd.tableid = subtransactionCmdRef.cmd.tableid;
-          msgref.cmd.engineid = subtransactionCmdRef.cmd.engineid;
-          msgref.cmd.status = deleterow(subtransactionCmdRef.cmd.tableid,
-                                        subtransactionCmdRef.cmd.rowid);
+          msgref.subtransactionStruct.rowid = subtransactionCmdRef.subtransactionStruct.rowid;
+          msgref.subtransactionStruct.tableid = subtransactionCmdRef.subtransactionStruct.tableid;
+          msgref.subtransactionStruct.engineid = subtransactionCmdRef.subtransactionStruct.engineid;
+          msgref.subtransactionStruct.status = deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                                        subtransactionCmdRef.subtransactionStruct.rowid);
           //          printf("%s %i deleterow\n", __FILE__, __LINE__);
         }
         break;
@@ -110,44 +110,44 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
         case REPLACEDELETEROW:
         {
           // thingy to call deleterow() like above, then set the forwarder
-          msgref.cmd.status = deleterow(subtransactionCmdRef.cmd.tableid,
-                                        subtransactionCmdRef.cmd.rowid,
-                                        subtransactionCmdRef.cmd.forward_rowid,
-                                        subtransactionCmdRef.cmd.forward_engineid);
-          msgref.cmd.locktype=WRITELOCK;
+          msgref.subtransactionStruct.status = deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                                        subtransactionCmdRef.subtransactionStruct.rowid,
+                                        subtransactionCmdRef.subtransactionStruct.forward_rowid,
+                                        subtransactionCmdRef.subtransactionStruct.forward_engineid);
+          msgref.subtransactionStruct.locktype=WRITELOCK;
         }
         break;
 
         case INDEXSEARCH:
         {
-          indexSearch(subtransactionCmdRef.cmd.tableid,
-                      subtransactionCmdRef.cmd.fieldid,
-                      &subtransactionCmdRef.cmd.searchParameters,
-                      &msgref.cmd.indexHits);
+          indexSearch(subtransactionCmdRef.subtransactionStruct.tableid,
+                      subtransactionCmdRef.subtransactionStruct.fieldid,
+                      &subtransactionCmdRef.searchParameters,
+                      &msgref.indexHits);
         }
         break;
 
         case SELECTROWS:
         {
-          selectrows(subtransactionCmdRef.cmd.tableid,
-                     &subtransactionCmdRef.cmd.rowids,
-                     subtransactionCmdRef.cmd.locktype,
-                     subtransactionCmdRef.transaction_pendingcmdid,
-                     &msgref.cmd.returnRows);
+          selectrows(subtransactionCmdRef.subtransactionStruct.tableid,
+                     &subtransactionCmdRef.rowids,
+                     subtransactionCmdRef.subtransactionStruct.locktype,
+                     subtransactionCmdRef.transactionStruct.transaction_pendingcmdid,
+                     &msgref.returnRows);
         }
         break;
 
         case SEARCHRETURN1:
-          searchReturn1(subtransactionCmdRef.cmd.tableid,
-                        subtransactionCmdRef.cmd.fieldid,
-                        subtransactionCmdRef.cmd.locktype,
-                        subtransactionCmdRef.cmd.searchParameters,
-                        msgref.cmd.returnRows);
+          searchReturn1(subtransactionCmdRef.subtransactionStruct.tableid,
+                        subtransactionCmdRef.subtransactionStruct.fieldid,
+                        subtransactionCmdRef.subtransactionStruct.locktype,
+                        subtransactionCmdRef.searchParameters,
+                        msgref.returnRows);
           break;
 
         default:
           fprintf(logfile, "anomaly: %lu %s %i\n",
-                  subtransactionCmdRef.transaction_enginecmd, __FILE__, __LINE__);
+                  subtransactionCmdRef.transactionStruct.transaction_enginecmd, __FILE__, __LINE__);
       }
 
       replyTransaction((void *)msg);
@@ -177,14 +177,14 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
         if (rowFieldRef.isrow==true)
         {
           tablePtr->commitRollbackUnlock(rowFieldRef.rowid, subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
 
           // drain lock queue if: sueccessful delete & commit, or insert &
           // rollback is a non-existent row sufficient to infer? For now, yes,
           // but later, maybe not, if there's some other flag. Figure it out at
           // that point.
           if (tablePtr->rows.count(rowFieldRef.rowid) &&
-              (enginecmd_e)subtransactionCmdRef.transaction_enginecmd !=
+              (enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd !=
               REVERTCMD)
           {
             processRowLockQueue(rowFieldRef.tableid,
@@ -213,43 +213,43 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
               case INT:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.value.integer,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case UINT:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.value.uinteger,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case BOOL:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.value.boolean,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case FLOAT:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.value.floating,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case CHAR:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.value.character,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case CHARX:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.str,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               case VARCHAR:
                 indexPtr->commitRollback(rowFieldRef.fieldVal.str,
                                          subtransactionid,
-                                         (enginecmd_e) subtransactionCmdRef.transaction_enginecmd);
+                                         (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
                 break;
 
               default:
@@ -258,13 +258,13 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
             }
           }
 
-          if ((enginecmd_e)subtransactionCmdRef.transaction_enginecmd ==
+          if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd ==
               COMMITCMD)
           {
             drainIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
                                 &rowFieldRef.fieldVal);
           }
-          else if ((enginecmd_e)subtransactionCmdRef.transaction_enginecmd ==
+          else if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd ==
                    ROLLBACKCMD)
           {
             processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
@@ -588,7 +588,7 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
       }
 
       // rollback & unlock are fire and forget
-      if ((enginecmd_e)subtransactionCmdRef.transaction_enginecmd == COMMITCMD)
+      if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd == COMMITCMD)
       {
 
         replyTransaction((void *) new class MessageCommitRollback);
@@ -600,7 +600,7 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
     default:
       fprintf(logfile, "anomaly: %i %s %i\n",
-              msgrcv->payloadtype, __FILE__, __LINE__);
+              msgrcv->messageStruct.payloadtype, __FILE__, __LINE__);
   }
 }
 
@@ -610,8 +610,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
   class MessageSubtransactionCmd &subtransactionCmdRef =
         *((class MessageSubtransactionCmd *)msgrcv);
   lockQueueIndexEntry queueEntry = {};
-  queueEntry.pendingcmdid = subtransactionCmdRef.transaction_pendingcmdid;
-  queueEntry.tacmdentrypoint = subtransactionCmdRef.transaction_tacmdentrypoint;
+  queueEntry.pendingcmdid = subtransactionCmdRef.transactionStruct.transaction_pendingcmdid;
+  queueEntry.tacmdentrypoint = subtransactionCmdRef.transactionStruct.transaction_tacmdentrypoint;
   queueEntry.entry.engineid = engineid;
   queueEntry.entry.rowid = rowid;
   queueEntry.entry.subtransactionid = subtransactionid;
@@ -1744,13 +1744,13 @@ void SubTransaction::replyTransaction(void *data)
   class MessageTransaction &msgref = *(class MessageTransaction *)data;
   class MessageTransaction &msgrcvRef =
         *(class MessageTransaction *)msgrcv;
-  msgref.topic = TOPIC_TRANSACTION;
-  msgref.payloadtype = msgrcvRef.payloadtype;
-  msgref.transactionid = msgrcvRef.transactionid;
-  msgref.subtransactionid = subtransactionid;
-  msgref.engineinstance = enginePtr->partitionid;
-  msgref.transaction_tacmdentrypoint = msgrcvRef.transaction_tacmdentrypoint;
-  msgref.transaction_pendingcmdid = msgrcvRef.transaction_pendingcmdid;
+  msgref.messageStruct.topic = TOPIC_TRANSACTION;
+  msgref.messageStruct.payloadtype = msgrcvRef.messageStruct.payloadtype;
+  msgref.transactionStruct.transactionid = msgrcvRef.transactionStruct.transactionid;
+  msgref.transactionStruct.subtransactionid = subtransactionid;
+  msgref.transactionStruct.engineinstance = enginePtr->partitionid;
+  msgref.transactionStruct.transaction_tacmdentrypoint = msgrcvRef.transactionStruct.transaction_tacmdentrypoint;
+  msgref.transactionStruct.transaction_pendingcmdid = msgrcvRef.transactionStruct.transaction_pendingcmdid;
 
 #ifdef PROFILE
   profileEntry(__LINE__);
@@ -1770,14 +1770,14 @@ void SubTransaction::replyTransaction(class MessageTransaction &sndRef,
   Mbox::msgstruct msgsnd = {};
   msgsnd.data = &sndRef;
   */
-  sndRef.topic = TOPIC_TRANSACTION;
-  sndRef.payloadtype = rcvRef.payloadtype;
-  sndRef.payloadtype = rcvRef.payloadtype;
-  sndRef.transactionid = rcvRef.transactionid;
-  sndRef.subtransactionid = subtransactionid;
-  sndRef.engineinstance = enginePtr->partitionid;
-  sndRef.transaction_tacmdentrypoint = rcvRef.transaction_tacmdentrypoint;
-  sndRef.transaction_pendingcmdid = rcvRef.transaction_pendingcmdid;
+  sndRef.messageStruct.topic = TOPIC_TRANSACTION;
+  sndRef.messageStruct.payloadtype = rcvRef.messageStruct.payloadtype;
+  sndRef.messageStruct.payloadtype = rcvRef.messageStruct.payloadtype;
+  sndRef.transactionStruct.transactionid = rcvRef.transactionStruct.transactionid;
+  sndRef.transactionStruct.subtransactionid = subtransactionid;
+  sndRef.transactionStruct.engineinstance = enginePtr->partitionid;
+  sndRef.transactionStruct.transaction_tacmdentrypoint = rcvRef.transactionStruct.transaction_tacmdentrypoint;
+  sndRef.transactionStruct.transaction_pendingcmdid = rcvRef.transactionStruct.transaction_pendingcmdid;
 
   //  enginePtr->mboxes.transactionAgents[taid].send(msgsnd, false);
   enginePtr->mboxes.toActor(enginePtr->myIdentity.address, taAddr, sndRef);
@@ -1815,11 +1815,7 @@ void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
         returnRow_s returnRow= {};
         returnRow.rowid=rowid;
         returnRow.locktype=PENDINGTOWRITELOCK;
-        subtransactionCmdPtr->cmd.returnRows.push_back(returnRow);
-        /*
-        subtransactionCmdPtr->cmd.returnRows[0].locktype = PENDINGTOWRITELOCK;
-        subtransactionCmdPtr->cmd.returnRows[0].rowid = rowid;
-         */
+        subtransactionCmdPtr->returnRows.push_back(returnRow);
       }
       else if (entry.locktype==READLOCK)
       {
@@ -1834,9 +1830,9 @@ void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
         tableRef.rows[rowid]->readlockHolders->insert(entry.subtransactionid);
 
         subtransactionCmdPtr = new class MessageSubtransactionCmd();
-        subtransactionCmdPtr->cmd.returnRows[0].locktype = PENDINGTOREADLOCK;
-        subtransactionCmdPtr->cmd.returnRows[0].rowid = rowid;
-        subtransactionCmdPtr->cmd.returnRows[0].row = tableRef.rows[rowid]->row;
+        subtransactionCmdPtr->returnRows[0].locktype = PENDINGTOREADLOCK;
+        subtransactionCmdPtr->returnRows[0].rowid = rowid;
+        subtransactionCmdPtr->returnRows[0].row = tableRef.rows[rowid]->row;
       }
       else
       {
@@ -1850,12 +1846,12 @@ void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
       class SubTransaction &subTransactionRef =
             *enginePtr->SubTransactions[entry.subtransactionid];
       class MessageSubtransactionCmd rcv;
-      rcv.transactionid = subTransactionRef.transactionid;
-      rcv.subtransactionid = entry.subtransactionid;
-      rcv.engineinstance = enginePtr->partitionid;
-      rcv.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-      rcv.transaction_pendingcmdid = entry.pendingcmdid;
-      rcv.payloadtype = PAYLOADSUBTRANSACTION;
+      rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+      rcv.transactionStruct.subtransactionid = entry.subtransactionid;
+      rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+      rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+      rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+      rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
       subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
 
@@ -1887,16 +1883,16 @@ void SubTransaction::drainRowLockQueue(int64_t tableid, int64_t rowid)
 
     class MessageSubtransactionCmd *subtransactionCmdPtr =
             new MessageSubtransactionCmd();
-      subtransactionCmdPtr->cmd.returnRows[0].locktype = PENDINGTONOLOCK;
-      subtransactionCmdPtr->cmd.returnRows[0].rowid = rowid;
+      subtransactionCmdPtr->returnRows[0].locktype = PENDINGTONOLOCK;
+      subtransactionCmdPtr->returnRows[0].rowid = rowid;
       // ok gotta fake msgrcv for replyTransaction
       class MessageSubtransactionCmd rcv;
-      rcv.transactionid = subTransactionRef.transactionid;
-      rcv.subtransactionid = entry.subtransactionid;
-      rcv.engineinstance = enginePtr->partitionid;
-      rcv.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-      rcv.transaction_pendingcmdid = entry.pendingcmdid;
-      rcv.payloadtype = PAYLOADSUBTRANSACTION;
+      rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+      rcv.transactionStruct.subtransactionid = entry.subtransactionid;
+      rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+      rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+      rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+      rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
       subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
     }
@@ -2119,19 +2115,19 @@ void SubTransaction::processIndexLockQueue(int64_t tableid, int64_t fieldid,
       //reply
       class MessageSubtransactionCmd *subtransactionCmdPtr =
             new MessageSubtransactionCmd();
-      subtransactionCmdPtr->cmd.locktype = PENDINGTOINDEXLOCK;
-      subtransactionCmdPtr->cmd.tableid = tableid;
-      subtransactionCmdPtr->cmd.fieldid = fieldid;
-      subtransactionCmdPtr->cmd.fieldVal = *val;
+      subtransactionCmdPtr->subtransactionStruct.locktype = PENDINGTOINDEXLOCK;
+      subtransactionCmdPtr->subtransactionStruct.tableid = tableid;
+      subtransactionCmdPtr->subtransactionStruct.fieldid = fieldid;
+      subtransactionCmdPtr->fieldVal = *val;
 
       // ok gotta fake msgrcv for replyTransaction
       class MessageSubtransactionCmd rcv;
-      rcv.transactionid = subTransactionRef.transactionid;
-      rcv.subtransactionid = entry.entry.subtransactionid;
-      rcv.engineinstance = enginePtr->partitionid;
-      rcv.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-      rcv.transaction_pendingcmdid = entry.pendingcmdid;
-      rcv.payloadtype = PAYLOADSUBTRANSACTION;
+      rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+      rcv.transactionStruct.subtransactionid = entry.entry.subtransactionid;
+      rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+      rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+      rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+      rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
       subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
 
@@ -2229,20 +2225,20 @@ void SubTransaction::drainIndexLockQueue(int64_t tableid, int64_t fieldid,
       //reply
     class MessageSubtransactionCmd *subtransactionCmdPtr =
             new MessageSubtransactionCmd();
-      subtransactionCmdPtr->cmd.locktype = PENDINGTOINDEXNOLOCK;
-      subtransactionCmdPtr->cmd.tableid = tableid;
-      subtransactionCmdPtr->cmd.fieldid = fieldid;
-      subtransactionCmdPtr->cmd.fieldVal = *val;
+      subtransactionCmdPtr->subtransactionStruct.locktype = PENDINGTOINDEXNOLOCK;
+      subtransactionCmdPtr->subtransactionStruct.tableid = tableid;
+      subtransactionCmdPtr->subtransactionStruct.fieldid = fieldid;
+      subtransactionCmdPtr->fieldVal = *val;
 
       // ok gotta fake msgrcv for replyTransaction
       // THIS HAS TO BE BUGGY 1/19/2013, fix when testing
       class MessageSubtransactionCmd rcv;
-      rcv.transactionid = subTransactionRef.transactionid;
-      rcv.subtransactionid = entry.entry.subtransactionid;
-      rcv.engineinstance = enginePtr->partitionid;
-      rcv.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-      rcv.transaction_pendingcmdid = entry.pendingcmdid;
-      rcv.payloadtype = PAYLOADSUBTRANSACTION;
+      rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+      rcv.transactionStruct.subtransactionid = entry.entry.subtransactionid;
+      rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+      rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+      rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+      rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
       subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
     }
 
@@ -2282,7 +2278,7 @@ int64_t SubTransaction::deleterow(int64_t tableid, int64_t rowid,
 void SubTransaction::selectrows(int64_t tableid, vector<int64_t> *rowids,
                                 locktype_e locktype, int64_t pendingcmdid, vector<returnRow_s> *returnRows)
 {
-  int64_t &tacmd = ((class MessageTransaction *)msgrcv)->transaction_tacmdentrypoint;
+  int64_t &tacmd = ((class MessageTransaction *)msgrcv)->transactionStruct.transaction_tacmdentrypoint;
   class Table &tableRef = *schemaPtr->tables[tableid];
   tableRef.selectrows(rowids, locktype, subtransactionid, pendingcmdid,
                       returnRows, tacmd);
@@ -2302,7 +2298,7 @@ void SubTransaction::searchReturn1(int64_t tableid, int64_t fieldid,
     class MessageSubtransactionCmd &msgrcvRef =
           *(class MessageSubtransactionCmd *)msgrcv;
     vector<int64_t> rowids(1, hit.rowid);
-    selectrows(tableid, &rowids, locktype, msgrcvRef.transaction_pendingcmdid,
+    selectrows(tableid, &rowids, locktype, msgrcvRef.transactionStruct.transaction_pendingcmdid,
                &returnRows);
   }
   else

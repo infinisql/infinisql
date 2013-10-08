@@ -57,6 +57,7 @@ private:
   class Mboxes mboxes;
   class Topology myTopology;
 
+  REUSEMESSAGES
   // maps:
   // transactions with the locks it holds
   boost::unordered_map< int64_t, boost::unordered_set<string> >

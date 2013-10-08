@@ -30,7 +30,6 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
   myIdentity(*myIdentityArg)
 {
   delete myIdentityArg;
-  class Mbox &mymbox = *myIdentity.mbox;
   mboxes.nodeid = myIdentity.address.nodeid;
   mboxes.update(myTopology);
 
@@ -41,7 +40,9 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
   {
     for (short n=0; n < 100; n ++)
     {
-      msgrcv = mymbox.receive(waitval);
+//      msgrcv = mymbox.receive(waitval);
+      GETMSG(msgrcv, myIdentity.mbox, waitval)
+
 
       //      if (mymbox.receive(msgrcv, waitval)==0)
       if (msgrcv==NULL)
@@ -53,32 +54,32 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
       class MessageDeadlock &msgrcvref =
             *((class MessageDeadlock *)msgrcv);
 
-      switch (msgrcv->topic)
+      switch (msgrcv->messageStruct.topic)
     {
         case TOPIC_DEADLOCKNEW:
         {
           newDeadLockLists_s &listsRef = msgrcvref.nodes;
-          transactionLocksMap[msgrcvref.transactionid] = listsRef.locked;
-          transactionWaitsMap[msgrcvref.transactionid] = listsRef.waiting;
+          transactionLocksMap[msgrcvref.deadlockStruct.transactionid] = listsRef.locked;
+          transactionWaitsMap[msgrcvref.deadlockStruct.transactionid] = listsRef.waiting;
 
           taCmd returninfo;
-          returninfo.addr = msgrcvref.sourceAddr;
+          returninfo.addr = msgrcvref.messageStruct.sourceAddr;
           //          returninfo.taid = msgrcvref.tainstance;
-          returninfo.pendingcmdid = msgrcvref.transaction_pendingcmdid;
-          returnMap[msgrcvref.transactionid] = returninfo;
+          returninfo.pendingcmdid = msgrcvref.deadlockStruct.transaction_pendingcmdid;
+          returnMap[msgrcvref.deadlockStruct.transactionid] = returninfo;
 
           boost::unordered_set<string>::iterator it;
 
           for (it = listsRef.locked.begin();
                it != listsRef.locked.end(); it++)
           {
-            locksTransactionMap[*it].insert(msgrcvref.transactionid);
+            locksTransactionMap[*it].insert(msgrcvref.deadlockStruct.transactionid);
           }
 
           for (it = listsRef.waiting.begin();
                it != listsRef.waiting.end(); it++)
           {
-            waitsTransactionMap[*it].insert(msgrcvref.transactionid);
+            waitsTransactionMap[*it].insert(msgrcvref.deadlockStruct.transactionid);
           }
         }
         break;
@@ -87,77 +88,78 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
         {
           string &changedeadlockRef = msgrcvref.deadlockNode;
 
-          switch (msgrcvref.deadlockchange)
+          switch (msgrcvref.deadlockStruct.deadlockchange)
           {
             case ADDLOCKEDENTRY:
-              if (transactionLocksMap.count(msgrcvref.transactionid))
+              if (transactionLocksMap.count(msgrcvref.deadlockStruct.transactionid))
               {
-                transactionLocksMap[msgrcvref.transactionid].
+                transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
                 insert(changedeadlockRef);
                 locksTransactionMap[changedeadlockRef].
-                insert(msgrcvref.transactionid);
+                insert(msgrcvref.deadlockStruct.transactionid);
               }
 
               break;
 
             case ADDLOCKPENDINGENTRY:
-              if (transactionWaitsMap.count(msgrcvref.transactionid))
+              if (transactionWaitsMap.count(msgrcvref.deadlockStruct.transactionid))
               {
-                transactionWaitsMap[msgrcvref.transactionid].
+                transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
                 insert(changedeadlockRef);
                 waitsTransactionMap[changedeadlockRef].
-                insert(msgrcvref.transactionid);
+                insert(msgrcvref.deadlockStruct.transactionid);
               }
 
               break;
 
             case REMOVELOCKEDENTRY:
-              if (transactionLocksMap.count(msgrcvref.transactionid))
+              if (transactionLocksMap.count(msgrcvref.deadlockStruct.transactionid))
               {
-                transactionLocksMap[msgrcvref.transactionid].
+                transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
                 erase(changedeadlockRef);
                 locksTransactionMap[changedeadlockRef].
-                erase(msgrcvref.transactionid);
+                erase(msgrcvref.deadlockStruct.transactionid);
               }
 
               break;
 
             case REMOVELOCKPENDINGENTRY:
-              if (transactionWaitsMap.count(msgrcvref.transactionid))
+              if (transactionWaitsMap.count(msgrcvref.deadlockStruct.transactionid))
               {
-                transactionWaitsMap[msgrcvref.transactionid].
+                transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
                 erase(changedeadlockRef);
                 waitsTransactionMap[changedeadlockRef].
-                erase(msgrcvref.transactionid);
+                erase(msgrcvref.deadlockStruct.transactionid);
               }
 
               break;
 
             case TRANSITIONPENDINGTOLOCKEDENTRY:
-              if (transactionWaitsMap.count(msgrcvref.transactionid))
+              if (transactionWaitsMap.count(msgrcvref.deadlockStruct.transactionid))
               {
-                transactionWaitsMap[msgrcvref.transactionid].
+                transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
                 erase(changedeadlockRef);
-                transactionLocksMap[msgrcvref.transactionid].
+                transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
                 insert(changedeadlockRef);
 
                 waitsTransactionMap[changedeadlockRef].
-                erase(msgrcvref.transactionid);
+                erase(msgrcvref.deadlockStruct.transactionid);
                 locksTransactionMap[changedeadlockRef].
-                insert(msgrcvref.transactionid);
+                insert(msgrcvref.deadlockStruct.transactionid);
               }
 
               break;
 
             default:
-              fprintf(logfile, "anomaly: %li %s %i\n", msgrcvref.deadlockchange,
-                      __FILE__, __LINE__);
+              fprintf(logfile, "anomaly: %li %s %i\n", 
+                      msgrcvref.deadlockStruct.deadlockchange, __FILE__,
+                      __LINE__);
           }
         }
         break;
 
         case TOPIC_DEADLOCKREMOVE:
-          removeTransaction(msgrcvref.transactionid);
+          removeTransaction(msgrcvref.deadlockStruct.transactionid);
           break;
 
         case TOPIC_TOPOLOGY:
@@ -166,7 +168,7 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
 
         default:
           fprintf(logfile, "anomaly: %i %s %i\n",
-                  msgrcv->topic, __FILE__, __LINE__);
+                  msgrcv->messageStruct.topic, __FILE__, __LINE__);
       }
     }
 
@@ -272,9 +274,9 @@ void DeadlockMgr::deadlock(int64_t transactionid)
   class MessageDeadlock *msg = new class MessageDeadlock;
   class MessageDeadlock &msgref = *msg;
   //  msgsnd.data = msg;
-  msgref.topic = TOPIC_DEADLOCKABORT;
-  msgref.transactionid = transactionid;
-  msgref.transaction_pendingcmdid = returnMap[transactionid].pendingcmdid;
+  msgref.messageStruct.topic = TOPIC_DEADLOCKABORT;
+  msgref.deadlockStruct.transactionid = transactionid;
+  msgref.deadlockStruct.transaction_pendingcmdid = returnMap[transactionid].pendingcmdid;
 
   mboxes.toActor(myIdentity.address, returnMap[transactionid].addr, *msg);
   removeTransaction(transactionid);

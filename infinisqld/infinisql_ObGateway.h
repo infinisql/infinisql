@@ -42,10 +42,6 @@ public:
 private:
   // remoteGateways[nodeid]=socket for corresponding ibgw's
   vector<int> remoteGateways;
-  boost::unordered_map<int64_t, msgpack::sbuffer> pendingMessagesSbuf;
-  boost::unordered_map< int64_t, msgpack::packer<msgpack::sbuffer> *>
-  pendingMessagesPack;
-  
   socklen_t optlen;
   int so_sndbuf;
 };

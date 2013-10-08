@@ -46,8 +46,6 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
   spclassdestroy spD;
   uint32_t events = 0;
 
-  //  memset(&msgsnd, 0, sizeof(Mbox::msgstruct));
-
   typedef boost::unordered_map<std::string,
           void (TransactionAgent::*)(builtincmds_e)> builtinsMap;
   builtinsMap builtins;
@@ -69,7 +67,6 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
   builtins["compile"] = &TransactionAgent::compile;
 
   operationid=0;
-  class Mbox &mymbox = *myIdentity.mbox;
   int waitfor = 100;
 
   while (1)
@@ -82,7 +79,8 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
 
     for (size_t inmsg=0; inmsg < 50; inmsg++)
     {
-      msgrcv = mymbox.receive(waitfor);
+//      msgrcv = mymbox.receive(waitfor);
+      GETMSG(msgrcv, myIdentity.mbox, waitfor)
 
       if (msgrcv==NULL)
       {
@@ -92,16 +90,16 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
 
       waitfor = 0;
 
-      if (msgrcv->payloadtype==PAYLOADUSERSCHEMA)
+      if (msgrcv->messageStruct.payloadtype==PAYLOADUSERSCHEMA)
       {
         class MessageUserSchema &msgref =
               *((class MessageUserSchema *)msgrcv);
 
-        if (msgrcv->topic != TOPIC_SCHEMAREQUEST)
+        if (msgrcv->messageStruct.topic != TOPIC_SCHEMAREQUEST)
       {
           // don't want to validate somebody else's operationid or override
           pendingOperationsIterator =
-            pendingOperations.find(msgref.operationid);
+            pendingOperations.find(msgref.userschemaStruct.operationid);
 
           if (pendingOperationsIterator == pendingOperations.end())
           {
@@ -110,16 +108,16 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
           }
           else
           {
-            sockfd = pendingOperations[msgref.operationid]->sockfd;
-            userid = pendingOperations[msgref.operationid]->userid;
-            domainid = pendingOperations[msgref.operationid]->domainid;
+            sockfd = pendingOperations[msgref.userschemaStruct.operationid]->sockfd;
+            userid = pendingOperations[msgref.userschemaStruct.operationid]->userid;
+            domainid = pendingOperations[msgref.userschemaStruct.operationid]->domainid;
           }
         }
 
-        operationid = msgref.operationid;
+        operationid = msgref.userschemaStruct.operationid;
       }
 
-      switch (msgrcv->topic)
+      switch (msgrcv->messageStruct.topic)
       {
         case TOPIC_SOCKET:
         {
@@ -128,15 +126,13 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
           inboundProfile[0].tag = 0;
 #endif
 
-          switch (((class MessageSocket *)msgrcv)->listenertype)
+          switch (((class MessageSocket *)msgrcv)->socketStruct.listenertype)
           {
             case LISTENER_RAW:
             {
-              sockfd = ((class MessageSocket *)msgrcv)->socket;
-              events = ((class MessageSocket *)msgrcv)->events;
+              sockfd = ((class MessageSocket *)msgrcv)->socketStruct.socket;
+              events = ((class MessageSocket *)msgrcv)->socketStruct.events;
 
-              //              if ((events & EPOLLRDHUP) || (events & EPOLLERR) ||
-              //                  (events & EPOLLHUP))
               if ((events & EPOLLERR) || (events & EPOLLHUP))
               {
                 endConnection();
@@ -231,7 +227,6 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
               {
                 struct epoll_event ev;
                 ev.events = EPOLLIN | EPOLLHUP | EPOLLET;
-                //                ev.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLET;
                 ev.data.fd = sockfd;
 
                 if (epoll_ctl(epollfd, EPOLL_CTL_MOD, sockfd, &ev))
@@ -258,24 +253,21 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
               class MessageSocket &msgrcvref =
                     *(class MessageSocket *)msgrcv;
 
-              //              it = Pgs.find(msgrcvref.socket);
-
-              if (!Pgs.count(msgrcvref.socket))
-                //              if (it==Pgs.end())
-            {
-                if ((msgrcvref.events & EPOLLERR) ||
-                    (msgrcvref.events & EPOLLHUP))
+              if (!Pgs.count(msgrcvref.socketStruct.socket))
+              {
+                if ((msgrcvref.socketStruct.events & EPOLLERR) ||
+                    (msgrcvref.socketStruct.events & EPOLLHUP))
                 {
                   fprintf(logfile, "\t%s %i hanging it up\n", __FILE__, __LINE__);
-                  Pg::pgclosesocket(*this, msgrcvref.socket);
+                  Pg::pgclosesocket(*this, msgrcvref.socketStruct.socket);
                   break;
                 }
 
-                new class Pg(this, msgrcvref.socket);
+                new class Pg(this, msgrcvref.socketStruct.socket);
               }
               else
               {
-                Pgs[msgrcvref.socket]->cont();
+                Pgs[msgrcvref.socketStruct.socket]->cont();
                 //                it->second->cont();
               }
             }
@@ -283,7 +275,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
 
             default:
               printf("%s %i anomaly listenertype %i\n", __FILE__, __LINE__,
-                     ((class MessageSocket *)msgrcv)->listenertype);
+                     ((class MessageSocket *)msgrcv)->socketStruct.listenertype);
           }
         }
         break;
@@ -409,9 +401,9 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         {
           class MessageUserSchema &msgref =
                 *(class MessageUserSchema *)msgrcv;
-          tainstance = msgref.instance;
+          tainstance = msgref.userschemaStruct.instance;
 
-          switch (msgref.builtincmd)
+          switch (msgref.userschemaStruct.builtincmd)
         {
             case BUILTINCREATESCHEMA:
               TAcreateschema();
@@ -439,7 +431,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
 
             default:
               fprintf(logfile, "builtincmd unrecognized %li %s %i\n",
-                      msgref.builtincmd, __FILE__, __LINE__);
+                      msgref.userschemaStruct.builtincmd, __FILE__, __LINE__);
           }
         }
         break;
@@ -450,17 +442,17 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
                 *(class MessageTransaction *)msgrcv;
 
           // need pendingTransactions
-          if (Transactions.count(msgref.transactionid))
-        {
-            Transactions[msgref.transactionid]->processTransactionMessage(msgrcv);
+          if (Transactions.count(msgref.transactionStruct.transactionid))
+          {
+            Transactions[msgref.transactionStruct.transactionid]->processTransactionMessage(msgrcv);
           }
           else
           {
             // have to check for a LOCKED message cmd, to bounce back a
             // message to roll it back
             fprintf(logfile, "%s %i transactionid %li\n", __FILE__, __LINE__,
-                    msgref.transactionid);
-            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.payloadtype, msgref.transaction_pendingcmdid, msgref.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->cmd.locktype);
+                    msgref.transactionStruct.transactionid);
+            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, messageStruct.payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.messageStruct.nextmsg), Mbox::getCount(msgref.messageStruct.nextmsg), msgref.messageStruct.payloadtype, msgref.transactionStruct.transaction_pendingcmdid, msgref.transactionStruct.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->subtransactionStruct.locktype);
             badMessageHandler();
           }
 
@@ -471,9 +463,9 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         {
           class MessageDeadlock &msgref = *(class MessageDeadlock *)msgrcv;
 
-          if (Transactions.count(msgref.transactionid))
+          if (Transactions.count(msgref.deadlockStruct.transactionid))
           {
-            Transactions[msgref.transactionid]->deadlockAbort(msgref);
+            Transactions[msgref.deadlockStruct.transactionid]->deadlockAbort(msgref);
           }
         }
         break;
@@ -581,10 +573,10 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
                 *(class MessageAckDispatch *)msgrcv;
 
           // need pendingTransactions
-          if (Transactions.count(msgref.transactionid))
+          if (Transactions.count(msgref.ackdispatchStruct.transactionid))
         {
             // for now 4/5/13 don't think about msgref.status
-            Transactions[msgref.transactionid]->continueCommitTransaction(1);
+            Transactions[msgref.ackdispatchStruct.transactionid]->continueCommitTransaction(1);
           }
         }
         break;
@@ -605,15 +597,15 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         {
           class MessageAckApply &msgref = *(class MessageAckApply *)msgrcv;
 
-          if (Appliers.count(msgref.applierid))
+          if (Appliers.count(msgref.ackapplyStruct.applierid))
           {
-            Appliers[msgref.applierid]->ackedApply(msgref);
+            Appliers[msgref.ackapplyStruct.applierid]->ackedApply(msgref);
           }
           else
           {
             printf("%s %i no Applier to ack status %i %li,%li,%li\n", __FILE__,
-                   __LINE__, msgref.status, msgref.subtransactionid,
-                   msgref.applierid, msgref.partitionid);
+                   __LINE__, msgref.ackapplyStruct.status, msgref.ackapplyStruct.subtransactionid,
+                   msgref.ackapplyStruct.applierid, msgref.ackapplyStruct.partitionid);
           }
         }
         break;
@@ -622,7 +614,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         {
           operationMap::iterator it;
           it = pendingOperations.find(((class
-                                        MessageUserSchema *)msgrcv)->operationid);
+                                        MessageUserSchema *)msgrcv)->userschemaStruct.operationid);
 
           if (it != pendingOperations.end())
           {
@@ -639,21 +631,21 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         case TOPIC_TABLENAME:
         {
           class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-          domainidsToSchemata[msgrcvref.domainid]->tableNameToId[msgrcvref.argstring] =
-            msgrcvref.tableid;
+          domainidsToSchemata[msgrcvref.userschemaStruct.domainid]->tableNameToId[msgrcvref.argstring] =
+            msgrcvref.userschemaStruct.tableid;
         }
         break;
 
         case TOPIC_FIELDNAME:
         {
           class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-          domainidsToSchemata[msgrcvref.domainid]->fieldNameToId[msgrcvref.tableid][msgrcvref.argstring] = msgrcvref.fieldid;
+          domainidsToSchemata[msgrcvref.userschemaStruct.domainid]->fieldNameToId[msgrcvref.userschemaStruct.tableid][msgrcvref.argstring] = msgrcvref.userschemaStruct.fieldid;
         }
         break;
 
         default:
           fprintf(logfile, "anomaly %i %s %i\n",
-                  msgrcv->topic, __FILE__, __LINE__);
+                  msgrcv->messageStruct.topic, __FILE__, __LINE__);
       }
     }
   }
@@ -727,18 +719,17 @@ void TransactionAgent::login(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, -1, -1);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
 
       vector<string> v;
       msgpack2Vector(&v, args, argsize);
       operationPtr->setDomainName(v[0]);
       class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGIN);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_LOGIN;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
+      msgref.messageStruct.topic = TOPIC_LOGIN;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
       msgref.argstring.assign(args, 0, argsize);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
     }
@@ -752,8 +743,8 @@ void TransactionAgent::login(builtincmds_e cmd)
             *(class MessageUserSchema *)msgrcv;
       operationPtr = pendingOperations[operationid];
       authInfo aInfo;
-      aInfo.domainid = msgrcvref.domainid;
-      aInfo.userid = msgrcvref.userid;
+      aInfo.domainid = msgrcvref.userschemaStruct.domainid;
+      aInfo.userid = msgrcvref.userschemaStruct.userid;
       aInfo.domainName.assign(operationPtr->domainName);
       loggedInUsers[sockfd] = aInfo;
       vector<string> rv;
@@ -795,19 +786,17 @@ void TransactionAgent::changepassword(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_CHANGEPASSWORD);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_CHANGEPASSWORD;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.domainid = domainid;
-      msgref.userid = userid;
+      msgref.messageStruct.topic = TOPIC_CHANGEPASSWORD;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.domainid = domainid;
+      msgref.userschemaStruct.userid = userid;
       msgref.argstring.assign(args, 0, argsize);
-      //      mboxes.userSchemaMgr.send(msgsnd, true);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
     }
     break;
@@ -842,17 +831,16 @@ void TransactionAgent::createdomain(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_CREATEDOMAIN);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_CREATEDOMAIN;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.domainid = domainid;
-      msgref.userid = userid;
+      msgref.messageStruct.topic = TOPIC_CREATEDOMAIN;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.domainid = domainid;
+      msgref.userschemaStruct.userid = userid;
       msgref.argstring.assign(args, 0, argsize);
       //      mboxes.userSchemaMgr.send(msgsnd, true);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
@@ -866,7 +854,7 @@ void TransactionAgent::createdomain(builtincmds_e cmd)
       class MessageUserSchema &msgref = *msg;
       vector<string> rv;
       // this is created domainid:
-      rv.push_back(boost::lexical_cast<string>(msgref.domainid));
+      rv.push_back(boost::lexical_cast<string>(msgref.userschemaStruct.domainid));
       sendResponse(false, STATUS_OK, &rv);
       endOperation();
     }
@@ -894,17 +882,16 @@ void TransactionAgent::createuser(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_CREATEUSER);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_CREATEUSER;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.domainid = domainid;
-      msgref.userid = userid;
+      msgref.messageStruct.topic = TOPIC_CREATEUSER;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.domainid = domainid;
+      msgref.userschemaStruct.userid = userid;
       msgref.argstring.assign(args, 0, argsize);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
     }
@@ -917,7 +904,7 @@ void TransactionAgent::createuser(builtincmds_e cmd)
       class MessageUserSchema &msgref = *msg;
       vector<string> rv;
       // this is created userid:
-      rv.push_back(boost::lexical_cast<string>(msgref.userid));
+      rv.push_back(boost::lexical_cast<string>(msgref.userschemaStruct.userid));
       sendResponse(false, STATUS_OK, &rv);
       endOperation();
     }
@@ -945,17 +932,16 @@ void TransactionAgent::deleteuser(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_DELETEUSER);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_DELETEUSER;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.domainid = domainid;
-      msgref.userid = userid;
+      msgref.messageStruct.topic = TOPIC_DELETEUSER;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.domainid = domainid;
+      msgref.userschemaStruct.userid = userid;
       msgref.argstring.assign(args, 0, argsize);
       //      mboxes.userSchemaMgr.send(msgsnd, true);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
@@ -992,17 +978,16 @@ void TransactionAgent::deletedomain(builtincmds_e cmd)
     {
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
-      //      pendingOperations[operationid] = operationPtr;
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_DELETEDOMAIN);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_DELETEDOMAIN;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.domainid = domainid;
-      msgref.userid = userid;
+      msgref.messageStruct.topic = TOPIC_DELETEDOMAIN;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.domainid = domainid;
+      msgref.userschemaStruct.userid = userid;
       msgref.argstring.assign(args, 0, argsize);
       //      mboxes.userSchemaMgr.send(msgsnd, true);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
@@ -1069,10 +1054,10 @@ void TransactionAgent::createtable(builtincmds_e cmd)
 
       class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
       class MessageUserSchema msg;
-      msg.topic = TOPIC_TABLENAME;
-      msg.payloadtype = PAYLOADUSERSCHEMA;
-      msg.domainid = msgrcvref.domainid;
-      msg.tableid = msgrcvref.tableid;
+      msg.messageStruct.topic = TOPIC_TABLENAME;
+      msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msg.userschemaStruct.domainid = msgrcvref.userschemaStruct.domainid;
+      msg.userschemaStruct.tableid = msgrcvref.userschemaStruct.tableid;
       msg.argstring = msgrcvref.argstring;
 
       mboxes.toAllOfType(ACTOR_TRANSACTIONAGENT, myIdentity.address, msg);
@@ -1082,7 +1067,7 @@ void TransactionAgent::createtable(builtincmds_e cmd)
     case TASENGINESRESPONSECMD:
       responseVector.clear();
       responseVector.push_back(boost::lexical_cast<string>
-                               (((class MessageUserSchema *)msgrcv)->tableid));
+                               (((class MessageUserSchema *)msgrcv)->userschemaStruct.tableid));
       schemaBoilerplate(cmd, BUILTINCREATETABLE);
       break;
 
@@ -1106,11 +1091,11 @@ void TransactionAgent::addcolumn(builtincmds_e cmd)
 
       class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
       class MessageUserSchema msg;
-      msg.topic = TOPIC_FIELDNAME;
-      msg.payloadtype = PAYLOADUSERSCHEMA;
-      msg.domainid = msgrcvref.domainid;
-      msg.tableid = msgrcvref.tableid;
-      msg.fieldid = msgrcvref.fieldid;
+      msg.messageStruct.topic = TOPIC_FIELDNAME;
+      msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msg.userschemaStruct.domainid = msgrcvref.userschemaStruct.domainid;
+      msg.userschemaStruct.tableid = msgrcvref.userschemaStruct.tableid;
+      msg.userschemaStruct.fieldid = msgrcvref.userschemaStruct.fieldid;
       msg.argstring = msgrcvref.argstring;
 
       mboxes.toAllOfType(ACTOR_TRANSACTIONAGENT, myIdentity.address, msg);
@@ -1120,7 +1105,7 @@ void TransactionAgent::addcolumn(builtincmds_e cmd)
     case TASENGINESRESPONSECMD:
       responseVector.clear();
       responseVector.push_back(boost::lexical_cast<string>
-                               (((class MessageUserSchema *)msgrcv)->fieldid));
+                               (((class MessageUserSchema *)msgrcv)->userschemaStruct.fieldid));
       schemaBoilerplate(cmd, BUILTINADDCOLUMN);
       break;
 
@@ -1211,9 +1196,9 @@ void TransactionAgent::TAcreateschema(void)
 {
   createSchema(this);
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
-  TransactionAgent::usmReply(this, msgrcv->sourceAddr, *msg);
+  TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
   domainProceduresMap domainProcedures;
-  int64_t did = ((class MessageUserSchema *)msgrcv)->domainid;
+  int64_t did = ((class MessageUserSchema *)msgrcv)->userschemaStruct.domainid;
   domainidsToProcedures[did] = domainProcedures;
 }
 
@@ -1222,31 +1207,27 @@ void TransactionAgent::TAcreatetable(void)
   // either succeeds or fails :-)
   class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
   status =
-    domainidsToSchemata[msgrcvref.domainid]->createTable(msgrcvref.tableid);
+    domainidsToSchemata[msgrcvref.userschemaStruct.domainid]->createTable(msgrcvref.userschemaStruct.tableid);
   class MessageUserSchema *msg =
         new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   class MessageUserSchema &msgref = *msg;
-  msgref.tableid = msgrcvref.tableid;
-  //    replyTa(this, TOPIC_SCHEMAREPLY);
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
+  msgref.userschemaStruct.tableid = msgrcvref.userschemaStruct.tableid;
   TransactionAgent::usmReply(this,
-                             ((class Message *)msgrcv)->sourceAddr, *msg);
-
+                             ((class Message *)msgrcv)->messageStruct.sourceAddr, *msg);
 }
 
 void TransactionAgent::TAaddcolumn(void)
 {
   class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-  class Schema *schemaPtr = domainidsToSchemata[msgrcvref.domainid];
-  class Table *tablePtr = schemaPtr->tables[msgrcvref.tableid];
+  class Schema *schemaPtr = domainidsToSchemata[msgrcvref.userschemaStruct.domainid];
+  class Table *tablePtr = schemaPtr->tables[msgrcvref.userschemaStruct.tableid];
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   class MessageUserSchema &msgref = *msg;
-  msgref.fieldid = tablePtr->addfield((fieldtype_e) msgrcvref.fieldtype,
-                                      msgrcvref.fieldlen, msgrcvref.argstring, (indextype_e) msgrcvref.indextype);
+  msgref.userschemaStruct.fieldid = tablePtr->addfield((fieldtype_e) msgrcvref.userschemaStruct.fieldtype,
+                                      msgrcvref.userschemaStruct.fieldlen, msgrcvref.argstring, (indextype_e) msgrcvref.userschemaStruct.indextype);
   status = BUILTIN_STATUS_OK;
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
   TransactionAgent::usmReply(this,
-                             ((class Message *)msgrcv)->sourceAddr, *msg);
+                             ((class Message *)msgrcv)->messageStruct.sourceAddr, *msg);
 }
 
 void TransactionAgent::TAdeleteindex(void)
@@ -1254,9 +1235,8 @@ void TransactionAgent::TAdeleteindex(void)
   // either succeeds or fails :-)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
   TransactionAgent::usmReply(this,
-                             msgrcv->sourceAddr, *msg);
+                             msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void TransactionAgent::TAdeletetable(void)
@@ -1264,9 +1244,8 @@ void TransactionAgent::TAdeletetable(void)
   // either succeeds or fails :-)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
   TransactionAgent::usmReply(this,
-                             msgrcv->sourceAddr, *msg);
+                             msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void TransactionAgent::TAdeleteschema(void)
@@ -1274,9 +1253,8 @@ void TransactionAgent::TAdeleteschema(void)
   // either succeeds or fails :-)
   class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
   status = BUILTIN_STATUS_OK;
-  //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
   TransactionAgent::usmReply(this,
-                             msgrcv->sourceAddr, *msg);
+                             msgrcv->messageStruct.sourceAddr, *msg);
 }
 
 void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
@@ -1292,14 +1270,14 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_SCHEMAREQUEST);
       class MessageUserSchema &msgref = *msg;
-      msgref.topic = TOPIC_SCHEMAREQUEST;
-      msgref.payloadtype = PAYLOADUSERSCHEMA;
-      msgref.builtincmd = builtin;
-      msgref.argsize = argsize;
-      msgref.instance = instance;
-      msgref.operationid = operationid;
-      msgref.userid = userid;
-      msgref.domainid = domainid;
+      msgref.messageStruct.topic = TOPIC_SCHEMAREQUEST;
+      msgref.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msgref.userschemaStruct.builtincmd = builtin;
+      msgref.userschemaStruct.argsize = argsize;
+      msgref.userschemaStruct.instance = instance;
+      msgref.userschemaStruct.operationid = operationid;
+      msgref.userschemaStruct.userid = userid;
+      msgref.userschemaStruct.domainid = domainid;
       msgref.argstring.assign(args, 0, argsize);
       mboxes.toUserSchemaMgr(this->myIdentity.address, msgref);
     }
@@ -1310,8 +1288,8 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
       class MessageUserSchema &msgrcvref =
             *(class MessageUserSchema *)msgrcv;
 
-      if (msgrcvref.status != BUILTIN_STATUS_OK)   // abort
-    {
+      if (msgrcvref.userschemaStruct.status != BUILTIN_STATUS_OK)   // abort
+      {
         responseVector.clear();
         sendResponse(false, STATUS_NOTOK, &responseVector);
         endOperation();
@@ -1319,28 +1297,18 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
       }
 
       class MessageUserSchema msg(TOPIC_SCHEMAREQUEST);
-
-      msg.topic = TOPIC_SCHEMAREQUEST;
-
-      msg.payloadtype = PAYLOADUSERSCHEMA;
-
-      msg.tableid = msgrcvref.tableid;
-
-      msg.builtincmd = builtin;
-
-      msg.instance = instance;
-
-      msg.operationid = operationid;
-
-      msg.domainid = domainid;
-
-      msg.fieldtype = msgrcvref.fieldtype;
-
-      msg.fieldlen = msgrcvref.fieldlen;
-
-      if (msgrcvref.argsize)
+      msg.messageStruct.topic = TOPIC_SCHEMAREQUEST;
+      msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msg.userschemaStruct.tableid = msgrcvref.userschemaStruct.tableid;
+      msg.userschemaStruct.builtincmd = builtin;
+      msg.userschemaStruct.instance = instance;
+      msg.userschemaStruct.operationid = operationid;
+      msg.userschemaStruct.domainid = domainid;
+      msg.userschemaStruct.fieldtype = msgrcvref.userschemaStruct.fieldtype;
+      msg.userschemaStruct.fieldlen = msgrcvref.userschemaStruct.fieldlen;
+      if (msgrcvref.userschemaStruct.argsize)
       {
-        msg.argsize = msgrcvref.argsize;
+        msg.userschemaStruct.argsize = msgrcvref.userschemaStruct.argsize;
         msg.argstring.assign(args, 0, argsize);
       }
       else
@@ -1348,12 +1316,12 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
         msg.argstring=msgrcvref.argstring;
       }
 
-      msg.indextype = msgrcvref.indextype;
-      msg.indexid = msgrcvref.indexid;
-      msg.tableindexid = msgrcvref.tableindexid;
-      msg.simple = msgrcvref.simple;
-      msg.fieldid = msgrcvref.fieldid;
-      msg.numfields = msgrcvref.numfields;
+      msg.userschemaStruct.indextype = msgrcvref.userschemaStruct.indextype;
+      msg.userschemaStruct.indexid = msgrcvref.userschemaStruct.indexid;
+      msg.userschemaStruct.tableindexid = msgrcvref.userschemaStruct.tableindexid;
+      msg.userschemaStruct.simple = msgrcvref.userschemaStruct.simple;
+      msg.userschemaStruct.fieldid = msgrcvref.userschemaStruct.fieldid;
+      msg.userschemaStruct.numfields = msgrcvref.userschemaStruct.numfields;
 
       operationPtr->schemaData.msgwaits = mboxes.toAllOfType(
                                             ACTOR_TRANSACTIONAGENT, myIdentity.address, msg);
@@ -1369,7 +1337,7 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
       class MessageUserSchema &msgrcvref =
             *(class MessageUserSchema *)msgrcv;
 
-      if (msgrcvref.status != BUILTIN_STATUS_OK)
+      if (msgrcvref.userschemaStruct.status != BUILTIN_STATUS_OK)
     {
         responseVector.clear();
         sendResponse(false, STATUS_NOTOK, &responseVector);
@@ -1418,9 +1386,9 @@ void TransactionAgent::compile(builtincmds_e cmd)
   delete lx2.statementPtr;
 
   class MessageUserSchema msg;
-  msg.topic = TOPIC_COMPILE;
-  msg.payloadtype = PAYLOADUSERSCHEMA;
-  msg.domainid = domainid;
+  msg.messageStruct.topic = TOPIC_COMPILE;
+  msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+  msg.userschemaStruct.domainid = domainid;
   msg.procname = statementname;
   msg.argstring = sqlstatement;
 
@@ -1533,12 +1501,11 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
       msgpack2Vector(&resultVector, args, argsize);
 
       class MessageUserSchema msg;
-      msg.topic = TOPIC_PROCEDURE1;
-      msg.payloadtype = PAYLOADUSERSCHEMA;
-      msg.domainid = domainid;
+      msg.messageStruct.topic = TOPIC_PROCEDURE1;
+      msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msg.userschemaStruct.domainid = domainid;
       msg.pathname = resultVector[0];
       msg.procname = storedprocprefix;
-      //      msg.procname = "DURABLE_";
       msg.procname += domainName;
       msg.procname += "_";
       msg.procname.append(resultVector[1]);
@@ -1607,13 +1574,13 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
       dlerror();
 
       class MessageUserSchema msg;
-      msg.topic = TOPIC_PROCEDURE2;
-      msg.payloadtype = PAYLOADUSERSCHEMA;
-      msg.domainid = inmsg.domainid;
+      msg.messageStruct.topic = TOPIC_PROCEDURE2;
+      msg.messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+      msg.userschemaStruct.domainid = inmsg.userschemaStruct.domainid;
       msg.procs.procedurecreator = (void *)call_func1create;
       msg.procs.proceduredestroyer = (void *)call_func1destroy;
-      msg.intdata = inmsg.procname.length();
-      msg.argstring.assign(inmsg.procname, 0, msg.intdata);
+      msg.userschemaStruct.intdata = inmsg.procname.length();
+      msg.argstring.assign(inmsg.procname, 0, msg.userschemaStruct.intdata);
 
       for (size_t n=0; n < myTopology.allActors[myTopology.nodeid].size(); n++)
       {
@@ -1631,7 +1598,7 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
     case 3:
     {
       class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-      domainidsToProcedures[msgrcvref.domainid][msgrcvref.argstring] =
+      domainidsToProcedures[msgrcvref.userschemaStruct.domainid][msgrcvref.argstring] =
         msgrcvref.procs;
     }
     break;
@@ -1644,17 +1611,17 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
 void TransactionAgent::handledispatch()
 {
   class MessageDispatch &msgrcvref = *(class MessageDispatch *)msgrcv;
-  domainid = msgrcvref.domainid;
+  domainid = msgrcvref.dispatchStruct.domainid;
   class MessageAckDispatch *msg =
-        new class MessageAckDispatch(msgrcvref.transactionid, STATUS_OK);
-  mboxes.toActor(myIdentity.address, msgrcvref.sourceAddr, *msg);
+        new class MessageAckDispatch(msgrcvref.dispatchStruct.transactionid, STATUS_OK);
+  mboxes.toActor(myIdentity.address, msgrcvref.messageStruct.sourceAddr, *msg);
 
   int64_t partitioncount=0;
   boost::unordered_map<int64_t, class MessageApply *> msgs;
 class Applier *applierPtr = new class Applier(this, domainid,
-            msgrcvref.sourceAddr, partitioncount);
+            msgrcvref.messageStruct.sourceAddr, partitioncount);
 
-  map< int64_t, vector<MessageDispatch::record_s> >::iterator it;
+  boost::unordered_map< int64_t, vector<MessageDispatch::record_s> >::iterator it;
 
   for (it = msgrcvref.records.begin(); it != msgrcvref.records.end(); it++)
 {
@@ -1844,7 +1811,7 @@ void TransactionAgent::newstatement()
   class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
 
   class Larxer lx((char *)msgrcvref.argstring.c_str(), this,
-                      domainidsToSchemata[msgrcvref.domainid]);
+                      domainidsToSchemata[msgrcvref.userschemaStruct.domainid]);
 
   if (lx.statementPtr==NULL)
 {
@@ -1852,14 +1819,6 @@ void TransactionAgent::newstatement()
   }
 
   lx.statementPtr->resolveTableFields();
-  statements[msgrcvref.domainid][msgrcvref.procname] = *lx.statementPtr;
+  statements[msgrcvref.userschemaStruct.domainid][msgrcvref.procname] = *lx.statementPtr;
   delete lx.statementPtr;
-  //  printf("%s %i stmt '%s' %p %p\n", __FILE__, __LINE__, msgrcvref.procname.c_str(), lx.statementPtr, statements[msgrcvref.domainid][msgrcvref.procname]);
-  /*
-  class Statement stmt;
-  stmt = *lx.statementPtr;
-  class Statement *stmtPtr = statements[msgrcvref.domainid][msgrcvref.procname];
-  stmt = *stmtPtr;
-   */
-
 }

@@ -39,6 +39,9 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   int waitfor = 100;
   
   bool buildup=true;
+  
+  // pendingMsgs[remotenodeid]=serialized messages
+  boost::unordered_map< int64_t, vector<string *> > pendingMsgs;
 
   /*  
   uint32_t D_sends=0;
@@ -59,30 +62,21 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
 
       waitfor = 0;
 
-      switch (msgrcv->topic)
+      switch (msgrcv->messageStruct.topic)
       {
         case TOPIC_TOPOLOGY:
           mboxes.update(myTopology);
           updateRemoteGateways();
           break;
 
-        default: // destined for remote host
-        {
-          boost::unordered_map< int64_t,
-                msgpack::packer<msgpack::sbuffer> *>::iterator it;
-          it = pendingMessagesPack.find(msgrcv->destAddr.nodeid);
-
-          if (it == pendingMessagesPack.end())
-          {
-            pendingMessagesPack[msgrcv->destAddr.nodeid] =
-              new msgpack::packer<msgpack::sbuffer>
-            (&pendingMessagesSbuf[msgrcv->destAddr.nodeid]);
-          }
-
-          msgpack::packer<msgpack::sbuffer> &packRef =
-            *pendingMessagesPack[msgrcv->destAddr.nodeid];
-          msgrcv->ser(packRef);
-        }
+        case TOPIC_SERIALIZED: // destined for remote host
+          pendingMsgs[msgrcv->messageStruct.destAddr.nodeid].push_back(
+              ((class MessageSerialized *)msgrcv)->data);
+          break;
+        
+        default:
+          printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                  msgrcv->messageStruct.topic);
       }
     }
 
@@ -95,29 +89,39 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     buildup=true;
 
     // send all pendings
-    boost::unordered_map<int64_t, msgpack::sbuffer>::iterator it;
-
-    for (it = pendingMessagesSbuf.begin(); it != pendingMessagesSbuf.end();
-         it++)
+    boost::unordered_map< int64_t, vector<string *> >::iterator it;
+    for (it=pendingMsgs.begin(); it != pendingMsgs.end(); it++)
     {
-      // first,second: nodeid, sbuf
-      msgpack::sbuffer &sbufRef = it->second;
-      string sendstr(sizeof(size_t)+sbufRef.size(), 0);
-      size_t s = sbufRef.size();
-      memcpy(&sendstr[0], &s, sizeof(size_t));
-      memcpy(&sendstr[sizeof(size_t)], sbufRef.data(), sbufRef.size());
-      ssize_t sended = send(remoteGateways[it->first], sendstr.c_str(),
-                            sendstr.size(), 0);
-      
-      ssize_t ss;
-      memcpy(&ss, &sendstr[0], sizeof(ssize_t));
-
-      if (sended == -1)
+      vector<string *> &msgsRef = it->second;
+      size_t s=0;
+      for (size_t n=0; n < msgsRef.size(); n++)
       {
-        printf("%s %i send errno %i nodeid %li instance %li it->first %i socket %i\n",
-               __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
-               (int)it->first, remoteGateways[it->first]);
+        s += sizeof(size_t) + msgsRef[n]->size();
       }
+      // format is: total size, [msgsize, msg]...
+      char *sendstr=new (std::nothrow) char[s];
+      memcpy(sendstr, &s, sizeof(s));
+      size_t pos=sizeof(s);
+      for (size_t n=0; n < msgsRef.size(); n++)
+      {
+        string &msgRef=*msgsRef[n];
+        size_t ms=msgRef.size();
+        memcpy(sendstr+pos, &ms, sizeof(ms));
+        pos += sizeof(size_t);
+        memcpy(sendstr+pos, msgRef.c_str(), ms);
+        pos += ms;
+        delete &msgRef;
+      }
+      if (send(remoteGateways[it->first], sendstr, s, 0)==-1)
+      {
+        printf("%s %i send errno %i nodeid %li instance %li it->first %li socket %i\n",
+               __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
+               it->first, remoteGateways[it->first]);
+      }
+      pendingMsgs.erase(it->first);
+      delete sendstr;
+    }
+
       /*
       D_sendbytes+=sended;
       if (!(++D_sends % 1000))
@@ -127,12 +131,6 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
       }
        */
-
-      delete pendingMessagesPack[it->first];
-    }
-
-    pendingMessagesSbuf.clear();
-    pendingMessagesPack.clear();
   }
 }
 

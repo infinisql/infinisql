@@ -64,7 +64,7 @@ void Operation::setDomainName(string name)
 
 void Operation::handleOperation(class MessageUserSchema &msgrcvref)
 {
-  switch (msgrcvref.caller)
+  switch (msgrcvref.userschemaStruct.caller)
   {
     case 1: // Pg login
     {
@@ -74,7 +74,7 @@ void Operation::handleOperation(class MessageUserSchema &msgrcvref)
       if (it != taPtr->Pgs.end())
       {
         class Pg &pgref = *it->second;
-        pgref.continueLogin(msgrcvref.callerstate, msgrcvref);
+        pgref.continueLogin(msgrcvref.userschemaStruct.callerstate, msgrcvref);
         taPtr->pendingOperations.erase(operationid);
         delete this;
       }

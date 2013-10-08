@@ -938,12 +938,12 @@ void TopologyMgr::broadcastConfig()
     if (myTopology.actorList[n].type != ACTOR_NONE)
     {
       msg = new class Message;
-      msg->topic = TOPIC_TOPOLOGY;
-      msg->payloadtype = PAYLOADMESSAGE;
-      msg->sourceAddr.nodeid = myTopology.nodeid;
-      msg->sourceAddr.actorid = 1;
-      msg->destAddr.nodeid = myTopology.nodeid;
-      msg->destAddr.actorid = n;
+      msg->messageStruct.topic = TOPIC_TOPOLOGY;
+      msg->messageStruct.payloadtype = PAYLOADMESSAGE;
+      msg->messageStruct.sourceAddr.nodeid = myTopology.nodeid;
+      msg->messageStruct.sourceAddr.actorid = 1;
+      msg->messageStruct.destAddr.nodeid = myTopology.nodeid;
+      msg->messageStruct.destAddr.actorid = n;
       mboxes.actoridToProducers[n]->sendMsg(*msg);
     }
   }

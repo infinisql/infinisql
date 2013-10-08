@@ -62,6 +62,7 @@ public:
   int64_t tainstance;
   //public for createSchema:
   class Message *msgrcv;
+  REUSEMESSAGES
   domainidToSchemaMap domainidsToSchemata;
   class Mboxes mboxes;
   Topology::partitionAddress myIdentity;

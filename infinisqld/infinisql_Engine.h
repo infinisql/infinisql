@@ -60,6 +60,7 @@ public:
   Topology::addressStruct taAddr;
   //public for createSchema:
   class Message *msgrcv;
+  REUSEMESSAGES
   domainidToSchemaMap domainidsToSchemata;
   class Mboxes mboxes;
   Topology::partitionAddress myIdentity;

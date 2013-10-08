@@ -48,10 +48,10 @@ Applier::~Applier()
 
 void Applier::ackedApply(class MessageAckApply &msg)
 {
-  if (msg.status != STATUS_OK)
+  if (msg.ackapplyStruct.status != STATUS_OK)
   {
     printf("%s %i bad apply ack status %i %li,%li,%li\n", __FILE__, __LINE__,
-           msg.status, msg.subtransactionid, msg.applierid, msg.partitionid);
+           msg.ackapplyStruct.status, msg.ackapplyStruct.subtransactionid, msg.ackapplyStruct.applierid, msg.ackapplyStruct.partitionid);
     delete this;
     return;
   }

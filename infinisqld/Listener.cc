@@ -40,7 +40,6 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                                      myIdentity.services[1]);
   struct epoll_event ev;
   ev.events = EPOLLIN | EPOLLHUP | EPOLLET;
-  //  ev.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLET;
   ev.data.fd = listenersockfd;
 
   if (epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, listenersockfd, &ev) == -1)
@@ -71,7 +70,6 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
   
   while (1)
   {
-    //    memset(events, 0, EPOLLEVENTS * sizeof(epoll_event));
     int eventcount = epoll_wait(myIdentity.epollfd, events, EPOLLEVENTS, -1);
 
     for (int n=0; n < eventcount; n++)

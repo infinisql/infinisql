@@ -4902,8 +4902,8 @@ void Statement::branchtotype()
 
       class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
       class MessageSubtransactionCmd &msgref = *msg;
-      msgref.cmd.tableid = currentQuery->tableid;
-      msgref.cmd.row = currentQuery->results.newrow;
+      msgref.subtransactionStruct.tableid = currentQuery->tableid;
+      msgref.row = currentQuery->results.newrow;
       transactionPtr->sendTransaction(NEWROW, PAYLOADSUBTRANSACTION, 1,
                                       currentQuery->results.newrowengineid, msg);
     }
@@ -5095,9 +5095,9 @@ void Statement::continueDelete(int64_t entrypoint, class Ast *ignorethis)
         const uuRecord_s &uurRef = it->first;
         const returnRow_s &returnRowRef = it->second;
         class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
-        msg->cmd.tableid = uurRef.tableid;
-        msg->cmd.rowid = uurRef.rowid;
-        msg->cmd.engineid = uurRef.engineid;
+        msg->subtransactionStruct.tableid = uurRef.tableid;
+        msg->subtransactionStruct.rowid = uurRef.rowid;
+        msg->subtransactionStruct.engineid = uurRef.engineid;
         transactionPtr->sendTransaction(DELETEROW, PAYLOADSUBTRANSACTION, 1,
                                         uurRef.engineid, msg);
         stagedRow_s &stagedRowRef = transactionPtr->stagedRows[uurRef];
@@ -5261,12 +5261,12 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                 transactionPtr->sqlcmdstate.eventwaitcount++;
                 class MessageSubtransactionCmd *msg =
                       new class MessageSubtransactionCmd();
-                msg->cmd.isrow = false;
-                msg->cmd.tableid = uurRef.tableid;
-                msg->cmd.rowid = uurRef.rowid;
-                msg->cmd.engineid = uurRef.engineid;
-                msg->cmd.fieldid = n;
-                msg->cmd.fieldVal = lockFieldValue.fieldVal;
+                msg->subtransactionStruct.isrow = false;
+                msg->subtransactionStruct.tableid = uurRef.tableid;
+                msg->subtransactionStruct.rowid = uurRef.rowid;
+                msg->subtransactionStruct.engineid = uurRef.engineid;
+                msg->subtransactionStruct.fieldid = n;
+                msg->fieldVal = lockFieldValue.fieldVal;
                 transactionPtr->sendTransaction(UNIQUEINDEX,
                                                 PAYLOADSUBTRANSACTION, 1,lockFieldValue.engineid, msg);
               }
@@ -5288,9 +5288,9 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
           transactionPtr->sqlcmdstate.eventwaitcount++;
         class MessageSubtransactionCmd *msg =
                 new class MessageSubtransactionCmd();
-          msg->cmd.tableid = uurRef.tableid;
-          msg->cmd.rowid = uurRef.rowid;
-          msg->cmd.row = stagedRow.newRow;
+          msg->subtransactionStruct.tableid = uurRef.tableid;
+          msg->subtransactionStruct.rowid = uurRef.rowid;
+          msg->row = stagedRow.newRow;
           transactionPtr->sendTransaction(UPDATEROW, PAYLOADSUBTRANSACTION, 1,
                                           uurRef.engineid, msg);
         }
@@ -5327,8 +5327,8 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
           class MessageSubtransactionCmd *msg =
                 new class MessageSubtransactionCmd();
           class MessageSubtransactionCmd &msgref = *msg;
-          msgref.cmd.tableid = currentQuery->tableid;
-          msgref.cmd.row = stagedRowRef.newRow;
+          msgref.subtransactionStruct.tableid = currentQuery->tableid;
+          msgref.row = stagedRowRef.newRow;
           transactionPtr->sendTransaction(NEWROW, PAYLOADSUBTRANSACTION, 1,
                                           stagedRowRef.newengineid, msg);
         }

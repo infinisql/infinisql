@@ -72,11 +72,12 @@ class MboxProducer
 {
 public:
   MboxProducer();
-  MboxProducer(class Mbox *);
+  MboxProducer(class Mbox *, int64_t);
   virtual ~MboxProducer();
   void sendMsg(class Message &);
 
   class Mbox *mbox;
+  int64_t nodeid;
 
   friend class Mboxes;
 };
@@ -133,5 +134,71 @@ public:
   vector< vector<int> > allActors;
   boost::unordered_map< int64_t, vector<int> > allActorsThisReplica;
 };
+
+// put this in each actor's class definition (except ObGw)
+#define REUSEMESSAGES class Message reuseMessage; \
+    class MessageSocket reuseMessageSocket; \
+    class MessageUserSchema reuseMessageUserSchema; \
+    class MessageDeadlock reuseMessageDeadlock; \
+    class MessageSubtransactionCmd reuseMessageSubtransactionCmd; \
+    class MessageCommitRollback reuseMessageCommitRollback; \
+    class MessageDispatch reuseMessageDispatch; \
+    class MessageAckDispatch reuseMessageAckDispatch; \
+    class MessageApply reuseMessageApply; \
+    class MessageAckApply reuseMessageAckApply;
+
+// do this instead of mymbox.receive (except ObGw)
+#define GETMSG(X, Y, Z) X=Y->receive(Z); \
+      if (X->messageStruct.topic==TOPIC_SERIALIZED) \
+      { \
+        SerializedMessage serobj(((class MessageSerialized *)X)->data); \
+        switch (serobj.getpayloadtype()) \
+        { \
+          case PAYLOADMESSAGE: \
+            reuseMessage.unpack(serobj); \
+            X=&reuseMessage; \
+            break; \
+          case PAYLOADSOCKET: \
+            reuseMessageSocket.unpack(serobj); \
+            X=&reuseMessageSocket; \
+            break; \
+          case PAYLOADUSERSCHEMA: \
+            reuseMessageUserSchema.unpack(serobj); \
+            X=&reuseMessageUserSchema; \
+            break; \
+          case PAYLOADDEADLOCK: \
+            reuseMessageDeadlock.unpack(serobj); \
+            X=&reuseMessageDeadlock; \
+            break; \
+          case PAYLOADSUBTRANSACTION: \
+            reuseMessageSubtransactionCmd.unpack(serobj); \
+            X=&reuseMessageSubtransactionCmd; \
+            break; \
+          case PAYLOADCOMMITROLLBACK: \
+            reuseMessageCommitRollback.unpack(serobj); \
+            X=&reuseMessageCommitRollback; \
+            break; \
+          case PAYLOADDISPATCH: \
+            reuseMessageDispatch.unpack(serobj); \
+            X=&reuseMessageDispatch; \
+            break; \
+          case PAYLOADACKDISPATCH: \
+            reuseMessageAckDispatch.unpack(serobj); \
+            X=&reuseMessageAckDispatch; \
+            break; \
+          case PAYLOADAPPLY: \
+            reuseMessageApply.unpack(serobj); \
+            X=&reuseMessageApply; \
+            break; \
+          case PAYLOADACKAPPLY: \
+            reuseMessageAckApply.unpack(serobj); \
+            X=&reuseMessageAckApply; \
+            break; \
+          default: \
+            printf("%s %i anomaly %i\n", __FILE__, __LINE__, serobj.getpayloadtype()); \
+        } \
+        delete serobj.data; \
+      }
+
 
 #endif  /* MBOX_HPP */
