@@ -149,6 +149,7 @@ enum maptype_e
   Unordered = 2
 };
 
+//enum __attribute__ ((__packed__)) topic_e
 enum topic_e
 {
   TOPIC_NONE = 0,

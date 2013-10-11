@@ -126,13 +126,13 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
           // create SubTransaction if no subtransaction
           if (msgrcvRef.transactionStruct.subtransactionid <= 0)
         {
-            class SubTransaction *subTransactionidPtr =
-                new class SubTransaction(msgrcvRef.messageStruct.sourceAddr,
-                                             msgrcvRef.transactionStruct.transactionid, msgrcvRef.transactionStruct.domainid, this);
-            subTransactionidPtr->processTransactionMessage(msgrcv);
+            class SubTransaction &subTransactionidRef =
+                *(new class SubTransaction(msgrcvRef.messageStruct.sourceAddr,
+                                             msgrcvRef.transactionStruct.transactionid, msgrcvRef.transactionStruct.domainid, this));
+            subTransactionidRef.processTransactionMessage(msgrcv);
           }
           else if (SubTransactions.count(msgrcvRef.transactionStruct.subtransactionid))
-        {
+          {
             SubTransactions[msgrcvRef.transactionStruct.subtransactionid]->processTransactionMessage(msgrcv);
           }
         }

@@ -42,6 +42,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   
   // pendingMsgs[remotenodeid]=serialized messages
   boost::unordered_map< int64_t, vector<string *> > pendingMsgs;
+  char *sendstr=NULL;
 
   /*  
   uint32_t D_sends=0;
@@ -93,13 +94,17 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     for (it=pendingMsgs.begin(); it != pendingMsgs.end(); it++)
     {
       vector<string *> &msgsRef = it->second;
-      size_t s=0;
+      size_t s=sizeof(size_t);
       for (size_t n=0; n < msgsRef.size(); n++)
       {
         s += sizeof(size_t) + msgsRef[n]->size();
       }
+      if (!s)
+      {
+        continue;
+      }
       // format is: total size, [msgsize, msg]...
-      char *sendstr=new (std::nothrow) char[s];
+      sendstr=new (std::nothrow) char[s];
       memcpy(sendstr, &s, sizeof(s));
       size_t pos=sizeof(s);
       for (size_t n=0; n < msgsRef.size(); n++)

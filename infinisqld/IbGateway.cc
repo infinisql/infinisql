@@ -199,22 +199,41 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
             case -1:
               if (errno==EAGAIN || errno==EWOULDBLOCK)
               {
+                if (pendingReads.count(readfd))
+                {
+                  string &strRef=pendingReads[readfd];
+                  size_t pos=0;
+                  while (pos < strRef.size())
+                  {
+                    if (sizeof(size_t)>(size_t)(strRef.size()-pos))
+                    { // can't even read size of message group
+                      break;
+                    }
+                    size_t packagesize=*(size_t *)(strRef.c_str()+pos);
+                    if (packagesize > strRef.size()-pos)
+                    { // can't read next message group entirely
+                      break;
+                    }
+                    inbufhandler(strRef.c_str()+pos, packagesize);
+                    pos += packagesize;
+                  }
+                  if (pos<strRef.size())
+                  { // background the remainder
+                    string newstr(strRef, pos, string::npos);
+                    strRef.swap(newstr);
+                  }
+                  else
+                  {
+                    strRef.clear();
+                  }
+                }
+              }
+              else
+              {
                 close(readfd);
                 fdremoveset.insert(readfd);
                 pendingReads.erase(readfd);
                 break;
-              }
-              else
-              {
-                if (pendingReads.count(readfd))
-                {
-                  string &strRef=pendingReads[readfd];
-                  if (*(size_t *)strRef.c_str() == strRef.size())
-                  {
-                    inbufhandler(strRef.c_str(), strRef.size());
-                    pendingReads.erase(readfd);
-                  }
-                }
               }
               break;
               
@@ -232,27 +251,31 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
               }
               else
               {
-                if ((size_t)readed<sizeof(size_t))
+                size_t pos=0;
+                while (pos < (size_t)readed)
                 {
-                  pendingReads[readfd].assign(inbuf, readed);
+                  if (sizeof(size_t)>(size_t)(readed-pos))
+                  { // can't even read size of message group
+                    break;
+                  }
+                  size_t packagesize=*(size_t *)(inbuf+pos);
+                  if (packagesize > readed-pos)
+                  { // can't read next message group entirely
+                    break;
+                  }
+                  inbufhandler(inbuf+pos, packagesize);
+                  pos += packagesize;
                 }
-                else
-                {
-                  if (*(size_t *)inbuf != (size_t)readed)
-                  {
-                    pendingReads[readfd].assign(inbuf, readed);
-                  }
-                  else
-                  {
-                    // handle it
-                    inbufhandler(inbuf, readed);
-                  }
+                if (pos<(size_t)readed)
+                { // background the remainder
+                  pendingReads[readfd].assign(inbuf+pos, readed-pos);
                 }
               }
             }
           }
         }
         while (readed > 0);
+
       }
     }
 

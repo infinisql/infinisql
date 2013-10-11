@@ -43,6 +43,10 @@ string *Message::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -54,6 +58,11 @@ void Message::package(class SerializedMessage &serobj)
 void Message::unpack(SerializedMessage &serobj)
 {
   serobj.des(messageStruct);
+}
+
+void Message::clear()
+{
+  messageStruct={};
 }
 
 class Message *Message::des(string *serstr)
@@ -192,10 +201,11 @@ MessageSocket::MessageSocket()
 }
 
 MessageSocket::MessageSocket(int socketarg, uint32_t eventsarg,
-    listenertype_e listenertypearg)
+    listenertype_e listenertypearg, int64_t nodeidarg)
 {
   messageStruct.topic = TOPIC_SOCKET;
   messageStruct.payloadtype = PAYLOADSOCKET;
+  messageStruct.destAddr.nodeid=nodeidarg;
   socketStruct={socketarg, eventsarg, listenertypearg};
 }
 
@@ -212,6 +222,10 @@ string *MessageSocket::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -225,6 +239,12 @@ void MessageSocket::unpack(SerializedMessage &serobj)
 {
   Message::unpack(serobj);
   serobj.des(messageStruct);
+}
+
+void MessageSocket::clear()
+{
+  Message::clear();
+  socketStruct={};
 }
 
 MessageUserSchema::MessageUserSchema()
@@ -257,6 +277,10 @@ string *MessageUserSchema::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -264,6 +288,7 @@ void MessageUserSchema::package(class SerializedMessage &serobj)
 {
   Message::package(serobj);
   serobj.ser(userschemaStruct);
+  serobj.ser(procs);
   serobj.ser(argstring);
   serobj.ser(pathname);
   serobj.ser(procname);
@@ -276,12 +301,25 @@ void MessageUserSchema::unpack(SerializedMessage &serobj)
 {
   Message::unpack(serobj);
   serobj.des(userschemaStruct);
+  serobj.des(procs);
   serobj.des(argstring);
   serobj.des(pathname);
   serobj.des(procname);
   serobj.des(username);
   serobj.des(domainname);
   serobj.des(password);
+}
+
+void MessageUserSchema::clear()
+{
+  Message::clear();
+  userschemaStruct={};
+  procs={};
+  pathname.clear();
+  procname.clear();
+  username.clear();
+  domainname.clear();
+  password.clear();
 }
 
 MessageDeadlock::MessageDeadlock()
@@ -304,6 +342,10 @@ string *MessageDeadlock::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -321,6 +363,14 @@ void MessageDeadlock::unpack(SerializedMessage &serobj)
   serobj.des(deadlockStruct);
   serobj.des(deadlockNode);
   serobj.des(nodes);
+}
+
+void MessageDeadlock::clear()
+{
+  Message::clear();
+  deadlockStruct={};
+  deadlockNode.clear();
+  nodes={};
 }
 
 MessageTransaction::MessageTransaction()
@@ -341,6 +391,10 @@ string *MessageTransaction::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -354,6 +408,12 @@ void MessageTransaction::unpack(SerializedMessage &serobj)
 {
   Message::unpack(serobj);
   serobj.des(transactionStruct);
+}
+
+void MessageTransaction::clear()
+{
+  Message::clear();
+  transactionStruct={};
 }
 
 MessageSubtransactionCmd::MessageSubtransactionCmd()
@@ -380,6 +440,10 @@ string *MessageSubtransactionCmd::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -407,6 +471,18 @@ void MessageSubtransactionCmd::unpack(SerializedMessage &serobj)
   serobj.des(returnRows);
 }
 
+void MessageSubtransactionCmd::clear()
+{
+  MessageTransaction::clear();
+  subtransactionStruct={};
+  row.clear();
+  fieldVal={};
+  indexHits.clear();
+  searchParameters={};
+  rowids.clear();
+  returnRows.clear();
+}
+
 MessageCommitRollback::MessageCommitRollback()
 {
 }
@@ -425,6 +501,10 @@ string *MessageCommitRollback::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -438,6 +518,12 @@ void MessageCommitRollback::unpack(SerializedMessage &serobj)
 {
   MessageTransaction::unpack(serobj);
   serobj.des(rofs);
+}
+
+void MessageCommitRollback::clear()
+{
+  MessageTransaction::clear();
+  rofs.clear();
 }
 
 MessageDispatch::MessageDispatch()
@@ -461,6 +547,10 @@ string *MessageDispatch::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -478,6 +568,14 @@ void MessageDispatch::unpack(SerializedMessage &serobj)
   serobj.des(dispatchStruct);
   serobj.des(pidsids);
   serobj.des(records);
+}
+
+void MessageDispatch::clear()
+{
+  Message::clear();
+  dispatchStruct={};
+  pidsids.clear();
+  records.clear();
 }
 
 /* order is as follows, after base Message class:
@@ -514,6 +612,10 @@ string *MessageAckDispatch::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -527,6 +629,12 @@ void MessageAckDispatch::unpack(SerializedMessage &serobj)
 {
   Message::unpack(serobj);
   serobj.des(ackdispatchStruct);
+}
+
+void MessageAckDispatch::clear()
+{
+  Message::clear();
+  ackdispatchStruct={};
 }
 
 MessageApply::MessageApply()
@@ -556,6 +664,10 @@ string *MessageApply::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -573,6 +685,14 @@ void MessageApply::unpack(SerializedMessage &serobj)
   serobj.des(applyStruct);
   serobj.des(rows);
   serobj.des(indices);
+}
+
+void MessageApply::clear()
+{
+  Message::clear();
+  applyStruct={};
+  rows.clear();
+  indices={};
 }
 
 void MessageApply::setisaddflag(char *c)
@@ -617,6 +737,10 @@ string *MessageAckApply::ser()
 {
   class SerializedMessage serobj(size());
   package(serobj);
+  if (serobj.data->size() != serobj.pos)
+  {
+    fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+  }
   return serobj.data;
 }
 
@@ -630,6 +754,12 @@ void MessageAckApply::unpack(SerializedMessage &serobj)
 {
   Message::unpack(serobj);
   serobj.des(ackapplyStruct);
+}
+
+void MessageAckApply::clear()
+{
+  Message::clear();
+  ackapplyStruct={};
 }
 
 SerializedMessage::SerializedMessage(size_t sizearg) : size(sizearg), pos(0)
@@ -656,20 +786,20 @@ payloadtype_e SerializedMessage::getpayloadtype()
 // raw
 void SerializedMessage::ser(size_t s, void *dataptr)
 {
-  memcpy(&data[pos], dataptr, s);
+  memcpy(&data->at(pos), dataptr, s);
   pos += s;
 }
 
 void SerializedMessage::des(size_t s, void *dataptr)
 {
-  memcpy(dataptr, &data[pos], s);
+  memcpy(dataptr, &data->at(pos), s);
   pos += s;
 }
 
 //pods
 void SerializedMessage::ser(int64_t d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -680,13 +810,13 @@ size_t SerializedMessage::sersize(int64_t d)
 
 void SerializedMessage::des(int64_t *d)
 {
-  memcpy(d, &data[pos], sizeof(d));
-  pos += sizeof(d);
+  memcpy(d, &data->at(pos), sizeof(*d));
+  pos += sizeof(*d);
 }
 
 void SerializedMessage::ser(int32_t d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);  
 }
 
@@ -697,13 +827,13 @@ size_t SerializedMessage::sersize(int32_t d)
 
 void SerializedMessage::des(int32_t *d)
 {
-  memcpy(d, &data[pos], sizeof(d));
-  pos += sizeof(d);  
+  memcpy(d, &data->at(pos), sizeof(*d));
+  pos += sizeof(*d);  
 }
 
 void SerializedMessage::ser(bool d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);  
 }
 
@@ -714,16 +844,19 @@ size_t SerializedMessage::sersize(bool d)
 
 void SerializedMessage::des(bool *d)
 {
-  memcpy(d, &data[pos], sizeof(d));
-  pos += sizeof(d);
+  memcpy(d, &data->at(pos), sizeof(*d));
+  pos += sizeof(*d);
 }
 
 // containers
 void SerializedMessage::ser(const string &d)
 {
   ser((int64_t)d.size());
-  memcpy(&data[pos], &d, d.size());
-  pos += d.size();
+  if (d.size())
+  {
+    memcpy(&data->at(pos), d.c_str(), d.size());
+    pos += d.size();
+  }
 }
 
 size_t SerializedMessage::sersize(const string &d)
@@ -735,14 +868,17 @@ void SerializedMessage::des(string &d)
 {
   size_t s;
   des((int64_t *)&s);
-  d.assign((const char *)&data[pos], s);
-  pos += s;
+  if (s)
+  {
+    d.assign((const char *)&data->at(pos), s);
+    pos += s;
+  }
 }
 
 void SerializedMessage::ser(vector<int64_t> &d)
 {
   size_t s=d.size();
-  memcpy(&data[pos], &s, sizeof(s));
+  memcpy(&data->at(pos), &s, sizeof(s));
   pos += sizeof(s);
   for (size_t n=0; n<s; n++)
   {
@@ -752,13 +888,13 @@ void SerializedMessage::ser(vector<int64_t> &d)
 
 size_t SerializedMessage::sersize(vector<int64_t> &d)
 {
-  return d.size() * sizeof(int64_t);
+  return sizeof(size_t) + (d.size() * sizeof(int64_t));
 }
 
 void SerializedMessage::des(vector<int64_t> &d)
 {
   size_t s;
-  memcpy(&s, &data[pos], sizeof(s));
+  memcpy(&s, &data->at(pos), sizeof(s));
   pos += sizeof(s);
   d.reserve(s);
   for (size_t n=0; n<s; n++)
@@ -788,7 +924,7 @@ size_t SerializedMessage::sersize(boost::unordered_map<int64_t, int64_t> &d)
 void SerializedMessage::des(boost::unordered_map<int64_t, int64_t> &d)
 {
   size_t s;
-  memcpy(&s, &data[pos], sizeof(s));
+  memcpy(&s, &data->at(pos), sizeof(s));
   pos += sizeof(s);
   for (size_t n=0; n<s; n++)
   {
@@ -802,7 +938,7 @@ void SerializedMessage::des(boost::unordered_map<int64_t, int64_t> &d)
 // pod structs
 void SerializedMessage::ser(Message::message_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -813,14 +949,14 @@ size_t SerializedMessage::sersize(Message::message_s &d)
 
 void SerializedMessage::des(Message::message_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 
 void SerializedMessage::ser(MessageSocket::socket_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -831,13 +967,13 @@ size_t SerializedMessage::sersize(MessageSocket::socket_s &d)
 
 void SerializedMessage::des(MessageSocket::socket_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageUserSchema::userschema_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -848,13 +984,13 @@ size_t SerializedMessage::sersize(MessageUserSchema::userschema_s &d)
 
 void SerializedMessage::des(MessageUserSchema::userschema_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(procedures_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -865,13 +1001,13 @@ size_t SerializedMessage::sersize(procedures_s &d)
 
 void SerializedMessage::des(procedures_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageDeadlock::deadlock_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -882,13 +1018,13 @@ size_t SerializedMessage::sersize(MessageDeadlock::deadlock_s &d)
 
 void SerializedMessage::des(MessageDeadlock::deadlock_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageTransaction::transaction_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -899,13 +1035,13 @@ size_t SerializedMessage::sersize(MessageTransaction::transaction_s &d)
 
 void SerializedMessage::des(MessageTransaction::transaction_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageSubtransactionCmd::subtransaction_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -916,13 +1052,13 @@ size_t SerializedMessage::sersize(MessageSubtransactionCmd::subtransaction_s &d)
 
 void SerializedMessage::des(MessageSubtransactionCmd::subtransaction_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(nonLockingIndexEntry_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -933,13 +1069,13 @@ size_t SerializedMessage::sersize(nonLockingIndexEntry_s &d)
 
 void SerializedMessage::des(nonLockingIndexEntry_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageDispatch::dispatch_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -950,13 +1086,13 @@ size_t SerializedMessage::sersize(MessageDispatch::dispatch_s &d)
 
 void SerializedMessage::des(MessageDispatch::dispatch_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageAckDispatch::ackdispatch_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -967,13 +1103,13 @@ size_t SerializedMessage::sersize(MessageAckDispatch::ackdispatch_s &d)
 
 void SerializedMessage::des(MessageAckDispatch::ackdispatch_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageApply::apply_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -984,13 +1120,13 @@ size_t SerializedMessage::sersize(MessageApply::apply_s &d)
 
 void SerializedMessage::des(MessageApply::apply_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
 void SerializedMessage::ser(MessageAckApply::ackapply_s &d)
 {
-  memcpy(&data[pos], &d, sizeof(d));
+  memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);
 }
 
@@ -1001,7 +1137,7 @@ size_t SerializedMessage::sersize(MessageAckApply::ackapply_s &d)
 
 void SerializedMessage::des(MessageAckApply::ackapply_s &d)
 {
-  memcpy(&d, &data[pos], sizeof(d));
+  memcpy(&d, &data->at(pos), sizeof(d));
   pos += sizeof(d);
 }
 
@@ -1042,7 +1178,7 @@ void SerializedMessage::des(boost::unordered_set<string> &d)
 
 void SerializedMessage::ser(fieldValue_s &d)
 {
-  memcpy(&data[pos], &d.value, sizeof(d.value));
+  memcpy(&data->at(pos), &d.value, sizeof(d.value));
   pos += sizeof(d.value);
   ser(d.str);
   ser(d.isnull);
@@ -1055,7 +1191,7 @@ size_t SerializedMessage::sersize(fieldValue_s &d)
 
 void SerializedMessage::des(fieldValue_s &d)
 {
-  memcpy(&d.value, &data[pos], sizeof(d.value));
+  memcpy(&d.value, &data->at(pos), sizeof(d.value));
   pos += sizeof(d.value);
   des(d.str);
   des(&d.isnull);
@@ -1072,7 +1208,7 @@ void SerializedMessage::ser(returnRow_s &d)
 size_t SerializedMessage::sersize(returnRow_s &d)
 {
   return sersize(d.rowid)+sersize(d.previoussubtransactionid)+
-          sersize(d.locktype)+d.row.size();
+          sersize(d.locktype)+sersize(d.row);
 }
 
 void SerializedMessage::des(returnRow_s &d)
@@ -1433,7 +1569,7 @@ size_t SerializedMessage::sersize(boost::unordered_map< int64_t, vector<MessageD
 void SerializedMessage::des(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
 {
   size_t s;
-  memcpy(&s, &data[pos], sizeof(s));
+  memcpy(&s, &data->at(pos), sizeof(s));
   pos += sizeof(s);
   for (size_t n=0; n<s; n++)
   {

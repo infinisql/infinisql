@@ -590,11 +590,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
       // rollback & unlock are fire and forget
       if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd == COMMITCMD)
       {
-
         replyTransaction((void *) new class MessageCommitRollback);
       }
-
-      //            delete (vector<rowOrField> *)msgrcv->data;
     }
     break;
 
@@ -1752,14 +1749,8 @@ void SubTransaction::replyTransaction(void *data)
   msgref.transactionStruct.transaction_tacmdentrypoint = msgrcvRef.transactionStruct.transaction_tacmdentrypoint;
   msgref.transactionStruct.transaction_pendingcmdid = msgrcvRef.transactionStruct.transaction_pendingcmdid;
 
-#ifdef PROFILE
-  profileEntry(__LINE__);
-#endif
   enginePtr->mboxes.toActor(enginePtr->myIdentity.address, taAddr,
                             *((class Message *)data));
-#ifdef PROFILE
-  profileEntry(__LINE__);
-#endif
 }
 
 // for drain queue old transactions

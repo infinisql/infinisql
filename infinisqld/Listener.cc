@@ -179,7 +179,8 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
           continue;
         }
         pthread_mutex_unlock(&connectionsMutex);
-        producer->sendMsg(*(new class MessageSocket(fd, event, listenertype)));
+        producer->sendMsg(*(new class MessageSocket(fd, event, listenertype,
+                myIdentity.address.nodeid)));
       }
     }
   }

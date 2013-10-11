@@ -148,57 +148,127 @@ public:
     class MessageAckApply reuseMessageAckApply;
 
 // do this instead of mymbox.receive (except ObGw)
-#define GETMSG(X, Y, Z) X=Y->receive(Z); \
-      if (X->messageStruct.topic==TOPIC_SERIALIZED) \
+#define GETMSG(X, Y, Z) \
+      X=Y->receive(Z); \
+      if (X != NULL && X->messageStruct.topic==TOPIC_SERIALIZED) \
       { \
         SerializedMessage serobj(((class MessageSerialized *)X)->data); \
         switch (serobj.getpayloadtype()) \
         { \
           case PAYLOADMESSAGE: \
+          { \
+            reuseMessage=Message(); \
             reuseMessage.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessage; \
-            break; \
+          } \
+          break; \
           case PAYLOADSOCKET: \
+          { \
+            reuseMessageSocket=MessageSocket(); \
             reuseMessageSocket.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageSocket; \
-            break; \
+          } \
+          break; \
           case PAYLOADUSERSCHEMA: \
+          { \
+            reuseMessageUserSchema=MessageUserSchema(); \
             reuseMessageUserSchema.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageUserSchema; \
-            break; \
+          } \
+          break; \
           case PAYLOADDEADLOCK: \
+          { \
+            reuseMessageDeadlock=MessageDeadlock(); \
             reuseMessageDeadlock.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageDeadlock; \
-            break; \
+          } \
+          break; \
           case PAYLOADSUBTRANSACTION: \
+           { \
+            reuseMessageSubtransactionCmd=MessageSubtransactionCmd(); \
             reuseMessageSubtransactionCmd.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageSubtransactionCmd; \
-            break; \
+          } \
+          break; \
           case PAYLOADCOMMITROLLBACK: \
+          { \
+            reuseMessageCommitRollback=MessageCommitRollback(); \
             reuseMessageCommitRollback.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageCommitRollback; \
-            break; \
+          } \
+          break; \
           case PAYLOADDISPATCH: \
+          { \
+            reuseMessageDispatch=MessageDispatch(); \
             reuseMessageDispatch.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageDispatch; \
-            break; \
+          } \
+          break; \
           case PAYLOADACKDISPATCH: \
+          { \
+            reuseMessageAckDispatch=MessageAckDispatch(); \
             reuseMessageAckDispatch.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageAckDispatch; \
-            break; \
+          } \
+          break; \
           case PAYLOADAPPLY: \
+          { \
+            reuseMessageApply=MessageApply(); \
             reuseMessageApply.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageApply; \
-            break; \
+          } \
+          break; \
           case PAYLOADACKAPPLY: \
+          { \
+            reuseMessageAckApply=MessageAckApply(); \
             reuseMessageAckApply.unpack(serobj); \
+            if (serobj.data->size() != serobj.pos) \
+            { \
+              fprintf(logfile, "unpack %i size %lu pos %lu\n", serobj.getpayloadtype(), serobj.data->size(), serobj.pos); \
+            } \
             X=&reuseMessageAckApply; \
-            break; \
+          } \
+          break; \
           default: \
             printf("%s %i anomaly %i\n", __FILE__, __LINE__, serobj.getpayloadtype()); \
         } \
         delete serobj.data; \
       }
-
 
 #endif  /* MBOX_HPP */

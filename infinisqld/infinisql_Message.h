@@ -48,6 +48,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
   static class Message *des(string *);
   string *sermsg();
   void setEnvelope(const Topology::addressStruct &,
@@ -66,12 +67,14 @@ public:
     listenertype_e listenertype;
   };
   MessageSocket();
-  MessageSocket(int, uint32_t, listenertype_e);
+  MessageSocket(int, uint32_t, listenertype_e, int64_t);
   virtual ~MessageSocket();
   size_t size();
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
+
 
   socket_s socketStruct;
 };
@@ -109,6 +112,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   userschema_s userschemaStruct;
   procedures_s procs;
@@ -136,6 +140,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   deadlock_s deadlockStruct;
   string deadlockNode;
@@ -163,6 +168,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   transaction_s transactionStruct;
 };
@@ -188,6 +194,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   subtransaction_s subtransactionStruct;
 
@@ -208,6 +215,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   vector<rowOrField_s> rofs;
 };
@@ -237,6 +245,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   dispatch_s dispatchStruct;
   
@@ -262,6 +271,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   ackdispatch_s ackdispatchStruct;
 };
@@ -293,6 +303,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   static void setisaddflag(char *);
   static char getisaddflag(char);
@@ -321,6 +332,7 @@ public:
   string *ser();
   void package(class SerializedMessage &);
   void unpack(SerializedMessage &);
+  void clear();
 
   void serialize(msgpack::packer<msgpack::sbuffer> &);
   void deserialize(msgpack::unpacker &, class Message &);

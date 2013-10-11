@@ -110,9 +110,8 @@ int main(int argc, char **argv)
   arg->address.actorid = 1;
   arg->instance = -1;
 
-  int rv;
-  rv = pthread_create(&topologyMgrThread, NULL, topologyMgr, arg);
 
+  int rv=pthread_create(&topologyMgrThread, NULL, topologyMgr, arg);
   if (rv)
   {
     printf("%s %i pthread_create rv %i\n", __FILE__, __LINE__, rv);
