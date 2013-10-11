@@ -831,18 +831,18 @@ void SerializedMessage::des(int32_t *d)
   pos += sizeof(*d);  
 }
 
-void SerializedMessage::ser(bool d)
+void SerializedMessage::ser(int8_t d)
 {
   memcpy(&data->at(pos), &d, sizeof(d));
   pos += sizeof(d);  
 }
 
-size_t SerializedMessage::sersize(bool d)
+size_t SerializedMessage::sersize(int8_t d)
 {
   return sizeof(d);  
 }
 
-void SerializedMessage::des(bool *d)
+void SerializedMessage::des(int8_t *d)
 {
   memcpy(d, &data->at(pos), sizeof(*d));
   pos += sizeof(*d);
@@ -1181,12 +1181,12 @@ void SerializedMessage::ser(fieldValue_s &d)
   memcpy(&data->at(pos), &d.value, sizeof(d.value));
   pos += sizeof(d.value);
   ser(d.str);
-  ser(d.isnull);
+  ser((int8_t)d.isnull);
 }
 
 size_t SerializedMessage::sersize(fieldValue_s &d)
 {
-  return sizeof(d.value)+sersize(d.str)+sersize(d.isnull);
+  return sizeof(d.value)+sersize(d.str)+sersize((int8_t)d.isnull);
 }
 
 void SerializedMessage::des(fieldValue_s &d)
@@ -1194,35 +1194,35 @@ void SerializedMessage::des(fieldValue_s &d)
   memcpy(&d.value, &data->at(pos), sizeof(d.value));
   pos += sizeof(d.value);
   des(d.str);
-  des(&d.isnull);
+  des((int8_t *)&d.isnull);
 }
 
 void SerializedMessage::ser(returnRow_s &d)
 {
   ser(d.rowid);
   ser(d.previoussubtransactionid);
-  ser(d.locktype);
+  ser((int8_t)d.locktype);
   ser(d.row);
 }
 
 size_t SerializedMessage::sersize(returnRow_s &d)
 {
   return sersize(d.rowid)+sersize(d.previoussubtransactionid)+
-          sersize(d.locktype)+sersize(d.row);
+          sersize((int8_t)d.locktype)+sersize(d.row);
 }
 
 void SerializedMessage::des(returnRow_s &d)
 {
   des(&d.rowid);
   des(&d.previoussubtransactionid);
-  des((int32_t *)&d.locktype);
+  des((int8_t *)&d.locktype);
   des(d.row);
 }
 
 void SerializedMessage::ser(MessageDispatch::record_s &d)
 {
   ser(d.rowid);
-  ser(d.primitive);
+  ser((int8_t)d.primitive);
   ser(d.tableid);
   ser(d.previoussubtransactionid);
   ser(d.row);
@@ -1231,14 +1231,14 @@ void SerializedMessage::ser(MessageDispatch::record_s &d)
 
 size_t SerializedMessage::sersize(MessageDispatch::record_s &d)
 {
-  return sersize(d.rowid)+sersize(d.primitive)+sersize(d.tableid)+
+  return sersize(d.rowid)+sersize((int8_t)d.primitive)+sersize(d.tableid)+
           sersize(d.previoussubtransactionid)+sersize(d.row)+sersize(d.oldrow);
 }
 
 void SerializedMessage::des(MessageDispatch::record_s &d)
 {
   des(&d.rowid);
-  des((int32_t *)&d.primitive);
+  des((int8_t *)&d.primitive);
   des(&d.tableid);
   des(&d.previoussubtransactionid);
   des(d.row);
@@ -1396,14 +1396,14 @@ void SerializedMessage::des(vector<MessageDispatch::record_s> &d)
 
 void SerializedMessage::ser(rowOrField_s &d)
 {
-  ser(d.isrow);
+  ser((int8_t)d.isrow);
   ser(d.tableid);
   ser(d.rowid);
   ser(d.fieldid);
   ser(d.engineid);
-  ser(d.deleteindexentry);
-  ser(d.isnotaddunique);
-  ser(d.isreplace);
+  ser((int8_t)d.deleteindexentry);
+  ser((int8_t)d.isnotaddunique);
+  ser((int8_t)d.isreplace);
   ser(d.newrowid);
   ser(d.newengineid);
   ser(d.fieldVal);
@@ -1411,22 +1411,22 @@ void SerializedMessage::ser(rowOrField_s &d)
 
 size_t SerializedMessage::sersize(rowOrField_s &d)
 {
-  return sersize(d.isrow)+sersize(d.tableid)+sersize(d.rowid)+
-          sersize(d.fieldid)+sersize(d.engineid)+sersize(d.deleteindexentry)+
-          sersize(d.isnotaddunique)+sersize(d.isreplace)+sersize(d.newrowid)+
+  return sersize((int8_t)d.isrow)+sersize(d.tableid)+sersize(d.rowid)+
+          sersize(d.fieldid)+sersize(d.engineid)+sersize((int8_t)d.deleteindexentry)+
+          sersize((int8_t)d.isnotaddunique)+sersize((int8_t)d.isreplace)+sersize(d.newrowid)+
           sersize(d.newengineid)+sersize(d.fieldVal);
 }
 
 void SerializedMessage::des(rowOrField_s &d)
 {
-  des(&d.isrow);
+  des((int8_t *)&d.isrow);
   des(&d.tableid);
   des(&d.rowid);
   des(&d.fieldid);
   des(&d.engineid);
-  des(&d.deleteindexentry);
-  des(&d.isnotaddunique);
-  des(&d.isreplace);
+  des((int8_t *)&d.deleteindexentry);
+  des((int8_t *)&d.isnotaddunique);
+  des((int8_t *)&d.isreplace);
   des(&d.newrowid);
   des(&d.newengineid);
   des(d.fieldVal);
@@ -1459,19 +1459,19 @@ void SerializedMessage::des(MessageApply::applyindex_s &d)
 // level 3
 void SerializedMessage::ser(searchParams_s &d)
 {
-  ser(d.op);
+  ser((int8_t)d.op);
   ser(d.values);
   ser(d.regexString);
 }
 
 size_t SerializedMessage::sersize(searchParams_s &d)
 {
-  return sersize(d.op)+sersize(d.values)+sersize(d.regexString);
+  return sersize((int8_t)d.op)+sersize(d.values)+sersize(d.regexString);
 }
 
 void SerializedMessage::des(searchParams_s &d)
 {
-  des((int32_t *)&d.op);
+  des((int8_t *)&d.op);
   des(d.values);
   des(d.regexString);
 }

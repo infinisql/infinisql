@@ -87,7 +87,7 @@
 #define PAYLOADSIZE 128
 #define NUMSOCKETS 1048576
 
-enum listenertype_e
+enum __attribute__ ((__packed__)) listenertype_e
 {
   LISTENER_NONE = 0,
   LISTENER_RAW,
@@ -106,7 +106,7 @@ enum builtincmds_e
   ABORTCMD
 };
 
-enum indextype_e
+enum __attribute__ ((__packed__)) indextype_e
 {
   NONE = 0,
   UNIQUE = 1,
@@ -149,8 +149,7 @@ enum maptype_e
   Unordered = 2
 };
 
-//enum __attribute__ ((__packed__)) topic_e
-enum topic_e
+enum __attribute__ ((__packed__)) topic_e
 {
   TOPIC_NONE = 0,
   TOPIC_MBOXES = 1,
@@ -198,7 +197,7 @@ enum topic_e
   TOPIC_SERIALIZED = 45
 };
 
-enum payloadtype_e
+enum __attribute__ ((__packed__)) payloadtype_e
 {
   PAYLOADNONE = 0,
   PAYLOADMESSAGE,
@@ -220,7 +219,7 @@ enum operationtype_e
   OPERATION_LOGIN
 };
 
-enum operatortypes_e
+enum __attribute__ ((__packed__)) operatortypes_e
 {
   OPERATOR_NONE = 0,
   OPERATOR_CONCATENATION = 1,
@@ -306,7 +305,7 @@ using msgpack::sbuffer;
 using boost::lexical_cast;
 
 // enums
-enum fieldtype_e
+enum __attribute__ ((__packed__)) fieldtype_e
 {
   INT = 0,
   UINT = 1,
@@ -322,7 +321,7 @@ enum enginecmds_e
   newrow
 };
 
-enum locktype_e
+enum __attribute__ ((__packed__)) locktype_e
 {
   NOTFOUNDLOCK = -1,
   NOLOCK = 0,
@@ -338,7 +337,7 @@ enum locktype_e
   PENDINGTOINDEXNOLOCK
 };
 
-enum pendingprimitive_e
+enum __attribute__ ((__packed__)) pendingprimitive_e
 {
   NOCOMMAND = 0,
   INSERT,
@@ -418,7 +417,7 @@ typedef struct
   int epollfd;
 } serventIdentity_s;
 
-typedef struct
+typedef struct __attribute__ ((__packed__))
 {
   void *procedurecreator; //typedef ApiInterface*(*spclasscreate)(void);
   void *proceduredestroyer; //typedef void(*spclassdestroy)(ApiInterface*);
@@ -438,7 +437,7 @@ typedef struct
   string row;
 } returnRow_s;
 
-typedef union fieldInput_u
+typedef union __attribute__ ((__packed__)) fieldInput_u
 {
   int64_t integer;
   uint64_t uinteger;
@@ -478,7 +477,7 @@ typedef struct
   string regexString;
 } searchParams_s;
 
-typedef struct
+typedef struct __attribute__ ((__packed__)) 
 {
   int64_t rowid;
   int64_t engineid;

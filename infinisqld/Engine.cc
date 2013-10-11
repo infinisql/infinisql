@@ -530,32 +530,36 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
         {
           case nonuniqueint:
           {
+            int64_t v=indexinfo.fieldVal.value.integer;
             indexRef.nonuniqueIntIndex->insert(pair<int64_t,
-                                               nonLockingIndexEntry_s>(indexinfo.fieldVal.value.integer,
+                                               nonLockingIndexEntry_s>(v,
                                                    indexinfo.entry));
           }
           break;
 
           case nonuniqueuint:
           {
+            uint64_t v=indexinfo.fieldVal.value.uinteger;
             indexRef.nonuniqueUintIndex->insert(pair<uint64_t,
-                                                nonLockingIndexEntry_s>(indexinfo.fieldVal.value.uinteger,
+                                                nonLockingIndexEntry_s>(v,
                                                     indexinfo.entry));
           }
           break;
 
           case nonuniquebool:
           {
+            bool v=indexinfo.fieldVal.value.boolean;
             indexRef.nonuniqueBoolIndex->insert(pair<bool,
-                                                nonLockingIndexEntry_s>(indexinfo.fieldVal.value.boolean,
+                                                nonLockingIndexEntry_s>(v,
                                                     indexinfo.entry));
           }
           break;
 
           case nonuniquefloat:
           {
+            long double v=indexinfo.fieldVal.value.floating;
             indexRef.nonuniqueFloatIndex->insert(pair<long double,
-                                                 nonLockingIndexEntry_s>(indexinfo.fieldVal.value.floating,
+                                                 nonLockingIndexEntry_s>(v,
                                                      indexinfo.entry));
           }
           break;

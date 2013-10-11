@@ -33,13 +33,12 @@
 class Message
 {
 public:
-  struct message_s
+  struct __attribute__ ((__packed__)) message_s
   {
     payloadtype_e payloadtype;
     topic_e topic;
     Topology::addressStruct sourceAddr;
     Topology::addressStruct destAddr;
-    __int128 nextmsg;
   };
   
   Message();
@@ -54,13 +53,15 @@ public:
   void setEnvelope(const Topology::addressStruct &,
                    const Topology::addressStruct &, class Message &);
 
+  __int128 nextmsg;
+  
   message_s messageStruct;
 };
 
 class MessageSocket : public Message
 {
 public:
-  struct socket_s
+  struct __attribute__ ((__packed__)) socket_s
   {
     int socket;
     uint32_t events;
@@ -75,14 +76,13 @@ public:
   void unpack(SerializedMessage &);
   void clear();
 
-
   socket_s socketStruct;
 };
 
 class MessageUserSchema : public Message
 {
 public:
-  struct userschema_s
+  struct __attribute__ ((__packed__)) userschema_s
   {
     int operationtype;
     int caller;
@@ -127,7 +127,7 @@ public:
 class MessageDeadlock : public Message
 {
 public:
-  struct deadlock_s
+  struct __attribute__ ((__packed__)) deadlock_s
   {
     int64_t transactionid;
     int64_t tainstance;
@@ -150,7 +150,7 @@ public:
 class MessageTransaction : public Message
 {
 public:
-  struct transaction_s
+  struct __attribute__ ((__packed__)) transaction_s
   {
     int64_t transactionid;
     int64_t subtransactionid;
@@ -176,7 +176,7 @@ public:
 class MessageSubtransactionCmd : public MessageTransaction
 {
 public:
-  struct subtransaction_s
+  struct __attribute__ ((__packed__)) subtransaction_s
   {
     int64_t status;
     bool isrow;
@@ -223,7 +223,7 @@ public:
 class MessageDispatch : public Message
 {
 public:
-  struct dispatch_s
+  struct __attribute__ ((__packed__)) dispatch_s
   {
     int64_t transactionid;
     int64_t domainid;
@@ -258,7 +258,7 @@ public:
 class MessageAckDispatch : public Message
 {
 public:
-  struct ackdispatch_s
+  struct __attribute__ ((__packed__)) ackdispatch_s
   {
     int64_t transactionid;
     int status;
@@ -281,7 +281,7 @@ public:
 class MessageApply : public Message
 {
 public:
-  struct apply_s
+  struct __attribute__ ((__packed__)) apply_s
   {
     int64_t subtransactionid;
     int64_t applierid;
@@ -318,7 +318,7 @@ public:
 class MessageAckApply : public Message
 {
 public:
-  struct ackapply_s
+  struct __attribute__ ((__packed__)) ackapply_s
   {
     int64_t subtransactionid;
     int64_t applierid;
@@ -380,9 +380,9 @@ public:
   void ser(int32_t);
   static size_t sersize(int32_t);
   void des(int32_t *);
-  void ser(bool);
-  static size_t sersize(bool);
-  void des(bool *);
+  void ser(int8_t);
+  static size_t sersize(int8_t);
+  void des(int8_t *);
   // containers
   void ser(const string &);
   static size_t sersize(const string &);

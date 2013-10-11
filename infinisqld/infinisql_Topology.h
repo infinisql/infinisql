@@ -53,7 +53,7 @@ public:
    * every message, as source and destination, so should be relatively
    * small.
    */
-  struct addressStruct
+  struct __attribute__ ((__packed__)) addressStruct
   {
     int64_t nodeid; /**< node is a server process (not an OS instance) */
     int64_t actorid; /**< each actor has a unique id per node */

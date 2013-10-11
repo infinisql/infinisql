@@ -2269,7 +2269,7 @@ int64_t SubTransaction::deleterow(int64_t tableid, int64_t rowid,
 void SubTransaction::selectrows(int64_t tableid, vector<int64_t> *rowids,
                                 locktype_e locktype, int64_t pendingcmdid, vector<returnRow_s> *returnRows)
 {
-  int64_t &tacmd = ((class MessageTransaction *)msgrcv)->transactionStruct.transaction_tacmdentrypoint;
+  int64_t tacmd = ((class MessageTransaction *)msgrcv)->transactionStruct.transaction_tacmdentrypoint;
   class Table &tableRef = *schemaPtr->tables[tableid];
   tableRef.selectrows(rowids, locktype, subtransactionid, pendingcmdid,
                       returnRows, tacmd);

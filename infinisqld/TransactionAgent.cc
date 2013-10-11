@@ -452,7 +452,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
             // message to roll it back
             fprintf(logfile, "%s %i transactionid %li\n", __FILE__, __LINE__,
                     msgref.transactionStruct.transactionid);
-            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, messageStruct.payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.messageStruct.nextmsg), Mbox::getCount(msgref.messageStruct.nextmsg), msgref.messageStruct.payloadtype, msgref.transactionStruct.transaction_pendingcmdid, msgref.transactionStruct.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->subtransactionStruct.locktype);
+            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, messageStruct.payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.messageStruct.payloadtype, msgref.transactionStruct.transaction_pendingcmdid, msgref.transactionStruct.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->subtransactionStruct.locktype);
             badMessageHandler();
           }
 

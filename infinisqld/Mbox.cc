@@ -34,7 +34,7 @@ Mbox::Mbox() : counter(8888)
 {
   firstMsg = new class Message();
   firstMsg->messageStruct.payloadtype = PAYLOADNONE;
-  firstMsg->messageStruct.nextmsg = getInt128FromPointer(NULL, 5000);
+  firstMsg->nextmsg = getInt128FromPointer(NULL, 5000);
   currentMsg = firstMsg;
   lastMsg = firstMsg;
   myLastMsg = firstMsg;
@@ -66,7 +66,7 @@ class Message *Mbox::receive(int timeout)
 
   while (1)
   {
-    mynext = __atomic_load_n(&(getPtr(current)->messageStruct.nextmsg), __ATOMIC_SEQ_CST);
+    mynext = __atomic_load_n(&(getPtr(current)->nextmsg), __ATOMIC_SEQ_CST);
 
     if (getPtr(mynext)==NULL)
     {
@@ -146,7 +146,7 @@ void MboxProducer::sendMsg(class Message &msgsnd)
   }
   class Message &msg=*msgptr;
   
-  msg.messageStruct.nextmsg = Mbox::getInt128FromPointer(NULL, 5555);
+  msg.nextmsg = Mbox::getInt128FromPointer(NULL, 5555);
 
   __int128 mytail;
   __int128 mynext;
@@ -154,13 +154,13 @@ void MboxProducer::sendMsg(class Message &msgsnd)
   while (1)
   {
     mytail = __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST);
-    mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->messageStruct.nextmsg), __ATOMIC_SEQ_CST);
+    mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->nextmsg), __ATOMIC_SEQ_CST);
 
     if (mytail == __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST))
     {
       if (Mbox::getPtr(mynext) == NULL)
       {
-        if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->messageStruct.nextmsg), &mynext,
+        if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext,
                                         Mbox::getInt128FromPointer(&msg,
                                             __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)),
                                         false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
