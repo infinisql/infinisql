@@ -49,6 +49,7 @@ private:
   struct pollfd *fds;
   nfds_t nfds;
   char *inbuf;
+  char *dcstrsmall;
 };
 
 void *ibGateway(void *);

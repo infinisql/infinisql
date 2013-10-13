@@ -213,7 +213,7 @@ enum __attribute__ ((__packed__)) payloadtype_e
   PAYLOADSERIALIZED
 };
 
-enum operationtype_e
+enum __attribute__ ((__packed__)) operationtype_e
 {
   OPERATION_NONE = 0,
   OPERATION_LOGIN
@@ -392,10 +392,12 @@ enum enginecmd_e
 };
 
 /** Global configs */
+#define SERIALIZEDMAXSIZE   1048576
 typedef struct
 {
   int anonymousping;
   int badloginmessages;
+  bool compressgw;
 } cfg_s;
 extern cfg_s cfgs;
 

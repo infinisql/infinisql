@@ -146,7 +146,7 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
           break;
 
         default:
-          fprintf(logfile, "anomaly: %lu %s %i\n",
+          fprintf(logfile, "anomaly: %i %s %i\n",
                   subtransactionCmdRef.transactionStruct.transaction_enginecmd, __FILE__, __LINE__);
       }
 

@@ -37,6 +37,7 @@
 #include <pcrecpp.h>
 #include <zmq.h>
 #include "infinisql_spooky.h"
+#include <lz4.h>
 
 // sys C++
 #include <cstdlib>

@@ -109,7 +109,8 @@ int main(int argc, char **argv)
   arg->address.nodeid = 1;
   arg->address.actorid = 1;
   arg->instance = -1;
-
+  
+  cfgs.compressgw=true;
 
   int rv=pthread_create(&topologyMgrThread, NULL, topologyMgr, arg);
   if (rv)

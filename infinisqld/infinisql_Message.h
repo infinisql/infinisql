@@ -84,9 +84,9 @@ class MessageUserSchema : public Message
 public:
   struct __attribute__ ((__packed__)) userschema_s
   {
-    int operationtype;
-    int caller;
-    int callerstate;
+    operationtype_e operationtype;
+    int8_t caller;
+    int8_t callerstate;
     int64_t argsize;
     int64_t instance;
     int64_t operationid;
@@ -157,7 +157,7 @@ public:
     int64_t previoussubtransactionid;
     int64_t tainstance;
     int64_t domainid;
-    int64_t transaction_enginecmd;
+    enginecmd_e transaction_enginecmd;
     int64_t transaction_pendingcmdid;
     int64_t transaction_tacmdentrypoint;
     int64_t engineinstance;

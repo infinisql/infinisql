@@ -44,6 +44,8 @@ private:
   vector<int> remoteGateways;
   socklen_t optlen;
   int so_sndbuf;
+  char *serstrsmall;
+  char *cstrsmall;
 };
 
 void *obGateway(void *);

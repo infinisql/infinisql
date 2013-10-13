@@ -41,10 +41,19 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   bool buildup=true;
   
   // pendingMsgs[remotenodeid]=serialized messages
-  boost::unordered_map< int64_t, vector<string *> > pendingMsgs;
   char *sendstr=NULL;
+  size_t sendsize=0;
+  boost::unordered_map< int64_t, vector<string *> > pendingMsgs;
+  char *serstr=NULL;
+  serstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+  char *serstrbig=NULL;
+  bool isserstrbig=false;
+  char *cstr=NULL;
+  cstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+  char *cstrbig=NULL;
+  bool iscstrbig=false;
 
-  /*  
+  /*
   uint32_t D_sends=0;
   uint64_t D_sendbytes=0;
    */
@@ -81,6 +90,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       }
     }
 
+    // simple flow control
     if (buildup==true)
     {
       usleep(100);
@@ -88,6 +98,8 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       continue;
     }
     buildup=true;
+
+    ssize_t sended;
 
     // send all pendings
     boost::unordered_map< int64_t, vector<string *> >::iterator it;
@@ -104,28 +116,73 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         continue;
       }
       // format is: total size, [msgsize, msg]...
-      sendstr=new (std::nothrow) char[s];
-      memcpy(sendstr, &s, sizeof(s));
+      if (s>SERIALIZEDMAXSIZE)
+      {
+        serstrbig=new (std::nothrow) char[s];
+        serstr=serstrbig;
+        isserstrbig=true;
+      }
+      else
+      {
+        serstr=serstrsmall;
+        isserstrbig=false;
+      }
+      memcpy(serstr, &s, sizeof(s));
       size_t pos=sizeof(s);
       for (size_t n=0; n < msgsRef.size(); n++)
       {
         string &msgRef=*msgsRef[n];
         size_t ms=msgRef.size();
-        memcpy(sendstr+pos, &ms, sizeof(ms));
+        memcpy(serstr+pos, &ms, sizeof(ms));
         pos += sizeof(size_t);
-        memcpy(sendstr+pos, msgRef.c_str(), ms);
+        memcpy(serstr+pos, msgRef.c_str(), ms);
         pos += ms;
         delete &msgRef;
       }
-      if (send(remoteGateways[it->first], sendstr, s, 0)==-1)
+      
+      // compress
+      if (cfgs.compressgw==true)
+      {
+        int cbound=LZ4_compressBound(s);
+        if (cbound+sizeof(size_t) > SERIALIZEDMAXSIZE)
+        {
+          cstrbig=new (std::nothrow) char[cbound+sizeof(size_t)];
+          cstr=cstrbig;
+          iscstrbig=true;
+        }
+        else
+        {
+          cstr=cstrsmall;
+          iscstrbig=false;
+        }
+        size_t csize=LZ4_compress(serstr, cstr+sizeof(csize), s);
+        csize += sizeof(csize);
+        memcpy(cstr, &csize, sizeof(csize));
+        sendstr=cstr;
+        sendsize=csize;
+      }
+      else
+      {
+        sendstr=serstr;
+        sendsize=s;
+      }
+
+      if ((sended=send(remoteGateways[it->first], sendstr, sendsize, 0))==-1)
       {
         printf("%s %i send errno %i nodeid %li instance %li it->first %li socket %i\n",
                __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
                it->first, remoteGateways[it->first]);
       }
       pendingMsgs.erase(it->first);
-      delete sendstr;
-    }
+
+      if (isserstrbig==true)
+      {
+        delete serstrbig;
+      }
+      if (iscstrbig==true)
+      {
+        delete cstrbig;
+      }
 
       /*
       D_sendbytes+=sended;
@@ -136,11 +193,14 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
       }
        */
+    }
   }
 }
 
 ObGateway::~ObGateway()
 {
+  delete serstrsmall;
+  delete cstrsmall;
 }
 
 void ObGateway::updateRemoteGateways()

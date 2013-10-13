@@ -125,6 +125,8 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
 
   addtofds(sockfd);
 
+  dcstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+  
   while (1)
   {
     int eventcount = poll(fds, nfds, -1);
@@ -286,21 +288,68 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
 IbGateway::~IbGateway()
 {
   delete inbuf;
+  delete dcstrsmall;
 }
 
 // have read everything before processing
 void IbGateway::inbufhandler(const char *buf, size_t bufsize)
 {
-  size_t pos=sizeof(size_t); // i already know the whole size, it's bufsize
-  while (pos<bufsize)
+  char *inbuf;
+  size_t inbufsize;
+  char *dcstr;
+  char *dcstrbig;
+  bool isdcstrbig=false;
+  
+  if (cfgs.compressgw==true)
+  { // SERIALIZEDMAXSIZE
+    int bs=SERIALIZEDMAXSIZE;
+    ssize_t dcsize;
+    dcstr=dcstrsmall;
+    while (1)
+    {
+      dcsize=LZ4_decompress_safe(buf+sizeof(bufsize), dcstr,
+              bufsize-sizeof(bufsize), bs);
+      if (dcsize < 0)
+      {
+        if (isdcstrbig==true)
+        {
+          delete dcstrbig;
+        }
+        else
+        {
+          isdcstrbig=true;
+        }
+        bs *= 2;
+        dcstrbig=new (std::nothrow) char[bs];
+        dcstr=dcstrbig;
+        continue;
+      }
+      inbuf=dcstr;
+      inbufsize=dcsize;
+      break;
+    }
+  }
+  else
   {
-    size_t s=*(size_t *)(buf+pos);
+    inbuf=(char *)buf;
+    inbufsize=bufsize;
+  }
+  
+  size_t pos=sizeof(size_t); // i already know the whole size, it's bufsize
+  while (pos<inbufsize)
+  {
+    size_t s=*(size_t *)(inbuf+pos);
     pos += sizeof(s);
-    string *serstr=new string(buf+pos, s);
+    string *serstr=new string(inbuf+pos, s);
     pos += s;
     class MessageSerialized *msgsnd=new class MessageSerialized(serstr);
     mboxes.toActor(msgsnd->messageStruct.sourceAddr,
             msgsnd->messageStruct.destAddr, *msgsnd);
+  }
+
+  if (isdcstrbig==true)
+  {
+    delete dcstrbig;
   }
 }
 
