@@ -232,8 +232,8 @@ char setreplacedeleteflag(char *c)
   return *c |= 1 << REPLACEDELETEFLAG;
 }
 
-int64_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
-                       int64_t numpartitions)
+int16_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
+                       int16_t numpartitions)
 {
   switch (type)
   {
@@ -414,6 +414,17 @@ void stagedRow2ReturnRow(const stagedRow_s &stagedRow, returnRow_s &returnRow)
   }
 }
 
+void setprio()
+{
+  struct sched_param params;
+  params.sched_priority=RTPRIO;
+  int rv=pthread_setschedparam(pthread_self(), SCHED_FIFO, &params);
+  if (rv != 0)
+  {
+    fprintf(logfile, "%s %i some problem setting priority %i for tid %li error %i\n",
+            __FILE__, __LINE__, RTPRIO, pthread_self(), rv);
+  }
+}
 
 /** @mainpage Yo
  * =====================

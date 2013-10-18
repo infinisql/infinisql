@@ -27,7 +27,7 @@
 #line 28 "ObGateway.cc"
 
 ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
-  myIdentity(*myIdentityArg), so_sndbuf(16777216)
+  myIdentity(*myIdentityArg), so_sndbuf(16777216), ismultinode(false)
 {
   delete myIdentityArg;
 
@@ -169,7 +169,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
 
       if ((sended=send(remoteGateways[it->first], sendstr, sendsize, 0))==-1)
       {
-        printf("%s %i send errno %i nodeid %li instance %li it->first %li socket %i\n",
+        printf("%s %i send errno %i nodeid %i instance %li it->first %li socket %i\n",
                __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
                it->first, remoteGateways[it->first]);
       }
@@ -193,6 +193,10 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
       }
        */
+    }
+    if (ismultinode==true)
+    {
+      sched_yield();
     }
   }
 }
@@ -230,6 +234,11 @@ void ObGateway::updateRemoteGateways()
     if (remoteGateways[it->first]==0)
     {
       // connect to server
+      if (ismultinode==false)
+      {
+        setprio();
+        ismultinode=true;
+      }
       int sockfd;
       size_t found = vecstringRef[myIdentity.instance].find(':');
       string node = vecstringRef[myIdentity.instance].substr(0, found);

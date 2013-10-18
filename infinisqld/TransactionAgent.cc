@@ -452,7 +452,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
             // message to roll it back
             fprintf(logfile, "%s %i transactionid %li\n", __FILE__, __LINE__,
                     msgref.transactionStruct.transactionid);
-            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, messageStruct.payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.messageStruct.payloadtype, msgref.transactionStruct.transaction_pendingcmdid, msgref.transactionStruct.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->subtransactionStruct.locktype);
+            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, messageStruct.payloadtype %i pendingcmdid %i entrypoint %i locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.messageStruct.payloadtype, msgref.transactionStruct.transaction_pendingcmdid, msgref.transactionStruct.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->subtransactionStruct.locktype);
             badMessageHandler();
           }
 
@@ -1519,7 +1519,7 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
           {
             class MessageUserSchema *nmsg = new class MessageUserSchema;
             *nmsg = msg;
-            mboxes.toActor(myIdentity.address, {(int64_t)n, (int64_t)m}, *nmsg);
+            mboxes.toActor(myIdentity.address, {(int16_t)n, (int16_t)m}, *nmsg);
 
             break;
           }
@@ -1555,7 +1555,7 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
 
       if (dlsym_error)
       {
-        printf("%s %i anomaly nodeid %li instance %li error %s\n", __FILE__, __LINE__, myTopology.nodeid, myIdentity.instance, dlsym_error);
+        printf("%s %i anomaly nodeid %i instance %li error %s\n", __FILE__, __LINE__, myTopology.nodeid, myIdentity.instance, dlsym_error);
         return;
       }
 
@@ -1588,7 +1588,7 @@ void TransactionAgent::newprocedure(int64_t entrypoint)
         {
           class MessageUserSchema *nmsg = new class MessageUserSchema;
           *nmsg = msg;
-          mboxes.toActor(myIdentity.address, {myTopology.nodeid, (int64_t)n},
+          mboxes.toActor(myIdentity.address, {myTopology.nodeid, (int16_t)n},
                          *nmsg);
         }
       }
@@ -1648,7 +1648,7 @@ class Applier *applierPtr = new class Applier(this, domainid,
           vector<fieldValue_s> fields;
           tableRef.unmakerow(&recordsref[n].row, &fields);
 
-          for (size_t f=0; f < tableRef.fields.size(); f++)
+          for (uint16_t f=0; f < tableRef.fields.size(); f++)
           {
             if (tableRef.fields[f].indextype==NONE)
             {
@@ -1664,7 +1664,7 @@ class Applier *applierPtr = new class Applier(this, domainid,
             indexinfo.tableid = recordsref[n].tableid;
             indexinfo.entry = {recordsref[n].rowid,
                                getPartitionid(fields[f], tableRef.fields[f].type,
-                                              myTopology.numpartitions)
+                                              (int16_t)myTopology.numpartitions)
                               };
 
             msgs[indexinfo.entry.engineid]->indices.push_back(indexinfo);

@@ -31,9 +31,8 @@
 #include <boost/unordered_set.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
-#include "/usr/local/include/msgpack.hpp"
+#include <msgpack.hpp>
 #include <cryptopp/sha.h>
-//#include <jemalloc/jemalloc.h>
 #include <pcrecpp.h>
 #include <zmq.h>
 #include "infinisql_spooky.h"
@@ -75,6 +74,7 @@
 #include <mcheck.h>
 #include <sys/stat.h>
 #include <sys/un.h>
+#include <sched.h>
 
 // project headers
 #include "infinisql_Mbox.h"

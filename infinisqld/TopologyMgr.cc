@@ -755,13 +755,13 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
   size_t numreplicas;
   obj.convert(&numreplicas);
 
-  vector< vector<int64_t> > replicaMembers;
+  vector< vector<int16_t> > replicaMembers;
 
   for (size_t n=0; n < numreplicas; n++)
   {
     pac.next(&result);
     obj = result.get();
-    vector<int64_t> v;
+    vector<int16_t> v;
     obj.convert(&v);
     replicaMembers.push_back(v);
   }
@@ -771,14 +771,14 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
   size_t lentas;
   obj.convert(&lentas);
 
-  vector< vector<int64_t> > tas;
-  tas.push_back(vector<int64_t>());
+  vector< vector<int16_t> > tas;
+  tas.push_back(vector<int16_t>());
 
   for (size_t n=1; n <= lentas; n++)
   {
     pac.next(&result);
     obj = result.get();
-    vector<int64_t> v;
+    vector<int16_t> v;
     obj.convert(&v);
     tas.push_back(v);
   }
@@ -806,7 +806,7 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
     allActors[it->first] = it->second;
   }
 
-  boost::unordered_map< int64_t, vector<int> > allActorsThisReplica;
+  boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
   boost::unordered_set<int64_t> nodesThisReplica;
   int64_t myreplica = -1;
 

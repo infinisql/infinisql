@@ -29,7 +29,7 @@
 #define EPOLLEVENTS 1024
 
 IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
-  myIdentity(*myIdentityArg), fds(NULL), nfds(0)
+  myIdentity(*myIdentityArg), fds(NULL), nfds(0), ismultinode(false)
 {
   delete myIdentityArg;
 
@@ -177,6 +177,11 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
           }
           fcntl(newfd, F_SETFL, O_NONBLOCK);
           addtofds(newfd);
+          if (ismultinode==false)
+          {
+            setprio();
+            ismultinode=true;
+          }
           continue;
         }
       }

@@ -612,7 +612,7 @@ int64_t Table::deleterow(int64_t rowid, int64_t subtransactionid,
 {
   int64_t status = deleterow(rowid, subtransactionid);
 
-  if (!status)
+  if (status)
   {
     return status;
   }

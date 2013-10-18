@@ -321,7 +321,7 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
 
   vector< vector<int> > aa = top.allActors;
   allActors.swap(aa);
-  boost::unordered_map< int64_t, vector<int> > aatr = top.allActorsThisReplica;
+  boost::unordered_map< int16_t, vector<int> > aatr = top.allActorsThisReplica;
   allActorsThisReplica.swap(aatr);
 
   if (top.userSchemaMgrNode && (top.userSchemaMgrNode != top.nodeid))
@@ -383,9 +383,9 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
 {
   int64_t tally = 0;
 
-  for (size_t n=1; n < allActors.size(); n++)
+  for (int16_t n=1; n < (int16_t)allActors.size(); n++)
   {
-    for (size_t m=FIRSTACTORID; m < allActors[n].size(); m++)
+    for (int16_t m=FIRSTACTORID; m < (int16_t)allActors[n].size(); m++)
     {
       if (allActors[n][m] == (int)type)
       {
@@ -395,7 +395,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
           {
             class Message *nmsg = new class Message;
             *nmsg = *((class Message *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -403,7 +403,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
           {
             class MessageSocket *nmsg = new class MessageSocket;
             *nmsg = *((class MessageSocket *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -411,7 +411,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
           {
             class MessageUserSchema *nmsg = new class MessageUserSchema;
             *nmsg = *((class MessageUserSchema *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -419,7 +419,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
           {
             class MessageDeadlock *nmsg = new class MessageDeadlock;
             *nmsg = *((class MessageDeadlock *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -428,7 +428,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
             class MessageSubtransactionCmd *nmsg =
                   new class MessageSubtransactionCmd;
             *nmsg = *((class MessageSubtransactionCmd *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -436,7 +436,7 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
         {
             class MessageCommitRollback *nmsg = new class MessageCommitRollback;
             *nmsg = *((class MessageCommitRollback *)&msg);
-            toActor(source, {(int64_t)n, (int64_t)m}, *nmsg);
+            toActor(source, {n, m}, *nmsg);
           }
           break;
 
@@ -457,16 +457,16 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
 {
   int64_t tally = 0;
 
-  boost::unordered_map< int64_t, vector<int> >::iterator it;
+  boost::unordered_map< int16_t, vector<int> >::iterator it;
 
   for (it = allActorsThisReplica.begin(); it != allActorsThisReplica.end();
        it++)
   {
-    for (size_t m=FIRSTACTORID; m < allActorsThisReplica[it->first].size(); m++)
+    for (int16_t m=FIRSTACTORID; m < (int16_t)allActorsThisReplica[it->first].size(); m++)
     {
       if (allActorsThisReplica[it->first][m] == (int)type)
       {
-        printf("%s %i n m %lu %lu allActors %i allActorsThisReplica %i\n",
+        printf("%s %i n m %i %i allActors %i allActorsThisReplica %i\n",
                __FILE__, __LINE__, it->first, m, allActors[it->first][m], allActorsThisReplica[it->first][m]);
 
         switch (msg.messageStruct.payloadtype)
@@ -475,7 +475,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
           {
             class Message *nmsg = new class Message;
             *nmsg = *((class Message *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
@@ -483,7 +483,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
           {
             class MessageSocket *nmsg = new class MessageSocket;
             *nmsg = *((class MessageSocket *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
@@ -491,7 +491,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
           {
             class MessageUserSchema *nmsg = new class MessageUserSchema;
             *nmsg = *((class MessageUserSchema *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
@@ -499,7 +499,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
           {
             class MessageDeadlock *nmsg = new class MessageDeadlock;
             *nmsg = *((class MessageDeadlock *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
@@ -508,7 +508,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
             class MessageSubtransactionCmd *nmsg =
                   new class MessageSubtransactionCmd;
             *nmsg = *((class MessageSubtransactionCmd *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
@@ -516,12 +516,13 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
         {
             class MessageCommitRollback *nmsg = new class MessageCommitRollback;
             *nmsg = *((class MessageCommitRollback *)&msg);
-            toActor(source, {(int64_t)it->first, (int64_t)m}, *nmsg);
+            toActor(source, {it->first, m}, *nmsg);
           }
           break;
 
           default:
-            printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.messageStruct.payloadtype);
+            printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                    msg.messageStruct.payloadtype);
         }
 
         tally++;

@@ -167,7 +167,7 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
         if (!schemaPtr->tables.count(rowFieldRef.tableid))
         {
-          printf("%s %i anomaly, barfing, tableid %li\n", __FILE__, __LINE__,
+          printf("%s %i anomaly, barfing, tableid %i\n", __FILE__, __LINE__,
                  rowFieldRef.tableid);
           abort();
         }

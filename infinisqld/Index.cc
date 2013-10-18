@@ -5060,7 +5060,7 @@ void Index::getall(vector<indexEntry_s> *returnEntries)
 }
 
 // apply unique index not null
-bool Index::addifnotthere(fieldValue_s &val, int64_t rowid, int64_t engineid,
+bool Index::addifnotthere(fieldValue_s &val, int64_t rowid, int16_t engineid,
                           int64_t subtransactionid)
 {
   switch (fieldtype)

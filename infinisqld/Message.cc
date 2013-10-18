@@ -831,6 +831,23 @@ void SerializedMessage::des(int32_t *d)
   pos += sizeof(*d);  
 }
 
+void SerializedMessage::ser(int16_t d)
+{
+  memcpy(&data->at(pos), &d, sizeof(d));
+  pos += sizeof(d);  
+}
+
+size_t SerializedMessage::sersize(int16_t d)
+{
+  return sizeof(d);  
+}
+
+void SerializedMessage::des(int16_t *d)
+{
+  memcpy(d, &data->at(pos), sizeof(*d));
+  pos += sizeof(*d);  
+}
+
 void SerializedMessage::ser(int8_t d)
 {
   memcpy(&data->at(pos), &d, sizeof(d));

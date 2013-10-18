@@ -21,6 +21,9 @@
 /* Define to 1 if you have the `lz4' library (-llz4). */
 #undef HAVE_LIBLZ4
 
+/* Define to 1 if you have the `msgpack' library (-lmsgpack). */
+#undef HAVE_LIBMSGPACK
+
 /* Define to 1 if you have the `pcre' library (-lpcre). */
 #undef HAVE_LIBPCRE
 

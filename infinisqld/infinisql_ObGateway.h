@@ -46,6 +46,7 @@ private:
   int so_sndbuf;
   char *serstrsmall;
   char *cstrsmall;
+  bool ismultinode;
 };
 
 void *obGateway(void *);

@@ -50,6 +50,7 @@ private:
   nfds_t nfds;
   char *inbuf;
   char *dcstrsmall;
+  bool ismultinode;
 };
 
 void *ibGateway(void *);

@@ -86,6 +86,11 @@
 
 #define PAYLOADSIZE 128
 #define NUMSOCKETS 1048576
+/* following should match rtprio setting in limits.conf
+ * anything >0 and <99 should be good
+ * this is for prioritizing ObGateway & IbGateway threads
+ */
+#define RTPRIO 30
 
 enum __attribute__ ((__packed__)) listenertype_e
 {
@@ -458,16 +463,16 @@ typedef struct
 typedef struct
 {
   bool isrow;
-  int64_t tableid;
+  int16_t tableid;
   int64_t rowid; // used both for row's rowid, and index value
-  int64_t fieldid;
-  int64_t engineid; // used with rowid for index value if
+  int16_t fieldid;
+  int16_t engineid; // used with rowid for index value if
   bool deleteindexentry; // true = add, false = remove, for delete unique entry,
   // add/delete nonunique, add/delete null
   bool isnotaddunique; //simple flag for index entries that don't get pre-staged
   bool isreplace;
   int64_t newrowid;
-  int64_t newengineid;
+  int16_t newengineid;
 
   fieldValue_s fieldVal;
 } rowOrField_s;
@@ -482,7 +487,7 @@ typedef struct
 typedef struct __attribute__ ((__packed__)) 
 {
   int64_t rowid;
-  int64_t engineid;
+  int16_t engineid;
 } nonLockingIndexEntry_s;
 
 typedef nonLockingIndexEntry_s indexEntry_s;
@@ -612,10 +617,11 @@ bool getreplacedeleteflag(char);
 char clearreplacedeleteflag(char *);
 // end of flags stuff
 
-int64_t getPartitionid(fieldValue_s &, fieldtype_e, int64_t);
+int16_t getPartitionid(fieldValue_s &, fieldtype_e, int16_t);
 void like2Regex(string &);
 bool compareFields(fieldtype_e, const fieldValue_s &, const fieldValue_s &);
 void stagedRow2ReturnRow(const stagedRow_s &, returnRow_s &);
+void setprio();
 
 #ifdef PROFILE
 #define PROFILEENGINEENTRIES 50000

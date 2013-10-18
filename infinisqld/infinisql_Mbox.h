@@ -132,7 +132,7 @@ public:
   vector<location_s> partitionToProducers;
   // allActors[nodeid][actorid] = actortype
   vector< vector<int> > allActors;
-  boost::unordered_map< int64_t, vector<int> > allActorsThisReplica;
+  boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
 };
 
 // put this in each actor's class definition (except ObGw)

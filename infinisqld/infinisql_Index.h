@@ -31,7 +31,7 @@
 typedef struct
 {
   int64_t rowid;
-  int64_t engineid;
+  int16_t engineid;
   int64_t subtransactionid;
   int64_t previoussubtransactionid;
 } lockingIndexEntry;
@@ -201,7 +201,7 @@ public:
   void getequal_f(string, vector<indexEntry_s> *);
 
   // apply unique index not null
-  bool addifnotthere(fieldValue_s &, int64_t, int64_t, int64_t);
+  bool addifnotthere(fieldValue_s &, int64_t, int16_t, int64_t);
   bool checkifthere(fieldValue_s &);
   bool checkifthere(int64_t);
   bool checkifthere(uint64_t);

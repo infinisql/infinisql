@@ -31,5 +31,6 @@ do
   fi
   echo $HOST
   ssh $HOST pkill infinisqld
+  ssh $HOST "./perfstats/endcollect.sh"
 done
 

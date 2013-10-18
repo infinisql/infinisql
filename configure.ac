@@ -24,6 +24,7 @@ AC_CHECK_LIB([pcrecpp], [main])
 AC_CHECK_LIB([pcre], [main])
 AC_CHECK_LIB([zmq], [main])
 AC_CHECK_LIB([lz4], [main])
+AC_CHECK_LIB([msgpack], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h memory.h netdb.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/socket.h])

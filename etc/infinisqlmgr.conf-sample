@@ -1,8 +1,8 @@
 [DEFAULT]
-DEPLOYMENT_DIRECTORY=/home/mtravis/infinisql_built
+DEPLOYMENT_DIRECTORY=/home/infinisql/infinisql_built
 
-username: mtravis
-sshkey: /home/mtravis/.ssh/id_rsa
+username: infinisql
+sshkey: /home/infinisql/.ssh/id_rsa
 ssh: /usr/bin/ssh
 infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
 logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log

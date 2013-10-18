@@ -710,7 +710,7 @@ void Transaction::processTransactionMessage(class Message *msgrcvarg)
 
   if (pendingcmdid != msgrcvRef.transactionStruct.transaction_pendingcmdid)
 {
-    printf("%s %i pendingcmdid %li msgrcvRef.transaction_pendingcmdid %li\n", __FILE__, __LINE__, pendingcmdid, msgrcvRef.transactionStruct.transaction_pendingcmdid);
+    printf("%s %i pendingcmdid %li msgrcvRef.transaction_pendingcmdid %i\n", __FILE__, __LINE__, pendingcmdid, msgrcvRef.transactionStruct.transaction_pendingcmdid);
     badMessageHandler();
     return;
   }
@@ -2022,9 +2022,9 @@ void Transaction::continueCommitTransaction(int64_t entrypoint)
       for (it = engineToSubTransactionids.begin();
            it != engineToSubTransactionids.end(); it++)
       {
-        if ((size_t)it->first > taPtr->myTopology.numpartitions || it->first < 0)
+        if (it->first > taPtr->myTopology.numpartitions || it->first < 0)
         {
-          printf("%s %i anomaly %li %lu\n", __FILE__, __LINE__, it->first,
+          printf("%s %i anomaly %li %i\n", __FILE__, __LINE__, it->first,
                  taPtr->myTopology.numpartitions);
           reenter(APISTATUS_NOTOK);
           return;

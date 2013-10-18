@@ -55,8 +55,8 @@ public:
    */
   struct __attribute__ ((__packed__)) addressStruct
   {
-    int64_t nodeid; /**< node is a server process (not an OS instance) */
-    int64_t actorid; /**< each actor has a unique id per node */
+    int16_t nodeid; /**< node is a server process (not an OS instance) */
+    int16_t actorid; /**< each actor has a unique id per node */
   };
 
   /** Actor address with pointer to Mbox and actor type. Mbox and
@@ -92,7 +92,7 @@ public:
   partitionAddress *newActor(actortypes_e, class Mbox *, int, const string &,
                              int64_t, const vector<string> &, const vector<string> &);
 
-  int64_t nodeid; /**< this gets propagated to all addresses created by this
+  int16_t nodeid; /**< this gets propagated to all addresses created by this
                    * class instance */
   int numreplicas;
   int activereplica;
@@ -105,10 +105,10 @@ public:
   vector<actor_s> actorList;
 
   //global
-  size_t numpartitions;
-  int64_t userSchemaMgrNode;
+  int16_t numpartitions;
+  int16_t userSchemaMgrNode;
   class Mbox *userSchemaMgrMbox;
-  int64_t deadlockMgrNode;
+  int16_t deadlockMgrNode;
   class Mbox *deadlockMgrMbox;
   // partitionList[replicaid][partition] = {nodeid, actorid}
   vector< vector<partitionAddress> > partitionList;
@@ -116,11 +116,11 @@ public:
   map< int64_t, vector<string> > ibGateways;
   // allActors[nodeid][actorid] = type
   vector< vector<int> > allActors;
-  boost::unordered_map< int64_t, vector<int> > allActorsThisReplica;
+  boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
   // replicaMembers[replica][member] = nodeid
-  vector< vector<int64_t> > replicaMembers;
+  vector< vector<int16_t> > replicaMembers;
   // tas[nodeid][tainstance] = actorid
-  vector< vector<int64_t> > tas;
+  vector< vector<int16_t> > tas;
 };
 
 #endif  /* TOPOLOGY_H */

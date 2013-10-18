@@ -155,12 +155,12 @@ public:
     int64_t transactionid;
     int64_t subtransactionid;
     int64_t previoussubtransactionid;
-    int64_t tainstance;
-    int64_t domainid;
+    int16_t tainstance;
+    int16_t domainid;
     enginecmd_e transaction_enginecmd;
-    int64_t transaction_pendingcmdid;
-    int64_t transaction_tacmdentrypoint;
-    int64_t engineinstance;
+    int32_t transaction_pendingcmdid;
+    int8_t transaction_tacmdentrypoint;
+    int16_t engineinstance;
   };
   MessageTransaction();
   virtual ~MessageTransaction();
@@ -178,15 +178,15 @@ class MessageSubtransactionCmd : public MessageTransaction
 public:
   struct __attribute__ ((__packed__)) subtransaction_s
   {
-    int64_t status;
+    int8_t status;
     bool isrow;
     int64_t rowid;
-    int64_t tableid;
+    int16_t tableid;
     locktype_e locktype;
     int64_t forward_rowid;
-    int64_t forward_engineid;
-    int64_t fieldid;
-    int64_t engineid; // index also uses rowid
+    int16_t forward_engineid;
+    int16_t fieldid;
+    int16_t engineid; // index also uses rowid
   };
   MessageSubtransactionCmd();
   virtual ~MessageSubtransactionCmd();
@@ -292,8 +292,8 @@ public:
     fieldValue_s fieldVal;
     nonLockingIndexEntry_s entry;
     char flags;
-    int64_t tableid;
-    int64_t fieldid;
+    int16_t tableid;
+    int16_t fieldid;
   };
 
   MessageApply();
@@ -380,6 +380,9 @@ public:
   void ser(int32_t);
   static size_t sersize(int32_t);
   void des(int32_t *);
+  void ser(int16_t);
+  static size_t sersize(int16_t);
+  void des(int16_t *);
   void ser(int8_t);
   static size_t sersize(int8_t);
   void des(int8_t *);
