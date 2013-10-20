@@ -99,6 +99,8 @@ public:
             
           case DO_UPDATE2:
           {
+            pgPtr->results.selectFields=results.selectFields;
+            pgPtr->results.selectResults=results.selectResults;
             vector<string> statementArgs;
             statementArgs.push_back(deltaRef);
             statementArgs.push_back(tidRef);
@@ -190,14 +192,6 @@ public:
 
   void exitProc(int64_t status, int64_t procresult)
   {
-    if (status==0)
-    {
-      pgPtr->results.selectFields.push_back({INT, string("pgbenchResult")});
-      vector<fieldValue_s> fieldValues(1, fieldValue_s());
-      fieldValues[0].value.integer=procresult;
-      pgPtr->results.selectResults[{-1, -1, -1}]=fieldValues;
-    }
-
     pgPtr->results.statementStatus=status;
     class ApiInterface *retobject=pgPtr;
     InfiniSQL_benchmark_Pgbench_destroy(this);

@@ -38,7 +38,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
   optlen=sizeof(so_sndbuf);
   int waitfor = 100;
   
-  bool buildup=true;
+//  bool buildup=true;
   
   // pendingMsgs[remotenodeid]=serialized messages
   char *sendstr=NULL;
@@ -83,6 +83,34 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
           pendingMsgs[msgrcv->messageStruct.destAddr.nodeid].push_back(
               ((class MessageSerialized *)msgrcv)->data);
           break;
+          
+        case TOPIC_BATCHSERIALIZED:
+        {
+          /*
+          boost::unordered_multimap<int16_t, string *> &msgsRef=
+                  ((class MessageBatchSerialized *)msgrcv)->msgs;
+          boost::unordered_multimap<int16_t, string *>::const_iterator it;
+           */
+          /*
+          boost::unordered_map< int16_t, vector<string *> > &msgsRef=
+                  ((class MessageBatchSerialized *)msgrcv)->msgs;
+          boost::unordered_map< int16_t, vector<string *> >::const_iterator it;
+          for (it=msgsRef.begin(); it != msgsRef.end(); it++)
+          {
+//            pendingMsgs[it->first].push_back(it->second);
+            vector<string *> &stringsRef=pendingMsgs[it->first];
+            stringsRef.insert(stringsRef.end(), it->second.begin(),
+                    it->second.end());
+          }
+           */
+          class MessageBatchSerialized &msgRef=
+              *(class MessageBatchSerialized *)msgrcv;
+          for (short n=0; n<msgRef.nmsgs; n++)
+          {
+            pendingMsgs[msgRef.msgbatch[n].nodeid].push_back(msgRef.msgbatch[n].serializedmsg);
+          }
+        }
+        break;
         
         default:
           printf("%s %i anomaly %i\n", __FILE__, __LINE__,
@@ -90,6 +118,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       }
     }
 
+    /*
     // simple flow control
     if (buildup==true)
     {
@@ -98,6 +127,7 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
       continue;
     }
     buildup=true;
+     */
 
     ssize_t sended;
 
@@ -193,10 +223,6 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
         fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
       }
        */
-    }
-    if (ismultinode==true)
-    {
-      sched_yield();
     }
   }
 }

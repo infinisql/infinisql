@@ -103,12 +103,6 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
             setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                        sizeof(optval));
             ev.data.fd = newfd;
-            /*
-            epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
-            listenerTypeMap[newfd] = LISTENER_RAW;
-            socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
-                                    myTopology.numtransactionagents];
-             */
             pthread_mutex_lock(&connectionsMutex);
             socketAffinity[newfd]=
                 mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
@@ -148,18 +142,15 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
             setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                        sizeof(optval));
             ev.data.fd = newfd;
-            /*
-            epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
-            listenerTypeMap[newfd] = LISTENER_PG;
-            socketAffinity[newfd] = mboxes.transactionAgentPtrs[roundrobin++ %
-                                    myTopology.numtransactionagents];
-             */
             pthread_mutex_lock(&connectionsMutex);
             socketAffinity[newfd]=
                 mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
             listenerTypes[newfd]=LISTENER_PG;
             pthread_mutex_unlock(&connectionsMutex);
             epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
+            socketAffinity[newfd]->sendMsg(*(new class MessageSocket(newfd, 0,
+                    listenerTypes[newfd], myIdentity.address.nodeid,
+                    TOPIC_SOCKETCONNECTED)));
           }
         }
       }
@@ -180,7 +171,7 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
         }
         pthread_mutex_unlock(&connectionsMutex);
         producer->sendMsg(*(new class MessageSocket(fd, event, listenertype,
-                myIdentity.address.nodeid)));
+                myIdentity.address.nodeid, TOPIC_SOCKET)));
       }
     }
   }

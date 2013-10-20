@@ -52,9 +52,9 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
     inboundProfile[0].tag = 0;
 #endif
 
-    for (size_t inmsg=0; inmsg < 50; inmsg++)
+    mboxes.sendObBatch();
+    for (size_t inmsg=0; inmsg < OBMSGBATCHSIZE; inmsg++)
     {
-//      msgrcv = mymbox.receive(waitfor);
       GETMSG(msgrcv, myIdentity.mbox, waitfor)
 
       if (msgrcv==NULL)

@@ -77,9 +77,9 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
     argsize=-1;
     sockfd=-1;
 
-    for (size_t inmsg=0; inmsg < 50; inmsg++)
+    mboxes.sendObBatch();
+    for (size_t inmsg=0; inmsg < OBMSGBATCHSIZE; inmsg++)
     {
-//      msgrcv = mymbox.receive(waitfor);
       GETMSG(msgrcv, myIdentity.mbox, waitfor)
 
       if (msgrcv==NULL)
@@ -104,7 +104,6 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
           if (pendingOperationsIterator == pendingOperations.end())
           {
             ;
-            //                    continue;
           }
           else
           {
@@ -262,14 +261,14 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
                   Pg::pgclosesocket(*this, msgrcvref.socketStruct.socket);
                   break;
                 }
+                /*
+                fprintf(logfile, "%s %i sockfd %i not connected. spurious epoll event?\n",
+                        __FILE__, __LINE__, msgrcvref.socketStruct.socket);
+                 */
+                break;
+              }
 
-                new class Pg(this, msgrcvref.socketStruct.socket);
-              }
-              else
-              {
-                Pgs[msgrcvref.socketStruct.socket]->cont();
-                //                it->second->cont();
-              }
+              Pgs[msgrcvref.socketStruct.socket]->cont();
             }
             break;
 
@@ -277,6 +276,37 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
               printf("%s %i anomaly listenertype %i\n", __FILE__, __LINE__,
                      ((class MessageSocket *)msgrcv)->socketStruct.listenertype);
           }
+        }
+        break;
+        
+        case TOPIC_SOCKETCONNECTED:
+        {
+          switch (((class MessageSocket *)msgrcv)->socketStruct.listenertype)
+          {
+            case LISTENER_RAW:
+              break;
+              
+            case LISTENER_PG:
+            {
+              class MessageSocket &msgrcvref =
+                    *(class MessageSocket *)msgrcv;
+              if (!Pgs.count(msgrcvref.socketStruct.socket))
+              {
+                new class Pg(this, msgrcvref.socketStruct.socket);
+              }
+              else
+              {
+                fprintf(logfile, "%s %i sockfd %i already mapped\n",
+                        __FILE__, __LINE__, msgrcvref.socketStruct.socket);
+              }
+            }
+            break;
+            
+            default:
+              printf("%s %i anomaly listenertype %i\n", __FILE__, __LINE__,
+                     ((class MessageSocket *)msgrcv)->socketStruct.listenertype);
+          }
+          
         }
         break;
 

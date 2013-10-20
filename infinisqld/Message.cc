@@ -201,10 +201,10 @@ MessageSocket::MessageSocket()
 }
 
 MessageSocket::MessageSocket(int socketarg, uint32_t eventsarg,
-    listenertype_e listenertypearg, int64_t nodeidarg)
+    listenertype_e listenertypearg, int64_t nodeidarg, topic_e topicarg)
 {
-  messageStruct.topic = TOPIC_SOCKET;
-  messageStruct.payloadtype = PAYLOADSOCKET;
+  messageStruct.topic=topicarg;
+  messageStruct.payloadtype=PAYLOADSOCKET;
   messageStruct.destAddr.nodeid=nodeidarg;
   socketStruct={socketarg, eventsarg, listenertypearg};
 }
@@ -1607,5 +1607,16 @@ MessageSerialized::MessageSerialized(string *dataarg)
 }
 
 MessageSerialized::~MessageSerialized()
+{
+}
+
+MessageBatchSerialized::MessageBatchSerialized(int16_t nodeidarg) : nmsgs(0)
+{
+  messageStruct.destAddr.nodeid=nodeidarg;
+  messageStruct.topic=TOPIC_BATCHSERIALIZED;
+  messageStruct.payloadtype=PAYLOADBATCHSERIALIZED;
+}
+
+MessageBatchSerialized::~MessageBatchSerialized()
 {
 }

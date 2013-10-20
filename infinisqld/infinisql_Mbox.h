@@ -72,12 +72,14 @@ class MboxProducer
 {
 public:
   MboxProducer();
-  MboxProducer(class Mbox *, int64_t);
+  MboxProducer(class Mbox *, int16_t);
   virtual ~MboxProducer();
   void sendMsg(class Message &);
 
   class Mbox *mbox;
-  int64_t nodeid;
+  int16_t nodeid;
+  class MessageBatchSerialized *obBatchMsg;
+  class Mboxes *mboxes;
 
   friend class Mboxes;
 };
@@ -107,6 +109,7 @@ public:
                       class Message &);
   int64_t toAllOfTypeThisReplica(actortypes_e, const Topology::addressStruct &,
                                  class Message &);
+  void sendObBatch();
 
   int64_t nodeid;
 

@@ -68,7 +68,7 @@ public:
     listenertype_e listenertype;
   };
   MessageSocket();
-  MessageSocket(int, uint32_t, listenertype_e, int64_t);
+  MessageSocket(int, uint32_t, listenertype_e, int64_t, topic_e);
   virtual ~MessageSocket();
   size_t size();
   string *ser();
@@ -491,6 +491,27 @@ public:
   virtual ~MessageSerialized();
   
   string *data;
+};
+
+class MessageBatchSerialized : public Message
+{
+public:
+  struct msgbatch_s
+  {
+    int16_t nodeid;
+    string *serializedmsg;
+  };
+  
+  MessageBatchSerialized(int16_t);
+  virtual ~MessageBatchSerialized();
+  
+  // msgs[nodeid]=*serializedmessage
+  // msgs[nodeid]=vector[*serializedmessage]
+//  boost::unordered_multimap<int16_t, string *> msgs;
+//  boost::unordered_map< int16_t, vector<string *> > msgs;
+  // each
+  short nmsgs;
+  msgbatch_s msgbatch[OBMSGBATCHSIZE];
 };
 
 #endif  /* MESSAGE_HPP */

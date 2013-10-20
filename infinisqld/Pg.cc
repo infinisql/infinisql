@@ -42,12 +42,11 @@ Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg) : state(STATE_BEGIN),
 
   taPtr->Pgs[sockfd]=this;
 
-  cont();
+//  cont();
 }
 
 Pg::~Pg()
 {
-  taPtr->Pgs.erase(sockfd);
 }
 
 // processing logic for Pg, state machine
@@ -370,7 +369,6 @@ bool Pg::readsocket(string &buf)
 void Pg::closesocket(class TransactionAgent &taRef)
 {
   state=STATE_EXITING;
-  taRef.Pgs.erase(sockfd);
   pgclosesocket(taRef, sockfd);
   sockfd=-1;
 
@@ -392,7 +390,7 @@ void Pg::closesocket(class TransactionAgent &taRef)
 
 void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd)
 {
-  taRef.Pgs.erase(socketfd);
+//  taRef.Pgs.erase(socketfd);
   // NEW WAY
   epoll_ctl(taRef.myIdentity.epollfd, EPOLL_CTL_DEL, socketfd, NULL);
   if (socketfd <= NUMSOCKETS)
@@ -407,25 +405,8 @@ void Pg::pgclosesocket(class TransactionAgent &taRef, int socketfd)
     fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, socketfd,
             NUMSOCKETS);
   }
+  taRef.Pgs.erase(socketfd);
   close(socketfd);
-
-  // OLD WAY
-  /*
-  class MessageSocket msg(socket, 0, LISTENER_PG);
-  msg.messageStruct.topic=TOPIC_CLOSESOCKET;
-
-  for (size_t n=0; n < taRef.mboxes.allActors[taRef.myTopology.nodeid].size();
-       n++)
-  {
-    if (taRef.mboxes.allActors[taRef.myTopology.nodeid][n]==ACTOR_OBGATEWAY)
-    {
-      class MessageSocket *nmsg = new class MessageSocket;
-      *nmsg=msg;
-      taRef.mboxes.actoridToProducers[n]->sendMsg(*nmsg);
-      break;
-    }
-  }
-   */
 }
 
 /* -1: error, 0: not enough data, 1: enough data */
@@ -477,13 +458,11 @@ short Pg::initcmd(string &newdata)
   if (inbuf.size() + sizeof(size) < size)
   {
     // wait for more
-    printf("%s %i pgcmdtype %c inbuf.size() %lu sizeof(size) %lu size %u\n", __FILE__, __LINE__, pgcmdtype, inbuf.size(), sizeof(size), size);
+    fprintf(logfile, "%s %i sockfd %i pgcmdtype %c inbuf.size() %lu sizeof(size) %lu size %u state %i '%s'\n", __FILE__, __LINE__, sockfd, pgcmdtype, inbuf.size(), sizeof(size), size, state, inbuf.c_str());
     return 0;
   }
 
   // bogus data
-
-  printf("%s %i inbuf.size() %lu sizeof(size) %lu size %u\n", __FILE__, __LINE__, inbuf.size(), sizeof(size), size);
   return -1;
 }
 

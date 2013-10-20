@@ -118,13 +118,12 @@ uint64_t Mbox::getCount(__int128 i128)
   return *((uint64_t *)&i128+1);
 }
 
-MboxProducer::MboxProducer()
+MboxProducer::MboxProducer() : mbox(NULL), obBatchMsg(NULL)
 {
-  mbox = NULL;
 }
 
-MboxProducer::MboxProducer(class Mbox *mboxarg, int64_t nodeidarg) :
-          mbox(mboxarg), nodeid(nodeidarg)
+MboxProducer::MboxProducer(class Mbox *mboxarg, int16_t nodeidarg) :
+          mbox(mboxarg), nodeid(nodeidarg), obBatchMsg(NULL)
 {
 }
 
@@ -137,8 +136,19 @@ void MboxProducer::sendMsg(class Message &msgsnd)
   class Message *msgptr;
   if (nodeid != msgsnd.messageStruct.destAddr.nodeid)
   { // must be sending to obgw then, so serialize here
-    msgptr=new class MessageSerialized(msgsnd.sermsg());
+    if (obBatchMsg==NULL)
+    {
+      obBatchMsg=new class MessageBatchSerialized(nodeid);
+    }
+//    obBatchMsg->msgs[msgsnd.messageStruct.destAddr.nodeid].push_back(msgsnd.sermsg());
+    obBatchMsg->msgbatch[obBatchMsg->nmsgs++]={msgsnd.messageStruct.destAddr.nodeid,
+        msgsnd.sermsg()};
     delete &msgsnd;
+    if (obBatchMsg->nmsgs==OBMSGBATCHSIZE)
+    {
+      mboxes->sendObBatch();
+    }
+    return;
   }
   else
   {
@@ -239,6 +249,7 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
       {
         actoridToProducers[n] = new class MboxProducer(top.actorList[n].mbox,
                 top.nodeid);
+        actoridToProducers[n]->mboxes=this;
       }
 
       switch (top.actorList[n].type)
@@ -531,4 +542,16 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
   }
 
   return tally;
+}
+
+void Mboxes::sendObBatch()
+{
+  if (obGatewayPtr != NULL)
+  {
+    if (obGatewayPtr->obBatchMsg != NULL)
+    {
+      obGatewayPtr->sendMsg(*obGatewayPtr->obBatchMsg);
+      obGatewayPtr->obBatchMsg=NULL;
+    }
+  }
 }

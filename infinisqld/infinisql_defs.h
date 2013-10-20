@@ -37,45 +37,6 @@
 #define APISTATUS_DEADLOCK 8
 #define APISTATUS_LOCK 9
 
-// message topics
-#define TOPICMBOXES 1
-#define TOPICEPOLLEVENT 2
-
-// TransactionAgent <-> UserSchemaMgr
-#define TOPICLOGIN 3
-#define TOPICLOGINOK 4
-#define TOPICLOGINFAIL 5
-#define TOPICCHANGEPASSWORD 6
-#define TOPICCHANGEPASSWORDOK 7
-#define TOPICCHANGEPASSWORDFAIL 8
-#define TOPICCREATEDOMAIN 9
-#define TOPICCREATEDOMAINOK 10
-#define TOPICCREATEDOMAINFAIL 11
-#define TOPICCREATEUSER 12
-#define TOPICCREATEUSEROK 13
-#define TOPICCREATEUSERFAIL 14
-#define TOPICDELETEUSER 15
-#define TOPICDELETEUSEROK 16
-#define TOPICDELETEUSERFAIL 17
-#define TOPICDELETEDOMAIN 18
-#define TOPICDELETEDOMAINOK 19
-#define TOPICDELETEDOMAINFAIL 20
-#define TOPICSCHEMAREQUEST 21
-#define TOPICSCHEMAREPLY 22
-#define TOPICDEADLOCKNEW 23
-#define TOPICDEADLOCKCHANGE 24
-#define TOPICDEADLOCKREMOVE 25
-#define TOPICLOADPROCEDURE 26
-#define TOPICTRANSACTION 27
-#define TOPICDISPATCH 28
-#define TOPICDISPATCHED 29
-#define TOPICDEADLOCKABORT 30
-#define TOPICENDSUBTRANSACTION 31
-#ifdef PROFILE
-#define TOPICPROFILE 32
-#endif
-#define TOPICTOPOLOGY
-
 // statuses to client
 #define STATUS_OK 0
 #define STATUS_NOTOK 1
@@ -91,6 +52,7 @@
  * this is for prioritizing ObGateway & IbGateway threads
  */
 #define RTPRIO 30
+#define OBMSGBATCHSIZE 50
 
 enum __attribute__ ((__packed__)) listenertype_e
 {
@@ -199,7 +161,9 @@ enum __attribute__ ((__packed__)) topic_e
   TOPIC_COMPILE = 42,
   TOPIC_TABLENAME = 43,
   TOPIC_FIELDNAME = 44,
-  TOPIC_SERIALIZED = 45
+  TOPIC_SERIALIZED = 45,
+  TOPIC_BATCHSERIALIZED = 46,
+  TOPIC_SOCKETCONNECTED = 47
 };
 
 enum __attribute__ ((__packed__)) payloadtype_e
@@ -215,7 +179,8 @@ enum __attribute__ ((__packed__)) payloadtype_e
   PAYLOADACKDISPATCH,
   PAYLOADAPPLY,
   PAYLOADACKAPPLY,
-  PAYLOADSERIALIZED
+  PAYLOADSERIALIZED,
+  PAYLOADBATCHSERIALIZED
 };
 
 enum __attribute__ ((__packed__)) operationtype_e

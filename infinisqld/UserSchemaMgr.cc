@@ -72,9 +72,9 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
 
   while (1)
   {
+    mboxes.sendObBatch();
     do
     {
-//      msgrcv = mymbox.receive(1000);
       GETMSG(msgrcv, myIdentity.mbox, 1000)
     }
     while (msgrcv==NULL);
