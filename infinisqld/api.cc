@@ -35,14 +35,6 @@ void ApiInterface::deserialize2Vector(void)
   obj.convert(&inputVector);
 }
 
-void ApiInterface::deserialize2Map(void)
-{
-  msgpack::unpacked msg;
-  msgpack::unpack(&msg, taPtr->args, taPtr->argsize);
-  msgpack::object obj = msg.get();
-  obj.convert(&inputMap);
-}
-
 void ApiInterface::beginTransaction(void)
 {
   transactionPtr = new class Transaction(taPtr, domainid);
@@ -772,13 +764,6 @@ void ApiInterface::addFieldToRow(string &val)
   transactionPtr->addFieldToRow(val);
 }
 
-class Statement *ApiInterface::newStatement(char *stmtname)
-{
-  class Statement *stmt = new class Statement;
-  *stmt = taPtr->statements[domainid][stmtname];
-  return stmt;
-}
-
 bool ApiInterface::execStatement(const char *stmtname, vector<string> &args,
                                  apifPtr reentryfunction, int64_t reentrypoint, void *reentrydata)
 {
@@ -786,13 +771,9 @@ bool ApiInterface::execStatement(const char *stmtname, vector<string> &args,
   {
     return false;
   }
-
   class Statement *stmt = new class Statement;
-
   *stmt=taPtr->statements[domainid][string(stmtname)];
-
   stmt->execute(this, reentryfunction, reentrypoint, reentrydata,
                 transactionPtr, args);
-
   return true;
 }

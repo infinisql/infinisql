@@ -1,2 +1,2 @@
 \setrandom keyentry 1 1000000
-SELECT val FROM keyvaltable WHERE keyentry = :keyentry;
+SELECT Getkey (:keyentry);

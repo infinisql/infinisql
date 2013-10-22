@@ -68,7 +68,6 @@ public:
   virtual void continuePgRollbackimplicit(int64_t, void *) = 0;
   virtual void continuePgRollbackexplicit(int64_t, void *) = 0;
   void deserialize2Vector(void);
-  void deserialize2Map(void);
   void beginTransaction(void);
   void destruct(void);
   void bouncebackproxy(void);
@@ -153,7 +152,6 @@ public:
   class ApiInterface *pgPtr;
   class Statement *statementPtr;
   vector<string> inputVector;
-  map<string, string> inputMap;
   class Transaction *transactionPtr;
   procedureResponse_s response;
   vector<string> responseVector;

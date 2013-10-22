@@ -30,6 +30,48 @@
 #include "infinisql_defs.h"
 #include "infinisql_Topology.h"
 
+/* THIS STUFF PROBABLY NEEDS TO BE CONSIDERED THROUGHOUT THE CODE BASE
+ * BECAUSE SIZES CHANGED FROM int64_t TO OTHER THINGS, SUCH AS int16_t
+Message:
+start 34
+Topology::addressStruct
+	nodeid -> int16_t
+	actorid -> int16_t
+finish 10
+
+MessageTransaction:
+start 65
+	tainstance -> int16_t
+	domainid -> int16_t
+	transaction_pendingcmdid -> int32_t
+	transaction_tacmdentrypoint -> int8_t
+	engineinstance -> int16_t
+finish 36
+
+MessageSubtransactionCmd:
+subtransaction_s
+start 58
+	status -> int8_t
+	tableid -> int16_t
+	fieldid -> int16_t
+	engineid -> int16_t
+finish 33
+
+start 8+16 per entry
+indexHits (nonLockingIndexEntry_s):
+	engineid -> int16_t
+finish 8 + 10 per entry
+
+MessageCommitRollback:
+rofs, rowOrField_s
+start 52 + fieldVal(25)
+	tableid -> int16_t
+	fieldid -> int16_t
+	engineid -> int16_t
+	newengineid -> int16_t
+finish 28 + fieldVal(25)
+*/
+
 class Message
 {
 public:

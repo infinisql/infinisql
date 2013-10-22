@@ -16,155 +16,185 @@ class SetkeyProcClass : public ApiInterface
 public:
   enum statementstates_e
   {
+    BEGINNING=0,
+    UPDATED,
+    INSERTED,
+    UPDATELOCKED,
+    UPDATENOTFOUND,
+    INSERTNOTUNIQUE,
+    COMMITTED,
+    UNRECOVERABLE
+            /*
     DO_INSERT=0,
     DO_CHECKINSERT,
     DO_UPDATING,
     DO_ABORT
+             */
   };
   enum statementstates_e statementstate;
   vector<string> storedProcedureArgs;
-  int64_t badstatus;
+//  int64_t badstatus;
   
   SetkeyProcClass(class TransactionAgent *taPtrarg, class ApiInterface  *pgPtrarg,
-      void *destructorPtrarg) : statementstate (DO_INSERT)
+      void *destructorPtrarg) : statementstate (BEGINNING)
   {
     pgPtr = pgPtrarg;
     taPtr = pgPtr->taPtr;
     domainid = pgPtr->domainid;
     if (pgPtr->transactionPtr != NULL)
     {
-      exitProc(STATUS_NOTOK, 0);
+      exitProc(STATUS_NOTOK);
       return;
     }
     storedProcedureArgs=pgPtr->statementPtr->queries[0].storedProcedureArgs;
-//    vector<string> &storedProcedureArgsRef=
-//            pgPtr->statementPtr->queries[0].storedProcedureArgs;
-//    statementArgs.push_back(storedProcedureArgsRef[0]);
-//    statementArgs.push_back(storedProcedureArgsRef[1]);
-//    printf("%s %i args 1,2 '%s', '%s'\n", __FILE__, __LINE__, statementArgs[0].c_str(), statementArgs[1].c_str());
     results.statementStatus=STATUS_OK;
 
-    beginTransaction();
-    
     continueFunc1(1, NULL);
   }
 
   void doit(void) {;}
-
+  
   void continueFunc1(int64_t entrypoint, void *statePtr)
   {
-    switch (entrypoint)
+    string &keyRef=storedProcedureArgs[0];
+    string &valRef=storedProcedureArgs[1];
+    
+    switch (results.statementStatus)
     {
-      case 1:
-      {        
-        string &keyRef=storedProcedureArgs[0];
-        string &valRef=storedProcedureArgs[1];
-
-        switch (statementstate)
-        {
-          case DO_INSERT:
-          {
-            vector<string> statementArgs;
-            statementArgs.push_back(keyRef);
-            statementArgs.push_back(valRef);
-            statementstate=DO_CHECKINSERT;
-            if (execStatement("keyval_insert", statementArgs,
-                    &ApiInterface::continueFunc1, 1, NULL)==false)
-            {
-              statementstate=DO_ABORT;
-              badstatus=STATUS_NOTOK;
-              rollback(&ApiInterface::continueFunc1, 3, NULL);
-              return;
-            }
-          }
-          break;
-          
-          case DO_CHECKINSERT:
-          {
-            if (results.statementStatus != STATUS_OK)
-            {
-              rollback(&ApiInterface::continueFunc1, 3, NULL);
-              return;
-            }
-            commit(&ApiInterface::continueFunc1, 2, NULL);
-          }
-          break;
-          
-          case DO_UPDATING:
-          {
-            if (results.statementStatus != STATUS_OK)
-            {
-              statementstate=DO_ABORT;
-              badstatus=results.statementStatus;
-              rollback(&ApiInterface::continueFunc1, 3, NULL);
-              return;
-            }
-            commit(&ApiInterface::continueFunc1, 2, NULL);
-          }
-          break;
-
-          default:
-            printf("%s %i anomaly %i\n", __FILE__, __LINE__, statementstate);
-            exitProc(statementstate, 0);
-        }
-      }
-      break;
-
-      // return from commit
-      case 2:
-        if (results.statementStatus != STATUS_OK)
-        {
-          statementstate=DO_ABORT;
-          badstatus=results.statementStatus;
-          rollback(&ApiInterface::continueFunc1, 3, &results.statementStatus);
-          return;
-        }
-        delete transactionPtr;
-        exitProc(STATUS_OK, 0);
-        break;
-     
-      // return from rollback
-      case 3:
+      case STATUS_OK:
       {
-        string &keyRef=storedProcedureArgs[0];
-        string &valRef=storedProcedureArgs[1];
-
         switch (statementstate)
         {
-          case DO_ABORT:
-            delete transactionPtr;
-            exitProc(badstatus, 0);
-            break;
-            
-          case DO_CHECKINSERT: // try update
+          case BEGINNING:
           {
-            delete transactionPtr;
             beginTransaction();
             vector<string> statementArgs;
             statementArgs.push_back(keyRef);
             statementArgs.push_back(valRef);
-            statementstate=DO_UPDATING;
+            statementstate=UPDATED;
             if (execStatement("keyval_update", statementArgs,
                     &ApiInterface::continueFunc1, 1, NULL)==false)
             {
-              statementstate=DO_ABORT;
-              badstatus=STATUS_NOTOK;
-              rollback(&ApiInterface::continueFunc1, 3, NULL);
-              return;
+              statementstate=UNRECOVERABLE;
+              rollback(&ApiInterface::continueFunc1, 1, NULL);
             }
           }
           break;
+          
+          case UPDATED:
+          {
+            if (!results.statementResults.size())
+            { /* no results, try insert. it's ok to keep existing transaction
+               * since its not failed */
+              vector<string> statementArgs;
+              statementArgs.push_back(keyRef);
+              statementArgs.push_back(valRef);
+              statementstate=INSERTED;
+              if (execStatement("keyval_insert", statementArgs,
+                      &ApiInterface::continueFunc1, 1, NULL)==false)
+              {
+                statementstate=UNRECOVERABLE;
+                rollback(&ApiInterface::continueFunc1, 1, NULL);
+              }
+              return;
+            }
 
-          default:
+            // succesful update
+            pgPtr->results.selectFields.push_back({VARCHAR, string("val")});
+            vector<fieldValue_s> fieldValues(1, fieldValue_s());
+            fieldValues[0].str=valRef.substr(1, string::npos);
+            pgPtr->results.selectResults[{-1, -1, -1}]=fieldValues;
+            statementstate=COMMITTED;
+            commit(&ApiInterface::continueFunc1, 1, NULL);
+          }
+          break;
+          
+          case INSERTED:
+          {            
+            pgPtr->results.selectFields.push_back({VARCHAR, string("val")});
+            vector<fieldValue_s> fieldValues(1, fieldValue_s());
+            fieldValues[0].str=valRef.substr(1, string::npos);
+            pgPtr->results.selectResults[{-1, -1, -1}]=fieldValues;
+            statementstate=COMMITTED;
+            commit(&ApiInterface::continueFunc1, 1, NULL);
+          }
+          break;
+          
+          case UPDATELOCKED:
+          { // came from rollback, so retry update
+            int64_t s=transactionPtr->resultCode;
             delete transactionPtr;
-            exitProc(badstatus, 0);
+            if (s != STATUS_OK)
+            {
+              exitProc(s);
+              return;
+            }
+            statementstate=BEGINNING;
+            results.statementStatus=STATUS_OK;
+            continueFunc1(1, NULL);
+          }
+          break;
+                    
+          case INSERTNOTUNIQUE:
+          { // came back from rollback, retry update
+            int64_t s=transactionPtr->resultCode;
+            delete transactionPtr;
+            if (s != STATUS_OK)
+            {
+              exitProc(s);
+              return;
+            }
+            statementstate=BEGINNING;
+            results.statementStatus=STATUS_OK;
+            continueFunc1(1, NULL);
+          }
+          break;
+          
+          case COMMITTED:
+          {
+            int64_t s=transactionPtr->resultCode;
+            delete transactionPtr;
+            exitProc(s);
+          }
+          break;
+          
+          case UNRECOVERABLE:
+          { // came back from rollback
+            delete transactionPtr;
+            exitProc(STATUS_NOTOK);
+          }
+          break;
+          
+          default:
+            printf("%s %i anomalous status %li\n", __FILE__, __LINE__,
+                    results.statementStatus);
+            exitProc(STATUS_NOTOK);
         }
       }
       break;
-
+        
+      case APISTATUS_LOCK:
+      {
+        statementstate=UPDATELOCKED;
+        results.statementStatus=STATUS_OK;
+        rollback(&ApiInterface::continueFunc1, 1, NULL);
+      }
+      break;
+        
+      case APISTATUS_UNIQUECONSTRAINT:
+      {
+        statementstate=INSERTNOTUNIQUE;
+        results.statementStatus=STATUS_OK;
+        rollback(&ApiInterface::continueFunc1, 1, NULL);
+      }
+      break;
+      
       default:
-        printf("%s %i anomaly %li\n", __FILE__, __LINE__, entrypoint);
-        exitProc(2000+entrypoint, 0);
+        // bail out, this may cause a leak of Transaction, maybe
+        printf("%s %i anomalous state %i\n", __FILE__, __LINE__,
+                statementstate);
+        exitProc(APISTATUS_NOTOK);
+        return;
     }
   }
 
@@ -175,18 +205,11 @@ public:
   void continuePgRollbackimplicit(int64_t entrypoint, void *statePtr) {;}
   void continuePgRollbackexplicit(int64_t entrypoint, void *statePtr) {;}
 
-  void exitProc(int64_t status, int64_t procresult)
+  void exitProc(int64_t status)
   {
-    if (status==0)
-    {
-      pgPtr->results.selectFields.push_back({INT, string("pgbenchResult")});
-      vector<fieldValue_s> fieldValues(1, fieldValue_s());
-      fieldValues[0].value.integer=procresult;
-      pgPtr->results.selectResults[{-1, -1, -1}]=fieldValues;
-    }
-
     pgPtr->results.statementStatus=status;
     class ApiInterface *retobject=pgPtr;
+    delete pgPtr->statementPtr;
     InfiniSQL_benchmark_Setkey_destroy(this);
     (*retobject.*(&ApiInterface::continuePgFunc))(0, NULL);
   }

@@ -1996,7 +1996,6 @@ Statement::query_s Statement::cpquery(const query_s &orig)
   /* results should not need to be copied, as they are created only by
    * an executing statement
    */
-
   return newstmt;
 }
 
@@ -4977,6 +4976,7 @@ void Statement::branchtotype()
           procedures_s &proceduresRef = procsMapRef[currentQuery->storedProcedure];
           spclasscreate spC = (spclasscreate)proceduresRef.procedurecreator;
           spclasscreate spD = (spclasscreate)proceduresRef.proceduredestroyer;
+          // make sure to delete this statement in the procedure!
           spC(NULL, reentry.reentryObject, (void *)spD);
         }
         else

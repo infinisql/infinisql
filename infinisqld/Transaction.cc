@@ -2533,17 +2533,12 @@ void Transaction::sqlPredicate(class Statement *statement,
   string &fieldidoperandRef=*fieldidoperand;
 
   if (fieldidoperandRef[0] != OPERAND_FIELDID)
-    //  if (leftoperand[0] != OPERAND_FIELDID)
   {
     printf("%s %i operand is not fieldid, it is %c\n", __FILE__, __LINE__,
            fieldidoperandRef[0]);
-
-    //        leftoperand[0]);
     if (fieldidoperandRef[0]==OPERAND_IDENTIFIER)
-      //    if (leftoperand[0]==OPERAND_IDENTIFIER)
     {
       printf("%s %i identifier: %s\n", __FILE__, __LINE__, fieldidoperandRef.substr(1, string::npos).c_str());
-      //      printf("%s %i identifier: %s\n", __FILE__, __LINE__, leftoperand.substr(1, string::npos).c_str());
     }
 
     return;
@@ -2551,7 +2546,6 @@ void Transaction::sqlPredicate(class Statement *statement,
 
   int64_t fieldid;
   memcpy(&fieldid, &fieldidoperandRef[1], sizeof(fieldid));
-  //  memcpy(&fieldid, &leftoperand[1], sizeof(fieldid));
   class Field &fieldRef = schemaPtr->tables[tableid]->fields[fieldid];
 
   searchParams_s searchParams = {};
@@ -2756,7 +2750,6 @@ void Transaction::sqlPredicate(class Statement *statement,
       case FLOAT:
         destengineid =
           getEngineid(searchParams.values[0].value.floating);
-        //        printf("%s %i sqlPredicate(%Lf) destengineid %li\n", __FILE__, __LINE__, searchParams.values[0].value.floating, destengineid);
         break;
 
       case CHAR:

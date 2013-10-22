@@ -119,7 +119,7 @@ if ($seconds % 2 == 1) {
 $avg=$ttl/$seconds;
 $errorrate=$lockerrors/$ttl;
 
-printf("seconds %i min %i max %i median %.0f average %.0f errorrate %.2f\%\n", $seconds, $min, $max, $median, $avg, $errorrate*100);
+printf("seconds %i min %i max %i median %.0f average %.0f errorrate %.2f%\n", $seconds, $min, $max, $median, $avg, $errorrate*100);
 
 foreach $sec (sort {$a <=> $b} keys(%RATE)) {
   printf("%i: %i\n", $sec, $RATE{$sec});

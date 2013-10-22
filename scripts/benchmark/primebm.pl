@@ -124,6 +124,14 @@ $stmt="UPDATE keyvaltable SET val = :1 where keyentry = :0";
 print "compiling $stmtname: $stmt\n";
 &describeresponse(&send("compile", $stmtname, $stmt));
 
+$stmtname="keyval_select";
+$stmt = "SELECT val FROM keyvaltable WHERE keyentry = :0 NO LOCK";
+print "compiling $stmtname: $stmt\n";
+&describeresponse(&send("compile", $stmtname, $stmt));
+
 print "\nloading stored procedure Setkey\n";
 &describeresponse(&send("loadprocedure", "$PROCDIR/SetkeyProc.so", "Setkey"));
+
+print "\nloading stored procedure Getkey\n";
+&describeresponse(&send("loadprocedure", "$PROCDIR/GetkeyProc.so", "Getkey"));
 
