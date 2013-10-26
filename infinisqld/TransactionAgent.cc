@@ -78,7 +78,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
     sockfd=-1;
 
     mboxes.sendObBatch();
-    for (size_t inmsg=0; inmsg < OBMSGBATCHSIZE; inmsg++)
+    for (size_t inmsg=0; inmsg < MSGRECEIVEBATCHSIZE; inmsg++)
     {
       GETMSG(msgrcv, myIdentity.mbox, waitfor)
 

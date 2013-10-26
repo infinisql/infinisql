@@ -39,7 +39,7 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
   while (1)
   {
     mboxes.sendObBatch();
-    for (short n=0; n < OBMSGBATCHSIZE; n ++)
+    for (short n=0; n < MSGRECEIVEBATCHSIZE; n ++)
     {
       GETMSG(msgrcv, myIdentity.mbox, waitval)
 

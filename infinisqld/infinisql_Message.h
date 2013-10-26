@@ -547,13 +547,8 @@ public:
   MessageBatchSerialized(int16_t);
   virtual ~MessageBatchSerialized();
   
-  // msgs[nodeid]=*serializedmessage
-  // msgs[nodeid]=vector[*serializedmessage]
-//  boost::unordered_multimap<int16_t, string *> msgs;
-//  boost::unordered_map< int16_t, vector<string *> > msgs;
-  // each
   short nmsgs;
-  msgbatch_s msgbatch[OBMSGBATCHSIZE];
+  msgbatch_s msgbatch[OBGWMSGBATCHSIZE];
 };
 
 #endif  /* MESSAGE_HPP */

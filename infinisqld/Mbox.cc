@@ -144,7 +144,7 @@ void MboxProducer::sendMsg(class Message &msgsnd)
     obBatchMsg->msgbatch[obBatchMsg->nmsgs++]={msgsnd.messageStruct.destAddr.nodeid,
         msgsnd.sermsg()};
     delete &msgsnd;
-    if (obBatchMsg->nmsgs==OBMSGBATCHSIZE)
+    if (obBatchMsg->nmsgs==OBGWMSGBATCHSIZE)
     {
       mboxes->sendObBatch();
     }

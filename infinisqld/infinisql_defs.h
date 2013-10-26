@@ -52,7 +52,8 @@
  * this is for prioritizing ObGateway & IbGateway threads
  */
 #define RTPRIO 30
-#define OBMSGBATCHSIZE 50
+#define MSGRECEIVEBATCHSIZE 500
+#define OBGWMSGBATCHSIZE 5000
 
 enum __attribute__ ((__packed__)) listenertype_e
 {
