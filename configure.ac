@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([infinisql], [0.1.0alpha], [mtravis15432+src@gmail.com])
+AC_INIT([infinisql], [0.1.1alpha], [mtravis15432+src@gmail.com])
 AM_INIT_AUTOMAKE
 LT_INIT
 AC_CONFIG_SRCDIR([infinisqld/infinisql_defs.h])
