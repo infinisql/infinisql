@@ -1,0 +1,966 @@
+<?xml version="1.0" encoding="utf-8"?>
+<book xmlns="http://docbook.org/ns/docbook"
+xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+
+<title><trademark>InfiniSQL</trademark> Reference Manual</title>
+<info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
+<productname>InfiniSQL</productname><productnumber>0.1.1-alpha</productnumber></info>
+<preface>
+<title>Preface</title>
+<para>
+This is the reference manual for InfiniSQL. It describes configuration
+settings and user capabilities such as SQL support, schema and user management,
+and using the API for creating stored procedures.
+It is based on the 0.1.1-alpha release, available on <link xl:href="http://github.com/infinisql/infinisql.git">GitHub</link>.
+</para>
+</preface>
+
+<part>
+<title><trademark>InfiniSQL</trademark> Configuration Reference Manual</title>
+<partintro>
+<para>
+These entries describe all available configuration options for InfiniSQL as
+well as the format of the config file.
+</para>
+</partintro>
+
+<chapter>
+<title>Configuration File Format and Parameters</title>
+<refentry xml:id="configfile">
+<refmeta>
+  <refentrytitle>Configuration File</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>Configuration File</refname>
+  <refpurpose>The structure and contents of the InfiniSQL configuration file.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>Description of Configuration File</title>
+<para>
+InfiniSQL has only one configuration file, <filename>etc/infinisqlmgr.conf</filename>, and
+it is read once upon startup. It is planned
+in the near future to be a dynamically configurable system. But for the time being,
+there is a single config file. It is read upon startup by
+<command>infinisqlmgr/infinisqlmgr.py</command>, which uses Python's <link xl:href="http://docs.python.org/2/library/configparser.html">ConfigParser</link> module to process configuration
+parameters. There is a sample configuration file shipped with the source called
+<filename>etc/infinisqlmgr.conf-sample</filename>. This file contains all
+necessary parameters to start up a single process InfiniSQL database.
+  General configuration syntax, such as parameter assignments and commenting,
+should be pretty self-explanatory. But they are explained in detail in the
+ConfigParser documentation. All parameters are required. Some may have blank
+values, but each parameter must be defined in the config file for InfiniSQL to
+start correctly.
+</para>
+<para>
+<bridgehead>
+The following sections are defined in the config file:
+</bridgehead>
+</para>
+<itemizedlist>
+<listitem><para>[DEFAULT]</para>
+<para>
+This section contains parameters which pertain to other sections.
+If a parameter does not appear explicitly in a particular section, but does appear
+in [DEFAULT], then the parameter is still accessible from that section. This section
+is described as part of Python's ConfigParser documentation.
+</para></listitem>
+<listitem><para>[global]</para>
+<para>
+  This section contains parameters which applies to all nodes within an InfiniSQL cluster.
+</para>
+</listitem>
+<listitem><para>[node_[0-9]+]</para>
+<para>
+  Each <command>infinisqld</command> process within a cluster is defined within these
+sections. InfiniSQL defines a node as a running <command>infinisqld</command> process--
+any number of nodes may execute within a single host operating system instance. Likewise,
+any number of hosts may have <command>infinisqld</command> node processes running upon
+them.
+Each node has a nodeid, which is defined by the numerals following the
+underscore in the section definition. All nodes must have unique nodeid's, and they
+should start with 1 and increase in single unit increments, such as [node_1], [node_2],
+etc. Parameters which are unique to the node, such as <varname>member</varname>,
+must be defined in the node's own section.
+</para>
+</listitem>
+</itemizedlist>
+<para>
+  <bridgehead>Format Strings</bridgehead>
+ConfigParser allows definition of format strings (which behave a lot like variables,
+or symbol definitions). <filename>etc/infinisqlmgr.conf-sample</filename> includes
+two such items, <varname>DEPLOYMENT_DIRECTORY</varname> and <varname>IPADDR</varname>.
+<varname>DEPLOYMENT_DIRECTORY</varname> refers to the directory root into which
+InfiniSQL has been installed. <varname>IPADDR</varname> refers to an IPV4 address.
+These values are interpreted by ConfigParser, and not used by
+<command>infinisqlmgr.py</command>. So you are free to use any format string
+you want, if any, and to discard those used in the sample. The ConfigParser
+documentation describes how format strings are interpolated.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="username">
+<refmeta>
+  <refentrytitle>username</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>username</refname>
+  <refpurpose>user as which <command>infinisqld</command> runs.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>username</title>
+<para>
+This is the system userid as which <command>infinisqld</command> runs.
+</para>
+<example>
+<title>username configuration</title>
+  <para><varname>username</varname>: infinisql</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="sshkey">
+<refmeta>
+  <refentrytitle>sshkey</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>sshkey</refname>
+  <refpurpose>ssh rsa (or dsa) key filename.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>sshkey</title>
+<para>
+This is the filename of the ssh private key used to log in to each host upon which
+<command>infinisqld</command> node processes are to execute. This key should be
+passphrase-less so that it does not require manual intervention after executing
+<command>infinisqlmgr.py</command>. This key pair needs to be present in this
+location only on the host from which <command>infinisqlmgr.py</command> is executed.
+The public portion of the key needs to be in <filename>.ssh/authorized_keys</filename>
+on each host running <command>infinisqld</command>.
+</para>
+<example>
+<title>sshkey configuration</title>
+  <para><varname>sshkey</varname>: /home/infinisql/.ssh/id_rsa</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="ssh">
+<refmeta>
+  <refentrytitle>ssh</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>ssh</refname>
+  <refpurpose>ssh client filename.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>ssh</title>
+<para>
+This is the location of the ssh client on the system running <command>infinisqlmgr.py</command>.
+Obviously, an <command>sshd</command> process needs to be running on each host.
+</para>
+<example>
+<title>ssh configuration</title>
+  <para><varname>ssh</varname>: /usr/bin/ssh</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="infinisql">
+<refmeta>
+  <refentrytitle>infinisqld</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>infinisqld</refname>
+  <refpurpose>infinisqld filename.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>infinisqld</title>
+<para>
+This is the location of the <command>infinisqld</command> executable on the target host.
+The InfiniSQL build process places <command>infinisqld</command> within the
+<filename>sbin</filename> directory wherein InfiniSQL is installed.
+</para>
+<example>
+<title>infinisqld configuration</title>
+<para><varname>infinisqld</varname>: /home/infinisqld/infinisql_built/sbin/infinisqld</para>
+</example>
+<example>
+<title>infinisqld configuration with format string interpolation</title>
+  <para><varname>infinisqld</varname>: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="logfile">
+<refmeta>
+  <refentrytitle>logfile</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>logfile</refname>
+  <refpurpose>infinisqld logfile.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>logfile</title>
+<para>
+This is where error and information log messages are written by each infinisqld
+process. Actually, there are three files. The two additional files are logfile with
+extension .out and .err for stdout and stderr streams from the process, respectively.
+Obviously, this is something which needs to be cleaned up as development progresses--but
+this is how to find informational messages from running <command>infinisqld</command>
+processes on each host. Multiple nodes running on a particular host should each have
+a <varname>logfile</varname> entry defined to distinguish messages from each particular
+process. The InfiniSQL build process creates a <filename>var</filename> directory upon
+installation. This is intended to contain the <filename>logfile</filename>s, but
+they can be written anywhere for which <varname>username</varname> has write permission.
+</para>
+<example>
+<title>logfile configuration</title>
+<para><varname>logfile</varname>: /home/infinisqld/infinisql_built/var/infinisqld.log</para>
+</example>
+<example>
+<title>logfile configuration with format string interpolation</title>
+  <para><varname>infinisqld</varname>: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld.log</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="globaladminpassword">
+<refmeta>
+  <refentrytitle>globaladminpassword</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>globaladminpassword</refname>
+  <refpurpose>administrative password</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>globaladminpassword</title>
+<para>
+This is the password for the <varname>admin</varname> user in the
+<varname>_global</varname> domain. This is the administrative user for the entire
+cluster, and is the only user that exists after the cluster is started. Therefore,
+all administrative activities are made possible through this user.
+</para>
+<example>
+<title>globaladminpassword configuration</title>
+  <para><varname>globaladminpassword</varname>: passw0rd</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="cfghostport">
+<refmeta>
+  <refentrytitle>cfghostport</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>cfghostport</refname>
+  <refpurpose>IP:port to listen for configuration commands</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>cfghostport</title>
+<para>
+This is the IP:tcp port pair upon which <command>infinisqld</command> listens
+for configuration commands coming from <command>infinisqlmgr.py</command>. The
+IP portion must be numeric dotted-quad IPv4, or <varname>*</varname> (to listen
+on all interfaces), and cannot be a host or other name. It must be reachable by
+<command>infinisqlmgr.py</command>.
+</para>
+<example>
+<title>cfghostport configuration</title>
+  <para><varname>cfghostport</varname>: *:11520</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="cfgremotehostport">
+<refmeta>
+  <refentrytitle>cfgremotehostport</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>cfgremotehostport</refname>
+  <refpurpose>destination IP:port for configuration commands</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>cfgremotehostport</title>
+<para>
+The is the IP:tcp port pair by which <command>infinisqlmgr.py</command> reaches
+this <command>infinisqld</command> process to send it configuration commands.
+It corresponds to the <varname>cfghost</varname> parameter. Having distinct
+configuration parameters allows, for instance, clusters to be managed through
+network address translation, but it does add a bit of configuration complexity.
+Obviously, <command>infinisqlmgr.py</command> must be able to reach.
+</para>
+<example>
+<title>cfgremotehostport configuration</title>
+  <para><varname>cfgremotehostport</varname>: 10.101.2.1:11520</para>
+</example>
+<example>
+<title>cfgremotehostport configuration with interpolation</title>
+  <para><varname>cfgremotehostport</varname>: %(IPADDR)s:11520</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="mgmthost">
+<refmeta>
+  <refentrytitle>mgmthost</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>mgmthost</refname>
+  <refpurpose>hostname for <command>infinisqld</command> node</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>mgmthost</title>
+<para>
+The hostname passed to <command>ssh</command> to log into to launch
+<command>infinisqld</command>. If this entry is blank, then
+<command>infinisqlmgr.py</command> will launch <command>infinisql</command>
+directly on the existing host.
+</para>
+<example>
+<title>mgmthost configuration</title>
+  <para><varname>mgmthost</varname>: node1.infinisql.org</para>
+</example>
+<example>
+<title>mgmthost configuration with interpolation</title>
+  <para><varname>mgmthost</varname>: %(IPADDR)s</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="listenhost">
+<refmeta>
+  <refentrytitle>listenhost</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>listenhost</refname>
+  <refpurpose>address to listen on for raw configuration</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>listenhost</title>
+<para>
+IPv4 address or hostname for <command>infinisqld</command> to service
+configuration commands from clients.
+This is used for user account and schema manipulation. This interface will
+likely be deprecated in the near future. An '*' means to listen on all interfaces.
+</para>
+<example>
+<title>listenhost configuration</title>
+  <para><varname>listenhost</varname>: *</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="listenport">
+<refmeta>
+  <refentrytitle>listenport</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>listenport</refname>
+  <refpurpose>TCP port to listen on for raw configuration</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>listenport</title>
+<para>
+TCP port <command>infinisqld</command> to service
+configuration commands from clients. Corresponds to <varname>listenhost</varname>.
+</para>
+<example>
+<title>listenport configuration</title>
+  <para><varname>listenport</varname>: 11521</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="ibgatewayhostport">
+<refmeta>
+  <refentrytitle>ibgatewayhostport</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>ibgatewayhostport</refname>
+  <refpurpose>IP:port pair for inter-node cluster communication</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>ibgatewayhostport</title>
+<para>
+Other nodes in the cluster communicate to this <command>infinisqld</command> node
+via this IP:port. If there are multiple
+<varname>ibgateway</varname>s, then those after the first instance are assigned ports
+in units ascending. So make sure that there are plenty of ports available to listen
+upon directly above this value.
+</para>
+<example>
+<title>ibgatewayhostport configuration</title>
+  <para><varname>ibgatewayhostport</varname>: 10.10.10.5:11530</para>
+</example>
+<example>
+<title>ibgatewayhostport configuration with interpolation</title>
+  <para><varname>mgmthost</varname>: %(IPADDR)s:11530</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="pghost">
+<refmeta>
+  <refentrytitle>pghost</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>pghost</refname>
+  <refpurpose>host for SQL communication</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>pghost</title>
+<para>
+Clients connect to this hostname or address, or * for all interfaces on the host.
+<command>infinisqld</command> uses the <link xl:href="http://www.postgresql.org/docs/devel/static/protocol.html">PostgreSQL Frontend/Backend Protocol</link> on this interface.
+</para>
+<example>
+<title>pghost configuration</title>
+  <para><varname>pghost</varname>: *</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="pgport">
+<refmeta>
+  <refentrytitle>pgport</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>pgport</refname>
+  <refpurpose>TCP port for SQL communication</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>pgport</title>
+<para>
+Clients connect to this TCP port, which corresponds to <varname>pghost</varname>.
+</para>
+<example>
+<title>pgport configuration</title>
+  <para><varname>pgport</varname>: 15432</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="transactionagents">
+<refmeta>
+  <refentrytitle>transactionagents</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>transactionagents</refname>
+  <refpurpose>number of Transaction Agents</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>transactionagents</title>
+<para>
+The number of Transaction Agent actor threads to create for this node.
+</para>
+<example>
+<title>transactionagents configuration</title>
+  <para><varname>transactionagents</varname>: 8</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="engines">
+<refmeta>
+  <refentrytitle>engines</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>engines</refname>
+  <refpurpose>number of Engines</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>engines</title>
+<para>
+The number of Engine actor threads to create for this node.
+</para>
+<example>
+<title>engine configuration</title>
+  <para><varname>engine</varname>: 4</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="ibgateways">
+<refmeta>
+  <refentrytitle>ibgateways</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>ibgateways</refname>
+  <refpurpose>number of Inbound Gateways</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>ibgateways</title>
+<para>
+The number of Inbound Gateway actor threads to create for this node.
+</para>
+<example>
+<title>ibgateway configuration</title>
+  <para><varname>ibgateway</varname>: 1</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="obgateways">
+<refmeta>
+  <refentrytitle>obgateways</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>obgateways</refname>
+  <refpurpose>number of Outbound Gateways</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>obgateways</title>
+<para>
+The number of Outbound Gateway actor threads to create for this node.
+</para>
+<example>
+<title>obgateway configuration</title>
+  <para><varname>obgateway</varname>: 1</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="anonymousping">
+<refmeta>
+  <refentrytitle>anonymousping</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>anonymousping</refname>
+  <refpurpose>allow anonymous ping or not</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>anonymousping</title>
+<para>
+Whether to allow non logged-in users to send an InfiniSQL ping command through the
+raw interface.
+</para>
+<example>
+<title>anonymousping configuration</title>
+  <para><varname>anonymousping</varname>: 1</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="badloginmessages">
+<refmeta>
+  <refentrytitle>badloginmessages</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>badloginmessages</refname>
+  <refpurpose>send bad login response messages or not</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>badloginmessages</title>
+<para>
+Whether to allow non logged-in users to send an InfiniSQL ping command through the
+raw interface.
+</para>
+<example>
+<title>badloginmessages configuration</title>
+  <para><varname>badloginmessages</varname>: 1</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="replica">
+<refmeta>
+  <refentrytitle>replica</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>replica</refname>
+  <refpurpose>replica number of which this node is a member</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>replica</title>
+<para>
+The replica number, starting with 0, to which the node belongs. Currently, only
+replica 0 is available. This parameter must be set to 0.
+</para>
+<example>
+<title>replica configuration</title>
+  <para><varname>replica</varname>: 0</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="member">
+<refmeta>
+  <refentrytitle>member</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>member</refname>
+  <refpurpose>index in replica to which this node belongs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>member</title>
+<para>
+Each replica has one or more member nodes. This parameter defines the member number
+for the particular node, starting at member 0. All member numbers must be
+contiguous whole numbers in a replica. Each node must have a unique member number.
+</para>
+<example>
+<title>member configuration</title>
+  <para><varname>member</varname>: 7</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="userschemamgrnode">
+<refmeta>
+  <refentrytitle>userschemamgrnode</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>userschemamgrnode</refname>
+  <refpurpose>node on which the User Schema Manager actor thread runs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>userschemamgrnode</title>
+<para>
+This parameter must be only in the [global] section. It defines the node upon
+which the User Schema Manager actor runs. There can only be one User Schema Manager
+per replica.
+</para>
+<example>
+<title>userschemamgrnode</title>
+  <para><varname>userschemamgrnode</varname>: 2</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="deadlockmgrnode">
+<refmeta>
+  <refentrytitle>deadlockmgrnode</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>deadlockmgrnode</refname>
+  <refpurpose>node on which the Deadlock Manager actor thread runs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>deadlockmgrnode</title>
+<para>
+This parameter must be only in the [global] section. It defines the node upon
+which the Deadlock Manager actor runs. There can only be one User Schema Manager
+per replica.
+</para>
+<example>
+<title>deadlockmgrnode</title>
+  <para><varname>deadlockmgrnode</varname>: 2</para>
+</example>
+</refsect1>
+</refentry>
+
+<refentry xml:id="activereplica">
+<refmeta>
+  <refentrytitle>activereplica</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>activereplica</refname>
+  <refpurpose>the replica that supports client interaction</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>activereplica</title>
+<para>
+This parameter must be only in the [global] section. It defines the replica
+which is the master for all data, to which other replicas are replicated. Currently,
+only a single replica is functional, defined as replica 0. This value must be 0.
+</para>
+<example>
+<title>activereplica</title>
+  <para><varname>activereplica</varname>: 0</para>
+</example>
+</refsect1>
+</refentry>
+
+</chapter>
+
+<article>
+  <title>infinisqlmgr.conf Examples</title>
+<section><title>infinisqlmgr.conf Examples</title>
+
+<example>
+  <title>Single Node, infinisqlmgr.py on same host as <command>infinisqld</command> node</title>
+<programlisting>
+[DEFAULT]
+DEPLOYMENT_DIRECTORY=/home/infinisql/infinisql_built
+username: infinisql
+sshkey: /home/infinisql/.ssh/id_rsa
+ssh: /usr/bin/ssh
+infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log
+globaladminpassword: passw0rd
+cfghostport: *:11520
+cfgremotehostport: %(IPADDR)s:11520
+mgmthost:
+listenhost: *
+listenport: 11521
+ibgatewayhostport: %(IPADDR)s:11530
+pghost: *
+pgport: 15432
+transactionagents: 8
+engines: 4
+ibgateways: 1
+obgateways: 1
+anonymousping: 1
+badloginmessages: 1
+
+[global]
+userschemamgrnode: 1
+deadlockmgrnode: 1
+activereplica: 0
+
+[node_1]
+IPADDR=127.0.0.1
+replica: 0
+member: 0
+</programlisting>
+</example>
+
+<example>
+  <title>Single Node, infinisqlmgr.py on separate host from <command>infinisqld</command> node</title>
+<programlisting>
+[DEFAULT]
+DEPLOYMENT_DIRECTORY=/home/infinisql/infinisql_built
+username: infinisql
+sshkey: /home/infinisql/.ssh/id_rsa
+ssh: /usr/bin/ssh
+infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log
+globaladminpassword: passw0rd
+cfghostport: *:11520
+cfgremotehostport: %(IPADDR)s:11520
+mgmthost: %(IPADDR)s
+listenhost: *
+listenport: 11521
+ibgatewayhostport: %(IPADDR)s:11530
+pghost: *
+pgport: 15432
+transactionagents: 8
+engines: 4
+ibgateways: 1
+obgateways: 1
+anonymousping: 1
+badloginmessages: 1
+
+[global]
+userschemamgrnode: 1
+deadlockmgrnode: 1
+activereplica: 0
+
+[node_1]
+IPADDR=10.102.2.1
+replica: 0
+member: 0
+</programlisting>
+</example>
+
+<example>
+<title>Eight Nodes, infinisqlmgr.py on separate host from <command>infinisqld</command></title>
+<programlisting>
+[DEFAULT]
+DEPLOYMENT_DIRECTORY=/home/infinisql/infinisql_built
+username: infinisql
+sshkey: /home/infinisql/.ssh/id_rsa
+ssh: /usr/bin/ssh
+infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log
+globaladminpassword: passw0rd
+cfghostport: *:11520
+cfgremotehostport: %(IPADDR)s:11520
+mgmthost: %(IPADDR)s
+listenhost: *
+listenport: 11521
+ibgatewayhostport: %(IPADDR)s:11530
+pghost: *
+pgport: 15432
+transactionagents: 8
+engines: 4
+ibgateways: 1
+obgateways: 1
+anonymousping: 1
+badloginmessages: 1
+
+[global]
+userschemamgrnode: 1
+deadlockmgrnode: 1
+activereplica: 0
+
+[node_1]
+IPADDR=10.102.2.1
+replica: 0
+member: 0
+
+[node_2]
+IPADDR=10.102.2.2
+replica: 0
+member: 1
+
+[node_3]
+IPADDR=10.102.2.3
+replica: 0
+member: 2
+
+[node_4]
+IPADDR=10.102.2.4
+replica: 0
+member: 3
+
+[node_5]
+IPADDR=10.102.2.5
+replica: 0
+member: 4
+
+[node_6]
+IPADDR=10.102.2.6
+replica: 0
+member: 5
+
+[node_7]
+IPADDR=10.102.2.7
+replica: 0
+member: 6
+
+[node_8]
+IPADDR=10.102.2.8
+replica: 0
+member: 70
+</programlisting>
+</example>
+
+<example>
+<title>Two Nodes, each running on same host with infinisqlmgr.py</title>
+<programlisting>
+[DEFAULT]
+DEPLOYMENT_DIRECTORY=/home/infinisql/infinisql_built
+username: infinisql
+sshkey: /home/infinisql/.ssh/id_rsa
+ssh: /usr/bin/ssh
+infinisqld: %(DEPLOYMENT_DIRECTORY)s/sbin/infinisqld
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld1.log
+globaladminpassword: passw0rd
+cfghostport: *:11520
+cfgremotehostport: %(IPADDR)s:11520
+mgmthost:
+listenhost: *
+listenport: 11521
+ibgatewayhostport: %(IPADDR)s:11530
+pghost: *
+pgport: 15432
+transactionagents: 8
+engines: 4
+ibgateways: 1
+obgateways: 1
+anonymousping: 1
+badloginmessages: 1
+
+IPADDR=127.0.0.1
+
+[global]
+userschemamgrnode: 1
+deadlockmgrnode: 1
+activereplica: 0
+
+[node_1]
+replica: 0
+member: 0
+
+[node_2]
+replica: 0
+member: 1
+cfghostport: *:21520
+cfgremotehostport: %(IPADDR)s:21520
+listenport: 21521
+ibgatewayhostport: *:21530
+logfile: %(DEPLOYMENT_DIRECTORY)s/var/infinisqld2.log
+pgport: 15433
+</programlisting>
+</example>
+
+</section>
+</article>
+
+</part>
+
+<!-- follows is good yo -->
+<part>
+  <title><trademark>InfiniSQL</trademark> User Reference Manual</title>  
+<partintro>
+<para>
+This is the reference manual for using InfiniSQL. It includes descriptions
+of SQL capabilities, schema management, user management, and the stored
+procedure API.
+</para>  
+</partintro>
+
+<chapter>
+<title>SQL Reference</title>
+<refentry xml:id="select">
+<refmeta>
+  <refentrytitle>SELECT</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>select</refname>
+  <refpurpose>Retrieves records from a database.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>select</title>
+<para>
+SELECT [whatnot] FROM [hoozit] [WHERE search expression];
+</para>
+<example>
+<title>SELECT example</title>
+  <para>SELECT * FROM benchmark;</para>
+</example>
+</refsect1>
+</refentry>
+</chapter>
+
+<chapter>
+<title>User and Schema Management Reference</title>
+<refentry xml:id="userschemamgmt">
+<refmeta>
+  <refentrytitle>createtable</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>createtable</refname>
+  <refpurpose>create a table</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>createtable</title>
+<para>
+createtable yada
+</para>
+<example>
+<title>createtable example</title>
+  <para>createtable foo</para>
+</example>
+</refsect1>
+</refentry>
+</chapter>
+
+<chapter>
+<title>Stored Procedure API</title>
+<refentry xml:id="storedproc">
+<refmeta>
+  <refentrytitle>storedproc</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>storedproc</refname>
+  <refpurpose>Stored Procedure Programming</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>storedproc</title>
+<para>
+Make a .cc file. Put some water on it. Wait a few days.
+</para>
+<example>
+<title>stored proc example</title>
+  <para>snertle snart</para>
+</example>
+</refsect1>
+</refentry>
+</chapter>
+
+</part>
+
+</book>

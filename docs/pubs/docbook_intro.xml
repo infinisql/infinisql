@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. -->
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "docbookV4.2/docbookx.dtd" []>
+<article>
+  <title>The Docbook Example</title>
+  <articleinfo>
+    <subtitle>Serna Facilities for Docbook Editing</subtitle>
+    <releaseinfo>Version 0.1</releaseinfo>
+    <copyright>
+      <year>2009</year>
+      <holder>Syntext, Inc.</holder>
+    </copyright>
+  </articleinfo>
+  <abstract>
+    <para>This example illustrates some of Serna facilities for Docbook editing.</para>
+  </abstract>
+  <section>
+    <title>Draft Areas</title>
+    <para>Note the presence of gray &quot;Draft Areas&quot; in the document. They are necessary because Docbook stylesheet rules are often intricate. For instance, <sgmltag>title</sgmltag> in <sgmltag>section</sgmltag> can be specified within <sgmltag>section</sgmltag> itself and within <sgmltag>sectioninfo</sgmltag>. If you specify both, one of them becomes hidden. To avoid this, all such meta-information is shown also in Draft Areas. They can be turned off by changing value of <parameter>show-preamble-editing</parameter> parameter to 0 in <filename>parameters.xsl</filename> file in Docbook stylesheet.</para>
+    <para>Serna Docbook stylesheet also takes special care of empty content. For example, when you make new article, it provides you with &quot;Title: &quot; inscription where you can enter article title.</para>
+  </section>
+  <section>
+    <title>Basic editing</title>
+    <para>Editing of Docbook documents in Serna is quite straightforward, much like in a traditional word-processor. One difference is that you must use &quot;InsertElement&quot; command (<keycombo>
+        <keycap>Ctrl</keycap>
+        <keycap>Enter</keycap>
+      </keycombo>) to insert new elements. Serna will suggest you a list of elements which you can insert at any given location. Other element operations are listed in &quot;Element&quot; menu.</para>
+    <para>By default <keycap>ENTER</keycap> splits the current element. For example, if you are within <sgmltag>a para</sgmltag>, it will be split in two. If you are at the end of paragraph, new paragraph will be added.</para>
+    <para>You can see current editing context in the bottom status bar. Navigation commands from &quot;<guimenu>Go</guimenu>&quot; menu should be use for easier navigation in &quot;tagless&quot; mode. Also, pay attention to the two modes of selection: <firstterm>balanced</firstterm> and <firstterm>unbalanced</firstterm> (they can be toggled from Edit menu or with <keycombo>
+        <keycap>Ctrl</keycap>
+        <keycap>B</keycap>
+      </keycombo>). In unbalanced mode, selection is more distinct, but it sometimes can be difficult to correctly place ends of selection. In balanced mode selection is automatically adjusted, so it is easier to select list items, etc.</para>
+    <para>To edit element attributes, press <keycombo>
+        <keycap>Ctrl</keycap>
+        <keycap>Enter</keycap>
+      </keycombo>.</para>
+  </section>
+  <section>
+    <title>Images</title>
+    <para>Inserting images is easy: just insert <sgmltag>figure</sgmltag> or <sgmltag>graphic</sgmltag> elements, invoke <glossterm>Element Attributes Dialog</glossterm> for corresponding element, and choose an image file by pressing Browse button for the <literal>fileref</literal> attribute in Element Attributes Dialog.</para>
+    <figure>
+      <title>An example figure</title>
+      <graphic fileref="serna_cycle.png" align="center"/>
+    </figure>
+  </section>
+  <section>
+    <title>Program listings</title>
+    <para>Serna supports whitespace stripping policies, as defined by the stylesheet. Editing behavior within whitespace-preserved ares like Docbook <sgmltag>programlisting</sgmltag> is different. Within those elements <keycap>ENTER</keycap> means newline, and you can mix white-spaces and newlines freely.</para>
+    <programlisting>     SubscriberPtr(SubscriberPtrWatcher* watcher, T* ptr)
+          : SubscriberPtrBase(watcher, ptr), P(ptr) {}
+    SubscriberPtr&lt;T&gt;&amp; operator=(T* ptr)
+    {
+          remove();
+          P::operator=(ptr);
+          if (!P::isNull())
+              P::pointer()-&gt;registerSubscriber(this);
+        return *this;
+    }
+    SubscriberPtr(const SubscriberPtr&lt;T&gt;&amp; other)
+          : SubscriberPtrBase(other.watcher(), other.pointer()),
+            P(other.pointer()) {}</programlisting>
+  </section>
+  <section>
+    <title>Lists and tables</title>
+    <para>There are two types of lists in Docbook:</para>
+    <orderedlist>
+      <title>Ordered list. A list may have optional title.</title>
+      <listitem>
+        <para>First item.</para>
+      </listitem>
+      <listitem>
+        <para>Second item.</para>
+      </listitem>
+      <listitem>
+        <para>Third item.</para>
+      </listitem>
+    </orderedlist>
+    <itemizedlist>
+      <title>Itemized list. Optional title is also available.</title>
+      <listitem>
+        <para>First item.</para>
+      </listitem>
+      <listitem>
+        <para>Second item.</para>
+      </listitem>
+      <listitem>
+        <para>Third item.</para>
+      </listitem>
+    </itemizedlist>
+    <para>In Serna, CALS tables are supported by Docbook stylesheet. </para>
+    <table>
+      <title> An example of complex table</title>
+      <tgroup cols="12">
+        <colspec colname="c1" colwidth="1.5cm"/>
+        <colspec colname="c2" colwidth="1.2cm"/>
+        <colspec colname="c3" colwidth="1.5cm"/>
+        <colspec colname="c4" colwidth="1.9cm"/>
+        <colspec colname="c5" colwidth="1.7cm"/>
+        <colspec colname="c6" colwidth="2.0cm"/>
+        <colspec colname="c7" colwidth="1.4cm"/>
+        <colspec colname="c8" colwidth="1.3cm"/>
+        <colspec colname="c9" colwidth="0.9cm"/>
+        <colspec colname="c10" colwidth="0.8cm"/>
+        <colspec colname="c11" colwidth="0.8cm"/>
+        <colspec colname="c12" colwidth="0.9cm"/>
+        <thead>
+          <row>
+            <entry namest="c1" nameend="c2" valign="top">
+              <para>Title 1</para>
+            </entry>
+            <entry namest="c3" nameend="c4" morerows="1" valign="middle">
+              <para>Title 2</para>
+            </entry>
+            <entry namest="c5" nameend="c6" valign="top">
+              <para>Title 3</para>
+            </entry>
+            <entry namest="c7" nameend="c8" valign="top">
+              <para>Title 4</para>
+            </entry>
+            <entry namest="c9" nameend="c12" valign="top">
+              <para>Title 5</para>
+            </entry>
+          </row>
+          <row>
+            <entry valign="middle">
+              <para>Sub1 </para>
+            </entry>
+            <entry valign="middle">
+              <para>Sub2</para>
+            </entry>
+            <entry valign="middle">
+              <para>Sub3 </para>
+            </entry>
+            <entry valign="middle">
+              <para>Sub4</para>
+            </entry>
+            <entry valign="middle">
+              <para>Sub5</para>
+            </entry>
+            <entry valign="middle">
+              <para>Sub6 </para>
+            </entry>
+            <entry namest="c9" nameend="c10" valign="middle">
+              <para>Sub7 </para>
+            </entry>
+            <entry namest="c11" nameend="c12" valign="middle">
+              <para>Sub8 </para>
+            </entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry namest="c1" nameend="c2" morerows="1" valign="top">
+              <graphic fileref="syntext_logo.png" align="center"/>
+              <para>A B C D E F G </para>
+            </entry>
+            <entry namest="c3" nameend="c6" valign="top">
+              <orderedlist>
+                <listitem>
+                  <para>This is item1</para>
+                </listitem>
+                <listitem>
+                  <para>This is item2</para>
+                </listitem>
+              </orderedlist>
+            </entry>
+            <entry namest="c7" nameend="c8" valign="top">
+              <para>Content</para>
+            </entry>
+            <entry namest="c9" nameend="c12" morerows="1" valign="top">
+              <para>Cells with vertical span.</para>
+            </entry>
+          </row>
+          <row>
+            <entry namest="c3" nameend="c4" valign="top">
+              <para>Contents....</para>
+            </entry>
+            <entry namest="c5" nameend="c8" valign="top">
+              <para>This is another horizontal span.</para>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+  <section lang="de">
+    <title>Localization</title>
+    <para>It is possible to localize your docbook documents or their parts by simply changing <parameter>lang</parameter> parameter of the compound element. For example, this section&apos;s attribute <parameter>lang</parameter> is set to <literal>de</literal>, that is why you see German inscriptions for this section.</para>
+  </section>
+</article>

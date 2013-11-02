@@ -1,0 +1,15 @@
+<book xmlns="http://docbook.org/ns/docbook">
+<title><trademark>InfiniSQL</trademark> User Reference Manual</title>
+<info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
+<productname>InfiniSQL</productname><productnumber>0.1.1-alpha</productnumber></info>
+<preface>
+<title>Preface</title>
+<para>
+This is the reference manual for using InfiniSQL. It includes descriptions
+of SQL capabilities, schema management, user management, and the stored
+procedure API.
+It is based on the 0.1.1-alpha release, available on <link xl:href="http://github.com/infinisql/infinisql.git">GitHub</link>.
+</para>
+</preface>
+
+</book>
