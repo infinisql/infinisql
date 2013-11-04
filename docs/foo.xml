@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<book xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en"
-xmlns:xi="http://www.w3.org/2001/XInclude" >
-<title>Sample Book</title>
-<xi:include href="foo.xml"/>
-
-<xi:include href="chap1.xml"/>
-</book>

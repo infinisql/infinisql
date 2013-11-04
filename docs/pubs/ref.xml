@@ -959,7 +959,7 @@ and running. Simply put a line that says <quote><code>require 'infinisql.plib';<
 early in a perl script, and use the routines with the appropriate commands.
 </para>
 
-<section>
+<section xml:id="perlapi">
 <title>
   Perl API for User and Schema Management
 </title>
@@ -1666,6 +1666,30 @@ more fully in a separate part of this documentation.
 </refsect1>
 </refentry>
 
+<refentry xml:id="ping">
+<refmeta>
+  <refentrytitle>ping</refentrytitle>
+</refmeta>
+<refnamediv>
+  <refname>ping</refname>
+  <refpurpose>Verify up and running</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>ping</title>
+<para>
+No Parameters.
+</para>
+<para>
+Verify that <command>infinisqld</command> node is up and running and
+able to answer user and schema management commands.
+</para>
+<example>
+<title>ping example</title>
+  <para>&amp;describeresponse(&amp;send("ping"));</para>
+</example>
+</refsect1>
+</refentry>
+
 </section>
 
 </chapter>
@@ -2085,35 +2109,6 @@ in class member variables.
 </para>
 
 <refsect2>
-  <title>
-    Sending Results and Exiting
-  </title>
-<para>
-  Stored procedure results are sent as rows and columns from a <command>SELECT</command> query. For InfiniSQL, this means populating the following:
-<itemizedlist>
-  <listitem>
-    <para>pgPtr->results.selectFields</para>
-  </listitem>
-  <listitem>
-    <para>pgPtr->results.selectResults, and</para>
-  </listitem>
-  <listitem>
-    <para>pgPtr->results.statementStatus</para>
-  </listitem>
-</itemizedlist>
-
-Those objects are described in <filename>infinisqld/infinisql_Pg.h</filename>.
-</para>
-<para>
-  Exiting means deleting the <classname>Statement</classname> object associated with the client's stored procedure invocation "<code>SELECT Proc (...)</code>, deleting the
-current object and then executing the
-function to continue the Pg object which called the stored procedure. An
-example is in <filename>procs/PgbenchNoinsertProc.cc</filename>
-<function>exitProc</function>.
-</para>
-</refsect2>
-
-<refsect2>
 <title>Relevant ApiInterface Member Variables</title>
 <para>
   <itemizedlist>
@@ -2157,12 +2152,781 @@ function calls
 </para>
 </refsect2>
 
-</refsect1>
+<refsect2>
+  <title>ApiInterface Functions</title>
+<para>
+  This is where the storedprocedure interacts with the database. With the
+exception of <function>beginTransaction</function>, all functions require
+continuation to occur. The stored procedure must inform these functions
+how and where to return to the stored procedure for execution once the
+requested activity has been accomplished.
 
+<note>
+<para>
+Perhaps the most important
+thing to remember about calling these functions is that control flow
+must exit the stored procedure as soon as possible after calling! It is
+a good idea to use a <code>return;</code> statement as soon as possible
+after calling. This is to ensure correct program flow. Returning from the
+stored procedure causes control to flow back to allow processing of
+other transaction events.
+</para>
+</note>
+
+<note>
+  <para>
+    Don't block or sleep! Each stored procedure invocation is performed
+in a thread which may be handling thousands of other transactions at the
+same time. This means that time-wasting activities such as <function>sleep</function> or blocking i/o, will cause processing to slow down for all other
+transactions handled by the TransactionAgent thread.
+  </para>
+</note>
+
+</para>
+
+<refsect3>
+  <title>beginTransaction</title>
+<funcsynopsis>
+  <funcprototype>
+    <funcdef>void <function>beginTransaction</function></funcdef>
+<void></void>
+  </funcprototype>
+</funcsynopsis>
+<para>
+Creates a Transaction object. Places a pointer to the object in <varname>transactionPtr</varname>. Only one Transaction can be open at a time for the stored
+procedure. The stored procedure should check the value of <varname>transactionPtr</varname> before calling this--if it is not null, then it likely means
+that something has created a transaction already. Calling this function will
+cause another open transaction to leak away. This function is not the start
+of a continuation, so program flow following this function can proceed
+directly.
+</para>
+</refsect3>
+
+<refsect3>
+  <title>execStatement</title>
+<funcsynopsis>
+  <funcprototype>
+    <funcdef>bool <function>execStatement</function></funcdef>
+<paramdef>const char *<parameter>stmtname</parameter></paramdef>
+<paramdef>vector&lt;string&gt;&amp; <parameter>args</parameter></paramdef>
+<paramdef>apifPtr <parameter>reentryfunction</parameter></paramdef>
+<paramdef>int64_t <parameter>reentrypoint</parameter></paramdef>
+<paramdef>void <parameter>reentrydata</parameter></paramdef>
+  </funcprototype>
+</funcsynopsis>
+<para>
+Executes statement <varname>stmtname</varname> corresponding to that
+<command>compile</command>d previously, with <varname>args</varname> as
+parameters. The index values of the vector correspond to parameter
+numbers. <varname>args[0] &amp; args[1]</varname> become parameters
+<varname>:0 &amp; :1</varname>, respectively, and so on.
+<varname>reentryfunction</varname> should be a function pointer to the
+function which will continue once <varname>stmtname</varname> executes, most
+likely either <varname>&amp;ApiInterface::continueFunc1</varname> or
+<varname>&amp;ApiInterface::continueFunc2</varname>.
+<varname>reentrypoint</varname> and <varname>reentrydata</varname> are
+arguments to be passed to <varname>reentryfunction</varname>.
+</para>
+<para>
+  <varname>args</varname> is a vector of formatted strings representing
+type and value for each parameter intended for <varname>stmtname</varname>.
+<varname>args[n][0]</varname> is a character of type corresponding to
+symbol definitions like <varname>OPERAND_.*</varname> in <filename>infinisqld/infinisql_defs.h</filename>. Remaining characters represent the value of the
+parameter. Types <type>OPERAND_INTEGER and OPERAND_BOOLEAN</type> are stored as <type>int64_t</type>, and <type>OPERAND_FLOAT</type> as <type>long double</type>. <type>OPERAND_STRING</type>
+constitutes a <function>string::sutbstr()</function> from pos 1 through
+string::npos. For example, <function>Ast::evaluate()</function> in
+<filename>infinisqld/Asts.cc</filename> is a place where these valuables
+are manipulated.
+</para>
+<para>
+<emphasis>Return Value</emphasis>
+</para>
+<para>
+  This function returns immediately with either <literal>true</literal> or
+<literal>false</literal>. <literal>true</literal> means that <varname>stmtname</varname> exists to be executed. <literal>false</literal> means the opposite.
+Make sure that <command>loadprocedure</command> for <varname>stmtname</varname>
+executes successfuly before calling <function>execStatement</function>.
+</para>
+
+<para><emphasis>Results</emphasis></para>
+<para>
+  Status in <varname>results.statementStatus</varname>. Anything other
+than <literal>STATUS_OK</literal> (0) should be cause to <function>rollback</function>. Results from <command>SELECT</command> are stored in <varname>results.SelectFields</varname> and <varname>results.selectResults</varname>.
+From <command>UPDATE, INSERT, DELETE</command>, in <varname>results.statementResults</varname>.
+</para>
+</refsect3>
+    
+<refsect3>
+  <title>commit</title>
+<funcsynopsis>
+  <funcprototype>
+    <funcdef>void <function>commit</function></funcdef>
+<paramdef>apifPtr <parameter>re</parameter></paramdef>
+<paramdef>int64_t <parameter>recmd</parameter></paramdef>
+<paramdef>void *<parameter>reptr</parameter></paramdef>
+  </funcprototype>
+</funcsynopsis>
+<para>
+Commits <varname>transactionPtr</varname>.
+</para>
+<para><emphasis>Results</emphasis></para>
+<para>
+  <varname>results.statementStatus</varname> gives status. If not 0, then a
+<function>rollback</function> should be attempted. <varname>transactionPtr</varname> needs to be <command>delete</command>d once successfully <command>commit</command>ted or else it will leak memory.
+</para>
+</refsect3>
+
+<refsect3>
+  <title>rollback</title>
+<funcsynopsis>
+  <funcprototype>
+    <funcdef>void <function>rollback</function></funcdef>
+<paramdef>apifPtr <parameter>re</parameter></paramdef>
+<paramdef>int64_t <parameter>recmd</parameter></paramdef>
+<paramdef>void *<parameter>reptr</parameter></paramdef>
+  </funcprototype>
+</funcsynopsis>
+<para>
+Rolls back <varname>transactionPtr</varname>.
+</para>
+<para><emphasis>Results</emphasis></para>
+<para>
+  <varname>results.statementStatus</varname> gives status. If not 0, then 
+there isn't much to do. In case of success or failure, <command>delete</command>
+<varname>transactionPtr</varname> to avoid a memory leak.
+</para>
+</refsect3>
+
+</refsect2>
+
+
+<refsect2>
+  <title>
+    Sending Results and Exiting
+  </title>
+<para>
+  Stored procedure results are sent as rows and columns from a <command>SELECT</command> query. For InfiniSQL, this means populating the following:
+<itemizedlist>
+  <listitem>
+    <para>pgPtr->results.selectFields</para>
+  </listitem>
+  <listitem>
+    <para>pgPtr->results.selectResults, and</para>
+  </listitem>
+  <listitem>
+    <para>pgPtr->results.statementStatus</para>
+  </listitem>
+</itemizedlist>
+
+Those objects are described in <filename>infinisqld/infinisql_Pg.h</filename>.
+</para>
+<para>
+  Exiting requires deleting the <classname>Statement</classname> object associated with the client's stored procedure invocation "<code>SELECT Proc (...)</code>", deleting the
+current object and then executing the
+function to continue the Pg object which called the stored procedure. An
+example is in <filename>procs/PgbenchNoinsertProc.cc</filename>
+<function>exitProc</function>.
+</para>
+</refsect2>
+
+
+</refsect1>
 
 </refentry>
 </chapter>
 
+</part>
+
+<part>
+<title><trademark>InfiniSQL</trademark> Command and File Reference Manual</title>
+<partintro>
+<para>
+</para>
+</partintro>
+
+<chapter>
+<title>Files For Operating InfiniSQL</title>
+<para>
+The files described in this reference are executables and configuration
+files used in operating InfiniSQL. They don't include all of the source
+files used for building. There are two main directories in which these
+files are contained: <filename>sourcedir</filename> and <filename>installationdir</filename>. <filename>sourcedir</filename> is created by doing "<command>git clone git://github.com/infinisql/infinisql.git</command>", or from extracting
+a compressed tarfile to initially
+retrieve the source. <filename>installationdir</filename> is the destination
+passed as the value for <code>--prefix</code> passed to the
+<command>./configure</command> script in the resulting build process.
+<note>
+  <para>
+    <filename>installationdir</filename> should be independent from all other
+directories, and not be a shared system directory, such as
+<filename>/usr/local</filename>. This is to ease management of InfiniSQL.
+  </para>
+</note>
+</para>
+
+<section>
+  <title>
+    Executables
+  </title>
+
+<refentry xml:id="infinisqlmgr.py">
+<refnamediv>
+  <refname>infinisqlmgr.py</refname>
+<refpurpose>InfiniSQL Cluster Startup</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>infinisqlmgr.py</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/infinisqlmgr</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./infinisqlmgr.py</command>
+</para>
+<para>
+  Takes no arguments. Reads contents of <filename>infinisqlmgr.conf</filename>
+and launches all <command>infinisqld</command> node processes. Exits
+after completion. Hangs or prints out a python stack trace if encounters
+any errors.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="infinisqld">
+<refnamediv>
+  <refname>infinisqld</refname>
+<refpurpose>InfiniSQL daemon node process</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>infinisqld</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>installationdir/sbin</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> this is not executed directly, but by <command>infinisqlmgr.py</command>
+</para>
+<para>
+  InfiniSQL server process. Writes informational and error messages based on
+<varname>logfile</varname> config parameter.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="prime_regression.pl">
+<refnamediv>
+  <refname>prime_regression.pl</refname>
+<refpurpose>Prepares InfiniSQL for regression test</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>prime_regression.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./prime_regression.pl -h &lt;hostname&gt;</command>
+</para>
+<para>
+Sets up user &amp; schema objects to prepare for regression test. Connects to
+<varname>hostname</varname> on TCP port 11521. Can be any node in the
+cluster. Config parameters <varname>listenhost</varname> and
+<varname>listenport</varname> are what this script needs to connect to.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="regression.pl">
+<refnamediv>
+  <refname>regression.pl</refname>
+<refpurpose>SQL regression test</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>regression.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./regression.pl  -h &lt;hostname&gt;</command>
+</para>
+<para>
+Performs SQL regression test. Hundreds of queries.
+ Connects to
+<varname>hostname</varname> on TCP port 11521. Can be any node in the
+cluster. Config parameters <varname>listenhost</varname> and
+<varname>listenport</varname> are what this script needs to connect to.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="entercommands.pl">
+<refnamediv>
+  <refname>entercommands.pl</refname>
+<refpurpose>User and schema management command shell.</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>entercommands.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./entercommands.pl</command>
+</para>
+<para>
+Connects to node on localhost:11521 and sends arbitrary commands through
+the raw format, such as <command>login</command>, <command>createtable</command>, and so on. Data entry is described in the description for <function>&amp;getcommand</function>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="ping.pl">
+<refnamediv>
+  <refname>ping.pl</refname>
+<refpurpose>Sends raw interface ping command</refpurpose>
+</refnamediv>
+<refsect1>
+  <title></title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./ping.pl</command>
+</para>
+<para>
+Sends InfiniSQL <command>ping</command> to localhost:11521.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="bm.pl">
+<refnamediv>
+  <refname>bm.pl</refname>
+<refpurpose>Launch benchmark job</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>bm.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+
+<para>
+<emphasis>Usage:</emphasis> <command>./bm.pl -test==&lt;testtype&gt; [--accountids=&lt;#&gt;][--duration=&lt;# seconds&gt;][--nclients=&lt;#&gt;]
+[--bmresultsdir=&lt;somedir&gt;]</command>
+</para>
+<para>
+  Executes benchmark. Distributes client traffic across hosts listed in
+<filename>clients</filename>, to hit servers in <filename>daemons</filename>.
+Testtypes are either to fill benchmark tables, or to execute the benchmark.
+To fill benchmark tables, testtype is either <literal>preparepgbench</literal>
+or <literal>preparekeyval</literal>, with accountids sets of rows.
+Benchmark testtypes are <literal>procedure</literal>, <literal>procedurenoinsert</literal>, <literal>multistatements</literal>, <literal>setkey</literal>,
+and <literal>getkey</literal>. These correspond with files ending in
+<filename>.pgb</filename>.
+</para>
+<para>
+  <command>bm.pl</command> ssh's into each client host and executes <command>moforker.pl</command> to launch either fill scripts or InfiniSQL's patched version
+of <command>pgbench</command>. <command>pgbench</command> tests run for --duration seconds and launch a total number of --nclients, distributed round-robin across hosts listed in <filename>clients</filename>. <command>pgbench</command> output is written on each benchmark client into directory <filename>--bmresultsdir</filename>.
+</para>
+<para>
+  bm.pl outputs a number representing UNIX time, which is also written
+in the files for this particular test written in --bmresultsdir. Just note
+the output number and go analyze the data later. Since it's in UNIX time
+format, it can be correlated with system resource collection jobs easily.
+</para>
+<para>
+<emphasis>Examples:</emphasis>
+</para>
+<para>
+<command>./bm.pl --test=preparepgbench --accountids=1000000</command>
+</para>
+<para>
+Inserts 1,000,000 rows into each of 3 tables in benchmark database.
+</para>
+<para>
+<command>./bm.pl --test=procedurenoinsert --duration=180 --bmresultsdir=/home/infinisql/bmresults --nclients=504</command>
+</para>
+<para>
+  Connect to InfiniSQL with 100,800 clients (assuming each
+<command>pgbench</command> connects with 200) and execute stored procedure
+with 3 updates and a select for 180 seconds.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="collectcpudaemons.sh">
+<refnamediv>
+  <refname>collectcpudaemons.sh</refname>
+<refpurpose>Start resource collection jobs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>collectcpudaemons.sh</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./collectcpudaemons.sh</command>
+</para>
+<para>
+Starts system resource collection jobs on each host in <filename>daemonhosts</filename>. These scripts are not included in the source distribution, but are
+easy to write. The intention of these scripts is to collect data from things
+such as top, mpstat, bwm-ng, or anything else, during benchmark runs.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="deploy.sh">
+<refnamediv>
+  <refname>deploy.sh</refname>
+<refpurpose>Install InfiniSQL on multiple hosts</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>deploy.sh</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./deploy.sh &lt;installationdir&gt; &lt;sourcedir&gt;</command>
+</para>
+<para>
+<command>rsync</command>s directories on command line (must be 2 and only 2)
+to each host in <filename>daemonhosts</filename>. Very handy for duplicating
+installation files across any number of hosts.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="fillkeyval.pl">
+<refnamediv>
+  <refname>fillkeyval.pl</refname>
+<refpurpose>Inserts data for keystore benchmarking</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>fillkeyval.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>Called by moforker.pl, not directly</command>
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="fill.pl">
+<refnamediv>
+  <refname>fill.pl</refname>
+<refpurpose>Inserts data for benchmarking 3-update+ stored procedures</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>fill.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>Called by moforker.pl, not directly</command>
+</para>
+<para>
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="primebm.pl">
+<refnamediv>
+  <refname>primebm.pl</refname>
+<refpurpose>Creates users and tables for benchmarking</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>primebm.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./primebm.pl -h &lt;host&gt;</command>
+</para>
+<para>
+Sets up user &amp; schema objects to prepare for benchmark tests. Connects to
+<varname>hostname</varname> on TCP port 11521. Can be any node in the
+cluster. Config parameters <varname>listenhost</varname> and
+<varname>listenport</varname> are what this script needs to connect to.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="getlogs.sh">
+<refnamediv>
+  <refname>getlogs.sh</refname>
+<refpurpose>Collect node info and error logs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>getlogs.sh</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./getlogs &lt;unixsecond&gt;</command>
+</para>
+<para>
+Collects logs from <filename>installationdir/var</filename> on each host
+listed in <filename>daemonhosts</filename> and copies them to <filename>/home/mtravis/infinisql_built/var</filename>. A directory is created with the <varname>unixsecond</varname> and daemon hostname. This script should probably be
+modified somewhat unless your userid is mtravis.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="killbm.sh">
+<refnamediv>
+  <refname>killbm.sh</refname>
+<refpurpose>Kill benchmark jobs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>killbm.sh</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./killbm.sh</command>
+</para>
+<para>
+Kills pgbench and perl jobs on each host in <filename>clients</filename>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="killdaemons.sh">
+<refnamediv>
+  <refname>killdaemons.sh</refname>
+<refpurpose>Kill <command>infinisqld</command> processes</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>killdaemons.sh</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>killdaemons.sh</command>
+</para>
+<para>
+Kills <command>infinisqld</command> processes on each host in <filename>daemonhosts</filename>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="moforker.pl">
+<refnamediv>
+  <refname>moforker.pl</refname>
+<refpurpose>Launch benchmark jobs</refpurpose>
+</refnamediv>
+<refsect1>
+  <title></title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>Not called directly, but by bm.pl.</command>
+</para>
+<para>
+<command>bm.pl</command> executes <command>moforker.pl</command> on each
+host in <filename>clients</filename>, which in turn invokes sets of either
+<command>fill.pl</command>, <command>fillkeyval.pl</command>, or
+<command>pgbench</command>, depending on test type passed to <command>bm.pl</command>.
+</para>
+</refsect1>
+</refentry>
+
+</section>
+
+<section>
+  <title>
+    Configs
+  </title>
+<para>
+  These are configuration files.
+</para>
+
+<refentry xml:id="infinisql.conf">
+<refnamediv>
+  <refname>infinisql.conf</refname>
+<refpurpose>Configure InfiniSQL</refpurpose>
+</refnamediv>
+<refsect1>
+  <title></title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/etc</filename>
+</para>
+<para>
+Configuration file for InfiniSQL, read by <command>infinisqlmgr.py</command>.
+Parameters described in <xref linkend="configfile"/>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="clients">
+<refnamediv>
+  <refname>clients</refname>
+<refpurpose>List of benchmark client hosts</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>clients</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+Hosts to be used for benchmark clients. Need to be accessible by
+passwordless ssh.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="daemonhosts">
+<refnamediv>
+  <refname>daemonhosts</refname>
+<refpurpose>List of hosts with <command>infinisqld</command> processes</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>daemonhosts</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+Hosts with InfiniSQL daemon processes running. Need to be accessible by
+passwordless ssh.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="daemons">
+<refnamediv>
+  <refname>daemons</refname>
+<refpurpose>List of each <command>infinisqld</command> node</refpurpose>
+</refnamediv>
+<refsect1>
+  <title></title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+List of each node to be benchmarked. Tab-delimited hostname and
+<varname>pgport</varname>. This is the way that benchmark clients will
+reach each node.
+</para>
+</refsect1>
+</refentry>
+
+</section>
+
+<section>
+  <title>
+    Other Files
+  </title>
+<para></para>
+
+<refentry xml:id="lib">
+<refnamediv>
+  <refname>lib</refname>
+<refpurpose>library</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>lib</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>installationdir/lib</filename>
+</para>
+<para>
+Library to be linked with for stored procedures. Shared and static
+versions.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="storedprocs">
+<refnamediv>
+  <refname>storedprocs</refname>
+<refpurpose>Compiled stored procedures</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>storedprocs</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>installationdir/procs</filename>
+</para>
+<para>
+Compiled stored procedure shared objects.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="infinisql.plib">
+<refnamediv>
+  <refname>infinisql.plib</refname>
+<refpurpose>Perl subroutines</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>infinisql.plib</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+Perl subroutines described in <xref linkend="perlapi"/>. Edit the variables
+<varname>$SCRIPTDIR</varname> and <varname>$PROCDIR</varname> to suit
+your environment.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="pgbenchpatch">
+<refnamediv>
+  <refname>pgbenchpatch</refname>
+<refpurpose>Patch for pgbench</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>pgbenchpatch</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/misc</filename>
+</para>
+<para>
+Apply <filename>pgbench_persecond-v1.patch</filename>
+against <productname>PostgreSQL</productname> <productnumber>9.2.4</productnumber>. Adds features to facilitate benchmarking.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="pgbbenchtests">
+<refnamediv>
+  <refname>pgbenchtests</refname>
+<refpurpose>pgbench scripts</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>pgbenchtests</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcdeir/scripts/benchmark</filename>
+</para>
+<para>
+Tests used by <command>pgbench</command>. Format described under Custom Scripts
+heading of <link xl:href="http://www.postgresql.org/docs/9.2/static/pgbench.html">pgbench docs</link>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="regression.out-sample">
+<refnamediv>
+  <refname>regression.out-sample</refname>
+<refpurpose>Sample output from regression test</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>regression.out-sample</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts</filename>
+</para>
+<para>
+This is output from a successful <command>regression.pl</command> test.
+Use it to compare with output from testing your own installation. The
+line count can vary--this is due to inexact matching of floating point
+values. Those queries should probably be removed from the regression test
+at some point for consistency in test output.
+</para>
+
+</refsect1>
+</refentry>
+
+
+
+</section>
+
+</chapter>
 </part>
 
 </book>

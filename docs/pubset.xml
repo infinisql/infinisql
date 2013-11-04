@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<set xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en"
-xmlns:xl="http://www.w3.org/1999/xlink"
-xmlns:xi="http://www.w3.org/2001/XInclude">
-<title><trademark>InfiniSQL</trademark> Document Library</title>
-
-<xi:include href="confref.xml" />
-<xi:include href="userref.xml" />  
-</set>

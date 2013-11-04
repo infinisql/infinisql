@@ -9,5 +9,6 @@ benchmark/.deps
 benchmark/.libs
 autom4te.cache
 *~
+#.*#
 *.orig
 .*.swp
