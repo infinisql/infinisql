@@ -30,7 +30,7 @@ use Getopt::Std;
 getopt('h');
 $HOSTNAME=$opt_h;
 
-$dbh=DBI->connect("dbi:Pg:dbname=texas;host=$HOSTNAME;port=15432;", "mayor", "austin", {pg_server_prepare => 0});
+$dbh=DBI->connect("dbi:Pg:dbname=texas;host=$HOSTNAME;port=15432;sslmode=disable", "mayor", "austin", {pg_server_prepare => 0});
 
 $SELECTQUERY="SELECT * FROM mastertable";
 
