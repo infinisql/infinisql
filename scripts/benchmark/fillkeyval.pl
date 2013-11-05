@@ -37,7 +37,7 @@ $PORT=$opt_p;
 $STARTBATCH=$opt_s;
 $BATCHES=$opt_b;
 
-$dbh=DBI->connect("dbi:Pg:dbname=benchmark;host=$HOSTNAME;port=$PORT;", "benchmark", "benchmark", {pg_server_prepare => 0});
+$dbh=DBI->connect("dbi:Pg:dbname=benchmark;host=$HOSTNAME;port=$PORT;sslmode=disable;", "benchmark", "benchmark", {pg_server_prepare => 0});
 
 $startpoint=($STARTBATCH-1)*10000 + 1;
 $endpoint=$startpoint-1 + $BATCHES*10000;
