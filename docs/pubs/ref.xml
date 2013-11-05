@@ -2713,7 +2713,7 @@ Kills <command>infinisqld</command> processes on each host in <filename>daemonho
 <refpurpose>Launch benchmark jobs</refpurpose>
 </refnamediv>
 <refsect1>
-  <title></title>
+  <title>moforker.pl</title>
 <para>
 <emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
 </para>
@@ -2725,6 +2725,26 @@ Kills <command>infinisqld</command> processes on each host in <filename>daemonho
 host in <filename>clients</filename>, which in turn invokes sets of either
 <command>fill.pl</command>, <command>fillkeyval.pl</command>, or
 <command>pgbench</command>, depending on test type passed to <command>bm.pl</command>.
+</para>
+</refsect1>
+</refentry>
+
+<refentry xml:id="report.pl">
+<refnamediv>
+  <refname>report.pl</refname>
+<refpurpose>Report a Benchmark Run</refpurpose>
+</refnamediv>
+<refsect1>
+  <title>report.pl</title>
+<para>
+<emphasis>Directory:</emphasis> <filename>sourcedir/scripts/benchmark</filename>
+</para>
+<para>
+<emphasis>Usage:</emphasis> <command>./report.pl -t TESTTYPE -s UNIXSECOND</command>
+</para>
+<para>
+Create a report based on a benchmark run. -t and -s arguments are used
+to read files on each benchmark client machine within bmresults directory.
 </para>
 </refsect1>
 </refentry>
@@ -2880,6 +2900,42 @@ your environment.
 <para>
 Apply <filename>pgbench_persecond-v1.patch</filename>
 against <productname>PostgreSQL</productname> <productnumber>9.2.4</productnumber>. Adds features to facilitate benchmarking.
+</para>
+<para>
+In a PostgreSQL 9.2.4 source directory, patch <command>pgbench</command>:
+<screen>patch -p1 &lt; &lt;infinisqlsourcedir&gt;/misc/pgbench_persecond-v1.patch</screen>
+If you have not already done so, <command>./configure</command> and then
+<command>make</command> PostgreSQL. Then:
+<screen>
+cd contrib/pgbench
+make
+sudo cp pgbench /usr/local/bin  
+</screen>
+</para>
+<para>
+  The command line arguments and features that this patch adds are as follows:
+  <itemizedlist>
+    <listitem>
+      <para>
+	<emphasis>-I:</emphasis> do not abort connection if transaction error is encountered. InfiniSQL returns an error if records or locked. This is pending a fix, but until then, pgbench needs to carry on. The specific error emitted from the server is written to stderr for each occurrence. The total quantity of transactions is not incremented if there's an error.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<emphasis>--per-second=NUM:</emphasis> report per-second throughput rate on stdout. NUM is the quantity of transactions in each batch that gets counted. The higher the value, the less frequently <function>gettimeofday</function> gets called. <function>gettimeofday</function> invocation can become a limiting factor as throughput increases, so minimizing it is beneficial. For example, with NUM of 100, time will be checked every 100 transactions, which will cause the per-second output to be in multiples of 100.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<emphasis>-P PASSWORD:</emphasis> pass the db password on the command line. This is necessary for InfiniSQL benchmarking because hundreds or more separate pgbench processes can be launched, and InfiniSQL requires password authentication. Having to manually enter all those passwords would making benchmarking impossible.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<emphasis>--urandom:</emphasis> use /dev/urandom to provide seed values for randomness. Without this, multiple pgbench processes are likely to generate the same sequence of "random" numbers. This was noticeable in InfiniSQL benchmarking because of the resulting extremely high rate of locked records from having stored procedures invoked with identical parameter values.
+      </para>
+    </listitem>
+  </itemizedlist>
 </para>
 </refsect1>
 </refentry>
