@@ -2,16 +2,16 @@
 <book xmlns="http://docbook.org/ns/docbook"
 xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 
-<title><trademark>InfiniSQL</trademark> Guides</title>
+<title><trademark>InfiniSQL</trademark> Guide</title>
 <info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
-<productname>InfiniSQL</productname><productnumber>0.1.1-alpha</productnumber></info>
+<productname>InfiniSQL</productname><productnumber>0.1.2-alpha</productnumber></info>
 <preface>
 <title>Preface</title>
 <para>
 This is a set of guides for using InfiniSQL. Starting with preparing a suitable
 environment, then on to acquiring, building, running and testing.
 Performance optimization and benchmark testing using bundled tools is also
-explained. An introduction for developers is also included.
+explained.
 </para>
 </preface>
 
@@ -110,7 +110,7 @@ wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo
 yum install devtoolset-1.1-gcc devtoolset-1.1-gcc-c++ devtoolset-1.1 binutils devtoolset-1.1-gdb  
 </screen>
 Then, create a user for running InfiniSQL, such as <literal>infinisql</literal>.
-Append the following to their login script, such as <filename>~/.bash_profile</filename>: <screen>/usr/bin/scl enable devtoolset-1.1 bash</screen>
+Append the following to their login script, such as <filename>~/.bash_profile</filename>: <screen>exec /usr/bin/scl enable devtoolset-1.1 bash</screen>
   Install the EPEL yum repository, still as root: 
 <screen>
 cd
@@ -120,16 +120,7 @@ rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 </screen>
 Install packages for most of the above dependencies:
 <screen>
-yum install cryptopp-devel pcre-devel zeromq3-devel python-devel flex bison python-pip cpan libtool readline-devel zlib-devel make ruby patch git gcc-c++ cmake msgpack-devel 
-</screen>
-Build and install PostgreSQL 9.2.4, as non-root user:
-<screen>
-wget http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.gz
-tar xzf postgresql-9.2.4.tar.gz
-cd postgresql-9.2.4
-./configure
-make
-sudo make install
+yum install cryptopp-devel pcre-devel zeromq3-devel python-devel flex bison python-pip cpan libtool readline-devel zlib-devel make ruby patch git gcc-c++ cmake msgpack-devel git perl-DBD-Pg perl-Module-Build perl-Test-Requires postgresql
 </screen>
 <note>
   <para>
@@ -153,10 +144,24 @@ sudo cp lockless_allocator_linux/64bit/* /usr/local/lib
 </screen>
 There's no Centos package for an LZ4 library. One needs to be built by hand.
 Download source from <link xl:href="http://code.google.com/p/lz4">here</link>.
-Change directory into <filename>lz4srcdir/cmake</filename>. Execute "<command>ccmake .</command>". That brings up a curses interface. Enable "<literal>BUILD_SHARED_LIBS</literal>". Then exit, build and install.
+<screen>
+cd &lt;lz4srcdir&gt;/cmake
+cmake -DBUILD_SHARED_LIBS:BOOL=ON
+make
+sudo make install
+</screen>
+<note>
+  <para>
+    LZ4 uses gcc's <command>-march=native</command> to determine CPU
+architecture. If compiled in a virtual machine such as KVM on Centos,
+make sure to set the CPU architecture explicitly to match host CPU
+configuration, or some other valid 64bit architecture. Otherwise, gcc
+may become mistaken about CPU type and compiling LZ4 will fail.
+  </para>
+</note>
 </para>
 <para>
-Install python modules:
+Install python modules, as root:
 <screen>
 python-pip install argparse
 python-pip install msgpack-python
@@ -165,16 +170,11 @@ python-pip install pyzmq
 Perl modules, using CPAN:
 <screen>
 cpan
-install Module::Build
-install Test::Requires
-install DBI
-install DBD::Pg
 install Data::MessagePack
 exit  
 </screen>
 Make sure ld.so can find the new libraries, as root:
 <screen>
-echo /usr/local/pgsql/lib > /etc/ld.so.conf.d/postgresql.conf
 echo /usr/local/lib > /etc/ld.so.conf.d/userlocal.conf
 ldconfig
 </screen>
@@ -196,11 +196,13 @@ Increase file descriptor limits and allow user programs to escalate
 scheduling privileges, as root:
 <screen>
 cat >> /etc/security/limits.conf &lt;&lt;EOF
-*	soft	nofile	1048576
-*	hard	nofile	1048576
-*	soft	rtprio	30
-*	hard	rtprio	30
+* soft nofile 1048576
+* hard nofile 1048576
+* soft rtprio 30
+* hard rtprio 30
+EOF
 </screen>
+Log out of all sessions, and log back in for the new limits to take effect.
 </para>
 </sect1>
 
@@ -215,7 +217,7 @@ as <literal>infinisql</literal>, clone the repository from GitHub:
 Enter into <filename>sourcedir</filename>, and
 checkout a particular version (or skip this step if you want to work
 from HEAD):
-<screen>git checkout v0.1.1-alpha</screen>
+<screen>git checkout v0.1.2-alpha</screen>
 Build and install in some <filename>&lt;installationdir&gt;</filename>:
 <screen>
 libtoolize
@@ -235,7 +237,7 @@ Binaries and test stored procedures have now been installed under &lt;installati
 <para>
 InfiniSQL uses passwordless ssh to log in to each host that runs
 <command>infinisqld</command>. Create a keyfile using <command>ssh-keygen</command> with no passphrase. Make sure the public key is contained in <filename>~/.ssh/authorized_keys</filename> on each host. The default filesystem location
-for the key on the <command>infinisqlmgr.py</command> is set in the config
+for the key is set in the config
 parameter <varname>sshkey</varname>.
 </para>
 <para>
@@ -246,7 +248,8 @@ to some value, then core dumps will show up in the home directory of the
 If <varname>mgmthost</varname> is blank, then core files will occur in
 &lt;sourcedir/infinisqlmgr&gt;, which is where InfiniSQL is launched. Make
 sure to allow core files of any size in your shell startup file with
-"<code>ulimit -c unlimited</code>".
+"<code>ulimit -c unlimited</code>". Make sure that the <command>ulimit</command>
+command appears in a line before <code>/usr/bin/scl enable ...</code>, if exists.
 </para>
 <para>
 Once proper authentication is set up, simply do the following to run a single
@@ -273,7 +276,10 @@ the installation files using <command>&lt;sourcedir&gt;/scripts/benchmark/deploy
   <title>Testing</title>
 <sect1>
 <title>Regression Test</title>
-<para>With the single node running from the previous section, run the following:
+<para>
+Edit &lt;sourcedir&gt;/scripts/infinisql.plib and set <varname>$SCRIPTDIR</varname> and <varname>$PROCDIR</varname> to &lt;sourcedir&gt;/scripts and
+&lt;installationdir&gt;/procs, respectively.
+With the single node running from the previous section, do the following:
 <screen>
 cd &lt;sourcedir&gt;/scripts
 ./prime_regression.pl -h localhost
@@ -583,7 +589,7 @@ Next, run the SQL regression test and put the output in &lt;somefile&gt;:
 <screen>
 ./regression.pl -h localhost > &lt;somefile&gt;
 </screen>
-The output can be compared with <filename>&lt;sourcedir&gt;/scripts/regression.out-sample</filename>.
+The output can be compared with <filename>&lt;sourcedir&gt;/scripts/regression.out-sample</filename>. Check for daemon errors under &lt;installationdir&gt;/var.
 </para>
 <para>
 More information about these scripts is in the <link xl:href="ref.html">Command Reference</link>.
@@ -598,7 +604,7 @@ connect and query your InfiniSQL database. Look through <filename>prime_regressi
 created. Or, create some of your own using commands in the
 <link xl:href="ref.xml">Command Reference</link>. The way to connect using
 psql is as follows:
-<screen>psql -p &lt;port&gt; -h &lt;hostname&gt; -d &lt;domainname&gt; -U &lt;username&gt;</screen>
+<screen>PGSSLMODE=disable psql -p &lt;port&gt; -h &lt;hostname&gt; -d &lt;domainname&gt; -U &lt;username&gt;</screen>
 For the test database created by <filename>prime_regression.pl</filename>,
 <varname>port</varname> is <literal>15432</literal>, <varname>hostname</varname> is <literal>localhost, </literal><varname>domainname (equivalent to
 PostgreSQL dbname)</varname> is <literal>texas</literal>, <varname>username</varname> is <literal>mayor</literal>, and the <varname>password</varname>, when prompted, is <literal>austin</literal>.
@@ -652,13 +658,19 @@ and have done functional testing to ensure that it's operating properly.
 <chapter>
   <title>About the Tools and Environment</title>
 <para>
-In a PostgreSQL 9.2.4 source directory, patch <command>pgbench</command>:
-<screen>patch -p1 &lt; &lt;infinisqlsourcedir&gt;/misc/pgbench_persecond-v1.patch</screen>
-If you have not already done so, <command>./configure</command> and then
-<command>make</command> PostgreSQL. Then:
+Build PostgreSQL 9.2.4, as non-root user:
 <screen>
-cd contrib/pgbench
+wget http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.gz
+tar xzf postgresql-9.2.4.tar.gz
+cd postgresql-9.2.4
+./configure
 make
+</screen>
+Patch <command>pgbench</command>:
+<screen>
+patch -p1 &lt; &lt;infinisqlsourcedir&gt;/misc/pgbench_persecond-v1.patch
+cd contrib/pgbench
+make PG_LIBS='../../src/interfaces/libpq/libpq.a $(PTHREAD_LIBS)'
 sudo cp pgbench /usr/local/bin  
 </screen>
 The scripts for benchmarking InfiniSQL are in &lt;sourcedir&gt;scripts/benchmark.
@@ -695,12 +707,46 @@ to what a distributed key-store does. The random range in the
 pgbench scripts that correspond to recordid's should be equal to the
 number of accountid's inserted by bm.pl's fill test types. That range
 in procedure.pgb and procedurenoinsert.pgb is 1000000 (at least for
-v0.1.1-alpha).
+v0.1.2-alpha).
 pgbench scripting can either use
 regular SQL statements, or stored procedures.
 </para>
 <para>
   Setting up the environment is documented in the <link xl:href="ref.html">reference manual</link> and <xref linkend="gettingstarted" />.
+</para>
+<para>
+  The most important configuration parameters for performance are
+<varname>transactionagents</varname>, <varname>engines</varname>,
+<varname>ibgateways</varname>, and <varname>obgateways</varname>.
+They define the number of thread instances for each actor type. Too many
+instances, and performance suffers from excessive context switching. Too
+few, and CPUs go idle. Optimal performance for any particular workload
+will vary, but here are a few guidelines that should work for a large
+number of workloads. They are based on previous benchmarking efforts of
+InfiniSQL:
+<itemizedlist>
+  <listitem><para>2:1 ratio of transactionagents to engines.</para></listitem>
+  <listitem><para>transactionagents = the number of CPU threads. Ex. a 4-core Xeon with hyperthreading enabled has 8 visible threads. A 6-core Opteron has 6 threads.</para></listitem>
+<listitem><para>If available, processor hyper-threading should be enabled.</para></listitem>
+<listitem><para>Make sure to allow user-level programs to increase schedule priority (rtprio), as described above.
+This allows ibgateway and obgateway to increase their priorities, which
+increases throughput significantly.</para></listitem>
+<listitem><para>configure lots of file descriptors</para></listitem>
+<listitem><para>NICs with multiple RX queues are ideal. 10GBE is better
+than 1GB for latency, throughput, and host CPU utilization.
+One goal for InfiniSQL is to implement Infiniband Verbs for cluster
+communication, but that is a future activity.
+</para></listitem>
+</itemizedlist>
+Individual actor thread utilization can be observed using the <literal>-H</literal> flag with <command>top</command>, and then doing a stack trace (or cause core dump) and correlate thread PIDs. Inbound and Outbound Gateway threads
+will appear in <command>top</command> output with increase priority (if
+configured). Benchmarking the included <filename>PgbenchNoinsert</filename>
+stored procedure has shown that TransactionAgents generally use 2-3x more
+CPU than Engines, and gateway utilization varies based on a number of factors.
+For transactionagents and engines, it is better to have too many threads
+than too few. Gateways performance will tend to degrade if too many exist.
+Testing your workload on your environment is the best way to learn how
+to configure InfiniSQL for best performance.
 </para>
 </chapter>
 

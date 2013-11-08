@@ -4,14 +4,14 @@ xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 
 <title><trademark>InfiniSQL</trademark> Reference Manual</title>
 <info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
-<productname>InfiniSQL</productname><productnumber>0.1.1-alpha</productnumber></info>
+<productname>InfiniSQL</productname><productnumber>0.1.2-alpha</productnumber></info>
 <preface>
 <title>Preface</title>
 <para>
 This is the reference manual for InfiniSQL. It describes configuration
 settings and user capabilities such as SQL support, schema and user management,
 and using the API for creating stored procedures.
-It is based on the 0.1.1-alpha release, available on <link xl:href="http://github.com/infinisql/infinisql.git">GitHub</link>.
+It is based on the 0.1.2-alpha release, available on <link xl:href="http://github.com/infinisql/infinisql.git">GitHub</link>.
 </para>
 </preface>
 
@@ -1728,7 +1728,7 @@ PostgreSQL client maps to the domain created previously.
     Connecting via <command>psql</command>.
   </title>
 <programlisting>
-psql -h 127.0.0.1 -p 15432 -d texas -U mayor
+PGSSLMODE=disable psql -h 127.0.0.1 -p 15432 -d texas -U mayor
 </programlisting>
 <para>
   Connects to <command>infinisqld</command> node on localhost port 15432.
@@ -1935,7 +1935,7 @@ transaction, then no further statements will be executed until <command>ROLLBACK
   <title>Future SQL Capabilities</title>
 <para>
 Put simply, if the SQL capabilities are not described above, then they
-likely aren't available in InfiniSQL as of release 0.1.1-alpha. Places
+likely aren't available in InfiniSQL as of release 0.1.2-alpha. Places
 to look in the code mainly include <filename>infinisqld/lexer.ll, parser.yy,
 Asts.cc, infinisql_Asts.cc, Larxer.cc, infinisql_Larxer.cc, Transaction.cc,
  infinisql_Transaction.h, Pg.cc, and infinisql_Pg.h</filename>.
@@ -2977,12 +2977,267 @@ at some point for consistency in test output.
 
 </refsect1>
 </refentry>
-
-
-
 </section>
 
 </chapter>
+</part>
+
+<part>
+  <title><trademark>InfiniSQL</trademark> Source File Reference</title>
+<partintro>
+  <para>
+    This is a listing of each C++ source file in the <filename>&lt;sourcedir&gt;infinisqld/</filename> directory, along with a brief description of the
+contents. This is not a full-blown development reference: InfiniSQL's code
+is not documented sufficiently (big TODO item) for that, but this document
+is intended to help a developer get their feet wet.
+  </para>
+
+</partintro>
+<chapter>
+  <title>Source Files</title>
+<sect1>
+  <title>Source Corresponds To Header</title>
+<para>
+  These files have <literal>.cc</literal> corresponding with a single
+<literal>.h</literal> file. Each entry describes a pairing like this, of
+format <literal>&lt;entry&gt;.cc</literal> and <literal>infinisql_&lt;entry&gt;.h</literal>. Many entries contain a single class, but some have multiple
+classes.
+</para>
+
+<sect2>
+  <title>Applier</title>
+<para>
+  Applies transactional data modifications as part of synchronous
+replication.
+</para>
+</sect2>
+<sect2>
+  <title>Asts</title>
+<para>
+  Abstract Syntax Tree class and Statement class. A SQL statement turns
+into these in order to be executed.
+</para>
+</sect2>
+<sect2>
+  <title>DeadlockMgr</title>
+<para>
+Actor which resolves deadlocks.
+</para>
+</sect2>
+<sect2>
+  <title>Engine</title>
+<para>
+Engine actors store and manipulate data. Each engine interacts with a single
+partition, and vice versa.
+</para>
+</sect2>
+<sect2>
+  <title>Field</title>
+<para>
+Data Field class (INT, BOOL, VARCHAR, etc).
+</para>
+</sect2>
+<sect2>
+  <title>IbGateway</title>
+<para>
+Inbound Gateway actor. Counterpart to ObGateway. Receives messages over the network from remote senders
+and distributes them to their destination actors on the current node.
+</para>
+</sect2>
+<sect2>
+  <title>Index</title>
+<para>
+Index type class (UNIQUE, NONUNIQUE, etc.)
+</para>
+</sect2>
+<sect2>
+  <title>Larxer</title>
+<para>
+Portmanteau of "lexer" and "parser". This class tokenizes, parses and
+converts SQL into executable Statement with Abstract Syntax Trees.
+</para>
+</sect2>
+<sect2>
+  <title>Listener</title>
+<para>
+On ech host, this actor accepts new connections and distributes incoming
+network traffic from clients to Transaction Agents. 
+<note>
+<para>
+There is only one listener per host.
+It takes a small amount
+of coding effort to allow for multiple listeners per host. But no
+workload as yet (benchmarked on 12-core Xeon) has been shown to warrant
+multiple listeners. It's very possible that larger hosts may benefit
+from distributing incoming TCP/IP traffic across multiple listeners,
+and the effort to allow that won't be difficult to implement.
+</para>
+</note>
+</para>
+</sect2>
+<sect2>
+  <title>Mbox</title>
+<para>
+Mbox* classes perform inter-actor messaging. Mbox is a lockfree
+multi producer, single consumer queue.
+</para>
+</sect2>
+<sect2>
+  <title>Message</title>
+<para>
+Message objects of varying types. Each type eventually inherits from the
+Message base class. Each type serves a different role in inter-actor
+communication.
+</para>
+</sect2>
+<sect2>
+  <title>ObGateway</title>
+<para>
+Outbound Gateway actor. Counterpart to IbGateway. Receives messages from
+actors on current node bound for remote nodes. Sends them over the
+network to IbGateway.
+</para>
+</sect2>
+<sect2>
+  <title>Operation</title>
+<para>
+Class for non-transactional, user and schema-related activities, such as
+login, createuser, createtable, and so on.
+</para>
+</sect2>
+<sect2>
+  <title>Pg</title>
+<para>
+Objects created for every SQL login and associated with a specific
+TransactionAgent. Takes incoming requests, has them
+processed and responds to client.
+</para>
+</sect2>
+<sect2>
+  <title>Schema</title>
+<para>
+Schema class. Contains tables (fields (indices)). One schemata per domain.
+Corresponds to tablespace or database on other RDBMS platforms.
+</para>
+</sect2>
+<sect2>
+  <title>SubTransaction</title>
+<para>
+Engine's class corresponding to Transaction. Each data manipulation activity
+has a SubTransaction associated with the Transaction which requested the
+activity.
+</para>
+</sect2>
+<sect2>
+  <title>Table</title>
+<para>
+Table class. Has Fields and Indices.
+</para>
+</sect2>
+<sect2>
+  <title>Topology</title>
+<para>
+Topology class has all of the actors, their types, and dynamic
+configuration values. Each actor maintains a Topology object which
+gives it a common view for the whole node and, as necessary, the whole
+cluster.
+</para>
+</sect2>
+<sect2>
+  <title>TopologyMgr</title>
+<para>
+Actor which receives configuration commands over 0mq and MessagePack from <command>infinisqlmgr.py</command>. Launches all other actors, updates Topology, and
+distributes configuration changes to all other actors on each node.
+Facilitates dynamic reconfiguration.
+</para>
+</sect2>
+<sect2>
+  <title>Transaction</title>
+<para>
+Class which performs transactions. Associated with the TransactionAgent
+which connected to the client that initiated the request.
+</para>
+</sect2>
+<sect2>
+  <title>TransactionAgent</title>
+<para>
+Actor which communicates with clients and executes transactions.
+Coordinates of activities between several other actors.
+</para>
+</sect2>
+<sect2>
+  <title>UserSchemaMgr</title>
+<para>
+Actor which maintains user and domain authentication information and
+schema definitions. There is only 1 active UserSchemaMgr per cluster.
+</para>
+</sect2>
+<sect2>
+  <title>api</title>
+<para>
+API for creating stored procedures. Unlike most of the code, this
+is licensed with the Lesser GPL, to allow stored procedure source to
+remain private if the user so desires. Pg objects also inherit from
+this class, because they perform the same types of transactional activities
+as a stored procedure.
+</para>
+</sect2>
+<sect2>
+  <title>spooky</title>
+<para>
+Spooky Hash from Bob Jenkins. This is public domain. Used by InfiniSQL
+to distribute data across partitions.
+</para>
+</sect2>
+
+</sect1>
+<sect1>
+  <title>Independent Source &amp; Headers</title>
+<para>
+  These files have no direct relationship to a corresponding source or
+header file. Each entry describes a single file.
+</para>
+
+<sect2>
+  <title>infinisql_defs.h</title>
+<para>
+  Global struct &amp; enum types, global function declarations, global
+symbols in general.
+</para>
+</sect2>
+<sect2>
+  <title>infinisql_gch.h</title>
+<para>  
+Headers for all external dependencies. Originally so named because 
+pre-compilation was applied to speed the build process (Global Precompiled Header). Stopped pre-compilation awhile back, but didn't change the filename.
+</para>
+</sect2>
+<sect2>
+  <title>larx.h</title>
+<para>
+  Function declarations so flex and bison can work together.
+</para>
+</sect2>
+<sect2>
+  <title>main.cc</title>
+<para>
+  Contains <function>main</function> and various global function definitions.
+</para>
+</sect2>
+<sect2>
+  <title>pgoids.h</title>
+<para>
+  Symbols necessary to implement the PostgreSQL Frontend/Backend Protocol.
+<note>
+  This file has the same license as the PostgreSQL project, and is not
+covered by the AGPL. This is because it was lifted from PostgreSQL source.
+</note>
+</para>
+</sect2>
+
+</sect1>
+</chapter>
+
 </part>
 
 </book>
