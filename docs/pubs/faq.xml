@@ -162,7 +162,7 @@ Is InfiniSQL only fast because it's in memory?
 such scalability across multiple nodes, or handling of so many concurrent
 connections. There's a section of the
 <link xl:href="overview.html">Overview</link> describing future directions
-for data storage. InfiniSQl scales and supports massive concurrency because
+for data storage. InfiniSQL scales and supports massive concurrency because
 of it's actor-based core. As additional storage types and interfaces are added,
 InfiniSQL will still scale massively--but if the additional components, such
 as storage, are slower, InfiniSQL will also necessarily slow down in some

@@ -138,7 +138,7 @@ have access to the same data, regardless of which node they connect to.
 <chapter>
   <title>Data Storage</title>
 <para>
-InfiniSQl currently is an in memory database. This means that all records
+InfiniSQL currently is an in memory database. This means that all records
 are stored in system memory, and not written to disk. This provides very
 high performance--but it also means that InfiniSQL currently lacks the
 property of Durability. If the power goes out, all data is gone. InfiniSQL
@@ -231,7 +231,7 @@ language feature.
 <para>
   Object caching and many other NoSQL workloads are easily accomplished 
 with InfiniSQL. Most NoSQL solutions were implemented because of weaknesses
-in legacy RDBMS systems. InfiniSQl doesn't suffer from those shortcomings.
+in legacy RDBMS systems. InfiniSQL doesn't suffer from those shortcomings.
 InfiniSQL includes stored procedures that emulate keystore get &amp; set
 behavior. It should be quite simple to map most NoSQL workloads and wire
 protocols onto InfiniSQL (but the converse is not true, as NoSQL systems
