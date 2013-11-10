@@ -1,2 +1,2 @@
-Refer to http://docs.infinisql.org/guide.html for dependencies, building, installation, running and testing.
+Refer to http://www.infinisql.org/documentation/guide for dependencies, building, installation, running and testing.
 
