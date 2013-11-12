@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <article xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
 xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 
 <title><trademark>InfiniSQL</trademark> Frequently Asked Questions</title>
@@ -35,8 +36,8 @@ interface on top of Hadoop to get a scalable RDBMS?
 <answer>
   <para>
     InfiniSQL and Hadoop excel in different capacities. Hadoop is geared
-for analysis of large amounts of data, generally occurring after the course
-of particular events occurring. InfiniSQL, on the other hand, provides
+for analysis of data occurring after the events occur.
+ InfiniSQL, on the other hand, provides
 very high throughput for queries happening in real time, as events occur.
 In a way, InfiniSQL and Hadoop can complement one another, just as
 legacy environments split duties between online transaction processing (OLTP)
@@ -67,8 +68,8 @@ spread across commodity compute and storage resources.
 <answer>
   <para>
     Yes! Get it here: <link xl:href="https://github.com/infinisql/infinisql">https://github.com/infinisql/infinisql</link>. InfiniSQL is primarily released
-under the AGPL, with the main exception being the API and library for
-creating stored procedures, which are under the LGPL. All code is
+under the <link xl:href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL</link>, with the main exception being the API and library for
+creating stored procedures, which are under the <link xl:href="http://www.gnu.org/licenses/lgpl.html">LGPL</link>. All code is
 owned by Mark Travis. An alternative commercial license is available for
 customers who do not wish to comply with the open source license terms.
 Send inquiries to <email>info@infinisql.org</email>.
@@ -83,17 +84,17 @@ Send inquiries to <email>info@infinisql.org</email>.
 </question>
 <answer>
   <para>
-    This is unknown. InfiniSQL has been benchmarked to run on 12 x
+    This is unknown. InfiniSQL has been <link xl:href="/blog/2013/1112/benchmarking-infinisql">benchmarked</link> to run on 12 x
 4-core x64_64-based servers. But the limit on servers was budgetary, and
 not because of a limitation in InfiniSQL. InfiniSQL is an open source
 project which is not part of some institution, so all costs, such
 as those for benchmarking hardware, are borne out of pocket. But
 based on InfiniSQL's actor-based architecture, and the promising benchmark
-performance, InfiniSQL should be scale to a very large number of nodes.
+performance, InfiniSQL should scale to a very large number of nodes.
 On the 12 node benchmark, over 500,000 multi-node transactions were performed
 per second by over 100,000 simultaneous client connections. The InfiniSQL team will gladly assist anybody who wishes in earnest to perform
 benchmarks of their own. Tools that are used to benchmark InfiniSQL are
-included with the source code, and a <link xl:href="guide.html">guide</link> to benchmarking using those tools is available.
+included with the source code, and a <link xl:href="/docs/guide/">guide</link> to benchmarking using those tools is available.
   </para>
 </answer>  
 </qandaentry>
@@ -126,7 +127,7 @@ start with a fresh project rather than to re-shape an existing one.
 <answer>
   <para>
     InfiniSQL excels at performing this type of transaction. They comprise
-trsansactions that have records on at least 2 hosts. A simple example is
+transactions that have records on at least 2 hosts. A simple example is
 a transfer between a buyer and a seller in an application where any
 buyer can purchase from any seller. For any transaction of this type, 
 those two account records would very likely be spread on different hosts because there is no way to force all possible buyer-seller pairs to be on the same
@@ -145,7 +146,7 @@ distributed solution. It's mainly why mainframes and big UNIX servers still exis
   InfiniSQL is a great solution even for workloads which don't rely heavily
  on this type of transaction. Think of it this way: since InfiniSQL performs
 complex transactions at a very high rate, it also can perform simpler
-operations at a likely higher rate. InfiniSQL is designed to perform
+operations at a high rate. InfiniSQL is designed to perform
 all types of operational workloads within a single cluster.
 </para>
 </answer>
@@ -161,7 +162,7 @@ Is InfiniSQL only fast because it's in memory?
     Being in memory helps performance a lot. But that's not the reason for
 such scalability across multiple nodes, or handling of so many concurrent
 connections. There's a section of the
-<link xl:href="overview.html">Overview</link> describing future directions
+<link xl:href="/docs/overview/">Overview</link> describing future directions
 for data storage. InfiniSQL scales and supports massive concurrency because
 of it's actor-based core. As additional storage types and interfaces are added,
 InfiniSQL will still scale massively--but if the additional components, such
@@ -185,4 +186,5 @@ and funding, to come to fruition.
 </qandaentry>
 
 </qandaset>
+
 </article>

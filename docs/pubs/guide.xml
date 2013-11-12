@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <book xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
 xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 
 <title><trademark>InfiniSQL</trademark> Guide</title>
@@ -76,7 +77,7 @@ Python modules:
 </para>
 <para>
   Connecting as a client requires PostgreSQL client libraries >=7.4 for any
-given platform, available from, <link xl:href="http://www.postgresql.org">PostgreSQL</link>.
+given platform, available from <link xl:href="http://www.postgresql.org">PostgreSQL</link>.
 </para>
 <para>
   Using bundled test scripts, such as <command>scripts/regression.pl</command>,
@@ -95,7 +96,7 @@ must be applied to PostgreSQL 9.2.4.
   <title>Installing Dependencies</title>
 <para>
   InfiniSQL has been tested on Fedora 17, Fedora 19, and Centos6.4 for
-x86_64. It should run on any other x86_64 Linux distribution, assuming
+x86_64. It should run on any x86_64 Linux distribution assuming
 the dependencies are met. This section provides some installation details
 for Centos 6, but it may be worth reading even if your preferred distribution
 is something else.
@@ -268,7 +269,7 @@ Logs are written to <filename>&lt;installationdir&gt;/var</filename>.
 <para>
   InfiniSQL becomes interesting once multiple nodes are set up. Deploy
 the installation files using <command>&lt;sourcedir&gt;/scripts/benchmark/deploy.sh</command>, and configure any number of nodes and hosts by referring to the
-<link xl:href="ref.html">Configuration Reference</link>.
+<link xl:href="/docs/reference/">Configuration Reference</link>.
 </para>
 </chapter>
 
@@ -278,8 +279,8 @@ the installation files using <command>&lt;sourcedir&gt;/scripts/benchmark/deploy
 <title>Regression Test</title>
 <para>
 Edit &lt;sourcedir&gt;/scripts/infinisql.plib and set <varname>$SCRIPTDIR</varname> and <varname>$PROCDIR</varname> to &lt;sourcedir&gt;/scripts and
-&lt;installationdir&gt;/procs, respectively.
-With the single node running from the previous section, do the following:
+&lt;installationdir&gt;/procs, respectively. Functional behavior should be identical regardless of the quantity of nodes.
+With a running cluster, do the following:
 <screen>
 cd &lt;sourcedir&gt;/scripts
 ./prime_regression.pl -h localhost
@@ -592,7 +593,7 @@ Next, run the SQL regression test and put the output in &lt;somefile&gt;:
 The output can be compared with <filename>&lt;sourcedir&gt;/scripts/regression.out-sample</filename>. Check for daemon errors under &lt;installationdir&gt;/var.
 </para>
 <para>
-More information about these scripts is in the <link xl:href="ref.html">Command Reference</link>.
+More information about these scripts is in the <link xl:href="/docs/reference/">Command Reference</link>.
 </para>
 </sect1>
 
@@ -602,7 +603,7 @@ More information about these scripts is in the <link xl:href="ref.html">Command 
 PostgreSQL's <command>psql</command> command-line utility can be used to
 connect and query your InfiniSQL database. Look through <filename>prime_regression.pl</filename> to see the test user, domain and tables that have been
 created. Or, create some of your own using commands in the
-<link xl:href="ref.xml">Command Reference</link>. The way to connect using
+<link xl:href="/docs/reference/">Command Reference</link>. The way to connect using
 psql is as follows:
 <screen>PGSSLMODE=disable psql -p &lt;port&gt; -h &lt;hostname&gt; -d &lt;domainname&gt; -U &lt;username&gt;</screen>
 For the test database created by <filename>prime_regression.pl</filename>,
@@ -674,7 +675,7 @@ make PG_LIBS='../../src/interfaces/libpq/libpq.a $(PTHREAD_LIBS)'
 sudo cp pgbench /usr/local/bin  
 </screen>
 The scripts for benchmarking InfiniSQL are in &lt;sourcedir&gt;scripts/benchmark.
-The <link xl:href="ref.xml">Command and File Reference</link> describes
+The <link xl:href="/docs/reference/">Command and File Reference</link> describes
 each of these tools. Many of them are quick and dirty scripts, so are meant
 to be read and altered as needs arise.
 </para>
@@ -712,7 +713,7 @@ pgbench scripting can either use
 regular SQL statements, or stored procedures.
 </para>
 <para>
-  Setting up the environment is documented in the <link xl:href="ref.html">reference manual</link> and <xref linkend="gettingstarted" />.
+  Setting up the environment is documented in the <link xl:href="/docs/reference/">reference manual</link> and <xref linkend="gettingstarted" />.
 </para>
 <para>
   The most important configuration parameters for performance are
@@ -776,7 +777,7 @@ Edit &lt;sourcedir&gt;/scripts/benchmark/client, daemons, and daemonhosts to ref
 <para>
 Copy InfiniSQL binaries and sources to all hosts:
 <screen>
-cd &lt;sourcedir/scripts/benchmark
+cd &lt;sourcedir&gt;/scripts/benchmark
 ./deploy.sh &lt;installationdir&gt; &lt;sourcedir&gt;
 </screen>
 </para>
@@ -792,7 +793,8 @@ cd &lt;sourcedir&gt;/infinisqlmgr
 </listitem>
 <listitem>
 <para>
-Start daemon host resource collection scripts:
+Start daemon host resource collection scripts (these scripts not included
+in source distribution--but are trivial to customize for yourself):
 <screen>
 cd &lt;sourcedir&gt;/scripts/benchmark
 ./collectcpudaemons.sh
@@ -804,7 +806,7 @@ cd &lt;sourcedir&gt;/scripts/benchmark
 Prepare database:
 <screen>
 cd &lt;sourcedir&gt;/scripts/benchmark
-./primebm.pl -h &lt;someinfinisqldnodhostname&gt;
+./primebm.pl -h &lt;someinfinisqldnodehostname&gt;
 </screen>
 </para>
 </listitem>
@@ -847,7 +849,7 @@ Stop InfiniSQL
 <para>
 Grab daemon logs.
 <screen>
-./getlogs &lt;unixsecondfrombm.pl&gt;
+./getlogs &lt;unixsecondfrom bm.pl&gt;
 </screen>
 </para>
 </listitem>

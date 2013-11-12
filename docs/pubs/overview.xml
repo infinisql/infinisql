@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <book xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
 xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 
 <title><trademark>InfiniSQL</trademark> Overview</title>
@@ -10,8 +11,8 @@ xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <para>
 This overview describes what InfiniSQL is, what its goals are, how those
 goals are being implemented, and the work that remains. It
-complements accompanying <link xl:href="guide.html">Guide</link> and
-<link xl:href="ref.html">Reference</link> documents.
+complements accompanying <link xl:href="/docs/guide/">Guide</link> and
+<link xl:href="/docs/reference/">Reference</link> documents.
 </para>
 </preface>
 
@@ -22,7 +23,7 @@ complements accompanying <link xl:href="guide.html">Guide</link> and
   <title>About and Goals</title>
 <para>
   InfiniSQL is a relational database management system (RDBMS) composed
-entirely from the ground up. InfiniSQL's goals are
+entirely from the ground up. InfiniSQL's goals are:
 <itemizedlist>
   <listitem><para>Horizontal Scalability</para></listitem>
   <listitem><para>Continuous Availability</para></listitem>
@@ -31,7 +32,7 @@ entirely from the ground up. InfiniSQL's goals are
   <listitem><para>High Performance For Complex, Multi-Host Transactions</para></listitem>
   <listitem><para>Ubiquity</para></listitem>
 </itemizedlist>
-InfiniSQL (link to benchmarking blog entry) has been tested to support
+InfiniSQL <link xl:href="/blog/2013/1112/benchmarking-infinisql">has been tested</link> to support
 over 500,000 complex transactions per second with over 100,000 simultaneous
 connections. This was on a cluster of only 12 single socket x86-64 servers.
 Subscribed hardware in this environment was exhausted from this effort--so the true upper
@@ -41,32 +42,41 @@ nodes appears to be limitless!
 <para>
   InfiniSQL is an Open Source project with code hosted on
 <link xl:href="http://github.com/infinisql/infinisql.git">GitHub</link>.
-Contributions to development are very encouraged--this documentation is
+Contributions to development are sought--this documentation is
 meant to help newcomers to the project learn how to get involved. Open
 Source products tend to be the easiest to start working with from a
 user's standpoint: there's no teaser version of InfiniSQL. No hoops to
 jump through--just read the documentation, download and build the source,
-and ask for help along the way as needed. InfiniSQL's currently in an
+and ask for help along the way as needed. InfiniSQL is currently in an
 alpha state--it supports many of the features of a usable released product,
-but lacks others. It might support your application's needs. If so,
-please try it out! InfiniSQL is meant to be used as widely as possible.
-Once it reaches maturity, there will be no reason to use anything else.
+but lacks others. It might support your application's needs.
+Please try it out! InfiniSQL is meant to be used as widely as possible.
+Once it reaches maturity, there will be no reason to use anything else for
+operational data store workloads.
 </para>
 <para>
-  InfiniSQL performs complex transaction workloads as well as or better than
+  InfiniSQL performs complex transaction workloads better than any other
+distributed database--whether a NewSQL or clustered legacy platform. And
+it performs simple keystore-type workloads 
+ as well as or better than
 many NoSQL solutions. NoSQL projects came about largely because existing
 RDBMS systems could not meet performance, scalability and budgetary needs
-of high growth, traffic-intensive applications. InfiniSQL's design is to
-perform heavy duty transaction processing workloads while scaling like
-NoSQL. What this means is that, with InfiniSQL, multiple workloads using
-point solutions, can be standardized on a single back-end platform. This
-simplifies development and management of the environment. A cost-effective
-and extreme scale RDBMS cuts out the need for NoSQL point solutions.
+of high growth, traffic-intensive applications. InfiniSQL is designed to
+perform heavy duty transaction processing workloads while scaling like  
+NoSQL. This means that multiple workloads currently using
+point solutions can be standardized on a single backend platform.
+No sharding is necessary with InfiniSQL: it partitions data automatically
+across available hardware. Connect to any node, and all of the data is
+accessible.
+This
+simplifies development and management of the environment. InfiniSQL is
+a cost-effective and extreme scale RDBMS that
+cuts out the need for workarounds and point solutions.
 </para>
 <para>
 Achieving these goals is unnattainable for legacy RDBMS platforms that were
 designed decades ago. They weren't designed to scale well, if at all, beyond
-a single server instance. This design limitation means that legacy
+a single server. This design limitation means that legacy
 platforms do not make sense as a basis for limitless scalability in
 transaction processing platforms. It's why InfiniSQL needs to be written
 from scratch, and not as an enhancement to an existing project.
@@ -78,10 +88,10 @@ types of interfaces, such as for messaging and object caching, can also
 be implemented to use InfiniSQL's transaction processing capabilities.
 </para>
 <para>
-  From the beginning, InfiniSQL supports multi-statement transactions,
-stored procedures that make use of pre-compiled SQL queries, and 
-performs very well for transactions which involve records on separate
-server hosts. Its capabilities will only grow from further development.
+From the beginning, InfiniSQL supports ad hoc SQL,
+multi-statement transactions,
+stored procedures that make use of pre-compiled SQL queries, and scales
+gracefully across hosts. Its capabilities will only grow from further development.
 </para>
 <para>
   Please take a little bit more time to learn about InfiniSQL. Hopefully
@@ -93,11 +103,11 @@ you'll be moved to participate in this project!
   <title>Topology</title>
 <para>
 InfiniSQL is a distributed database system--it operates on one or more
-hosts, and has processes which perform separate functions. The two types
+hosts and has processes which perform separate functions. The two types
 of processess are <emphasis>manager</emphasis> and <emphasis>daemon</emphasis>
 processes. On the filesystem, they are named <filename>&lt;sourcedir&gt;/infinisqlmgr/infinisqlmgr.pl</filename> and <filename>&lt;installationdir&gt;/sbin/infinisqld</filename>, respectively. Together, these processes comprise an
 <emphasis>InfiniSQL Cluster</emphasis>. The practical limit to the size of
-this cluster is unknown and currently assumed to be pretty big.
+this cluster is unknown and assumably very high.
 </para>
 
 <sect1>
@@ -130,7 +140,7 @@ will continue.
   Daemons are the processes to which clients connect to manipulate data.
 Each daemon stores a portion of the database, and has access to data
 spread across all nodes. There is no need to shard InfiniSQL--all clients
-have access to the same data, regardless of which node they connect to.
+have access to the same data, regardless of node to which they connect.
 </para>
 </sect1>
 </chapter>
@@ -141,18 +151,19 @@ have access to the same data, regardless of which node they connect to.
 InfiniSQL currently is an in memory database. This means that all records
 are stored in system memory, and not written to disk. This provides very
 high performance--but it also means that InfiniSQL currently lacks the
-property of Durability. If the power goes out, all data is gone. InfiniSQL
+property of Durability. If the power goes out, all data is gone. This
+limitation is temporary. InfiniSQL
 design calls for a number of features which will provide durability--while
 retaining very high performance.
 <orderedlist>
   <listitem>
     <para>
-      Synchronous database replicas. Every infinisqld node has at least one
+      Synchronous database replicas with failover. Every infinisqld node has at least one
 replica to which all transaction write activity gets replicated for every
-transaction. In the even of host failure, the manager process will detect
-the failure change the cluster topology to make use of a host's replica.
-This characteristic has also been referred to as "synchronous replication"
-or "k-safety," and is conceptually similar to the storage protection
+transaction. In host failure events, the manager process will detect
+the failure and change the cluster topology to make use of a host's replica.
+This characteristic has also been referred to as "k-safety," and is
+conceptually similar to the storage protection
 method of RAID10.
     </para>
  <para>
@@ -164,21 +175,22 @@ is not complete yet.
 <listitem>
   <para>
     Managed Redundant Power. This mechanism is unique to InfiniSQL among
-database systems, but is in wide use for storage arrays. In conjunction
+databases, but is in wide use for storage arrays. In conjunction
 with synchrounous replication described above, every node 
 is on an uninterruptible power supply (UPS). Each cluster has at least 2
-UPS systems, which are managed by the InfiniSQL Manager process. In the
-event of total power failure in the datacenter, UPS systems will stay
+UPS systems managed by the InfiniSQL Manager process. In case of
+total power failure in the datacenter, UPS systems will stay
 active for a few minutes, based on their capacity, and the manager process
-will gracefuly shut down each daemon. This will ensure durability--even
-against total power failure--while still maintaining in memory performance.
+will gracefuly shut down each daemon and write data to
+disk storage. This will ensure durability--even
+against power failure or system crash--while still maintaining in memory performance.
   </para>
 <para>
   The mechanism described here is identical to how high end storage arrays
 are able to maintain high performance and data integrity. It is common
 practice in the most performance sensitive and mission critical enterprise
 storage environments. InfiniSQL intends to move the power protection from
-the block storage layer, to protect the database application itself.
+the block storage layer and protect the database application itself.
 </para>
 <para>
   This has not been implemented yet.
@@ -196,10 +208,10 @@ fastest performance.
   </para>
 <para>
   The real killer for database performance is synchronous transaction log
-writes. Even with the fastest underlying storage, this activity always becomes
-the eventual limiting factor for database write performance. InfiniSQL avoids
-this limiting factor while still retaining durability--and allowing large
-data sets.
+writes. Even with the fastest underlying storage, this activity is
+the limiting factor for database write performance. InfiniSQL avoids
+this limiting factor while still retaining durability--and allowing larger
+data sets than practical with memory only.
 </para>
 <para>
   This feature has not yet been implemented.
@@ -212,9 +224,9 @@ data sets.
 <chapter>
   <title>Data Access Methods</title>
 <para>
-SQL is only one of many possible ways to manipulate data. InfiniSQL uses the
+SQL is one of many possible ways to manipulate data. InfiniSQL uses the
 <link xl:href="http://www.postgresql.org/docs/9.2/static/protocol.html">PostgreSQL Frontend/Backend Protocol, Version 3</link>. This means that PostgreSQL
-drivers from any architecture should be able to communicate with InfiniSQL
+drivers for any architecture should be able to communicate with InfiniSQL
 as if it were a PostgreSQL database.
 <note>
 <para>InfiniSQL and PostgreSQL are separate projects. The only PostgreSQL
@@ -244,7 +256,7 @@ message queue, obviating the need for distinct infrastructure.
 </para>
 <para>
   InfiniSQL will evolve into a platform for transaction processing of multiple
-types of activities, not just SQL.
+types of activities, and not just SQL.
 </para>
 </chapter>
 
@@ -261,34 +273,45 @@ InfiniSQL applies the actor model of concurrent programming to the problem of cr
 <sect1>
 <title>Actors</title>  
 <para>
-The actors in InfiniSQL are implemented as POSIX threads. Classic actors are short-lived processes, such as implemented in Erlang. However, since it is relatively expensive in terms of processing to create POSIX threads, InfiniSQL does not follow the classic model in that regard. InfiniSQL's actor types are as follows:<itemizedlist>
+The actors in InfiniSQL are implemented as POSIX threads. Classic actors are short-lived processes, such as implemented in Erlang. Applications create
+as many actors as necessary to perform discrete tasks, and then dispose of them.
+ However, since it is relatively expensive in terms of processing to create POSIX threads, InfiniSQL does not follow the classic model in that regard. Instead,
+InfiniSQL's actors are long living threads. Each actor thread is dedicated to a
+particular set of functions, and each handles a very large number of
+concurrent activities. InfiniSQL's actor types are as follows:
+<itemizedlist>
 <listitem><para>
     Topology Manager: this is the first actor for any infinisqld process. It is also the actor which launches all other actors. The <command>infinisqlmgr.py</command> command communicates with the Topology Manager of each node using
 0mq and MessagePack.
   </para></listitem>
 <listitem><para>
-    Transaction Agent: this actor reads requests from clients off of the network, parses, the request, and coordinates transaction processing activity for each request, and replies with query output back to the client.
+    Transaction Agent: this actor type reads requests from clients off of the network, parses the request, coordinates transaction processing activity for each request, and replies with query output back to the client. There can be
+many Transaction Agents per node for scalability.
   </para></listitem>
 <listitem><para>
-    Engine: this actor accesses and manipulates data. Each Engine corresponds to a memory region which contains a partition of each table and index for each of the schemata in the database. Each memory region has only a single actor. Much of the scalability problems inherent in legacy databases comes from locking data regions with mutexes and semaphores. InfiniSQL avoids this kind of contention because each data region has only a single Engine which accesses it.
+    Engine: this actor accesses and manipulates data. Each Engine corresponds to a memory region which contains a partition of each table and index for each schema in the database. Each memory region has only a single Engine actor. Much of the scalability problem inherent in legacy databases comes from locking data regions with mutexes and semaphores. InfiniSQL avoids this kind of contention because each data region has only a single Engine which accesses it. And
+each node can have many Engines with corresponding data partitions, to achieve
+scalability.
   </para></listitem>
 <listitem><para>
-    User &amp; Schema Manager: a single actor of this type contains all data pertaining to schemata and authentication information. Table and index definitions, as well as user and domain authentication is managed by this actor.
+    User &amp; Schema Manager: a single actor of this type contains all data pertaining to schemata and authentication information. Table and index definitions as well as user and domain authentication are managed by this actor.
   </para></listitem>
 <listitem><para>
-    Deadlock Manager: InfiniSQL's transaction algorithm is a variation on two-phase locking. As such, it is subject to deadlocks. The Deadlock Manager is an actor which resolves deadlocks.
+    Deadlock Manager: InfiniSQL's transaction algorithm is a variation on two-phase locking. As such, it is subject to deadlocks. The Deadlock Manager resolves deadlocks.
   </para></listitem>
 <listitem><para>
     Listener: there is a single Listener per host which communicates over TCP/IP with clients, and distributes incoming traffic across Transaction Agents.
   </para></listitem>
 <listitem><para>
-    Outbound Gateway: Outbound Gateway actors forward messages from other actors, such as Transaction Agents, which are destined to actors on remote infinisqld processes, such as Engines.
+    Outbound Gateway: Outbound Gateway actors forward messages from other actors, such as Transaction Agents, which are destined to actors on remote infinisqld processes, such as Engines. Multiple Outbound Gateways can exist per node
+for scalability.
   </para></listitem>
 <listitem><para>
-    Inbound Gateway: Each Outbound Gateway has corresponding Inbound Gateways on each node within an InfiniSQL topology. Inbound Gateways receive messages from Outbound Gateways over the network, and forward them to their final destination actors. This is the mechanism by which InfiniSQL performs transactions with records distributed across any number of different nodes.
+    Inbound Gateway: Each Outbound Gateway has corresponding Inbound Gateways on each node within an InfiniSQL topology. Inbound Gateways receive messages from Outbound Gateways over the network, and forward them to their final destination actors. This is the mechanism by which InfiniSQL performs transactions with records distributed across any number of different nodes. Multiple Inbound Gateways can exist per node
+for scalability.
   </para></listitem>
   </itemizedlist>
-For any given activity, such as processing an SQL transaction, multiple actors are involved. Each actor performs its assigned task, including sending messages to other actors. This is in contrast to traditional design, where a single worker process (or thread, depending on the particular implementation) handles all activity for any given operation. Here is a simplified flow through various actors for an example query:
+For any given activity, such as processing an SQL transaction, multiple actors are involved. Each actor performs its assigned task, including sending messages to other actors. This is in contrast to traditional database design where a single worker process (or thread, depending on the particular implementation) handles all activity for any given operation. Here is a simplified flow through various actors for an example query:
 
 <orderedlist>
 <listitem><para>
@@ -339,10 +362,10 @@ For any given activity, such as processing an SQL transaction, multiple actors a
 <sect1>
   <title>Events &amp; Messaging</title>
 <para>
-Actor processing is event-based. An actor receives an event, works on the activity requested, and then returns to wait for another event. In this way, a single actor thread can handle any number of concurrent transaction activities. In the traditional worker model, each worker handles a single transaction at a time and performs all activities associated with the transaction. With actors, each actor only performs a subset of tasks for each transaction, but handles tasks for any number of concurrent transactions. Most InfiniSQL actors are driven via Mbox Messages.
+InfiniSQL actor processing is event-based. An actor receives an event, works on the activity requested, stores the state of the activity, if necessary, and then returns to the event loop to wait for another event. In this way a single actor thread can handle any number of concurrent transaction activities. In the traditional worker model, each worker handles a single transaction at a time and performs all activities associated with the transaction. With actors, each actor only performs a subset of tasks for each transaction, but handles tasks for any number of concurrent transactions.
 </para>
 <para>
-InfiniSQL messaging is implemented in the Mbox*, Message*, Outbound Gateway, and Inbound Gateway classes. Each actor has a mailbox, which is an instance of Mbox. The mailbox is a multi-producer, single-consumer queue (many senders, one receiver). The queue is very simple: it is a straight FIFO. There is no prioritization of messages, no peeking at them for later consumption out of order, or any other features beyond simply putting or grabbing the next message, if available. This simplicity pays dividends in performance.
+InfiniSQL messaging is implemented in the Mbox*, Message*, Outbound Gateway, and Inbound Gateway classes. Each actor has a mailbox which is an instance of Mbox. The mailbox is a multi-producer, single-consumer queue (many senders, one receiver). The queue is very simple: it is a straight FIFO. There is no prioritization of messages, no peeking at them for later consumption out of order, or any other features beyond simply putting or grabbing the next message, if available. This simplicity pays dividends in performance.
 </para>
 <para>
 Producing and consuming messages is synchronized among multiple threads by lock free atomic operations. This is much faster than a mutex-based implementation. Internal messaging is a matter of passing pointers to objects of various types of Messages. A very important dependency is Lockless, Inc.'s memory allocator. This is a replacement for malloc(), free() and realloc(). InfiniSQL can create, send, receive and then destroy millions of messages per second per host. Only Lockless' allocator has been found to support this workload.
@@ -352,7 +375,7 @@ Message passing between nodes is handled by Outbound Gateway and Inbound Gateway
 pass them to an Outbound Gateway. The Outbound Gateway compresses these
 messages using LZ4 and sends them out in batches to each remote node.
 Inbound Gateway decompresses the batch and sends each serialized message
-to their destination actors. The destination actors then deserialize and act
+to its destination actor. The destination actor then deserializes and acts
 upon the message. Each node can have multiple gateways of each type to 
 avoid bottlnecks.
 </para>
@@ -368,7 +391,7 @@ nodes. Sending actors serialize messages bound for remote hosts. Receiving
 actors deserialize messages from remote nodes.
 </para>
 <para>
-Most actors' event loop is focussed around consuming messages from Mbox. Exceptions to this are the Listener, which receives socket events via epoll(), Inbound Gateway, which uses poll() for socket events, and Topology Manager, which acts upon a zeromq socket.  
+Most actors' event loop is focussed around consuming messages from Mbox. Exceptions to this are the Listener, which receives socket events via epoll(), Inbound Gateway, which uses poll() for socket events, and Topology Manager, which acts upon a 0mq socket.  
 </para>
 </sect1>
 
@@ -378,7 +401,7 @@ Most actors' event loop is focussed around consuming messages from Mbox. Excepti
 The transaction processing algorithm is a variation on that of two-phase locking (2PL). MVCC was considered initially, but is not scalable enough
 for the goals of InfiniSQL.<footnote>
 <para>
-  2PL was chosen in favor of multiversion concurrency control (MVCC) for scalability reasons. The limiting factor for MVCC is transaction identifier generation. For each transaction, MVCC requires a transaction identifier which is guaranteed to be greater than all previous transaction identifiers. There is no way to do this in parallel. This seemingly trivial operation, which at its simplest is a matter of atomically incrementing an integer, slows down drastically under concurrent load. Tested on a dual socket, 6-core per socket 3.3GHz Intel server, this operation can be done roughly 2,000,000 times (recalling from memory). And that's not even considering network overhead from serving transaction identifiers from multiple nodes. So, to avoid such a limiting factor, 2PC was chosen as the concurrency control algorithm for InfiniSQL.
+  2PL was chosen in favor of multiversion concurrency control (MVCC) for scalability reasons. The limiting factor for MVCC is transaction identifier generation. For each transaction, MVCC requires a transaction identifier which is guaranteed to be greater than all previous transaction identifiers. There is no way to do this in parallel. This seemingly trivial operation, which at its simplest is a matter of atomically incrementing an integer, slows down drastically under concurrent load. Tested on a dual socket, 6-core per socket 3.3GHz Intel server, this operation can be done roughly 2,000,000 times per second with all cores and hyperthreads incrementing the integer. And that's not even considering network overhead from serving transaction identifiers from multiple nodes. So, to avoid such a limiting factor, 2PC was chosen as the basis for the concurrency control algorithm for InfiniSQL.
 </para></footnote>
 Instead, InfiniSQL uses 2PL which incorporates some additional elements:
 
@@ -390,21 +413,23 @@ Instead, InfiniSQL uses 2PL which incorporates some additional elements:
     records distributed across any number of hosts
   </para></listitem>
 <listitem><para>
-    stages are performed asynchronously
+    stages are performed asynchronously based on message passing
   </para></listitem>
 </itemizedlist>
 
-Most transaction processing logic is represented in the Transaction and SubTransaction classes. Transaction objects are associated with Transaction Agents, and SubTransactions are tied to Engines. Each transaction may involve records from any number of engines from any nodes. All engine activities on behalf of a transaction are performed by a corresponding SubTransaction. Each transaction, therefore, has a single SubTransaction associated with each Engine that contains records involved in the transaction. Each SubTransaction is uniquely associated to a single transaction.
+Most transaction processing logic is represented in the Transaction and SubTransaction classes. Transaction objects are associated with Transaction Agents, and SubTransactions are tied to Engines. Each transaction may involve records from any number of engines from any nodes. All engine activities on behalf of a transaction are performed by a corresponding SubTransaction. Each transaction, therefore, has a single SubTransaction associated with each Engine that contains records involved in the transaction. Each SubTransaction is uniquely associated with a single transaction.
 </para>
 <para>
-Each stage of a transaction is handled asynchronously. Each Transaction Agent keeps a map of all associated transactions, keyed by unique transactionid. Correspondingly, each engine keeps a SubTransaction map for each associated SubTransaction. Transaction stages are as follows:
+Each stage of a transaction is handled asynchronously. Each Transaction Agent keeps a map of all associated transactions, keyed by transaction identifier. Each Transaction Agent maintains its own list of transactionids. Every unique
+transaction is identified by Transaction Agent instance and transactionid.
+Correspondingly, each engine keeps a SubTransaction map for each associated SubTransaction. Transaction stages are as follows:
 
 <itemizedlist>
   <listitem><para>
     read from client, SQL parse &amp; plan stage
   </para></listitem>
   <listitem><para>
-    corresponds with the 2PL expanding phase, where records are locked as a result of SQL plan. Proposed changes from INSERT, UPDATE and DELETE are staged to each record in a shadow table.
+    corresponds with the 2PL expanding phase, where records are locked as a result of SQL execution. Proposed changes from INSERT, UPDATE and DELETE are staged to each record in a shadow table.
   </para></listitem>
   <listitem><para>
     dispatch: this phase occurs after a commit has been issued by the client, and proposed changes to all involved records are sent to 1 or more replicas, to ensure redundancy
@@ -417,7 +442,8 @@ Each stage of a transaction is handled asynchronously. Each Transaction Agent ke
   </para></listitem>
 </itemizedlist>
 
-Two-phase locking is subject to deadlocks. The Deadlock Manager actor implements a wait-for graph to resolve deadlocks. This area is under development. So, for the time being, all locked records result in a rolled back transaction. This is only temporary, until lock management is properly implemented.
+Two-phase locking is subject to deadlocks. The Deadlock Manager actor implements a wait-for graph to resolve deadlocks. This area is under development. So, for the time being, all locked records result in a rolled back transaction, and
+a "lock not available" error reply to the client. This is only temporary, until lock management is properly implemented.
 </para>
 </sect1>
 
@@ -437,8 +463,8 @@ left off when replies arrive.
 of inter-actor remote procedure calls (RPC). Transaction Agents are clients,
 and Engines, Deadlock Manager and User Schema Manager are RPC servers.
 Messages from the Transaction Agent invoke a function on the "server."
-Function name and its parameters are passed as members of the Message.
-Function execution populates a return message. When received, the Transaction
+Function name and parameters are passed as members of the Message.
+Function execution populates the return message. When received, the Transaction
 Agent continues the function based on its state.
 </para>
 </sect1>
