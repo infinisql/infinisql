@@ -1,303 +1,363 @@
-diff --git a/contrib/pgbench/pgbench.c b/contrib/pgbench/pgbench.c
-index e177e16..9172f1e 100644
---- a/contrib/pgbench/pgbench.c
-+++ b/contrib/pgbench/pgbench.c
-@@ -125,6 +125,44 @@ int			fillfactor = 100;
- int			unlogged_tables = 0;
- 
- /*
-+ * do not close client if query error is encountered
-+ */
-+int			proceed_on_error = 0;
-+
-+/*
-+ * start second for per-second rate reporting
-+ */
-+uint64			persecondstart;
-+
-+/*
-+ * number of seconds to keep tally
-+ *
-+ */
-+#define PERSECOND_NUMSECONDS	604800
-+
-+/*
-+ * per-second report table
-+ * persecond[threadnum][second]
-+ */
-+int			**persecond;
-+
-+/*
-+ * size of transaction batches to report on per second
-+ *
-+ */
-+int			persecondbatchsize;
-+
-+/*
-+ * per thread per second completed transactions tally
-+ */
-+int			*persecondtally;
-+
-+/*
-+ * use /dev/urandom for random seed state
-+ */
-+int			use_urandom = 0;
-+
-+/*
-  * tablespace selection
-  */
- char	   *tablespace = NULL;
-@@ -150,6 +188,7 @@ char	   *pgoptions = NULL;
- char	   *pgtty = NULL;
- char	   *login = NULL;
- char	   *dbName;
-+char	   *password;
- 
- volatile bool timer_exceeded = false;	/* flag from signal handler */
- 
-@@ -361,6 +400,7 @@ usage(const char *progname)
- 		   "  -D VARNAME=VALUE\n"
- 		   "               define variable for use by custom script\n"
- 		   "  -f FILENAME  read transaction script from FILENAME\n"
-+		   "  -I           do not abort connection if query error is encountered\n"
- 		   "  -j NUM       number of threads (default: 1)\n"
- 		   "  -l           write transaction times to log file\n"
- 		   "  -M simple|extended|prepared\n"
-@@ -373,11 +413,21 @@ usage(const char *progname)
- 	 "  -t NUM       number of transactions each client runs (default: 10)\n"
- 		   "  -T NUM       duration of benchmark test in seconds\n"
- 		   "  -v           vacuum all four standard tables before tests\n"
-+		   "  --per-second=NUM\n"
-+		   "               report per second throughput rate per thread. NUM is the # of\n"
-+		   "               statements in each batch to be added to the per second tally.\n"
-+		   "               As NUM increases, the sampling rate to get the current\n"
-+		   "               time decreases.\n"
-+
-+		   "               Note that one tally is made per statement in a multi-statement\n"
-+		   "               transaction, including BEGIN and COMMIT.\n"
-+		   "  --urandom    use /dev/urandom for seeding random number generator\n"
- 		   "\nCommon options:\n"
- 		   "  -d             print debugging output\n"
- 		   "  -h HOSTNAME    database server host or socket directory\n"
- 		   "  -p PORT        database server port number\n"
- 		   "  -U USERNAME    connect as specified database user\n"
-+		   "  -P PASSWORD    send specified password\n"
- 		   "  -V, --version  output version information, then exit\n"
- 		   "  -?, --help     show this help, then exit\n"
- 		   "\n"
-@@ -421,7 +471,6 @@ static PGconn *
- doConnect(void)
- {
- 	PGconn	   *conn;
--	static char *password = NULL;
- 	bool		new_pass;
- 
- 	/*
-@@ -884,12 +933,33 @@ top:
- 			{
- 				case PGRES_COMMAND_OK:
- 				case PGRES_TUPLES_OK:
-+					if (persecondbatchsize)
-+					{
-+						if (!(++persecondtally[thread->tid] % persecondbatchsize))
-+						{
-+							instr_time now;
-+							uint64 nowsec;
-+							INSTR_TIME_SET_CURRENT(now);
-+							nowsec = INSTR_TIME_GET_MICROSEC(now) / 1000000;
-+							if (nowsec-persecondstart <= PERSECOND_NUMSECONDS-1)
-+							{
-+								persecond[thread->tid][nowsec-persecondstart] += persecondtally[thread->tid];
-+								persecondtally[thread->tid] = 0;
-+							}
-+						}
-+					}
- 					break;		/* OK */
- 				default:
--					fprintf(stderr, "Client %d aborted in state %d: %s",
--							st->id, st->state, PQerrorMessage(st->con));
--					PQclear(res);
--					return clientDone(st, false);
-+					if (!proceed_on_error)
-+					{
-+						fprintf(stderr, "Client %d aborted in state %d: %s", st->id, st->state, PQerrorMessage(st->con));
-+						PQclear(res);
-+						return clientDone(st, false);
-+					}
-+					else
-+					{
-+						fprintf(stderr, "Client %d proceeding after error in state %d: %s", st->id, st->state, PQerrorMessage(st->con));
-+					}
- 			}
- 			PQclear(res);
- 			discard_response(st);
-@@ -1841,6 +1911,38 @@ printResults(int ttype, int normal_xacts, int nclients,
- 			}
- 		}
- 	}
-+
-+	if (persecondbatchsize)
-+	{
-+		int lastsecond=-1;
-+		int n;
-+		int tnum;
-+		printf("\nsecond");
-+		for (tnum=0; tnum < nthreads; tnum++)
-+		{
-+			printf(",thread%i", tnum);
-+		}
-+		printf("\n");
-+		for (tnum=0; tnum < nthreads; tnum++)
-+		{
-+			for (n=0; n < PERSECOND_NUMSECONDS; n++)
-+			{
-+				if (lastsecond < n && persecond[tnum][n])
-+				{
-+					lastsecond = n;
-+				}
-+			}
-+		}
-+		for (n=0; n < lastsecond; n++)
-+		{
-+			printf("%lu", persecondstart+n);
-+			for (tnum=0; tnum < nthreads; tnum++)
-+			{
-+				printf(",%i", persecond[tnum][n]);
-+			}
-+			printf("\n");
-+		}
-+	}
- }
- 
- 
-@@ -1868,8 +1970,11 @@ main(int argc, char **argv)
- 	int			total_xacts;
- 
- 	int			i;
-+	FILE		*urandomfd;
- 
- 	static struct option long_options[] = {
-+		{"urandom", no_argument, &use_urandom, 1},
-+		{"per-second", required_argument, NULL, 4},
- 		{"index-tablespace", required_argument, NULL, 3},
- 		{"tablespace", required_argument, NULL, 2},
- 		{"unlogged-tables", no_argument, &unlogged_tables, 1},
-@@ -1919,7 +2024,7 @@ main(int argc, char **argv)
- 	state = (CState *) xmalloc(sizeof(CState));
- 	memset(state, 0, sizeof(CState));
- 
--	while ((c = getopt_long(argc, argv, "ih:nvp:dSNc:j:Crs:t:T:U:lf:D:F:M:", long_options, &optindex)) != -1)
-+	while ((c = getopt_long(argc, argv, "ih:nvp:dSNc:j:Crs:t:T:U:lf:D:F:M:P:Ix:f", long_options, &optindex)) != -1)
- 	{
- 		switch (c)
- 		{
-@@ -2071,6 +2176,12 @@ main(int argc, char **argv)
- 					exit(1);
- 				}
- 				break;
-+			case 'P':
-+				password = optarg;
-+				break;
-+			case 'I':
-+				proceed_on_error = 1;
-+				break;
- 			case 0:
- 				/* This covers long options which take no argument. */
- 				break;
-@@ -2080,6 +2191,9 @@ main(int argc, char **argv)
- 			case 3:				/* index-tablespace */
- 				index_tablespace = optarg;
- 				break;
-+			case 4:				/* per-second */
-+				persecondbatchsize = atoi(optarg);
-+				break;
- 			default:
- 				fprintf(stderr, _("Try \"%s --help\" for more information.\n"), progname);
- 				exit(1);
-@@ -2116,17 +2230,18 @@ main(int argc, char **argv)
- 	}
- 
- 	/*
--	 * is_latencies only works with multiple threads in thread-based
--	 * implementations, not fork-based ones, because it supposes that the
-+	 * is_latencies and per second reporting only work
-+	 * with multiple threads in thread-based
-+	 * implementations, not fork-based ones, because they suppose that the
- 	 * parent can see changes made to the per-thread execution stats by child
- 	 * threads.  It seems useful enough to accept despite this limitation, but
- 	 * perhaps we should FIXME someday (by passing the stats data back up
- 	 * through the parent-to-child pipes).
- 	 */
- #ifndef ENABLE_THREAD_SAFETY
--	if (is_latencies && nthreads > 1)
-+	if ((is_latencies && nthreads > 1) || (persecondbatchsize && nthreads >1))
- 	{
--		fprintf(stderr, "-r does not work with -j larger than 1 on this platform.\n");
-+		fprintf(stderr, "-r and --per-second do not work with -j larger than 1 on this platform.\n");
- 		exit(1);
- 	}
- #endif
-@@ -2271,9 +2386,26 @@ main(int argc, char **argv)
- 		thread->tid = i;
- 		thread->state = &state[nclients / nthreads * i];
- 		thread->nstate = nclients / nthreads;
--		thread->random_state[0] = random();
--		thread->random_state[1] = random();
--		thread->random_state[2] = random();
-+		if (use_urandom==0)
-+		{
-+			thread->random_state[0] = random();
-+			thread->random_state[1] = random();
-+			thread->random_state[2] = random();
-+		}
-+		else
-+		{
-+			urandomfd = fopen("/dev/urandom", "r");
-+			if (urandomfd == NULL)
-+			{
-+				fprintf(stderr, "could not open /dev/urandom: %s\n", strerror(errno));
-+				exit(1);
-+			}
-+			if (fread(thread->random_state, sizeof(unsigned short), 3, urandomfd)==-1)
-+			{
-+				fprintf(stderr, "couldn't read from /dev/urandom: %s\n", strerror(errno));
-+				exit(1);
-+			}
-+		}
- 
- 		if (is_latencies)
- 		{
-@@ -2305,6 +2437,33 @@ main(int argc, char **argv)
- 	if (duration > 0)
- 		setalarm(duration);
- 
-+	if (persecondbatchsize)
-+	{
-+		int n;
-+		persecond = malloc(nthreads * sizeof(int *));
-+		if (!persecond)
-+		{
-+			fprintf(stderr, "out of memory for persecond report\n");
-+			exit(1);
-+		}
-+		for (n=0; n < nthreads; n++)
-+		{
-+			persecond[n] = (int *)calloc(PERSECOND_NUMSECONDS, sizeof(int));
-+			if (!persecond[n])
-+			{
-+				fprintf(stderr, "out of memory for persecond report\n");
-+				exit(1);
-+			}
-+		}
-+		persecondtally = calloc(nthreads, sizeof(int));
-+		if (!persecondtally)
-+		{
-+			fprintf(stderr, "out of memory for persecondtally\n");
-+			exit(1);
-+		}
-+                persecondstart = INSTR_TIME_GET_MICROSEC(start_time) / 1000000;
-+	}
-+
- 	/* start threads */
- 	for (i = 0; i < nthreads; i++)
- 	{
+diff -rcpN original/contrib/pgbench/pgbench.c new/contrib/pgbench/pgbench.c
+*** original/contrib/pgbench/pgbench.c	2013-04-01 11:20:36.000000000 -0700
+--- new/contrib/pgbench/pgbench.c	2013-11-12 21:03:45.349693960 -0800
+*************** int			fillfactor = 100;
+*** 125,130 ****
+--- 125,168 ----
+  int			unlogged_tables = 0;
+  
+  /*
++  * do not close client if query error is encountered
++  */
++ int			proceed_on_error = 0;
++ 
++ /*
++  * start second for per-second rate reporting
++  */
++ uint64			persecondstart;
++ 
++ /*
++  * number of seconds to keep tally
++  *
++  */
++ #define PERSECOND_NUMSECONDS	604800
++ 
++ /*
++  * per-second report table
++  * persecond[threadnum][second]
++  */
++ int			**persecond;
++ 
++ /*
++  * size of transaction batches to report on per second
++  *
++  */
++ int			persecondbatchsize;
++ 
++ /*
++  * per thread per second completed transactions tally
++  */
++ int			*persecondtally;
++ 
++ /*
++  * use /dev/urandom for random seed state
++  */
++ int			use_urandom = 0;
++ 
++ /*
+   * tablespace selection
+   */
+  char	   *tablespace = NULL;
+*************** char	   *pgoptions = NULL;
+*** 150,155 ****
+--- 188,194 ----
+  char	   *pgtty = NULL;
+  char	   *login = NULL;
+  char	   *dbName;
++ char	   *password;
+  
+  volatile bool timer_exceeded = false;	/* flag from signal handler */
+  
+*************** usage(const char *progname)
+*** 361,366 ****
+--- 400,406 ----
+  		   "  -D VARNAME=VALUE\n"
+  		   "               define variable for use by custom script\n"
+  		   "  -f FILENAME  read transaction script from FILENAME\n"
++ 		   "  -I           do not abort connection if query error is encountered\n"
+  		   "  -j NUM       number of threads (default: 1)\n"
+  		   "  -l           write transaction times to log file\n"
+  		   "  -M simple|extended|prepared\n"
+*************** usage(const char *progname)
+*** 373,383 ****
+--- 413,433 ----
+  	 "  -t NUM       number of transactions each client runs (default: 10)\n"
+  		   "  -T NUM       duration of benchmark test in seconds\n"
+  		   "  -v           vacuum all four standard tables before tests\n"
++ 		   "  --per-second=NUM\n"
++ 		   "               report per second throughput rate per thread. NUM is the # of\n"
++ 		   "               statements in each batch to be added to the per second tally.\n"
++ 		   "               As NUM increases, the sampling rate to get the current\n"
++ 		   "               time decreases.\n"
++ 
++ 		   "               Note that one tally is made per statement in a multi-statement\n"
++ 		   "               transaction, including BEGIN and COMMIT.\n"
++ 		   "  --urandom    use /dev/urandom for seeding random number generator\n"
+  		   "\nCommon options:\n"
+  		   "  -d             print debugging output\n"
+  		   "  -h HOSTNAME    database server host or socket directory\n"
+  		   "  -p PORT        database server port number\n"
+  		   "  -U USERNAME    connect as specified database user\n"
++ 		   "  -P PASSWORD    send specified password\n"
+  		   "  -V, --version  output version information, then exit\n"
+  		   "  -?, --help     show this help, then exit\n"
+  		   "\n"
+*************** static PGconn *
+*** 421,427 ****
+  doConnect(void)
+  {
+  	PGconn	   *conn;
+- 	static char *password = NULL;
+  	bool		new_pass;
+  
+  	/*
+--- 471,476 ----
+*************** top:
+*** 884,895 ****
+  			{
+  				case PGRES_COMMAND_OK:
+  				case PGRES_TUPLES_OK:
+  					break;		/* OK */
+  				default:
+! 					fprintf(stderr, "Client %d aborted in state %d: %s",
+! 							st->id, st->state, PQerrorMessage(st->con));
+! 					PQclear(res);
+! 					return clientDone(st, false);
+  			}
+  			PQclear(res);
+  			discard_response(st);
+--- 933,965 ----
+  			{
+  				case PGRES_COMMAND_OK:
+  				case PGRES_TUPLES_OK:
++ 					if (persecondbatchsize)
++ 					{
++ 						if (!(++persecondtally[thread->tid] % persecondbatchsize))
++ 						{
++ 							instr_time now;
++ 							uint64 nowsec;
++ 							INSTR_TIME_SET_CURRENT(now);
++ 							nowsec = INSTR_TIME_GET_MICROSEC(now) / 1000000;
++ 							if (nowsec-persecondstart <= PERSECOND_NUMSECONDS-1)
++ 							{
++ 								persecond[thread->tid][nowsec-persecondstart] += persecondtally[thread->tid];
++ 								persecondtally[thread->tid] = 0;
++ 							}
++ 						}
++ 					}
+  					break;		/* OK */
+  				default:
+! 					if (!proceed_on_error)
+! 					{
+! 						fprintf(stderr, "Client %d aborted in state %d: %s", st->id, st->state, PQerrorMessage(st->con));
+! 						PQclear(res);
+! 						return clientDone(st, false);
+! 					}
+! 					else
+! 					{
+! 						fprintf(stderr, "Client %d proceeding after error in state %d: %s", st->id, st->state, PQerrorMessage(st->con));
+! 					}
+  			}
+  			PQclear(res);
+  			discard_response(st);
+*************** printResults(int ttype, int normal_xacts
+*** 1841,1846 ****
+--- 1911,1948 ----
+  			}
+  		}
+  	}
++ 
++ 	if (persecondbatchsize)
++ 	{
++ 		int lastsecond=-1;
++ 		int n;
++ 		int tnum;
++ 		printf("\nsecond");
++ 		for (tnum=0; tnum < nthreads; tnum++)
++ 		{
++ 			printf(",thread%i", tnum);
++ 		}
++ 		printf("\n");
++ 		for (tnum=0; tnum < nthreads; tnum++)
++ 		{
++ 			for (n=0; n < PERSECOND_NUMSECONDS; n++)
++ 			{
++ 				if (lastsecond < n && persecond[tnum][n])
++ 				{
++ 					lastsecond = n;
++ 				}
++ 			}
++ 		}
++ 		for (n=0; n < lastsecond; n++)
++ 		{
++ 			printf("%lu", persecondstart+n);
++ 			for (tnum=0; tnum < nthreads; tnum++)
++ 			{
++ 				printf(",%i", persecond[tnum][n]);
++ 			}
++ 			printf("\n");
++ 		}
++ 	}
+  }
+  
+  
+*************** main(int argc, char **argv)
+*** 1868,1875 ****
+--- 1970,1980 ----
+  	int			total_xacts;
+  
+  	int			i;
++ 	FILE		*urandomfd;
+  
+  	static struct option long_options[] = {
++ 		{"urandom", no_argument, &use_urandom, 1},
++ 		{"per-second", required_argument, NULL, 4},
+  		{"index-tablespace", required_argument, NULL, 3},
+  		{"tablespace", required_argument, NULL, 2},
+  		{"unlogged-tables", no_argument, &unlogged_tables, 1},
+*************** main(int argc, char **argv)
+*** 1919,1925 ****
+  	state = (CState *) xmalloc(sizeof(CState));
+  	memset(state, 0, sizeof(CState));
+  
+! 	while ((c = getopt_long(argc, argv, "ih:nvp:dSNc:j:Crs:t:T:U:lf:D:F:M:", long_options, &optindex)) != -1)
+  	{
+  		switch (c)
+  		{
+--- 2024,2030 ----
+  	state = (CState *) xmalloc(sizeof(CState));
+  	memset(state, 0, sizeof(CState));
+  
+! 	while ((c = getopt_long(argc, argv, "ih:nvp:dSNc:j:Crs:t:T:U:lf:D:F:M:P:Ix:f", long_options, &optindex)) != -1)
+  	{
+  		switch (c)
+  		{
+*************** main(int argc, char **argv)
+*** 2071,2076 ****
+--- 2176,2187 ----
+  					exit(1);
+  				}
+  				break;
++ 			case 'P':
++ 				password = optarg;
++ 				break;
++ 			case 'I':
++ 				proceed_on_error = 1;
++ 				break;
+  			case 0:
+  				/* This covers long options which take no argument. */
+  				break;
+*************** main(int argc, char **argv)
+*** 2080,2085 ****
+--- 2191,2199 ----
+  			case 3:				/* index-tablespace */
+  				index_tablespace = optarg;
+  				break;
++ 			case 4:				/* per-second */
++ 				persecondbatchsize = atoi(optarg);
++ 				break;
+  			default:
+  				fprintf(stderr, _("Try \"%s --help\" for more information.\n"), progname);
+  				exit(1);
+*************** main(int argc, char **argv)
+*** 2116,2132 ****
+  	}
+  
+  	/*
+! 	 * is_latencies only works with multiple threads in thread-based
+! 	 * implementations, not fork-based ones, because it supposes that the
+  	 * parent can see changes made to the per-thread execution stats by child
+  	 * threads.  It seems useful enough to accept despite this limitation, but
+  	 * perhaps we should FIXME someday (by passing the stats data back up
+  	 * through the parent-to-child pipes).
+  	 */
+  #ifndef ENABLE_THREAD_SAFETY
+! 	if (is_latencies && nthreads > 1)
+  	{
+! 		fprintf(stderr, "-r does not work with -j larger than 1 on this platform.\n");
+  		exit(1);
+  	}
+  #endif
+--- 2230,2247 ----
+  	}
+  
+  	/*
+! 	 * is_latencies and per second reporting only work
+! 	 * with multiple threads in thread-based
+! 	 * implementations, not fork-based ones, because they suppose that the
+  	 * parent can see changes made to the per-thread execution stats by child
+  	 * threads.  It seems useful enough to accept despite this limitation, but
+  	 * perhaps we should FIXME someday (by passing the stats data back up
+  	 * through the parent-to-child pipes).
+  	 */
+  #ifndef ENABLE_THREAD_SAFETY
+! 	if ((is_latencies && nthreads > 1) || (persecondbatchsize && nthreads >1))
+  	{
+! 		fprintf(stderr, "-r and --per-second do not work with -j larger than 1 on this platform.\n");
+  		exit(1);
+  	}
+  #endif
+*************** main(int argc, char **argv)
+*** 2271,2279 ****
+  		thread->tid = i;
+  		thread->state = &state[nclients / nthreads * i];
+  		thread->nstate = nclients / nthreads;
+! 		thread->random_state[0] = random();
+! 		thread->random_state[1] = random();
+! 		thread->random_state[2] = random();
+  
+  		if (is_latencies)
+  		{
+--- 2386,2411 ----
+  		thread->tid = i;
+  		thread->state = &state[nclients / nthreads * i];
+  		thread->nstate = nclients / nthreads;
+! 		if (use_urandom==0)
+! 		{
+! 			thread->random_state[0] = random();
+! 			thread->random_state[1] = random();
+! 			thread->random_state[2] = random();
+! 		}
+! 		else
+! 		{
+! 			urandomfd = fopen("/dev/urandom", "r");
+! 			if (urandomfd == NULL)
+! 			{
+! 				fprintf(stderr, "could not open /dev/urandom: %s\n", strerror(errno));
+! 				exit(1);
+! 			}
+! 			if (fread(thread->random_state, sizeof(unsigned short), 3, urandomfd)==-1)
+! 			{
+! 				fprintf(stderr, "couldn't read from /dev/urandom: %s\n", strerror(errno));
+! 				exit(1);
+! 			}
+! 		}
+  
+  		if (is_latencies)
+  		{
+*************** main(int argc, char **argv)
+*** 2305,2310 ****
+--- 2437,2469 ----
+  	if (duration > 0)
+  		setalarm(duration);
+  
++ 	if (persecondbatchsize)
++ 	{
++ 		int n;
++ 		persecond = malloc(nthreads * sizeof(int *));
++ 		if (!persecond)
++ 		{
++ 			fprintf(stderr, "out of memory for persecond report\n");
++ 			exit(1);
++ 		}
++ 		for (n=0; n < nthreads; n++)
++ 		{
++ 			persecond[n] = (int *)calloc(PERSECOND_NUMSECONDS, sizeof(int));
++ 			if (!persecond[n])
++ 			{
++ 				fprintf(stderr, "out of memory for persecond report\n");
++ 				exit(1);
++ 			}
++ 		}
++ 		persecondtally = calloc(nthreads, sizeof(int));
++ 		if (!persecondtally)
++ 		{
++ 			fprintf(stderr, "out of memory for persecondtally\n");
++ 			exit(1);
++ 		}
++                 persecondstart = INSTR_TIME_GET_MICROSEC(start_time) / 1000000;
++ 	}
++ 
+  	/* start threads */
+  	for (i = 0; i < nthreads; i++)
+  	{
