@@ -1237,7 +1237,7 @@ The basic steps necessary to prepare for SQL data manipulation are as follows:
   </listitem>
   <listitem>
     <para>
-      <function>&amp;send("compile", &lt;UPDATE accounttable SET balance += 1000000 where username='mtravis'&gt;)</function>
+      <function>&amp;send("compile", &lt;UPDATE accounttable SET balance += 1000000 where username='mystore'&gt;)</function>
     </para>
   </listitem>
   <listitem>
