@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<article xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
+xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+
+<title><trademark>InfiniSQL</trademark> Frequently Asked Questions</title>
+<info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
+<productname>InfiniSQL</productname><productnumber>0.1.2-alpha</productnumber></info>
+
+<qandaset defaultlabel="qanda">
+
+  <qandaentry>
+<question>
+<para>
+Is InfiniSQL based upon or derived from another similar product?
+  </para>
+</question>
+<answer>
+<para>
+No. InfiniSQL is written from scratch, primarily in C++, with some
+Python. Over 30,000 lines of code. There are a few symbol
+definitions imported from the PostgreSQL project which are necessary to
+use the PostgreSQL Frontend/Backend Protocol. This allows any PostgreSQL
+client to communicate with InfiniSQL. InfiniSQL is a completely independent,
+"greenfield" RDBMS system.
+</para>
+</answer>
+  </qandaentry>
+<qandaentry>
+  <question>
+    <para>
+How does InfiniSQL compare to Hadoop? Why not just put an SQL
+interface on top of Hadoop to get a scalable RDBMS?
+    </para>
+  </question>
+<answer>
+  <para>
+    InfiniSQL and Hadoop excel in different capacities. Hadoop is geared
+for analysis of data occurring after the events occur.
+ InfiniSQL, on the other hand, provides
+very high throughput for queries happening in real time, as events occur.
+In a way, InfiniSQL and Hadoop can complement one another, just as
+legacy environments split duties between online transaction processing (OLTP)
+and data warehousing. InfiniSQL is not designed for the same types of analytics queries at which Hadoop excels.
+And Hadoop-based systems do not support the transaction
+processing throughput of InfiniSQL. The reason to put a SQL interface on
+top of Hadoop is mainly to standardize the way to query the data. It does
+not turn Hadoop into an extreme scale transaction processing system. InfiniSQL
+is for extreme scale transaction processing and real time data collection.
+  </para>
+<para>
+  Internally, InfiniSQL and Hadoop may have some similarities.
+InfiniSQL uses a form of map and reduce. It coordinates activities
+across multiple nodes to manipulate data for each transaction.
+If InfiniSQL had columnar storage (in addition to its existing row-based), then
+it might behave analogously to Hadoop. The design goals for each platform
+are very similar--to provide massive scalability for database activities
+spread across commodity compute and storage resources.
+</para>
+</answer>
+</qandaentry>
+<qandaentry>
+  <question>
+    <para>
+      Is InfiniSQL Open Source?
+    </para>
+  </question>
+<answer>
+  <para>
+    Yes! Get it here: <link xl:href="https://github.com/infinisql/infinisql">https://github.com/infinisql/infinisql</link>. InfiniSQL is primarily released
+under the <link xl:href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL</link>, with the main exception being the API and library for
+creating stored procedures, which are under the <link xl:href="http://www.gnu.org/licenses/lgpl.html">LGPL</link>. All code is
+owned by Mark Travis. An alternative commercial license is available for
+customers who do not wish to comply with the open source license terms.
+Send inquiries to <email>info@infinisql.org</email>.
+  </para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question>
+  <para>
+    How far can InfiniSQL scale?
+  </para>
+</question>
+<answer>
+  <para>
+    This is unknown. InfiniSQL has been <link xl:href="/blog/2013/1112/benchmarking-infinisql">benchmarked</link> to run on 12 x
+4-core x64_64-based servers. But the limit on servers was budgetary, and
+not because of a limitation in InfiniSQL. InfiniSQL is an open source
+project which is not part of some institution, so all costs, such
+as those for benchmarking hardware, are borne out of pocket. But
+based on InfiniSQL's actor-based architecture, and the promising benchmark
+performance, InfiniSQL should scale to a very large number of nodes.
+On the 12 node benchmark, over 500,000 multi-node transactions were performed
+per second by over 100,000 simultaneous client connections. The InfiniSQL team will gladly assist anybody who wishes in earnest to perform
+benchmarks of their own. Tools that are used to benchmark InfiniSQL are
+included with the source code, and a <link xl:href="/docs/guide/">guide</link> to benchmarking using those tools is available.
+  </para>
+</answer>  
+</qandaentry>
+<qandaentry>
+  <question>
+    <para>
+      Why not work on enhancing another open source RDBMS to make it scalable? Isn't InfiniSQL a duplication of effort?
+    </para>
+  </question>
+<answer>
+  <para>
+    Scalability limitations of existing open source databases, such as
+PostgreSQL and MySQL, are a function of their design, which in turn is
+pretty common to nearly all RDBMS platforms going back decades. This design
+assumes a single server host which tightly couples processing logic, cache
+and storage. There are some enhanced legacy RDBMS products which are able
+to horizontally scale some types of workloads. But those are extensive
+modifications of the base product. InfiniSQL's internals are quite
+radically different than PostgreSQL and MySQL. At inception, it made more sense to
+start with a fresh project rather than to re-shape an existing one.
+  </para>
+</answer>
+</qandaentry>
+<qandaentry>
+  <question>
+    <para>
+      What are "complex, multi-node transactions" and why do they matter?
+    </para>
+  </question>
+<answer>
+  <para>
+    InfiniSQL excels at performing this type of transaction. They comprise
+transactions that have records on at least 2 hosts. A simple example is
+a transfer between a buyer and a seller in an application where any
+buyer can purchase from any seller. For any transaction of this type, 
+those two account records would very likely be spread on different hosts because there is no way to force all possible buyer-seller pairs to be on the same
+host (unless you have just one big server, just like a legacy RDBMS). This
+type of workload generates a lot of traffic for every single transaction.
+InfiniSQL provides head and shoulders better performance for this type of
+workload than any other distributed database product, whether of the NewSQL
+variety, or a clustered legacy RDBMS.
+  </para>
+<para>
+Without InfiniSQL, workloads like this which need to scale beyond a single
+server host, need to be redesigned to support the limitations of the
+distributed solution. It's mainly why mainframes and big UNIX servers still exist--the applications on which they run just can't perform well on existing distributed platforms--but InfiniSQL breaks that mold.
+</para>
+<para>
+  InfiniSQL is a great solution even for workloads which don't rely heavily
+ on this type of transaction. Think of it this way: since InfiniSQL performs
+complex transactions at a very high rate, it also can perform simpler
+operations at a high rate. InfiniSQL is designed to perform
+all types of operational workloads within a single cluster.
+</para>
+</answer>
+</qandaentry>
+<qandaentry>
+  <question>
+    <para>
+Is InfiniSQL only fast because it's in memory?      
+    </para>
+  </question>
+<answer>
+  <para>
+    Being in memory helps performance a lot. But that's not the reason for
+such scalability across multiple nodes, or handling of so many concurrent
+connections. There's a section of the
+<link xl:href="/docs/overview/">Overview</link> describing future directions
+for data storage. InfiniSQL scales and supports massive concurrency because
+of it's actor-based core. As additional storage types and interfaces are added,
+InfiniSQL will still scale massively--but if the additional components, such
+as storage, are slower, InfiniSQL will also necessarily slow down in some
+respects.
+  </para>
+</answer>
+</qandaentry>
+<qandaentry>
+  <question>
+    <para>
+    When will InfiniSQL be production ready?  
+    </para>
+  </question>
+<answer>
+  <para>
+    This is unknown. InfiniSQL needs developers, early adopters,
+and funding, to come to fruition.
+  </para>
+</answer>
+</qandaentry>
+
+</qandaset>
+
+</article>

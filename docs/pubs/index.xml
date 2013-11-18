@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<article xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
+xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+
+
+<title><trademark>InfiniSQL</trademark> Documentation</title>
+<info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
+<productname>InfiniSQL</productname><productnumber>0.1.2-alpha</productnumber></info>
+
+<itemizedlist>
+  <listitem><para><link xl:href="/docs/overview/">Overview</link>: Goals, Features, &amp; Internals</para></listitem>
+  <listitem><para><link xl:href="/docs/guide/">Guide</link>: Getting Started and Benchmarking</para></listitem>
+  <listitem><para><link xl:href="/docs/reference/">Reference</link>: Configuration, Usage, Command, File and Source</para></listitem>
+  <listitem><para><link xl:href="/docs/faq/">Frequently Asked Questions</link></para></listitem>
+</itemizedlist>
+
+</article>

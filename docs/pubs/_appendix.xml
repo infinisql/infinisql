@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<article xmlns="http://docbook.org/ns/docbook"
+xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<title>Learn More and Get Involved</title>
+<para>
+  
+</para>
+<appendix>
+  <title>Contacts</title>
+<para>
+  InfiniSQL's Home On The World Wide Web: <link xl:href="http://www.infinisql.org">http://www.infinisql.org</link>
+</para>
+<para>Download: <link xl:href="https://github.com/infinisql/infinisql.git">https://github.com/infinisql/infinisql.git</link></para>
+<para>Documentation: <link xl:href="http://docs.infinisql.org">http://docs.infinisql.org</link></para>
+<para>Blog: <link xl:href="http://blog.infinisql.org">http://blog.infinisql.org</link></para>
+<para>Discussion Group: <link xl:href="https://groups.google.com/forum/#!forum/infinisql">https://groups.google.com/forum/#!forum/infinisql</link></para>
+<para>Twitter: <link xl:href="https://twitter.com/infinisql">https://twitter.com/infinisql</link></para>
+<para>Chat: irc.freenode.net #infinisql</para>
+<para>Email: <email>info@infinisql.org</email></para>
+</appendix>
+
+<appendix>
+  <title>
+    Attributions
+  </title>
+<para>
+Copyright 2013 by Mark Travis. All rights reserved.
+<trademark>InfiniSQL</trademark> source code Copyright 2013 by Mark Travis,
+except where otherwise noted.
+</para>
+</appendix>
+
+</article>
