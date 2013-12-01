@@ -25,641 +25,510 @@
 
 #include "infinisql_TransactionAgent.h"
 #include "infinisql_Pg.h"
+#include "infinisql_defs.h"
+#include "infinisql_log.h"
 #line 29 "TransactionAgent.cc"
 
-TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
+TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :		// JLH: constructor that takes 1 argument; assign values via init list
   myIdentity(*myIdentityArg), nexttransactionid(0), nextapplierid(0),
   myreplica(-1), mymember(-1)
 {
-  delete myIdentityArg;
+  delete myIdentityArg;				// JLH: prevent memory leak
+  myIdentityArg = NULL;				// JLH: http://en.wikipedia.org/wiki/Delete_(C%2B%2B)
   epollfd = myIdentity.epollfd;
   instance = myIdentity.instance;
   mboxes.nodeid = myIdentity.address.nodeid;
 
-#ifdef PROFILE
-  rid = 0; // profiling
-  profilecount = 0; //profiling
-  profiles = new PROFILERCOMPREHENSIVE[PROFILEENTRIES];
-#endif
   builtincmds_e cmd = NOCMD;
   spclasscreate spC;
   spclassdestroy spD;
-  uint32_t events = 0;
+  uint32_t events = NO_EVENTS;
 
-  //  memset(&msgsnd, 0, sizeof(Mbox::msgstruct));
-
-  typedef boost::unordered_map<std::string,
-          void (TransactionAgent::*)(builtincmds_e)> builtinsMap;
-  builtinsMap builtins;
-  builtins["ping"] = &TransactionAgent::ping;
-  builtins["login"] = &TransactionAgent::login;
-  builtins["logout"] = &TransactionAgent::logout;
-  builtins["changepassword"] = &TransactionAgent::changepassword;
-  builtins["createdomain"] = &TransactionAgent::createdomain;
-  builtins["createuser"] = &TransactionAgent::createuser;
-  builtins["deleteuser"] = &TransactionAgent::deleteuser;
-  builtins["deletedomain"] = &TransactionAgent::deletedomain;
-  builtins["createschema"] = &TransactionAgent::createschema;
-  builtins["createtable"] = &TransactionAgent::createtable;
-  builtins["addcolumn"] = &TransactionAgent::addcolumn;
-  builtins["deleteindex"] = &TransactionAgent::deleteindex;
-  builtins["deletetable"] = &TransactionAgent::deletetable;
-  builtins["deleteschema"] = &TransactionAgent::deleteschema;
-  builtins["loadprocedure"] = &TransactionAgent::loadprocedure;
-  builtins["compile"] = &TransactionAgent::compile;
-
-  operationid=0;
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Calling tryMapBuiltinCmdsToMethods(): trying to map builtin commands to methods.");
+#endif
+  tryMapBuiltinCmdsToMethods();
+  operationid=0;				// JLH: how is operationid used?
   class Mbox &mymbox = *myIdentity.mbox;
-  int waitfor = 100;
+  int waitTime = ONE_HUNDRED_MICROSECONDS;	// JLH: timeout in microseconds (*NOT MILLISECONDS*)
 
-  while (1)
+  while (true)					// JLH: main event loop
   {
     // clear data from msgrcv
-    domainid=-1;
-    userid=-1;
-    argsize=-1;
-    sockfd=-1;
+    domainid=INVALID;
+    userid=INVALID;
+    argsize=INVALID;
+    sockfd=INVALID;
 
-    for (size_t inmsg=0; inmsg < 50; inmsg++)
+    msgrcv = mymbox.receive(waitTime);
+
+    if (msgrcv==NULL)
     {
-      msgrcv = mymbox.receive(waitfor);
+      waitTime = ONE_HUNDRED_MICROSECONDS;
+      //break;
+      continue;
+    }
 
-      if (msgrcv==NULL)
+    waitTime = ZERO_MICROSECONDS;
+
+    if (msgrcv->payloadtype==PAYLOADUSERSCHEMA)
+    {
+      MessageUserSchema &msgref = *((MessageUserSchema *)msgrcv);	// JLH: removed 'class' keyword
+
+      if (msgrcv->topic != TOPIC_SCHEMAREQUEST)			// JLH: set up sockfd, userid & domainid if applicable
       {
-        waitfor = 100;
-        break;
-      }
+        // don't want to validate somebody else's operationid or override
+        pendingOperationsIterator = pendingOperations.find(msgref.operationid);
 
-      waitfor = 0;
-
-      if (msgrcv->payloadtype==PAYLOADUSERSCHEMA)
-      {
-        class MessageUserSchema &msgref =
-              *((class MessageUserSchema *)msgrcv);
-
-        if (msgrcv->topic != TOPIC_SCHEMAREQUEST)
-      {
-          // don't want to validate somebody else's operationid or override
-          pendingOperationsIterator =
-            pendingOperations.find(msgref.operationid);
-
-          if (pendingOperationsIterator == pendingOperations.end())
-          {
-            ;
-            //                    continue;
-          }
-          else
-          {
-            sockfd = pendingOperations[msgref.operationid]->sockfd;
-            userid = pendingOperations[msgref.operationid]->userid;
-            domainid = pendingOperations[msgref.operationid]->domainid;
-          }
-        }
-
-        operationid = msgref.operationid;
-      }
-
-      switch (msgrcv->topic)
-      {
-        case TOPIC_SOCKET:
+        if (pendingOperationsIterator != pendingOperations.end())
         {
-#ifdef PROFILE
-          gettimeofday(&inboundProfile[0].tv, NULL);
-          inboundProfile[0].tag = 0;
-#endif
+          sockfd = pendingOperations[msgref.operationid]->sockfd;
+          userid = pendingOperations[msgref.operationid]->userid;
+          domainid = pendingOperations[msgref.operationid]->domainid;
+        }
+      }
 
-          switch (((class MessageSocket *)msgrcv)->listenertype)
+      operationid = msgref.operationid;
+    }
+
+    switch (msgrcv->topic)
+    {
+      case TOPIC_SOCKET:
+      {
+        switch (((MessageSocket *)msgrcv)->listenertype)	// JLH: removed 'class' keyword
+        {
+          // LISTENER_RAW is the interface that things like login, createtable & other builtins use.
+          case LISTENER_RAW:					// JLH: interface that login, createtable & other builtins use
           {
-            case LISTENER_RAW:
-            {
-              sockfd = ((class MessageSocket *)msgrcv)->socket;
-              events = ((class MessageSocket *)msgrcv)->events;
+            sockfd = ((MessageSocket *)msgrcv)->socket;		// JLH: removed 'class' keyword
+            events = ((MessageSocket *)msgrcv)->events;		// JLH: removed 'class' keyword
 
-              //              if ((events & EPOLLRDHUP) || (events & EPOLLERR) ||
-              //                  (events & EPOLLHUP))
-              if ((events & EPOLLERR) || (events & EPOLLHUP))
+            if ((events & EPOLLERR) || (events & EPOLLHUP))
+            {
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Calling endConnection(): Attempting to close connection.");
+#endif
+              endConnection();
+              break;
+            }
+
+            if (events & EPOLLIN)
+            {
+              operation = (string *)new string;
+#ifndef NDEBUG
+  //fprintf(logfile, "DEBUG:\t%s %i Calling readSocket(): Attempting to read data from socket.\n", __FILE__, __LINE__);
+  logDebugMessage(__FILE__, __LINE__, "Calling readSocket(): Attempting to read data from socket.");
+#endif
+              argsize = readSocket();		// JLH: added DEBUG info to readSocket()
+
+              if (argsize < 0)
               {
-                endConnection();
+                delete operation;		// JLH: destructor call
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Calling endConnection(): Attempting to close connection.");
+#endif
+                endConnection();		// JLH: add DEBUG call here and to endConnection()
                 break;
               }
 
-              if (events & EPOLLIN)
-              {
-                operation = (string *)new string;
-                argsize = readSocket();
+              // ok, if no user logged in, then can only login, else
+              // break connection exit
+              // if user logged in, then cannot login but everything else
+              // login shouldn't be in binFunctions map therefore
+              socketAuthInfo::iterator loggedInUsersIterator;		// JLH: where does socketAuthInfo come from?
+              loggedInUsersIterator = loggedInUsers.find(sockfd);
 
-                if (argsize < 0)
+              if (loggedInUsersIterator == loggedInUsers.end())
+              {
+                // this means not logged in
+                if (operation->compare("login")==NO_DIFFERENCES)
                 {
-                  delete operation;
-                  endConnection();
+                  // so, login
+                  login(STARTCMD);	
+                }
+                else if (operation->compare("ping")==NO_DIFFERENCES && __sync_add_and_fetch(&cfgs.anonymousping, 0))
+                {
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Calling ping(STARTCMD): Ping request received.");
+#endif
+                  ping(STARTCMD);					// JLH: add DEBUG info here & to ping()
+                }
+                  else     // JLH: command is not login or ping and no other command is valid, so close connection
+                {
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Calling endConnection(): Attempting to close connection.");
+#endif
+                  endConnection();					// JLH: add DEBUG info here & to endConnection()
                   break;
                 }
-
-                // ok, if no user logged in, then can only login, else
-                // break connection exit
-                // if user logged in, then cannot login but everything else
-                // login shouldn't be in binFunctions map therefore
-                socketAuthInfo::iterator loggedInUsersIterator;
-                loggedInUsersIterator = loggedInUsers.find(sockfd);
-
-                if (loggedInUsersIterator == loggedInUsers.end())
+              }
+                else	// JLH: user is logged in
+              {
+                // get my domainid & userid
+                domainid = loggedInUsersIterator->second.domainid;	// JLH: how are domainid, userid & domainName used?
+                userid = loggedInUsersIterator->second.userid;	// JLH: a schemata is comprised of tables & indices (a schema)
+                domainName = loggedInUsersIterator->second.domainName;// JLH: each domain has a single schema associated
+									// JLH: Thus, each stored proc is associated with a single domain
+                // first, check domain operations, when those are built
+                if (domainidsToProcedures.count(domainid))		// JLH: domainidsToProcedures is an unordered_map
                 {
-                  // this means not logged in
-                  if (operation->compare("login")==0)
+                  if (domainidsToProcedures[domainid].count(*operation))
                   {
-                    // so, login
-                    login(STARTCMD);
-                  }
-                  else if (operation->compare("ping")==0 &&
-                           __sync_add_and_fetch(&cfgs.anonymousping, 0))
-                  {
-                    ping(STARTCMD);
-                  }
-                  else     // gtfo
-                  {
-                    endConnection();
+                    spC = (spclasscreate)domainidsToProcedures[domainid]
+                          [*operation].procedurecreator;
+                    spD = (spclassdestroy)domainidsToProcedures
+                          [domainid][*operation].proceduredestroyer;
+                    spC(this, NULL, (void *)spD);			// JLH: revisit this
+                    continue;
                     break;
                   }
                 }
+
+                builtinsMap::iterator builtinsIterator;
+                //builtinsIterator = builtins.find(*operation);		// JLH: commented this out to try wrapping
+                builtinsIterator = tryFindOperations(*operation);	// JLH: figure this out later; needs a wrap
+
+                if (builtinsIterator != builtins.end())
+                {
+                  (this->*(builtinsIterator->second))(STARTCMD);
+                }
                 else
                 {
-                  // get my domainid & userid
-                  domainid = loggedInUsersIterator->second.domainid;
-                  userid = loggedInUsersIterator->second.userid;
-                  domainName = loggedInUsersIterator->second.domainName;
-
-                  // first, check domain operations, when those are built
-                  if (domainidsToProcedures.count(domainid))
-                  {
-                    if (domainidsToProcedures[domainid].count(*operation))
-                    {
-                      spC = (spclasscreate)domainidsToProcedures[domainid]
-                            [*operation].procedurecreator;
-                      spD = (spclassdestroy)domainidsToProcedures
-                            [domainid][*operation].proceduredestroyer;
-#ifdef PROFILE
-                      gettimeofday(&inboundProfile[1].tv, NULL);
-                      inboundProfile[1].tag = 1;
-#endif
-                      spC(this, NULL, (void *)spD);
-#ifdef PROFILE
-                      rid++; // bump rid here for profiling
-#endif
-                      continue;
-                      break;
-                    }
-                  }
-
-                  builtinsMap::iterator builtinsIterator;
-                  builtinsIterator = builtins.find(*operation);
-
-                  if (builtinsIterator != builtins.end())
-                  {
-                    (this->*(builtinsIterator->second))(STARTCMD);
-                  }
-                  else
-                  {
-                    // terminate with extreme prejudice
-                    endConnection();
-                  }
+                  // terminate with extreme prejudice
+                  endConnection();					// JLH: add DEBUG info here
                 }
-
-                delete operation;
               }
 
-              if (events & EPOLLOUT)
+              delete operation;
+            }
+
+            if (events & EPOLLOUT)
+            {
+              struct epoll_event ev;
+              ev.events = EPOLLIN | EPOLLHUP | EPOLLET;
+              ev.data.fd = sockfd;
+
+              if (epoll_ctl(epollfd, EPOLL_CTL_MOD, sockfd, &ev))
               {
-                struct epoll_event ev;
-                ev.events = EPOLLIN | EPOLLHUP | EPOLLET;
-                //                ev.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLET;
-                ev.data.fd = sockfd;
-
-                if (epoll_ctl(epollfd, EPOLL_CTL_MOD, sockfd, &ev))
-                {
-                  endConnection();
-                  break;
-                }
-
-                // write data that's waiting
-                sendLaterMap::iterator waitingToSendIterator;
-                waitingToSendIterator = waitingToSend.find(sockfd);
-
-                if (waitingToSendIterator != waitingToSend.end())
-                {
-                  responseData response = waitingToSendIterator->second;
-                  sendResponse(true, response.resultCode, response.sbuf);
-                }
+                endConnection();		// JLH: add DEBUG info here
+                break;
               }
-            }
-            break;
 
-            case LISTENER_PG:
-            {
-              class MessageSocket &msgrcvref =
-                    *(class MessageSocket *)msgrcv;
+              // write data that's waiting
+              sendLaterMap::iterator waitingToSendIterator;
+              waitingToSendIterator = waitingToSend.find(sockfd);
 
-              //              it = Pgs.find(msgrcvref.socket);
-
-              if (!Pgs.count(msgrcvref.socket))
-                //              if (it==Pgs.end())
-            {
-                if ((msgrcvref.events & EPOLLERR) ||
-                    (msgrcvref.events & EPOLLHUP))
-                {
-                  fprintf(logfile, "\t%s %i hanging it up\n", __FILE__, __LINE__);
-                  Pg::pgclosesocket(*this, msgrcvref.socket);
-                  break;
-                }
-
-                new class Pg(this, msgrcvref.socket);
-                //                Pgs[msgrcvref.socket] = newpg;
-                //                Pgs[msgrcvref.socket] = new class Pg(this, msgrcvref.socket);
-              }
-              else
+              if (waitingToSendIterator != waitingToSend.end())
               {
-                Pgs[msgrcvref.socket]->cont();
-                //                it->second->cont();
+                responseData response = waitingToSendIterator->second;
+                sendResponse(true, response.resultCode, response.sbuf);
               }
             }
-            break;
-
-            default:
-              printf("%s %i anomaly listenertype %i\n", __FILE__, __LINE__,
-                     ((class MessageSocket *)msgrcv)->listenertype);
           }
-        }
-        break;
-
-        case TOPIC_LOGINOK:
-          // set data members based on msgrcv
-          login(OKCMD);
           break;
 
-        case TOPIC_LOGINFAIL:
-          // set data members base on msgrcv
-          login(NOTOKCMD);
-          break;
-
-        case TOPIC_CHANGEPASSWORDOK:
-          // set data members based on msgrcv
-          changepassword(OKCMD);
-          break;
-
-        case TOPIC_CHANGEPASSWORDFAIL:
-          // set data members base on msgrcv
-          changepassword(NOTOKCMD);
-          break;
-
-        case TOPIC_CREATEDOMAINOK:
-          // set data members based on msgrcv
-          createdomain(OKCMD);
-          break;
-
-        case TOPIC_CREATEDOMAINFAIL:
-          // set data members base on msgrcv
-          createdomain(NOTOKCMD);
-          break;
-
-        case TOPIC_CREATEUSEROK:
-          // set data members based on msgrcv
-          createuser(OKCMD);
-          break;
-
-        case TOPIC_CREATEUSERFAIL:
-          // set data members base on msgrcv
-          createuser(NOTOKCMD);
-          break;
-
-        case TOPIC_DELETEUSEROK:
-          // set data members based on msgrcv
-          deleteuser(OKCMD);
-          break;
-
-        case TOPIC_DELETEUSERFAIL:
-          // set data members base on msgrcv
-          deleteuser(NOTOKCMD);
-          break;
-
-        case TOPIC_DELETEDOMAINOK:
-          // set data members based on msgrcv
-          deletedomain(OKCMD);
-          break;
-
-        case TOPIC_DELETEDOMAINFAIL:
-          // set data members base on msgrcv
-          deletedomain(NOTOKCMD);
-          break;
-
-          /* schema */
-        case TOPIC_SCHEMAREPLY:
-          pendingOperationsIterator = pendingOperations.find(operationid);
-
-          if (pendingOperationsIterator == pendingOperations.end())
+          // JLH: LISTENER_PG is the Postgres wire protocol interface
+          case LISTENER_PG:
           {
-            fprintf(logfile, "bad operationid %li %s %i\n", operationid,
-                    __FILE__, __LINE__);
-            break;
-          }
+            MessageSocket &msgrcvref = *(MessageSocket *)msgrcv;			// JLH: removed 'class' keyword
 
-          operationPtr = pendingOperationsIterator->second;
-
-          switch (operationPtr->schemaData.state)
-          {
-            case usm:
-              cmd = USMRESPONSECMD;
-              break;
-
-            case tasengines:
-              cmd = TASENGINESRESPONSECMD;
-          }
-
-          switch (operationPtr->schemaData.builtincmd)
-          {
-            case BUILTINCREATESCHEMA:
-              createschema(cmd);
-              break;
-
-            case BUILTINCREATETABLE:
-              createtable(cmd);
-              break;
-
-            case BUILTINADDCOLUMN:
-              addcolumn(cmd);
-              break;
-
-            case BUILTINDELETEINDEX:
-              deleteindex(cmd);
-              break;
-
-            case BUILTINDELETETABLE:
-              deletetable(cmd);
-              break;
-
-            case BUILTINDELETESCHEMA:
-              deleteschema(cmd);
-              break;
-
-            default:
-              fprintf(logfile, "builtincmd %i %s %i\n",
-                      operationPtr->schemaData.builtincmd, __FILE__, __LINE__);
-              /* this would be weird for flow */
-          }
-
-          break;
-
-        case TOPIC_SCHEMAREQUEST:
-        {
-          class MessageUserSchema &msgref =
-                *(class MessageUserSchema *)msgrcv;
-          tainstance = msgref.instance;
-
-          switch (msgref.builtincmd)
-        {
-            case BUILTINCREATESCHEMA:
-              TAcreateschema();
-              break;
-
-            case BUILTINCREATETABLE:
-              TAcreatetable();
-              break;
-
-            case BUILTINADDCOLUMN:
-              TAaddcolumn();
-              break;
-
-            case BUILTINDELETEINDEX:
-              TAdeleteindex();
-              break;
-
-            case BUILTINDELETETABLE:
-              TAdeletetable();
-              break;
-
-            case BUILTINDELETESCHEMA:
-              TAdeleteschema();
-              break;
-
-            default:
-              fprintf(logfile, "builtincmd unrecognized %li %s %i\n",
-                      msgref.builtincmd, __FILE__, __LINE__);
-          }
-        }
-        break;
-
-        case TOPIC_TRANSACTION:
-        {
-          class MessageTransaction &msgref =
-                *(class MessageTransaction *)msgrcv;
-
-          // need pendingTransactions
-          if (Transactions.count(msgref.transactionid))
-        {
-            Transactions[msgref.transactionid]->processTransactionMessage(msgrcv);
-          }
-          else
-          {
-            // have to check for a LOCKED message cmd, to bounce back a
-            // message to roll it back
-            fprintf(logfile, "%s %i transactionid %li\n", __FILE__, __LINE__,
-                    msgref.transactionid);
-            fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.payloadtype, msgref.transaction_pendingcmdid, msgref.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->cmd.locktype);
-            badMessageHandler();
-          }
-
-          break;
-        }
-
-        case TOPIC_DEADLOCKABORT:
-        {
-          class MessageDeadlock &msgref = *(class MessageDeadlock *)msgrcv;
-
-          if (Transactions.count(msgref.transactionid))
-          {
-            Transactions[msgref.transactionid]->deadlockAbort(msgref);
-          }
-        }
-        break;
-#ifdef PROFILE
-
-        case TOPIC_PROFILE:
-        {
-          int start = profilecount < PROFILEENTRIES ? 0 :
-                      (profilecount+1) % PROFILEENTRIES;
-          int stop = profilecount < PROFILEENTRIES ? profilecount :
-                     profilecount % PROFILEENTRIES;
-          std::stringstream fname;
-          fname << "profile/transactionagent_" << instance << ".txt";
-          FILE *fp = fopen((char *)fname.str().c_str(), "w");
-
-          for (int n=start; n % PROFILEENTRIES != stop; n++)
-          {
-            int pos = n % PROFILEENTRIES;
-            std::stringstream outstream;
-            outstream << instance << "\t" << profiles[pos].accountid << "\t" <<
-                      profiles[pos].rid << "\t";
-
-            for (int m=0; m < 4; m++)
+            if (!Pgs.count(msgrcvref.socket))
             {
-              outstream << profiles[pos].points[m].tag << ",";
-            }
-
-            outstream << profiles[pos].points[4].tag << "\t";
-
-            for (int m=0; m<4; m++)
-            {
-              outstream << profiles[pos].points[m].tv.tv_sec * 1000000 +
-                        profiles[pos].points[m].tv.tv_usec << ",";
-            }
-
-            outstream << profiles[pos].points[4].tv.tv_sec * 1000000 +
-                      profiles[pos].points[4].tv.tv_usec << "\t";
-
-            for (int m=0; m < profiles[pos].transactionpointcount-1; m++)
-            {
-              outstream << profiles[pos].transactionpoints[m].tag << ",";
-            }
-
-            if (profiles[pos].transactionpointcount)
-            {
-              outstream << profiles[pos].transactionpoints[profiles[pos].
-                        transactionpointcount-1].tag;
-            }
-
-            outstream << "\t";
-
-            for (int m=0; m < profiles[pos].transactionpointcount-1; m++)
-            {
-              outstream << profiles[pos].transactionpoints[m].tv.tv_sec *
-                        1000000 + profiles[pos].transactionpoints[m].tv.tv_usec <<
-                        ",";
-            }
-
-            if (profiles[pos].transactionpointcount)
-            {
-              outstream << profiles[pos].transactionpoints[profiles[pos].
-                        transactionpointcount-1].tv.tv_sec * 1000000 +
-                        profiles[pos].transactionpoints[profiles[pos].
-                            transactionpointcount-1].tv.tv_usec;
-            }
-
-            outstream << "\t" << profiles[pos].transactionid << "\t";
-            boost::unordered_map<int64_t, int64_t>::iterator pIt;
-
-            for (pIt = profiles[pos].engineToSubTransactionids->begin();
-                 pIt != profiles[pos].engineToSubTransactionids->end();
-                 pIt++)
-            {
-              if (pIt != profiles[pos].engineToSubTransactionids->begin())
+              if ((msgrcvref.events & EPOLLERR) || (msgrcvref.events & EPOLLHUP))
               {
-                outstream << ",";
+                fprintf(logfile, "\t%s %i hanging it up\n", __FILE__, __LINE__);
+                Pg::pgclosesocket(*this, msgrcvref.socket);
+                break;
               }
 
-              outstream << pIt->first << " " << pIt->second;
+              new class Pg(this, msgrcvref.socket);
             }
-
-            outstream << std::endl;
-            fputs(outstream.str().c_str(), fp);
+            else
+            {
+              Pgs[msgrcvref.socket]->cont();
+            }
           }
-
-          fclose(fp);
-          mboxes.topologyMgr->sendMsg(msgsnd, true);
-
-          while (1)
-          {
-            sleep(10);
-          }
-        }
-        break;
-#endif
-
-        case TOPIC_TOPOLOGY:
-          mboxes.update(myTopology, instance);
-          updateReplicas();
           break;
 
-        case TOPIC_ACKDISPATCH:
-        {
-          class MessageAckDispatch &msgref =
-                *(class MessageAckDispatch *)msgrcv;
-
-          // need pendingTransactions
-          if (Transactions.count(msgref.transactionid))
-        {
-            // for now 4/5/13 don't think about msgref.status
-            Transactions[msgref.transactionid]->continueCommitTransaction(1);
-          }
+          default:
+            printf("%s %i anomaly listenertype %i\n", __FILE__, __LINE__,
+                   ((MessageSocket *)msgrcv)->listenertype);				// JLH: removed 'class' keyword
         }
-        break;
-
-        case TOPIC_PROCEDURE1:
-          newprocedure(2);
-          break;
-
-        case TOPIC_PROCEDURE2:
-          newprocedure(3);
-          break;
-
-        case TOPIC_DISPATCH:
-          handledispatch();
-          break;
-
-        case TOPIC_ACKAPPLY:
-        {
-          class MessageAckApply &msgref = *(class MessageAckApply *)msgrcv;
-
-          if (Appliers.count(msgref.applierid))
-          {
-            Appliers[msgref.applierid]->ackedApply(msgref);
-          }
-          else
-          {
-            printf("%s %i no Applier to ack status %i %li,%li,%li\n", __FILE__,
-                   __LINE__, msgref.status, msgref.subtransactionid,
-                   msgref.applierid, msgref.partitionid);
-          }
-        }
-        break;
-
-        case TOPIC_OPERATION:
-        {
-          operationMap::iterator it;
-          it = pendingOperations.find(((class
-                                        MessageUserSchema *)msgrcv)->operationid);
-
-          if (it != pendingOperations.end())
-          {
-            class Operation &operationRef = *it->second;
-            operationRef.handleOperation(*((class MessageUserSchema *)msgrcv));
-          }
-        }
-        break;
-
-        case TOPIC_COMPILE:
-          newstatement();
-          break;
-
-        case TOPIC_TABLENAME:
-        {
-          class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-          domainidsToSchemata[msgrcvref.domainid]->tableNameToId[msgrcvref.argstring] =
-            msgrcvref.tableid;
-        }
-        break;
-
-        case TOPIC_FIELDNAME:
-        {
-          class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
-          domainidsToSchemata[msgrcvref.domainid]->fieldNameToId[msgrcvref.tableid][msgrcvref.argstring] = msgrcvref.fieldid;
-        }
-        break;
-
-        default:
-          fprintf(logfile, "anomaly %i %s %i\n",
-                  msgrcv->topic, __FILE__, __LINE__);
       }
+      break;
+
+      case TOPIC_LOGINOK:
+        // set data members based on msgrcv
+        login(OKCMD);
+        break;
+
+      case TOPIC_LOGINFAIL:
+        // set data members based on msgrcv
+        login(NOTOKCMD);
+        break;
+
+      case TOPIC_CHANGEPASSWORDOK:
+        // set data members based on msgrcv
+        changepassword(OKCMD);
+        break;
+
+      case TOPIC_CHANGEPASSWORDFAIL:
+        // set data members based on msgrcv
+        changepassword(NOTOKCMD);
+        break;
+
+      case TOPIC_CREATEDOMAINOK:
+        // set data members based on msgrcv
+        createdomain(OKCMD);
+        break;
+
+      case TOPIC_CREATEDOMAINFAIL:
+        // set data members based on msgrcv
+        createdomain(NOTOKCMD);
+        break;
+
+      case TOPIC_CREATEUSEROK:
+        // set data members based on msgrcv
+        createuser(OKCMD);
+        break;
+
+      case TOPIC_CREATEUSERFAIL:
+        // set data members based on msgrcv
+        createuser(NOTOKCMD);
+        break;
+
+      case TOPIC_DELETEUSEROK:
+        // set data members based on msgrcv
+        deleteuser(OKCMD);
+        break;
+
+      case TOPIC_DELETEUSERFAIL:
+        // set data members based on msgrcv
+        deleteuser(NOTOKCMD);
+        break;
+
+      case TOPIC_DELETEDOMAINOK:
+        // set data members based on msgrcv
+        deletedomain(OKCMD);
+        break;
+
+      case TOPIC_DELETEDOMAINFAIL:
+        // set data members based on msgrcv
+        deletedomain(NOTOKCMD);
+        break;
+
+      /* schema */
+      case TOPIC_SCHEMAREPLY:
+        pendingOperationsIterator = pendingOperations.find(operationid);
+
+        if (pendingOperationsIterator == pendingOperations.end())
+        {
+          fprintf(logfile, "bad operationid %li %s %i\n", operationid, __FILE__, __LINE__);
+          break;
+        }
+
+        operationPtr = pendingOperationsIterator->second;
+
+        switch (operationPtr->schemaData.state)
+        {
+          case usm:
+            cmd = USMRESPONSECMD;
+            break;
+
+          case tasengines:
+            cmd = TASENGINESRESPONSECMD;
+        }
+
+        switch (operationPtr->schemaData.builtincmd)
+        {
+          case BUILTINCREATESCHEMA:
+            createschema(cmd);
+            break;
+
+          case BUILTINCREATETABLE:
+            createtable(cmd);
+            break;
+
+          case BUILTINADDCOLUMN:
+            addcolumn(cmd);
+            break;
+
+          case BUILTINDELETEINDEX:
+            deleteindex(cmd);
+            break;
+
+          case BUILTINDELETETABLE:
+            deletetable(cmd);
+            break;
+
+          case BUILTINDELETESCHEMA:
+            deleteschema(cmd);
+            break;
+
+          default:
+            fprintf(logfile, "builtincmd %i %s %i\n",					// JLH: DEBUG mode log entry; add non-DEBUG mode entry
+                    operationPtr->schemaData.builtincmd, __FILE__, __LINE__);
+            /* this would be weird for flow */
+        }
+
+        break;
+
+      case TOPIC_SCHEMAREQUEST:
+      {
+        MessageUserSchema &msgref = *(MessageUserSchema *)msgrcv;			// JLH: removed 'class' keyword
+        tainstance = msgref.instance;
+
+        switch (msgref.builtincmd)
+        {
+          case BUILTINCREATESCHEMA:
+            TAcreateschema();
+            break;
+
+          case BUILTINCREATETABLE:
+            TAcreatetable();
+            break;
+
+          case BUILTINADDCOLUMN:
+            TAaddcolumn();
+            break;
+
+          case BUILTINDELETEINDEX:
+            TAdeleteindex();
+            break;
+
+          case BUILTINDELETETABLE:
+            TAdeletetable();
+            break;
+
+          case BUILTINDELETESCHEMA:
+            TAdeleteschema();
+            break;
+
+          default:
+            fprintf(logfile, "builtincmd unrecognized %li %s %i\n",
+                    msgref.builtincmd, __FILE__, __LINE__);				// JLH: DEBUG mode log entry; create non-debug mode entry
+        }
+      }
+      break;
+
+      case TOPIC_TRANSACTION:
+      {
+        MessageTransaction &msgref = *(MessageTransaction *)msgrcv;			// JLH: removed 'class' keyword
+
+        // need pendingTransactions
+        if (Transactions.count(msgref.transactionid))
+        {
+          Transactions[msgref.transactionid]->processTransactionMessage(msgrcv);
+        }
+        else
+        {
+          // have to check for a LOCKED message cmd, to bounce back a
+          // message to roll it back
+          fprintf(logfile, "%s %i transactionid %li\n", __FILE__, __LINE__,		// JLH: DEBUG mode log entry; create non-DEBUG mode entry
+                  msgref.transactionid);
+          fprintf(logfile, "%s %i thismsg %p next ptr, count %p %lu, payloadtype %i pendingcmdid %li entrypoint %li locktype %i\n", __FILE__, __LINE__, msgrcv, Mbox::getPtr(msgref.nextmsg), Mbox::getCount(msgref.nextmsg), msgref.payloadtype, msgref.transaction_pendingcmdid, msgref.transaction_tacmdentrypoint, ((class MessageSubtransactionCmd *)msgrcv)->cmd.locktype);
+          badMessageHandler();
+        }
+
+        break;
+      }
+
+      case TOPIC_DEADLOCKABORT:
+      {
+        MessageDeadlock &msgref = *(MessageDeadlock *)msgrcv;
+
+        if (Transactions.count(msgref.transactionid))
+        {
+          Transactions[msgref.transactionid]->deadlockAbort(msgref);
+        }
+      }
+      break;
+
+      case TOPIC_TOPOLOGY:
+        mboxes.update(myTopology, instance);
+        updateReplicas();
+        break;
+
+      case TOPIC_ACKDISPATCH:
+      {
+        MessageAckDispatch &msgref = *(MessageAckDispatch *)msgrcv;
+
+        // need pendingTransactions
+        if (Transactions.count(msgref.transactionid))
+        {
+          // for now 4/5/13 don't think about msgref.status
+          Transactions[msgref.transactionid]->continueCommitTransaction(1);
+        }
+      }
+      break;
+
+      case TOPIC_PROCEDURE1:
+        newprocedure(2);
+        break;
+
+      case TOPIC_PROCEDURE2:
+        newprocedure(3);
+        break;
+
+      case TOPIC_DISPATCH:
+        handledispatch();
+        break;
+
+      case TOPIC_ACKAPPLY:
+      {
+        MessageAckApply &msgref = *(MessageAckApply *)msgrcv;
+
+        if (Appliers.count(msgref.applierid))
+        {
+          Appliers[msgref.applierid]->ackedApply(msgref);
+          }
+        else
+        {
+          printf("%s %i no Applier to ack status %i %li,%li,%li\n", __FILE__,			// JLH: DEBUG mode entry; create non-DEBUG mode entry
+                 __LINE__, msgref.status, msgref.subtransactionid,
+                 msgref.applierid, msgref.partitionid);
+        }
+      }
+      break;
+
+      case TOPIC_OPERATION:
+      {
+        operationMap::iterator it;
+        it = pendingOperations.find(((MessageUserSchema *)msgrcv)->operationid);
+
+        if (it != pendingOperations.end())
+        {
+          class Operation &operationRef = *it->second;
+          operationRef.handleOperation(*((class MessageUserSchema *)msgrcv));
+        }
+      }
+      break;
+
+      case TOPIC_COMPILE:
+        newstatement();
+        break;
+
+      case TOPIC_TABLENAME:
+      {
+        MessageUserSchema &msgrcvref = *(MessageUserSchema *)msgrcv;				// JLH: removed 'class' keyword
+        domainidsToSchemata[msgrcvref.domainid]->tableNameToId[msgrcvref.argstring] =
+          msgrcvref.tableid;
+      }
+      break;
+
+      case TOPIC_FIELDNAME:
+      {
+        MessageUserSchema &msgrcvref = *(MessageUserSchema *)msgrcv;				// JLH: removed 'class' keyword
+        domainidsToSchemata[msgrcvref.domainid]->fieldNameToId[msgrcvref.tableid][msgrcvref.argstring] = msgrcvref.fieldid;
+      }
+      break;
+
+      default:						// add DEBUG mode, non-DEBUG mode logging
+        fprintf(logfile, "anomaly %i %s %i\n",
+                msgrcv->topic, __FILE__, __LINE__);		// DEBUG mode log entry to include __FILE__, __LINE__
     }
-  }
-}
+  }	// JLH: end while(true) main event loop
+}	// JLH: end constructor
 
 TransactionAgent::~TransactionAgent()
 {
@@ -667,36 +536,52 @@ TransactionAgent::~TransactionAgent()
 
 void TransactionAgent::endConnection(void)
 {
-  epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, NULL);
-  close(sockfd);
-  loggedInUsers.erase(sockfd);
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Entering endConnection()");
+#endif
+  epoll_ctl(epollfd, EPOLL_CTL_DEL, sockfd, NULL);	// JLH: add DEBUG info here & to epoll_ctl()
+  close(sockfd);					// JLH: add DEBUG info here
+  loggedInUsers.erase(sockfd);				// JLH: add DBEUG info here & to loggedInUsers.erase()
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Leaving endConnection(): reached end of function");
+#endif
 }
 
 int64_t TransactionAgent::readSocket(void)
 {
-  char inbuf[PAYLOADSIZE];
-  ssize_t bytesread = read(sockfd, inbuf, PAYLOADSIZE);
+#ifndef NDEBUG
+    fprintf(logfile, "DEBUG:\t%s %i Entering readSocket(): Trying to read data from socket.\n", __FILE__, __LINE__);
+#endif
 
-  if (bytesread < 8)
+  char inbuf[PAYLOADSIZE];				// JLH: 128
+  ssize_t bytesread = read(sockfd, inbuf, PAYLOADSIZE);	// JLH: add DEBUG info 
+
+  if (bytesread < MESSAGE_LENGTH_NUMBER_OF_BYTES)					// JLH: what does 8 represent? 
   {
+#ifndef NDEBUG
+    fprintf(logfile, "DEBUG:\t%s %i Leaving readSocket(): Read fewer than 8 bytes.\n", __FILE__, __LINE__);
+#endif
     return -1;
   }
 
   uint64_t a;
   memcpy(&a, inbuf, sizeof(a));
-  int64_t msgsize = be64toh(a);
+  int64_t msgsize = be64toh(a);				// JLH: convert from big-endian to host byte order
 
-  if (bytesread-8 != msgsize)
+  if (bytesread-MESSAGE_LENGTH_NUMBER_OF_BYTES != msgsize)	// JLH: what does 8 represent? Minimum message size?
   {
     printf("%s %i bytesread %li msgsize %li sockfd %i\n", __FILE__, __LINE__, bytesread, msgsize, sockfd);
-    return -2;
+#ifndef NDEBUG
+    fprintf(logfile, "DEBUG:\t%s %i Leaving readSocket(): expecting %li bytes but only read %li.\n", __FILE__, __LINE__, (bytesread-8), bytesread);
+#endif
+    return -2;						// JLH: convert to SYMBOLIC CONSTANT
   }
 
-  char operationlength = inbuf[8];
+  char operationlength = inbuf[MESSAGE_LENGTH_NUMBER_OF_BYTES];		// Should 8 be defined as OPERATION_LENGTH_OFFSET ?
 
   if ((int)operationlength >= msgsize-1)
   {
-    return -3;
+    return -3;						// JLH: convert to SYMBOLIC CONSTANT
   }
 
   int64_t localargsize = msgsize - 1 - (int)operationlength;
@@ -704,6 +589,9 @@ int64_t TransactionAgent::readSocket(void)
   memset(&args, 0, PAYLOADSIZE);
   memcpy(args, inbuf+9+(int)operationlength, localargsize);
 
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Leaving readSocket(): reached end of method.");
+#endif
   return localargsize;
 }
 
@@ -721,6 +609,13 @@ void TransactionAgent::ping(builtincmds_e cmd)
   sendResponse(false, STATUS_OK, &rv);
 }
 
+/*
+Client sends login cmd with domainid, username, password
+TransactionAgent forwards it to UserSchemaMgr, which compares password with password map.
+Then it sends LOGINOK message to TransactionAgent in response.
+TransactionAgent replies STATUS_OK to client.
+&rv is message contents, which could be an empty vector of strings, as is the case of login response.
+*/
 void TransactionAgent::login(builtincmds_e cmd)
 {
   switch (cmd)
@@ -734,8 +629,8 @@ void TransactionAgent::login(builtincmds_e cmd)
       vector<string> v;
       msgpack2Vector(&v, args, argsize);
       operationPtr->setDomainName(v[0]);
-      class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGIN);
-      class MessageUserSchema &msgref = *msg;
+      MessageUserSchema *msg = new class MessageUserSchema(TOPIC_LOGIN);	// JLH: removed 'class' keyword
+      MessageUserSchema &msgref = *msg;						// JLH: removed 'class' keyword
       msgref.topic = TOPIC_LOGIN;
       msgref.payloadtype = PAYLOADUSERSCHEMA;
       msgref.argsize = argsize;
@@ -750,7 +645,7 @@ void TransactionAgent::login(builtincmds_e cmd)
     {
       // let's hope I remember to populate the object's domainid & userid before
       // calling this
-      class MessageUserSchema &msgrcvref =
+      MessageUserSchema &msgrcvref =						// JLH: removed 'class' keyword
             *(class MessageUserSchema *)msgrcv;
       operationPtr = pendingOperations[operationid];
       authInfo aInfo;
@@ -765,7 +660,7 @@ void TransactionAgent::login(builtincmds_e cmd)
     break;
 
     case NOTOKCMD:
-  {
+    {
       if (__sync_add_and_fetch(&cfgs.badloginmessages, 0))
       {
         vector<string> rv;
@@ -798,9 +693,9 @@ void TransactionAgent::changepassword(builtincmds_e cmd)
       operationPtr = new class Operation(OP_AUTH, this, userid, domainid);
       operationid = operationPtr->getid();
       //      pendingOperations[operationid] = operationPtr;
-      class MessageUserSchema *msg =
+      MessageUserSchema *msg =						// JLH: removed 'class' keyword
             new class MessageUserSchema(TOPIC_CHANGEPASSWORD);
-      class MessageUserSchema &msgref = *msg;
+      MessageUserSchema &msgref = *msg;					// JLH: removed 'class' keyword
       msgref.topic = TOPIC_CHANGEPASSWORD;
       msgref.payloadtype = PAYLOADUSERSCHEMA;
       msgref.argsize = argsize;
@@ -862,7 +757,7 @@ void TransactionAgent::createdomain(builtincmds_e cmd)
     break;
 
     case OKCMD:
-  {
+    {
       class MessageUserSchema *msg =
             new class MessageUserSchema(TOPIC_CREATEUSER);
       class MessageUserSchema &msgref = *msg;
@@ -875,7 +770,7 @@ void TransactionAgent::createdomain(builtincmds_e cmd)
     break;
 
     case NOTOKCMD:
-  {
+    {
       vector<string> rv;
       sendResponse(false, STATUS_NOTOK, &rv);
       endOperation();
@@ -1012,7 +907,7 @@ void TransactionAgent::deletedomain(builtincmds_e cmd)
     break;
 
     case OKCMD:
-  {
+    {
       vector<string> rv;
       sendResponse(false, STATUS_OK, &rv);
       endOperation();
@@ -1308,12 +1203,12 @@ void TransactionAgent::schemaBoilerplate(builtincmds_e cmd, int builtin)
     break;
 
     case USMRESPONSECMD:
-  {
+    {
       class MessageUserSchema &msgrcvref =
             *(class MessageUserSchema *)msgrcv;
 
       if (msgrcvref.status != BUILTIN_STATUS_OK)   // abort
-    {
+      {
         responseVector.clear();
         sendResponse(false, STATUS_NOTOK, &responseVector);
         endOperation();
@@ -1411,7 +1306,7 @@ void TransactionAgent::compile(builtincmds_e cmd)
                        domainidsToSchemata[domainid]);
 
   if (lx2.statementPtr==NULL)
-{
+  {
     vector<string> rv;
     sendResponse(false, STATUS_NOTOK, &rv);
     return;
@@ -1673,7 +1568,7 @@ class Applier *applierPtr = new class Applier(this, domainid,
     class Schema *schemaPtr = domainidsToSchemata[domainid];
 
     for (size_t n=0; n < recordsref.size(); n++)
-  {
+    {
       class Table &tableRef = *schemaPtr->tables[recordsref[n].tableid];
 
       switch (recordsref[n].primitive)
@@ -1843,13 +1738,13 @@ class Applier *applierPtr = new class Applier(this, domainid,
 
 void TransactionAgent::newstatement()
 {
-  class MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;
+  MessageUserSchema &msgrcvref = *(class MessageUserSchema *)msgrcv;		// JLH: removed 'class' keyword
 
-  class Larxer lx((char *)msgrcvref.argstring.c_str(), this,
+  Larxer lx((char *)msgrcvref.argstring.c_str(), this,				// JLH: removed 'class' keyword
                       domainidsToSchemata[msgrcvref.domainid]);
 
   if (lx.statementPtr==NULL)
-{
+  {
     printf("%s %i anomaly\n", __FILE__, __LINE__);
   }
 
@@ -1858,10 +1753,63 @@ void TransactionAgent::newstatement()
   delete lx.statementPtr;
   //  printf("%s %i stmt '%s' %p %p\n", __FILE__, __LINE__, msgrcvref.procname.c_str(), lx.statementPtr, statements[msgrcvref.domainid][msgrcvref.procname]);
   /*
-  class Statement stmt;
+  Statement stmt;								// JLH: removed 'class' keyword
   stmt = *lx.statementPtr;
-  class Statement *stmtPtr = statements[msgrcvref.domainid][msgrcvref.procname];
-  stmt = *stmtPtr;
+  Statement *stmtPtr = statements[msgrcvref.domainid][msgrcvref.procname];
+  stmt = *stmtPtr;								// JLH: removed 'class' keyword
    */
 
+}
+
+void TransactionAgent::tryMapBuiltinCmdsToMethods()	// JLH: add try ... catch block
+{
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Entering tryMapBuiltinCmdsToMethods(): trying to map builtin commands to methods.");
+#endif
+  try {
+  builtins["ping"] = &TransactionAgent::ping;
+  builtins["login"] = &TransactionAgent::login;
+  builtins["logout"] = &TransactionAgent::logout;
+  builtins["changepassword"] = &TransactionAgent::changepassword;
+  builtins["createdomain"] = &TransactionAgent::createdomain;
+  builtins["createuser"] = &TransactionAgent::createuser;
+  builtins["deleteuser"] = &TransactionAgent::deleteuser;
+  builtins["deletedomain"] = &TransactionAgent::deletedomain;
+  builtins["createschema"] = &TransactionAgent::createschema;
+  builtins["createtable"] = &TransactionAgent::createtable;
+  builtins["addcolumn"] = &TransactionAgent::addcolumn;
+  builtins["deleteindex"] = &TransactionAgent::deleteindex;
+  builtins["deletetable"] = &TransactionAgent::deletetable;
+  builtins["deleteschema"] = &TransactionAgent::deleteschema;
+  builtins["loadprocedure"] = &TransactionAgent::loadprocedure;
+  builtins["compile"] = &TransactionAgent::compile;
+  } catch (const std::exception& e) {
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "TransactionAgent::tryMapBuiltinCmdsToMethods() caught an exception.", e.what());
+#endif
+    std::cout << "Caught an exception when trying to map builtin commands to methods." << std::endl;
+    exit(E_CAUGHT_EXCEPTION);
+  }
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Leaving tryMapBuiltinCmdsToMethods(): reached end of method.");
+#endif
+}
+
+TransactionAgent::builtinsMap::iterator TransactionAgent::tryFindOperations(string operation)	// JLH: add std (non-DEBUG) logging framework
+{
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Entering TransactionAgent::tryFindOperations().");
+#endif
+  try {
+     return builtins.find(operation);
+  } catch (const std::exception& e) {
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "TransactionAgent::tryFindOperations() caught an exception.", e.what());
+#endif
+     std::cout << "Caught an exception when trying to find operation." << std::endl;
+     exit(E_CAUGHT_EXCEPTION);
+  }
+#ifndef NDEBUG
+  logDebugMessage(__FILE__, __LINE__, "Leaving TransactionAgent::tryFindOperations().");
+#endif
 }

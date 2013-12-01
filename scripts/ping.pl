@@ -26,7 +26,7 @@
 require 'infinisql.plib';
 
 print "connecting:\n";
-&connect('localhost', 11521);
+&connect('localhost', 31337);
 print "pinging:\n";
 &describeresponse(&send("ping"));
 

@@ -26,6 +26,26 @@
 #ifndef DEFS_HPP
 #define DEFS_HPP
 
+// Miscellaneous constants (initially added by JLH)
+#define NO_EVENTS 0
+#define INVALID -1
+#define NO_DIFFERENCES 0
+#define NO_EVENTS 0
+#define LOG_MSG_SIZE 256			// max size of message to pass to logMessage()
+#define DBG_LOG_FILENAME_SIZE 256		// max size of filename to pass to logDebugMessage()
+#define DBG_LOG_MSG_SIZE 256			// max size of message to pass to logDebugMessage()
+#define MESSAGE_LENGTH_NUMBER_OF_BYTES 8	// how many bytes are used to store the message length
+
+// Error constants (initially added by JLH)
+#define E_CAUGHT_EXCEPTION 1
+
+// Wait time constants
+#define DO_NOT_WAIT 0
+#define ZERO_MICROSECONDS 0
+#define ONE_HUNDRED_MICROSECONDS 100
+#define WAIT_FOREVER -1
+#define MICROSECOND_MULTIPLIER 1000
+
 #define APISTATUS_OK 0
 #define APISTATUS_NOTOK 1
 #define APISTATUS_NULLCONSTRAINT 2
@@ -77,9 +97,6 @@
 #define TOPICDISPATCHED 29
 #define TOPICDEADLOCKABORT 30
 #define TOPICENDSUBTRANSACTION 31
-#ifdef PROFILE
-#define TOPICPROFILE 32
-#endif
 #define TOPICTOPOLOGY
 
 // statuses to client
@@ -95,8 +112,8 @@
 enum listenertype_e
 {
   LISTENER_NONE = 0,
-  LISTENER_RAW,
-  LISTENER_PG
+  LISTENER_RAW,			// used by login, createtable and other builtins
+  LISTENER_PG			// Postgres wire protocol handler
 };
 
 // to builtins
@@ -158,7 +175,7 @@ enum topic_e
 {
   TOPIC_NONE = 0,
   TOPIC_MBOXES = 1,
-  TOPIC_SOCKET = 2,
+  TOPIC_SOCKET = 2,				// for messages that contain a socket that needs to be read from
   TOPIC_LOGIN = 3,
   TOPIC_LOGINOK = 4,
   TOPIC_LOGINFAIL = 5,
@@ -188,7 +205,7 @@ enum topic_e
   TOPIC_ACKDISPATCH = 29,
   TOPIC_DEADLOCKABORT = 30,
   TOPIC_ENDSUBTRANSACTION = 31,
-  TOPIC_PROFILE = 32,
+  TOPIC_PROFILE = 32,				// deprecated
   TOPIC_TOPOLOGY = 33,
   TOPIC_NEWPROCEDURE = 34,
   TOPIC_PROCEDURE1 = 35,
@@ -622,26 +639,5 @@ int64_t getPartitionid(fieldValue_s &, fieldtype_e, int64_t);
 void like2Regex(string &);
 bool compareFields(fieldtype_e, const fieldValue_s &, const fieldValue_s &);
 void stagedRow2ReturnRow(const stagedRow_s &, returnRow_s &);
-
-#ifdef PROFILE
-#define PROFILEENGINEENTRIES 50000
-
-extern FILE *profileoutfile;
-extern FILE *profileengineoutfile;
-
-typedef struct
-{
-  int tag;
-  struct timeval tv;
-} PROFILERENGINE;
-
-typedef struct
-{
-  int64_t rid;
-  int64_t subtransactionid;
-  int subtransactionpointcount;
-  PROFILERENGINE *subtransactionpoints;
-} PROFILERENGINECOMPREHENSIVE;
-#endif
 
 #endif // DEFS_HPP

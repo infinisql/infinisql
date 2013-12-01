@@ -140,6 +140,12 @@ msgpack::sbuffer *makeSbuf(map<string, string> *);
 
 class TransactionAgent
 {
+  typedef boost::unordered_map<std::string, void (TransactionAgent::*)(builtincmds_e)> builtinsMap;
+  builtinsMap builtins;			// JLH: added by JLH
+  void tryMapBuiltinCmdsToMethods();	// JLH: added by JLH
+  builtinsMap::iterator tryFindOperations(string operation);	// JLH: added by JLH
+  builtinsMap::iterator test;		// JLH: remove this test case
+
 public:
   TransactionAgent(Topology::partitionAddress *);
   virtual ~TransactionAgent();

@@ -91,6 +91,9 @@ int main(int argc, char **argv)
   }
 
   logfile = fopen(logfilename.c_str(), "a");
+  printf("Initialized log file.\n");
+  fprintf(logfile, "Initialized the log file in main.cc");
+  fflush(logfile);
 
   if (logfile==NULL)
   {
@@ -461,6 +464,17 @@ void stagedRow2ReturnRow(const stagedRow_s &stagedRow, returnRow_s &returnRow)
   }
 }
 
+void logDebugMessage(char debugLogFilename[DBG_LOG_FILENAME_SIZE], int lineNumber, char debugLogMessage[DBG_LOG_MSG_SIZE], const char *exceptionText)
+{
+  fprintf(logfile, "DEBUG:\t%s %i %s %i %s %s\n", debugLogFilename, lineNumber, __DATE__, __TIME__, debugLogMessage, exceptionText);
+  fflush(logfile);
+}
+
+void logDebugMessage(char debugLogFilename[DBG_LOG_FILENAME_SIZE], int lineNumber, char debugLogMessage[DBG_LOG_MSG_SIZE])
+{
+  fprintf(logfile, "DEBUG:\t%s %i %s %i %s\n", debugLogFilename, lineNumber, __DATE__, __TIME__, debugLogMessage);
+  fflush(logfile);
+}
 
 /** @mainpage Yo
  * =====================

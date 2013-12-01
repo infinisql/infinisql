@@ -22,15 +22,23 @@
 # along with InfiniSQL. It should be in the top level of the source
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
+use warnings;
 
 use DBI;
 require 'infinisql.plib';
 
-use Getopt::Std;
-getopt('h');
-$HOSTNAME=$opt_h;
+#use Getopt::Std;
+#getopt('h');
+#$HOSTNAME=$opt_h;
 
-$dbh=DBI->connect("dbi:Pg:dbname=texas;host=$HOSTNAME;port=15432;", "mayor", "austin", {pg_server_prepare => 0});
+%attr = (
+    pg_server_prepare => 0,
+    PrintError => 0,
+    RaiseError =>0 
+);
+
+#$dbh=DBI->connect("dbi:Pg:dbname=texas;host=127.0.0.1;port=31337;", "mayor", "austin", {pg_server_prepare => 0}) or die "Unable to connect: $DBI::errstr\n";
+$dbh=DBI->connect("dbi:Pg:dbname=texas;host=127.0.0.1;port=31337;", "mayor", "austin", \%attr) or die "Unable to connect: [$DBI::err] [$DBI::errstr]\n";
 
 $SELECTQUERY="SELECT * FROM mastertable";
 
@@ -418,7 +426,7 @@ foreach $op ("=", "<>", "<", ">", "<=", ">=") {
   &whereselect("$col $op $val");
   $val=250;
   $col="intnonuniquenotnull";
-  $SElECTQUERY="SELECT keycol, $col from nonuniquetable";
+  $SELECTQUERY="SELECT keycol, $col from nonuniquetable";
   &whereselect("$col $op $val");
   # FLOAT
   $col="floatnonunique";

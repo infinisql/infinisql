@@ -38,7 +38,7 @@ public:
   Mbox();
   virtual ~Mbox();
 
-  class Message *receive(int);  //int is wait
+  class Message *receive(int);  // int is wait
 
   struct pointer_s
   {

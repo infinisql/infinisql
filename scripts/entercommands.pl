@@ -25,7 +25,7 @@
 
 require 'infinisql.plib';
 
-&connect('localhost', 11521);
+&connect('localhost', 31337);
 print "logging in as texas mayor\n";
 &describeresponse(&send("login", "texas", "mayor", "austin"));
 

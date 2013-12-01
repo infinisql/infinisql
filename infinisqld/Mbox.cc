@@ -64,7 +64,7 @@ class Message *Mbox::receive(int timeout)
   // good with lockless malloc
   __int128 mynext;
 
-  while (1)
+  while (true)
   {
     mynext = __atomic_load_n(&(getPtr(current)->nextmsg), __ATOMIC_SEQ_CST);
 
@@ -72,15 +72,15 @@ class Message *Mbox::receive(int timeout)
     {
       switch (timeout)
       {
-        case -1:
+        case WAIT_FOREVER:
           break;
 
-        case 0:
+        case DO_NOT_WAIT:
           return NULL;
           break;
 
         default:
-          struct timespec ts = {0, timeout * 1000};
+          struct timespec ts = {0, timeout * MICROSECOND_MULTIPLIER};
           nanosleep(&ts, NULL);
           return NULL;
       }
@@ -88,7 +88,7 @@ class Message *Mbox::receive(int timeout)
     else
     {
       if (getPtr(current)==getPtr(mynext))
-      {
+      {	// JLH: possible error; next item in list is same as current item. Update error message, add DEBUG code.
         printf("%s %i WTF found it i guess count current %lu next %lu\n", __FILE__, __LINE__, getCount(current), getCount(mynext));
       }
 

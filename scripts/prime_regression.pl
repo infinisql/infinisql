@@ -28,7 +28,7 @@ use Getopt::Std;
 getopt('h');
 $HOSTNAME=$opt_h;
 
-&connect($HOSTNAME, 11521);
+&connect($HOSTNAME, 31337);
 print "logging in\n";
 &describeresponse(&send("login", "_global", "admin", "passw0rd"));
 print "createdomain texas:\n";
@@ -38,7 +38,7 @@ print "creating user\n";
 print "logout\n";
 &send("logout");
 print "connecting\n";
-&connect($HOSTNAME, 11521);
+&connect($HOSTNAME, 31337);
 print "logging in domain texas:\n";
 &describeresponse(&send("login", "texas", "mayor", "austin"));
 print "creating schema\n";

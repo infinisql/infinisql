@@ -22,8 +22,8 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
-$SCRIPTDIR="/home/mtravis/build/infinisql/scripts";
-$PROCDIR="/home/mtravis/infinisql_built/procs";
+$SCRIPTDIR="/home/jhengels/dev/git/infinisql/scripts";
+$PROCDIR="/home/jhengels/infinisql-build/procs";
 
 use IO::Socket;
 use Data::MessagePack;
