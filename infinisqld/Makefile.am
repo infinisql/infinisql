@@ -16,7 +16,7 @@ infinisql_cfgenum.h: ../infinisqlmgr/gencfgenum.py
 	../infinisqlmgr/gencfgenum.py
 BUILT_SOURCES = infinisql_cfgenum.h parser.h
 install-data-local:
-	$(MKDIR_P) $(prefix)/var $(prefix)/run $(prefix)/procs
+	$(MKDIR_P) $(DESTDIR)$(prefix)/var $(DESTDIR)$(prefix)/run $(DESTDIR)$(prefix)/procs
 parser.h: parser.yy
 	../ylwrap parser.yy y.tab.c parser.cc y.tab.h parser.h y.output \
     parser.output -- bison -y -v -d
