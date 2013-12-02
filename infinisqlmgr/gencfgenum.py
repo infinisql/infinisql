@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 # Copyright (c) 2013 Mark Travis <mtravis15432+src@gmail.com>
 # All rights reserved. No warranty, explicit or implicit, provided.
@@ -108,7 +108,7 @@ cheader.close()
 
 pheader = open('../infinisqlmgr/cfgenum.py', 'w')
 
-pheader.write('#! /usr/bin/env python\n\
+pheader.write('#! /usr/bin/env python2\n\
 \n\
 # auto-generated, do not edit by hand\n\
 \n\
