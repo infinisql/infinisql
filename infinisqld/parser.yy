@@ -24,14 +24,14 @@
  */
 
 %define api.pure
-%parse-param { struct perlarxer *pld }
+%parse-param {struct perlarxer *pld}
+%lex-param {struct perlarxer *pld}
 
 %{
 #include "larx.h"
 #include "infinisql_gch.h"
 #include "infinisql_Larxer.h"
 
-#define YYLEX_PARAM pld->scaninfo
 #define PUSHSTACK(X) pld->larxerPtr->pushstack(X)
 #define PUSHSTACK2(X, Y) pld->larxerPtr->pushstack(X, Y)
 #define PUSHOPERATOR(X) pld->larxerPtr->pushstack(Larxer::TYPE_operator, (int64_t)X)
