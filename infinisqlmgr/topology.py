@@ -24,41 +24,41 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 class globaltopology:
-  def __init__(self):
-    self.partitions = []
-    self.ibgateways = []
-    self.deadlockmgrnode = 0
-    self.deadlockmgrmboxptr = 0
-    self.userschemamgrnode = 0
-    self.userschemamgrmboxptr = 0
-    self.nextpartitionid = 0
-    self.replicamembers = []
-    self.tas = []
+    def __init__(self):
+        self.partitions = []
+        self.ibgateways = []
+        self.deadlockmgrnode = 0
+        self.deadlockmgrmboxptr = 0
+        self.userschemamgrnode = 0
+        self.userschemamgrmboxptr = 0
+        self.nextpartitionid = 0
+        self.replicamembers = []
+        self.tas = []
 
-  def getnextpartitionid(self):
-    pid = self.nextpartitionid
-    self.nextpartitionid += 1
-    return pid
+    def getnextpartitionid(self):
+        pid = self.nextpartitionid
+        self.nextpartitionid += 1
+        return pid
 
-  def addpartition(self, pid, replica, nodeid, actorid):
-    for x in range((pid+1) - len(self.partitions)):
-      self.partitions.append( [-1, 0, 0] )
-    self.partitions[pid] = (replica, nodeid, actorid)
+    def addpartition(self, pid, replica, nodeid, actorid):
+        for x in range((pid + 1) - len(self.partitions)):
+            self.partitions.append([-1, 0, 0])
+        self.partitions[pid] = (replica, nodeid, actorid)
 
-  def addibgateway(self, nodeid, instance, hostport):
-    self.ibgateways.append( (nodeid, instance, hostport) )
+    def addibgateway(self, nodeid, instance, hostport):
+        self.ibgateways.append((nodeid, instance, hostport))
 
-  def addreplicamember(self, replica, member, nodeid):
-    for x in range((replica+1) - len(self.replicamembers)):
-      self.replicamembers.append( [[-1]] )
-    for y in range((member+1) - len(self.replicamembers[replica])):
-      self.replicamembers[replica].append([-1])
-    self.replicamembers[replica][member] = nodeid
+    def addreplicamember(self, replica, member, nodeid):
+        for x in range((replica + 1) - len(self.replicamembers)):
+            self.replicamembers.append([[-1]])
+        for y in range((member + 1) - len(self.replicamembers[replica])):
+            self.replicamembers[replica].append([-1])
+        self.replicamembers[replica][member] = nodeid
 
-  def addta(self, nodeid, instance, actorid):
-    for x in range((nodeid+1) - len(self.tas)):
-      self.tas.append([ -1 ])
-    for y in range((instance+1) - len(self.tas[nodeid])):
-      self.tas[nodeid].append(-1)
-    self.tas[nodeid][instance] = actorid
+    def addta(self, nodeid, instance, actorid):
+        for x in range((nodeid + 1) - len(self.tas)):
+            self.tas.append([-1])
+        for y in range((instance + 1) - len(self.tas[nodeid])):
+            self.tas[nodeid].append(-1)
+        self.tas[nodeid][instance] = actorid
 

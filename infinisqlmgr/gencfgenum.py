@@ -26,40 +26,40 @@
 import sys
 
 cfgdict = {
-  'CMDNONE': 0,
-  'CMDOK': 1,
-  'CMDNOTOK': 2,
-  'CMDGET': 3,
-  'CMDSET': 4,
-  'CMDANONYMOUSPING': 5, 
-  'CMDBADLOGINMESSAGES': 6,
-  'CMDSTART': 7,
-  'CMDSTOP': 8,
-  'CMDLISTENER': 9,
-  'CMDUSERSCHEMAMGR': 11,
-  'CMDDEADLOCKMGR': 12,
-  'CMDTRANSACTIONAGENT': 13,
-  'CMDENGINE': 14,
-  'CMDOBGATEWAY': 15,
-  'CMDIBGATEWAY': 16,
-  'CMDGLOBALCONFIG': 17,
-  'CMDLOCALCONFIG': 18,
-  'CMDGETTOPOLOGYMGRMBOXPTR': 19,
-  'CMDOBGATEWAY': 20,
-  'CMDPGHANDLER': 21
+    'CMDNONE': 0,
+    'CMDOK': 1,
+    'CMDNOTOK': 2,
+    'CMDGET': 3,
+    'CMDSET': 4,
+    'CMDANONYMOUSPING': 5,
+    'CMDBADLOGINMESSAGES': 6,
+    'CMDSTART': 7,
+    'CMDSTOP': 8,
+    'CMDLISTENER': 9,
+    'CMDUSERSCHEMAMGR': 11,
+    'CMDDEADLOCKMGR': 12,
+    'CMDTRANSACTIONAGENT': 13,
+    'CMDENGINE': 14,
+    'CMDOBGATEWAY': 15,
+    'CMDIBGATEWAY': 16,
+    'CMDGLOBALCONFIG': 17,
+    'CMDLOCALCONFIG': 18,
+    'CMDGETTOPOLOGYMGRMBOXPTR': 19,
+    'CMDOBGATEWAY': 20,
+    'CMDPGHANDLER': 21
 }
 
 actortypesdict = {
-  'ACTOR_NONE': 0,
-  'ACTOR_TOPOLOGYMGR': 1,
-  'ACTOR_TRANSACTIONAGENT': 3,
-  'ACTOR_ENGINE': 4,
-  'ACTOR_USERSCHEMAMGR': 5,
-  'ACTOR_DEADLOCKMGR': 6,
-  'ACTOR_OBGATEWAY': 7,
-  'ACTOR_IBGATEWAY': 8,
-  'ACTOR_LISTENER': 9,
-  'ACTOR_PGHANDLER': 10
+    'ACTOR_NONE': 0,
+    'ACTOR_TOPOLOGYMGR': 1,
+    'ACTOR_TRANSACTIONAGENT': 3,
+    'ACTOR_ENGINE': 4,
+    'ACTOR_USERSCHEMAMGR': 5,
+    'ACTOR_DEADLOCKMGR': 6,
+    'ACTOR_OBGATEWAY': 7,
+    'ACTOR_IBGATEWAY': 8,
+    'ACTOR_LISTENER': 9,
+    'ACTOR_PGHANDLER': 10
 }
 
 firstactorid = 100
@@ -76,25 +76,24 @@ enum cfgenum_e\n\
 
 l = 0
 for k in cfgdict.keys():
-  if l:
-    cheader.write(',\n')
-  else:
-    l = 1
-  cheader.write('  ' + k + ' = ' + str(cfgdict[k]))
+    if l:
+        cheader.write(',\n')
+    else:
+        l = 1
+    cheader.write('  ' + k + ' = ' + str(cfgdict[k]))
 
-cheader.write ('\n};\n\n')
- 
+cheader.write('\n};\n\n')
+
 cheader.write('enum actortypes_e\n\
 {\n')
 
 l = 0
 for k in actortypesdict.keys():
-  if l:
-    cheader.write(',\n')
-  else:
-    l = 1
-  cheader.write(' ' + k + ' = ' + str(actortypesdict[k]))
-
+    if l:
+        cheader.write(',\n')
+    else:
+        l = 1
+    cheader.write(' ' + k + ' = ' + str(actortypesdict[k]))
 
 cheader.write('\n};\n\n')
 
@@ -116,11 +115,11 @@ cfgforwarddict = {\n')
 
 l = 0
 for k in cfgdict.keys():
-  if l:
-    pheader.write(',\n')
-  else:
-    l = 1
-  pheader.write('  \'' + k + '\': ' + str(cfgdict[k]))
+    if l:
+        pheader.write(',\n')
+    else:
+        l = 1
+    pheader.write('  \'' + k + '\': ' + str(cfgdict[k]))
 
 pheader.write('\n}\n\n')
 
@@ -128,11 +127,11 @@ pheader.write('cfgreversedict = {\n')
 
 l = 0
 for k in cfgdict.keys():
-  if l:
-    pheader.write(',\n')
-  else:
-    l =1
-  pheader.write('  ' + str(cfgdict[k]) + ': \'' + k + '\'')
+    if l:
+        pheader.write(',\n')
+    else:
+        l = 1
+    pheader.write('  ' + str(cfgdict[k]) + ': \'' + k + '\'')
 
 pheader.write('\n}\n\n')
 
@@ -140,11 +139,11 @@ pheader.write('actortypesforwarddict = {\n')
 
 l = 0
 for k in actortypesdict.keys():
-  if l:
-    pheader.write(',\n')
-  else:
-    l = 1
-  pheader.write('  \'' + k + '\': ' + str(actortypesdict[k]))
+    if l:
+        pheader.write(',\n')
+    else:
+        l = 1
+    pheader.write('  \'' + k + '\': ' + str(actortypesdict[k]))
 
 pheader.write('\n}\n\n')
 
@@ -152,11 +151,11 @@ pheader.write('actortypesreversedict = {\n')
 
 l = 0
 for k in actortypesdict.keys():
-  if l:
-    pheader.write(',\n')
-  else:
-    l =1
-  pheader.write('  ' + str(actortypesdict[k]) + ': \'' + k + '\'')
+    if l:
+        pheader.write(',\n')
+    else:
+        l = 1
+    pheader.write('  ' + str(actortypesdict[k]) + ': \'' + k + '\'')
 
 pheader.write('\n}\n\n')
 

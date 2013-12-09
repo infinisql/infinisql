@@ -23,14 +23,15 @@
 # directory in a file entitled "COPYING".
 # If not, see <http://www.gnu.org/licenses/>.
 
-import cfg
 import os
+
+import cfg
+
 
 os.environ["LD_PRELOAD"] = "/usr/local/lib/libllalloc.so.1.4"
 
 # launch and configure each node
 for id in sorted(cfg.nodes):
-#  print "enable " + str(id) + ", " + str(cfg.nodes[id].id)
-  cfg.nodes[id].enable()
-#  n.enable()
+    cfg.nodes[id].enable()
+
 
