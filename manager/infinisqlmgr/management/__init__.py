@@ -11,6 +11,9 @@ import time
 import msgpack
 import zmq
 
+from infinisqlmgr.management import msg
+from infinisqlmgr.management import election
+
 class Controller(object):
     def __init__(self, cluster_name, mcast_group="224.0.0.1", mcast_port=21001, cmd_port=21000):
         self.ctx = zmq.Context.instance()
@@ -19,7 +22,13 @@ class Controller(object):
 
         self.cmd_socket = self.ctx.socket(zmq.PUB)
         self.sub_sockets = []
+
         self.nodes = set()
+        self.node_id = (self._get_ip(), cmd_port)
+        self.leader_node_id = None
+        self.current_election = None
+        self.current_cluster_time = 0
+        self.current_node_time = 0
 
         self.presence_recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.last_presence_announcement = 0
@@ -29,6 +38,8 @@ class Controller(object):
         self.mcast_group = mcast_group
         self.mcast_port = mcast_port
         self.cmd_port = cmd_port
+
+        self.message_handlers = {}
 
         self._configure_presence_socket()
         self._configure_pub_socket()
@@ -64,6 +75,24 @@ class Controller(object):
 
         ip = struct.unpack('16sH2x4s8x', res)[2]
         return socket.inet_ntoa(ip)
+
+    def _register_handler(self, msg_id, handler):
+        """
+        Register a message handler.
+
+        :param msg_id: The message id to set a handler for.
+        :param handler:  The handler to set.
+        :return: None
+        """
+        self.message_handlers[msg_id] = handler
+
+    def _unregister_handler(self, msg_id):
+        """
+        Unregister a message handler.
+        :param msg_id: The message id to drop.
+        :return: None
+        """
+        del self.message_handlers[msg_id]
 
     def add_node(self, cluster_name, remote_ip, remote_port):
         """
@@ -118,6 +147,57 @@ class Controller(object):
         cluster_name, remote_ip, remote_port = msgpack.unpackb(data)
         self.add_node(cluster_name.decode("ascii"), remote_ip.decode("ascii"), remote_port)
 
+    def _stop_signal_handler(self, signum, frame):
+        """
+        Handles SIGTERM to stop the process.
+
+        :param signum: The signal (should be SIGTERM.)
+        :param frame: The frame from the signal.
+        :return: None
+        """
+        logging.debug("caught termination signal: signal %d", signum)
+        self.stop()
+
+    def _elect_leader(self):
+        """
+        Processes the leader election. If no election is in progress then a new election is started. If an election is
+        in progress we check to see if the election is ready to proceed. If so, we election a new leader and terminate
+        the election.
+
+        :return: None
+        """
+        if self.current_election is None:
+            self.current_election = election.Election(self.nodes)
+            self._send(msg.ELECT_LEADER, msgpack.packb(self.current_election.get_best_candidate(), self.current_node_time))
+            return
+
+        if not self.current_election.ready(self.current_node_time):
+            return
+
+        self.leader_node_id = self.current_election.get_winner()
+        self.current_election = None
+
+    def _check_topology_stability(self):
+        """
+        Performs some stability checks to make sure that the topology is in an optimal state. If an optimal state
+         can't be achieved, at least check to see if we are in a functional degraded state.
+        :return: None
+        """
+        if self.leader_node_id is None:
+            self._elect_leader()
+
+    def _send(self, msg_id, payload):
+        """
+        Sends a message on the command socket.
+        :param msg_id: The message id.
+        :param payload: The payload associated with the message.
+        :return: None
+        """
+        self.cmd_socket.send(msgpack.packb((msg_id, payload)))
+
+    def on_elect_leader(self, m):
+        pass
+
     def announce_presence(self, force=False):
         """
         Send a presence announcement to the local network segment.
@@ -150,17 +230,6 @@ class Controller(object):
         """
         return node_id in self.nodes
 
-    def _stop_signal_handler(self, signum, frame):
-        """
-        Handles SIGTERM to stop the process.
-
-        :param signum: The signal (should be SIGTERM.)
-        :param frame: The frame from the signal.
-        :return: None
-        """
-        logging.debug("caught termination signal: signal %d", signum)
-        self.stop()
-
     def stop(self):
         """
         Sets the flag to stop the management process. This may take a second to react.
@@ -169,12 +238,21 @@ class Controller(object):
         logging.info("Setting stop flag for management process.")
         self.keep_going = False
 
+    def process_leader_tasks(self):
+        """
+        Performs processing of tasks delegated to the leader.
+        :return:
+        """
+        self.current_cluster_time+=1
+
     def process(self):
         """
         Performs one loop of the poll process for network I/O. This may wait up to 1 second before returning if
         there is no pending activity.
         :return: None
         """
+        self.current_node_time+=1
+
         events = self.presence_poller.poll(500)
         for sock, event in events:
             self._process_presence(self.presence_recv_socket)
@@ -182,6 +260,13 @@ class Controller(object):
         events = self.poller.poll(timeout=500)
         for sock, event in events:
             self._process_publication(sock)
+
+        # Perform local stability tasks
+        self._check_topology_stability()
+
+        # Perform leader tasks if I am the leader.
+        if self.leader_node_id == self.node_id:
+            self.process_leader_tasks()
 
     def run(self):
         """
@@ -201,6 +286,10 @@ class Controller(object):
         return 0
 
     def shutdown(self):
+        """
+        Shuts down this management node, releases all resources.
+        :return: None
+        """
         self.stop()
         self.presence_poller.unregister(self.presence_recv_socket)
         for sock in self.sub_sockets:
