@@ -61,7 +61,7 @@ class Controller(object):
             return None
         finally:
             sock.close()
-            
+
         ip = struct.unpack('16sH2x4s8x', res)[2]
         return socket.inet_ntoa(ip)
 
