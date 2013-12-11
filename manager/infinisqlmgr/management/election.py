@@ -14,6 +14,12 @@ class Election(object):
         self.election_started = election_started
         self.election_duration = election_duration
 
+    def __unicode__(self):
+        return "Election (%d voters, %d nodes)" % (len(self.voters), len(self.nodes))
+
+    def __repr__(self):
+        return self.__unicode__()
+
     def ready(self, current_node_time):
         """
         Indicates if the election is ready to proceed.
@@ -35,6 +41,7 @@ class Election(object):
         :param vote_from: The node id the vote is from.
         :return: None
         """
+
         # No duplicate votes
         if vote_from in self.voters:
             return
@@ -44,7 +51,8 @@ class Election(object):
             return
 
         # Tally a vote
-        self.votes[vote_for] += 1
+        current_vote = self.votes.get(vote_for, 0)
+        self.votes[vote_for] = current_vote+1
         self.voters.add(vote_from)
 
     def has_majority(self):

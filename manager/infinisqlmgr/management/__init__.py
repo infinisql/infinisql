@@ -23,12 +23,13 @@ class Controller(object):
         self.cmd_socket = self.ctx.socket(zmq.PUB)
         self.sub_sockets = []
 
-        self.nodes = set()
         self.node_id = (self._get_ip(), cmd_port)
+        self.nodes = set([self.node_id])
         self.leader_node_id = None
         self.current_election = None
         self.current_cluster_time = 0
         self.current_node_time = 0
+        self.settle_time = 10
 
         self.presence_recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.last_presence_announcement = 0
@@ -43,11 +44,16 @@ class Controller(object):
 
         self._configure_presence_socket()
         self._configure_pub_socket()
+        self._configure_message_handlers()
 
         # Flag is set to False when it's time to stop.
         self.keep_going = True
 
     def _configure_presence_socket(self):
+        """
+        Configures the presence socket.
+        :return: None
+        """
         self.presence_recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.presence_recv_socket.bind((self.mcast_group, self.mcast_port))
         multicast_req = struct.pack("=4sl", socket.inet_aton(self.mcast_group), socket.INADDR_ANY)
@@ -55,7 +61,23 @@ class Controller(object):
         self.presence_poller.register(self.presence_recv_socket, select.POLLIN)
 
     def _configure_pub_socket(self):
+        """
+        Configures the command publisher socket.
+        :return: None
+        """
         self.cmd_socket.bind("tcp://*:%d" % self.cmd_port)
+
+    def _configure_message_handlers(self):
+        """
+        Configures message handlers for all messages in the system.
+        :return: None
+        """
+        for item in dir(msg):
+            handler_name = "on_" + item.lower()
+            if not hasattr(self, handler_name):
+                continue
+            self._register_handler(getattr(msg, item), getattr(self, handler_name))
+
 
     def _get_ip(self, interface="eth0"):
         """
@@ -94,6 +116,74 @@ class Controller(object):
         """
         del self.message_handlers[msg_id]
 
+    def _process_publication(self, sock):
+        """
+        Processes a publication from another management node.
+
+        :param sock: The ZMQ socket to handle data from.
+        :return: None
+        """
+        data = sock.recv()
+        msg_id, payload = msgpack.unpackb(data)
+        handler = self.message_handlers.get(msg_id)
+        if handler is not None:
+            handler(payload)
+
+    def _process_presence(self, sock):
+        data = sock.recv(4096)
+        cluster_name, remote_ip, remote_port = msgpack.unpackb(data)
+        self.add_node(cluster_name.decode("ascii"), remote_ip.decode("ascii"), remote_port)
+
+    def _stop_signal_handler(self, signum, frame):
+        """
+        Handles SIGTERM to stop the process.
+
+        :param signum: The signal (should be SIGTERM.)
+        :param frame: The frame from the signal.
+        :return: None
+        """
+        logging.debug("caught termination signal: signal %d", signum)
+        self.stop()
+
+    def _elect_leader(self):
+        """
+        Processes the leader election. If no election is in progress then a new election is started. If an election is
+        in progress we check to see if the election is ready to proceed. If so, we election a new leader and terminate
+        the election.
+
+        :return: None
+        """
+        if self.current_election is None:
+            self.current_election = election.Election(self.nodes, self.current_node_time)
+            best_candidate = self.current_election.get_best_candidate()
+            self.current_election.tally(best_candidate, self.node_id)
+            self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, self.node_id)))
+            return
+
+        if not self.current_election.ready(self.current_node_time):
+            return
+
+        self.leader_node_id = self.current_election.get_winner()
+        self.current_election = None
+
+    def _check_topology_stability(self):
+        """
+        Performs some stability checks to make sure that the topology is in an optimal state. If an optimal state
+         can't be achieved, at least check to see if we are in a functional degraded state.
+        :return: None
+        """
+        if self.leader_node_id is None and self.current_node_time > self.settle_time:
+            self._elect_leader()
+
+    def _send(self, msg_id, payload):
+        """
+        Sends a message on the command socket.
+        :param msg_id: The message id.
+        :param payload: The payload associated with the message.
+        :return: None
+        """
+        self.cmd_socket.send(msgpack.packb((msg_id, payload)))
+
     def add_node(self, cluster_name, remote_ip, remote_port):
         """
         Processes a presence announcement on the multicast socket. This will register
@@ -127,76 +217,21 @@ class Controller(object):
         remote_pub = "tcp://%s:%d" % (remote_ip, remote_port)
         sub_sock = self.ctx.socket(zmq.SUB)
         sub_sock.connect(remote_pub)
+        sub_sock.setsockopt(zmq.SUBSCRIBE, bytes())
         self.sub_sockets.append(sub_sock)
 
         # Register the new subscription socket.
         self.poller.register(sub_sock, flags=zmq.POLLIN)
         self.nodes.add(node_id)
 
-    def _process_publication(self, sock):
-        """
-        Processes a publication from another management node.
-
-        :param sock: The ZMQ socket to handle data from.
-        :return: None
-        """
-        pass
-
-    def _process_presence(self, sock):
-        data = sock.recv(4096)
-        cluster_name, remote_ip, remote_port = msgpack.unpackb(data)
-        self.add_node(cluster_name.decode("ascii"), remote_ip.decode("ascii"), remote_port)
-
-    def _stop_signal_handler(self, signum, frame):
-        """
-        Handles SIGTERM to stop the process.
-
-        :param signum: The signal (should be SIGTERM.)
-        :param frame: The frame from the signal.
-        :return: None
-        """
-        logging.debug("caught termination signal: signal %d", signum)
-        self.stop()
-
-    def _elect_leader(self):
-        """
-        Processes the leader election. If no election is in progress then a new election is started. If an election is
-        in progress we check to see if the election is ready to proceed. If so, we election a new leader and terminate
-        the election.
-
-        :return: None
-        """
-        if self.current_election is None:
-            self.current_election = election.Election(self.nodes)
-            self._send(msg.ELECT_LEADER, msgpack.packb(self.current_election.get_best_candidate(), self.current_node_time))
-            return
-
-        if not self.current_election.ready(self.current_node_time):
-            return
-
-        self.leader_node_id = self.current_election.get_winner()
-        self.current_election = None
-
-    def _check_topology_stability(self):
-        """
-        Performs some stability checks to make sure that the topology is in an optimal state. If an optimal state
-         can't be achieved, at least check to see if we are in a functional degraded state.
-        :return: None
-        """
-        if self.leader_node_id is None:
-            self._elect_leader()
-
-    def _send(self, msg_id, payload):
-        """
-        Sends a message on the command socket.
-        :param msg_id: The message id.
-        :param payload: The payload associated with the message.
-        :return: None
-        """
-        self.cmd_socket.send(msgpack.packb((msg_id, payload)))
-
     def on_elect_leader(self, m):
-        pass
+        if self.current_election is None:
+            return
+
+        candidate, voter = msgpack.unpackb(m)
+        candidate = (candidate[0].decode("ascii"), candidate[1])
+        voter = (voter[0].decode("ascii"), voter[1])
+        self.current_election.tally(candidate, voter)
 
     def announce_presence(self, force=False):
         """
@@ -253,16 +288,18 @@ class Controller(object):
         """
         self.current_node_time+=1
 
-        events = self.presence_poller.poll(500)
+        # Perform local stability tasks
+        self._check_topology_stability()
+
+        # Poll presence socket
+        events = self.presence_poller.poll(50)
         for sock, event in events:
             self._process_presence(self.presence_recv_socket)
 
-        events = self.poller.poll(timeout=500)
+        # Poll ZMQ sockets
+        events = self.poller.poll(timeout=50)
         for sock, event in events:
             self._process_publication(sock)
-
-        # Perform local stability tasks
-        self._check_topology_stability()
 
         # Perform leader tasks if I am the leader.
         if self.leader_node_id == self.node_id:
