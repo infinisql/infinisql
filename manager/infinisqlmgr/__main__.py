@@ -30,8 +30,13 @@ def main():
 
     server.add_args(parser.add_subparsers())
 
-    # Commands are actually executed by parse_args().
-    parser.parse_args()
+    # Process the arguments
+    args = parser.parse_args()
+
+    # The func attribute is set by parse_args() and represents the command handler
+    # for whatever sub-command was specified by the user.
+    args.func(args)
+
 
 if __name__ == "__main__":
     main()
