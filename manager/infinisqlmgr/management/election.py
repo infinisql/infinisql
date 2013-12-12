@@ -27,10 +27,23 @@ class Election(object):
         :param current_node_time: The current node time.
         :return:
         """
-        if current_node_time - self.election_started <= self.election_duration:
+        if not self.election_has_concluded(current_node_time):
             return False
 
         return self.has_majority()
+
+    def undecideable(self, current_node_time):
+        """
+        Indicates if the election is undecideable. This occurs when the election duration period has
+        passed and there are not enough voters to decide anything.
+
+        :return: True if the election is undecideable, False otherwise
+        """
+        if not self.election_has_concluded(current_node_time):
+            return False
+
+        return not self.has_majority()
+
 
     def tally(self, vote_for, vote_from):
         """
@@ -78,6 +91,14 @@ class Election(object):
 
         # We have not reached a majority.
         return False
+
+    def election_has_concluded(self, current_node_time):
+        """
+        Indicates if the election has concluded, meaning the time for the election has elapsed.
+        :param current_node_time: The current node time.
+        :return: True if the election has concluded, False otherwise.
+        """
+        return not (current_node_time - self.election_started <= self.election_duration)
 
     def get_best_candidate(self):
         """

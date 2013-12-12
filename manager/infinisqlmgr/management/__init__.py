@@ -154,17 +154,26 @@ class Controller(object):
         :return: None
         """
         if self.current_election is None:
+            logging.info("No leader, node=%s forcing election.", self.node_id)
             self.current_election = election.Election(self.nodes, self.current_node_time)
             best_candidate = self.current_election.get_best_candidate()
+
+            logging.info("Node %s voting for %s", self.node_id, best_candidate)
             self.current_election.tally(best_candidate, self.node_id)
             self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, self.node_id)))
             return
 
         if not self.current_election.ready(self.current_node_time):
+            if self.current_election.undecideable(self.current_node_time):
+                logging.info("Election is undecideable, forcing re-election.")
+                self.current_election = None
+                self.leader_node_id = None
             return
 
         self.leader_node_id = self.current_election.get_winner()
         self.current_election = None
+
+        logging.info("Elected new leader, node=%s", self.leader_node_id)
 
     def _check_topology_stability(self):
         """
@@ -225,12 +234,17 @@ class Controller(object):
         self.nodes.add(node_id)
 
     def on_elect_leader(self, m):
-        if self.current_election is None:
-            return
-
         candidate, voter = msgpack.unpackb(m)
         candidate = (candidate[0].decode("ascii"), candidate[1])
         voter = (voter[0].decode("ascii"), voter[1])
+
+        if self.current_election is None:
+            remote_node_id = (candidate, voter)
+            logging.info("Election forced by %s, evicting old leader %s", remote_node_id, self.leader_node_id)
+
+            self.leader_node_id = None
+            self._elect_leader()
+
         self.current_election.tally(candidate, voter)
 
     def announce_presence(self, force=False):

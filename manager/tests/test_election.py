@@ -24,7 +24,6 @@ class TestElection(unittest.TestCase):
         self.assertEqual(len(self.nodes), len(self.election.votes))
         self.assertEqual(1, len(self.election.voters))
 
-
         self.election.tally(node1_id, node2_id)
         self.assertFalse(self.election.ready(12))
         self.assertEqual(len(self.nodes), len(self.election.votes))
@@ -36,6 +35,13 @@ class TestElection(unittest.TestCase):
         self.election.tally(node1_id, node3_id)
 
         self.assertTrue(self.election.ready(25))
+
+    def test_election_undecideable(self):
+        self.election.tally(node1_id, node1_id)
+        self.election.tally(node2_id, node2_id)
+
+        self.assertTrue(self.election.undecideable(25))
+
 
     def test_get_best_candidate(self):
         self.assertEqual(node3_id, self.election.get_best_candidate())
