@@ -12,3 +12,5 @@ autom4te.cache
 #.*#
 *.orig
 .*.swp
+infinisqld/infinisql_cfgenum.h
+infinisqlmgr/cfgenum.py

@@ -3193,7 +3193,7 @@ schema definitions. There is only 1 active UserSchemaMgr per cluster.
 <para>
 API for creating stored procedures. Pg objects also inherit from
 this class, because they perform the same types of transactional activities
-as a stored procedure.
+as a 0 procedure.
 </para>
 </sect2>
 <sect2>
