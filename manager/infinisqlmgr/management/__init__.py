@@ -234,6 +234,14 @@ class Controller(object):
         self.nodes.add(node_id)
 
     def on_elect_leader(self, m):
+        """
+        If this message is received while an election is in progress, then the message is considered as a
+        vote from the node. If no election is in progress then this message forces an election. The received
+        message is saved and tallied after a local election in the node is started.
+
+        :param m: The message payload.
+        :return: None
+        """
         candidate, voter = msgpack.unpackb(m)
         candidate = (candidate[0].decode("ascii"), candidate[1])
         voter = (voter[0].decode("ascii"), voter[1])
