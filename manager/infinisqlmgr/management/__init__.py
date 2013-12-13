@@ -40,6 +40,7 @@ class Controller(object):
         self.current_election = None
         self.current_cluster_time = 0
         self.current_node_time = 0
+        self.current_election_id = 0
         self.settle_time = 10
         self.heartbeat_period = 10
         self.node_partition_threshold = 50
@@ -176,7 +177,7 @@ class Controller(object):
 
             logging.info("Node %s voting for %s", self.node_id, best_candidate)
             self.current_election.tally(best_candidate, self.node_id)
-            self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, self.node_id)))
+            self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, self.node_id, self.current_election_id)))
             return
 
         if not self.current_election.ready(self.current_node_time):
@@ -188,8 +189,10 @@ class Controller(object):
 
         self.leader_node_id = self.current_election.get_winner()
         self.current_election = None
+        self.current_election_id += 1
 
-        logging.info("Elected new leader, node=%s", self.leader_node_id)
+        logging.info("On node=%s, elected new leader=%s in election %s",
+                     self.node_id, self.leader_node_id, self.current_election_id-1)
 
     def _beat_heart(self):
         """
@@ -296,6 +299,9 @@ class Controller(object):
         # Initialize the heartbeat
         self.heartbeats[node_id] = self.current_node_time
 
+        # Erase the leader
+        self.leader_node_id = None
+
     def on_elect_leader(self, m):
         """
         If this message is received while an election is in progress, then the message is considered as a
@@ -305,11 +311,19 @@ class Controller(object):
         :param m: The message payload.
         :return: None
         """
-        candidate, voter = msgpack.unpackb(m, encoding="utf8")
+        candidate, voter, election_id = msgpack.unpackb(m, encoding="utf8")
+
+        # If we receive an election request for an election newer than ours. Restart the election.
+        if election_id > self.current_election_id:
+            logging.info("Election %s is newer than %s, abandoning current election.",
+                         election_id, self.current_election_id)
+            self.current_election = None
+            self.current_election_id = election_id
 
         if self.current_election is None:
             remote_node_id = (candidate, voter)
-            logging.info("Election forced by %s, evicting old leader %s", remote_node_id, self.leader_node_id)
+            logging.info("Election %s forced by %s, evicting old leader %s",
+                         self.current_election_id, remote_node_id, self.leader_node_id)
 
             self.leader_node_id = None
             self._elect_leader()
@@ -389,14 +403,21 @@ class Controller(object):
         self._check_topology_stability()
 
         # Poll presence socket
-        events = self.presence_poller.poll(50)
-        for sock, event in events:
-            self._process_presence(self.presence_recv_socket)
+        while True:
+            events = self.presence_poller.poll(50)
+            for sock, event in events:
+                self._process_presence(self.presence_recv_socket)
+            if not events:
+                break
+
 
         # Poll ZMQ sockets
-        events = self.poller.poll(timeout=50)
-        for sock, event in events:
-            self._process_publication(sock)
+        while True:
+            events = self.poller.poll(timeout=50)
+            for sock, event in events:
+                self._process_publication(sock)
+            if not events:
+                break
 
         # Perform leader tasks if I am the leader.
         if self.leader_node_id == self.node_id:
