@@ -9,28 +9,21 @@ memory = ["total", "available", "percent", "used", "free", "active", "inactive",
 cpu = ["user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"]
 disk = ["total", "used", "free", "percent"]
 
-class Heartbeat(object):
-    # The amount of node ticks to not hear a heartbeat before we assume that node
-    # has been partitioned from us.
-    partition_threshold = 50
-
-    def __init__(self, node_id, current_node_time, data_dir):
+class Health(object):
+    def __init__(self, node_id, data_dir):
         self.path = os.path.join(data_dir, "heartbeat", node_id[0], str(node_id[1]))
         self.node_id = node_id
-        self.last_heartbeat = current_node_time
-        self.serialized = None
 
         self.cpu_load = DataPoint(self.path, "cpu.load")
         self.mem = [DataPoint(self.path, "mem.%s" % item) for item in memory]
         self.cpu = [DataPoint(self.path, "cpu.%s" % item) for item in cpu]
         self.dsk = {}
 
-    def capture(self, current_node_time):
+    def capture(self):
         """
         Captures stats of the local system.
         :return: None
         """
-        self.last_heartbeat = current_node_time
         self.cpu_load.update(psutil.cpu_percent(interval=None))
         for i, value in enumerate(psutil.cpu_times()):
             self.cpu[i].update(value)
@@ -81,22 +74,5 @@ class Heartbeat(object):
 
         values = [x for x in dp.fetch(from_time, until_time)[1] if x is not None]
         return sum(values) / len(values)
-
-
-    def update(self, m, current_node_time):
-        """
-        Updates the heartbeat values associated with this heartbeat node.
-        :param current_node_time: The node time when this message was received.
-        :return: None
-        """
-        self.last_heartbeat = current_node_time
-
-    def is_partitioned(self, current_node_time):
-        """
-        Indicates if this node has been partitioned from the container node.
-        :param current_node_time: The current node time.
-        :return: True if the node represented by this Heartbeat object is partitioned, else False
-        """
-        return current_node_time - self.last_heartbeat > self.partition_threshold
 
 
