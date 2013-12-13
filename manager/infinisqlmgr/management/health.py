@@ -5,7 +5,7 @@ import time
 
 import psutil
 
-from infinisqlmgr.management.data_point import DataPoint
+from infinisqlmgr.management.metric import Metric
 
 memory = ["total", "available", "percent", "used", "free", "active", "inactive", "buffers", "cached"]
 swap = ["total", "used", "free", "percent", "sin", "sout"]
@@ -16,22 +16,31 @@ net_io = ["bytes_sent", "bytes_recv", "packets_sent", "packets_recv", "errin", "
 
 class Health(object):
     def __init__(self, node_id, data_dir):
+        """
+        Creates a new health object for the given node. Databases for health statistics will be created in
+        the 'data_dir'. The databases use the "whisper" database format from graphite, so they automatically
+        handle long-term storage with decreasing resolution. Once the databases are created they never grow
+        or shrink, regardless of the amount of data stored.
+
+        :param node_id: The node to create this health object for.
+        :param data_dir: The data directory to use for the health stats.
+        """
         self.path = os.path.join(data_dir, "heartbeat", node_id[0], str(node_id[1]))
         self.node_id = node_id
         self.memory_alert = False
         self.swap_alert = False
 
-        self.cpu_load = DataPoint(self.path, "cpu.load")
-        self.mem = [DataPoint(self.path, "mem.%s" % item) for item in memory]
-        self.swp = [DataPoint(self.path, "swp.%s" % item) for item in swap]
-        self.cpu = [DataPoint(self.path, "cpu.%s" % item) for item in cpu]
+        self.cpu_load = Metric(self.path, "cpu.load")
+        self.mem = [Metric(self.path, "mem.%s" % item) for item in memory]
+        self.swp = [Metric(self.path, "swp.%s" % item) for item in swap]
+        self.cpu = [Metric(self.path, "cpu.%s" % item) for item in cpu]
         self.dsk_sp = {}
         self.dsk_io = {}
         self.net = {}
 
     def capture(self):
         """
-        Captures stats of the local system.
+        Captures stats of the local system and writes them into the series database.
         :return: None
         """
         self.cpu_load.update(psutil.cpu_percent(interval=None))
@@ -47,7 +56,7 @@ class Health(object):
         net_io_data = psutil.net_io_counters(pernic=True)
         for name in net_io_data:
             if name not in self.net:
-                self.net[name] = [DataPoint(self.path, "net.io.%s.%s" % (name,item)) for item in net_io]
+                self.net[name] = [Metric(self.path, "net.io.%s.%s" % (name,item)) for item in net_io]
             net = self.net[name]
             for i,value in enumerate(net_io_data[name]):
                 net[i].update(value)
@@ -55,7 +64,7 @@ class Health(object):
         dsk_io_data = psutil.disk_io_counters(perdisk=True)
         for name in dsk_io_data:
             if name not in self.dsk_io:
-                self.dsk_io[name] = [DataPoint(self.path, "dsk.io.%s.%s" % (name,item)) for item in disk_io]
+                self.dsk_io[name] = [Metric(self.path, "dsk.io.%s.%s" % (name,item)) for item in disk_io]
             dsk_io = self.dsk_io[name]
             for i,value in enumerate(dsk_io_data[name]):
                 dsk_io[i].update(value)
@@ -66,7 +75,7 @@ class Health(object):
             name = "-".join([el for el in device.split("/") if el])
             # Create an new set of data points if we find a new disk.
             if name not in self.dsk_sp:
-                self.dsk_sp[name] = [DataPoint(self.path, "dsk.space.%s.%s" % (name,item)) for item in disk_space]
+                self.dsk_sp[name] = [Metric(self.path, "dsk.space.%s.%s" % (name,item)) for item in disk_space]
             # Find the disk we are storing data for
             dsk = self.dsk_sp[name]
             # Update the disk stats
@@ -74,6 +83,11 @@ class Health(object):
                 dsk[i].update(value)
 
     def lookup(self, name):
+        """
+        Lookup a metric name and resolve it to a metric database.
+        :param name: The metric name to resolve.
+        :return: A data point if it was resolvable, or None
+        """
         parts = name.split(".")
         if parts[0] == "cpu":
             if parts[1] == "load":
@@ -82,23 +96,50 @@ class Health(object):
         elif parts[0] == "mem":
             return self.mem[memory.index(parts[1])]
         elif parts[0] == "dsk":
-            return self.dsk_sp[parts[1]][disk_space.index(parts[2])]
+            if parts[1] == "space":
+                return self.dsk_sp[parts[2]][disk_space.index(parts[3])]
+            elif parts[1] == "io":
+                return self.dsk_io[parts[2]][disk_io.index(parts[3])]
+        elif parts[0] == "net":
+            if parts[1] == "io":
+                return self.net_io[parts[2]][net_io.index(parts[3])]
 
         return None
 
     def min(self, dp, from_time, until_time=None):
+        """
+        Request the minimum value from the given metric.
+        :param dp: The metric to check for minimum value.
+        :param from_time: The earliest time in the series.
+        :param until_time: The latest time in the series (optional). If omitted this defaults to now.
+        :return: The minimum value from the series requested.
+        """
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
         return min([x for x in dp.fetch(from_time, until_time)[1] if x is not None])
 
     def max(self, dp, from_time, until_time=None):
+        """
+        Request the maximum value from the given metric.
+        :param dp: The metric to check for maximum value.
+        :param from_time: The earliest time in the series.
+        :param until_time: The latest time in the series (optional). If omitted this defaults to now.
+        :return: The maximum value from the series requested.
+        """
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
         return max([x for x in dp.fetch(from_time, until_time)[1] if x is not None])
 
     def avg(self, dp, from_time, until_time=None):
+        """
+        Request the average value for the given metric.
+        :param dp: The metric to use to compute the average value.
+        :param from_time: The earliest time in the series.
+        :param until_time: The latest time in the series (optional). If omitted this defaults to now.
+        :return: The average value from the series requested.
+        """
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
@@ -130,7 +171,7 @@ class Health(object):
         :param seconds: The number of seconds of history to check for health.
         :param low_water: The low water level in memory percent used.
         :param high_water: The high water level in memory percent used.
-        :return: True if memory is healthy, False otherwise.
+       :return: True if memory is healthy, False otherwise.
         """
         self.memory_alert = not self.is_healthy("mem.percent", seconds, self.memory_alert, low_water, high_water)
         return not self.memory_alert

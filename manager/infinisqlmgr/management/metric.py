@@ -3,7 +3,7 @@ __author__ = 'Christopher Nelson'
 import os
 from infinisqlmgr.management import whisper
 
-class DataPoint(object):
+class Metric(object):
     # The default storage roll-up: one hour of one-second resolution ticks, one day of one-minute resolution ticks,
     # 30 days of one-hour resolution ticks, five years of one-day resolution ticks
     archives = [(1, 3600), (60, 1440), (3600, 720), (86400, 1825)]
