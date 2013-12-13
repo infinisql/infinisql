@@ -62,7 +62,8 @@ class Health(object):
 
         self.disk_partitions = psutil.disk_partitions()
         for disks in self.disk_partitions:
-            name = "root" if disks[1] == "/" else "-".join([el for el in disks[1].split("/") if el])
+            device = disks[0].replace("/dev/", "")
+            name = "-".join([el for el in device.split("/") if el])
             # Create an new set of data points if we find a new disk.
             if name not in self.dsk_sp:
                 self.dsk_sp[name] = [DataPoint(self.path, "dsk.space.%s.%s" % (name,item)) for item in disk_space]
