@@ -1,11 +1,6 @@
 __author__ = 'christopher'
 
-import os
-import sys
 import unittest
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-
 from infinisqlmgr.management import Controller, election
 
 node1_id = ("10.0.0.1", 11000)

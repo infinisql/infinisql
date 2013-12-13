@@ -54,6 +54,8 @@ class Election(object):
         :param vote_from: The node id the vote is from.
         :return: None
         """
+        vote_from = tuple(vote_from)
+        vote_for = tuple(vote_for)
 
         # No duplicate votes
         if vote_from in self.voters:

@@ -1,11 +1,6 @@
 __author__ = 'Christopher Nelson'
 
-import os
-import sys
 import unittest
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-
 from infinisqlmgr import management
 
 class TestAnnouncePresence(unittest.TestCase):

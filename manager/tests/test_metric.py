@@ -1,12 +1,8 @@
 __author__ = 'Christopher Nelson'
 
-import os
 import random
-import sys
 import time
 import unittest
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from infinisqlmgr.management import whisper
 from infinisqlmgr.management.metric import Metric

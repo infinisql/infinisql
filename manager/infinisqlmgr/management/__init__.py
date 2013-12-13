@@ -32,7 +32,7 @@ class Controller(object):
         self.presence_poller = select.poll()
 
         self.cmd_socket = self.ctx.socket(zmq.PUB)
-        self.sub_sockets = []
+        self.sub_sockets = {}
 
         self.node_id = (self._get_ip(), cmd_port)
         self.nodes = set([self.node_id])
@@ -41,6 +41,8 @@ class Controller(object):
         self.current_cluster_time = 0
         self.current_node_time = 0
         self.settle_time = 10
+        self.heartbeat_period = 10
+        self.node_partition_threshold = 50
 
         self.presence_recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.last_presence_announcement = 0
@@ -52,6 +54,7 @@ class Controller(object):
         self.cmd_port = cmd_port
 
         self.health = health.Health(self.node_id, data_dir)
+        self.heartbeats = {}
 
         self.message_handlers = {}
 
@@ -144,8 +147,8 @@ class Controller(object):
 
     def _process_presence(self, sock):
         data = sock.recv(4096)
-        cluster_name, remote_ip, remote_port = msgpack.unpackb(data)
-        self.add_node(cluster_name.decode("ascii"), remote_ip.decode("ascii"), remote_port)
+        cluster_name, remote_ip, remote_port = msgpack.unpackb(data, encoding="utf8")
+        self.add_node(cluster_name, remote_ip, remote_port)
 
     def _stop_signal_handler(self, signum, frame):
         """
@@ -188,6 +191,47 @@ class Controller(object):
 
         logging.info("Elected new leader, node=%s", self.leader_node_id)
 
+    def _beat_heart(self):
+        """
+        Broadcast a heartbeat, update current node time.
+        :return: None
+        """
+        self.current_node_time+=1
+        if self.current_node_time % self.heartbeat_period == 0:
+            self._send(msg.HEARTBEAT, msgpack.packb((self.cluster_name, self.node_id), encoding="utf8"))
+
+    def _evaluate_cluster_health(self):
+        """
+        Check to see if the other nodes in the cluster are still alive. If we have not received a heartbeat from
+        them in self.node_partition_threshold ticks of the node clock then we remove the nodes
+        :return: None
+        """
+        partitioned = []
+        for node_id, last_heartbeat_time in self.heartbeats.items():
+            if self.current_node_time - last_heartbeat_time > self.node_partition_threshold:
+                partitioned.append(node_id)
+
+        if not partitioned:
+            return
+
+        partition_list = ",".join([str(n) for n in partitioned])
+        logging.error("Partition involving nodes '%s' experienced.", partition_list)
+
+        if self.leader_node_id in partitioned:
+            logging.error("Leader node %s was involved in a partition event.", self.leader_node_id)
+            self.leader_node_id = None
+
+        # Remove the remote node from our registries
+        for node_id in partitioned:
+            sock = self.sub_sockets[node_id]
+            self.poller.unregister(sock)
+            sock.close()
+
+            del self.heartbeats[node_id]
+            del self.sub_sockets[node_id]
+
+            self.nodes.remove(node_id)
+
     def _check_topology_stability(self):
         """
         Performs some stability checks to make sure that the topology is in an optimal state. If an optimal state
@@ -195,6 +239,7 @@ class Controller(object):
         :return: None
         """
         self.health.capture()
+        self._evaluate_cluster_health()
         if self.leader_node_id is None and self.current_node_time > self.settle_time:
             self._elect_leader()
 
@@ -242,11 +287,14 @@ class Controller(object):
         sub_sock = self.ctx.socket(zmq.SUB)
         sub_sock.connect(remote_pub)
         sub_sock.setsockopt(zmq.SUBSCRIBE, bytes())
-        self.sub_sockets.append(sub_sock)
+        self.sub_sockets[node_id] = sub_sock
 
         # Register the new subscription socket.
         self.poller.register(sub_sock, flags=zmq.POLLIN)
         self.nodes.add(node_id)
+
+        # Initialize the heartbeat
+        self.heartbeats[node_id] = self.current_node_time
 
     def on_elect_leader(self, m):
         """
@@ -257,9 +305,7 @@ class Controller(object):
         :param m: The message payload.
         :return: None
         """
-        candidate, voter = msgpack.unpackb(m)
-        candidate = (candidate[0].decode("ascii"), candidate[1])
-        voter = (voter[0].decode("ascii"), voter[1])
+        candidate, voter = msgpack.unpackb(m, encoding="utf8")
 
         if self.current_election is None:
             remote_node_id = (candidate, voter)
@@ -269,6 +315,20 @@ class Controller(object):
             self._elect_leader()
 
         self.current_election.tally(candidate, voter)
+
+    def on_heartbeat(self, m):
+        """
+        Updates the heartbeat for some node.
+        :param m: Contains the cluster name and remote node id.
+        :return:
+        """
+        cluster_name, node_id = msgpack.unpackb(m, encoding="utf8")
+
+        # Drop heartbeat if it's for a different cluster
+        if self.cluster_name != cluster_name:
+            return
+
+        self.heartbeats[tuple(node_id)] = self.current_node_time
 
     def announce_presence(self, force=False):
         """
@@ -323,7 +383,7 @@ class Controller(object):
         there is no pending activity.
         :return: None
         """
-        self.current_node_time+=1
+        self._beat_heart()
 
         # Perform local stability tasks
         self._check_topology_stability()
@@ -366,10 +426,10 @@ class Controller(object):
         """
         self.stop()
         self.presence_poller.unregister(self.presence_recv_socket)
-        for sock in self.sub_sockets:
+        for sock in self.sub_sockets.values():
             self.poller.unregister(sock)
 
         self.presence_recv_socket.close()
         self.cmd_socket.close()
-        for sock in self.sub_sockets:
+        for sock in self.sub_sockets.values():
             sock.close()
