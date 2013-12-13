@@ -47,7 +47,7 @@ class Health(object):
         net_io_data = psutil.net_io_counters(pernic=True)
         for name in net_io_data:
             if name not in self.net:
-                self.net[name] = [DataPoint(self.path, "net.%s.%s" % (name,item)) for item in net_io]
+                self.net[name] = [DataPoint(self.path, "net.io.%s.%s" % (name,item)) for item in net_io]
             net = self.net[name]
             for i,value in enumerate(net_io_data[name]):
                 net[i].update(value)
