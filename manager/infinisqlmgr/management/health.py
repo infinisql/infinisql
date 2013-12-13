@@ -10,7 +10,9 @@ from infinisqlmgr.management.data_point import DataPoint
 memory = ["total", "available", "percent", "used", "free", "active", "inactive", "buffers", "cached"]
 swap = ["total", "used", "free", "percent", "sin", "sout"]
 cpu = ["user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"]
-disk = ["total", "used", "free", "percent"]
+disk_space = ["total", "used", "free", "percent"]
+disk_io = ["read_count", "write_count", "read_bytes", "write_bytes", "read_time", "write_time"]
+net_io = ["bytes_sent", "bytes_recv", "packets_sent", "packets_recv", "errin", "errout", "dropin", "dropout"]
 
 class Health(object):
     def __init__(self, node_id, data_dir):
@@ -23,7 +25,9 @@ class Health(object):
         self.mem = [DataPoint(self.path, "mem.%s" % item) for item in memory]
         self.swp = [DataPoint(self.path, "swp.%s" % item) for item in swap]
         self.cpu = [DataPoint(self.path, "cpu.%s" % item) for item in cpu]
-        self.dsk = {}
+        self.dsk_sp = {}
+        self.dsk_io = {}
+        self.net = {}
 
     def capture(self):
         """
@@ -40,14 +44,30 @@ class Health(object):
         for i,value in enumerate(psutil.swap_memory()):
             self.swp[i].update(value)
 
+        net_io_data = psutil.net_io_counters(pernic=True)
+        for name in net_io_data:
+            if name not in self.net:
+                self.net[name] = [DataPoint(self.path, "net.%s.%s" % (name,item)) for item in net_io]
+            net = self.net[name]
+            for i,value in enumerate(net_io_data[name]):
+                net[i].update(value)
+
+        dsk_io_data = psutil.disk_io_counters(perdisk=True)
+        for name in dsk_io_data:
+            if name not in self.dsk_io:
+                self.dsk_io[name] = [DataPoint(self.path, "dsk.io.%s.%s" % (name,item)) for item in disk_io]
+            dsk_io = self.dsk_io[name]
+            for i,value in enumerate(dsk_io_data[name]):
+                dsk_io[i].update(value)
+
         self.disk_partitions = psutil.disk_partitions()
         for disks in self.disk_partitions:
             name = "root" if disks[1] == "/" else "-".join([el for el in disks[1].split("/") if el])
             # Create an new set of data points if we find a new disk.
-            if name not in self.dsk:
-                self.dsk[name] = [DataPoint(self.path, "dsk.%s.%s" % (name,item)) for item in disk]
+            if name not in self.dsk_sp:
+                self.dsk_sp[name] = [DataPoint(self.path, "dsk.space.%s.%s" % (name,item)) for item in disk_space]
             # Find the disk we are storing data for
-            dsk = self.dsk[name]
+            dsk = self.dsk_sp[name]
             # Update the disk stats
             for i, value in enumerate(psutil.disk_usage(disks[1])):
                 dsk[i].update(value)
@@ -61,7 +81,7 @@ class Health(object):
         elif parts[0] == "mem":
             return self.mem[memory.index(parts[1])]
         elif parts[0] == "dsk":
-            return self.dsk[parts[1]][disk.index(parts[2])]
+            return self.dsk_sp[parts[1]][disk_space.index(parts[2])]
 
         return None
 
