@@ -1,0 +1,33 @@
+To run all unit tests for the manager, run _from this folder_ the command:
+
+python3 -m unittest
+
+If you are not in the right folder the tests won't import or they won't be found. You should see something like this
+as the output:
+
+christopher@eon-dev:~/workspace/infinisql/infinisql/manager$ python3 -m unittest
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 52.507s
+
+OK
+
+----
+If you want to run a single test case you must specify the test's module path:
+
+python3 -m unittest tests.test_election.TestElection
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 7.892s
+
+OK
+
+----
+You can also run a single test:
+
+python3 -m unittest tests.test_election.TestElection.test_tally_vote
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
