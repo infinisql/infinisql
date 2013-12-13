@@ -13,9 +13,20 @@ import zmq
 
 from infinisqlmgr.management import msg
 from infinisqlmgr.management import election
+from infinisqlmgr.management import health
+
 
 class Controller(object):
-    def __init__(self, cluster_name, mcast_group="224.0.0.1", mcast_port=21001, cmd_port=21000):
+    def __init__(self, cluster_name, data_dir="/tmp", mcast_group="224.0.0.1", mcast_port=21001, cmd_port=21000):
+        """
+        Creates a new management node controller.
+
+        :param cluster_name: The cluster name that this node should belong to.
+        :param data_dir:  The directory where data related to management status should be stored.
+        :param mcast_group: The multicast group address.
+        :param mcast_port: The port for the multicast group.
+        :param cmd_port: The TCP command port for the management node.
+        """
         self.ctx = zmq.Context.instance()
         self.poller = zmq.Poller()
         self.presence_poller = select.poll()
@@ -39,6 +50,8 @@ class Controller(object):
         self.mcast_group = mcast_group
         self.mcast_port = mcast_port
         self.cmd_port = cmd_port
+
+        self.health = health.Health(self.node_id, data_dir)
 
         self.message_handlers = {}
 
@@ -181,8 +194,10 @@ class Controller(object):
          can't be achieved, at least check to see if we are in a functional degraded state.
         :return: None
         """
+        self.health.capture()
         if self.leader_node_id is None and self.current_node_time > self.settle_time:
             self._elect_leader()
+
 
     def _send(self, msg_id, payload):
         """

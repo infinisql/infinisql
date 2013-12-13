@@ -25,7 +25,7 @@ class Health(object):
         :param node_id: The node to create this health object for.
         :param data_dir: The data directory to use for the health stats.
         """
-        self.path = os.path.join(data_dir, "heartbeat", node_id[0], str(node_id[1]))
+        self.path = os.path.join(data_dir, "health", node_id[0], str(node_id[1]))
         self.node_id = node_id
         self.memory_alert = False
         self.swap_alert = False

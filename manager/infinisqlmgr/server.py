@@ -25,7 +25,7 @@ def start_management_server(args):
         return 0
 
     logging.debug("creating management process")
-    management_server = management.Controller(args.cluster_name)
+    management_server = management.Controller(args.cluster_name, os.path.join(args.dist_dir, "var", "infinisql"))
     logging.debug("starting management process")
     return management_server.run()
 

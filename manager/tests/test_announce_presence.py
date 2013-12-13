@@ -22,8 +22,8 @@ class TestAnnouncePresence(unittest.TestCase):
         self.c1.process()
         self.c2.process()
 
-        self.assertEqual(0, len(self.c1.get_nodes()))
-        self.assertEqual(1, len(self.c2.get_nodes()))
+        self.assertEqual(1, len(self.c1.get_nodes()))
+        self.assertEqual(2, len(self.c2.get_nodes()))
 
     def test_mutual_announce(self):
         ip = self.c1._get_ip()
@@ -38,8 +38,8 @@ class TestAnnouncePresence(unittest.TestCase):
         c1_nodes = self.c1.get_nodes()
         c2_nodes = self.c2.get_nodes()
 
-        self.assertEqual(1, len(c1_nodes))
-        self.assertEqual(1, len(c2_nodes))
+        self.assertEqual(2, len(c1_nodes))
+        self.assertEqual(2, len(c2_nodes))
 
         self.assertTrue((ip, 11000) in c2_nodes)
         self.assertTrue((ip, 12000) in c1_nodes)
