@@ -1,11 +1,14 @@
 __author__ = 'Christopher Nelson'
 
 import os
+import time
+
 import psutil
 
 from infinisqlmgr.management.data_point import DataPoint
 
 memory = ["total", "available", "percent", "used", "free", "active", "inactive", "buffers", "cached"]
+swap = ["total", "used", "free", "percent", "sin", "sout"]
 cpu = ["user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"]
 disk = ["total", "used", "free", "percent"]
 
@@ -13,9 +16,12 @@ class Health(object):
     def __init__(self, node_id, data_dir):
         self.path = os.path.join(data_dir, "heartbeat", node_id[0], str(node_id[1]))
         self.node_id = node_id
+        self.memory_alert = False
+        self.swap_alert = False
 
         self.cpu_load = DataPoint(self.path, "cpu.load")
         self.mem = [DataPoint(self.path, "mem.%s" % item) for item in memory]
+        self.swp = [DataPoint(self.path, "swp.%s" % item) for item in swap]
         self.cpu = [DataPoint(self.path, "cpu.%s" % item) for item in cpu]
         self.dsk = {}
 
@@ -30,6 +36,9 @@ class Health(object):
 
         for i,value in enumerate(psutil.virtual_memory()):
             self.mem[i].update(value)
+
+        for i,value in enumerate(psutil.swap_memory()):
+            self.swp[i].update(value)
 
         self.disk_partitions = psutil.disk_partitions()
         for disks in self.disk_partitions:
@@ -75,4 +84,45 @@ class Health(object):
         values = [x for x in dp.fetch(from_time, until_time)[1] if x is not None]
         return sum(values) / len(values)
 
+    def is_healthy(self, dp, seconds, has_alert, low_water, high_water):
+        """
+        Checks to see if the given metric has been healthy over the last 'seconds' seconds. If 'has_alert' is true then
+        the metric must be lower than 'low_water', otherwise it must be lower than 'high_water'. Returns True if it's
+        healthy, false if it's not.
+
+        :param dp: The metric to check.
+        :param seconds: The number of seconds of history to evaluate.
+        :param has_alert: True if the metric was previously in an unhealthy state.
+        :param low_water: The low water mark if has_alert is True.
+        :param high_water:  The high water mark.
+        :return: True if the metric is healthy, False otherwise.
+        """
+        percent_used = self.avg(dp, time.time() - seconds)
+        if has_alert:
+            return percent_used < low_water
+        return percent_used < high_water
+
+    def is_memory_healthy(self, seconds, low_water, high_water):
+        """
+        Checks to see if memory is in a healthy state. This is a convenience for is_healthy("mem.percent")
+
+        :param seconds: The number of seconds of history to check for health.
+        :param low_water: The low water level in memory percent used.
+        :param high_water: The high water level in memory percent used.
+        :return: True if memory is healthy, False otherwise.
+        """
+        self.memory_alert = not self.is_healthy("mem.percent", seconds, self.memory_alert, low_water, high_water)
+        return not self.memory_alert
+
+    def is_swap_healthy(self, seconds, low_water, high_water):
+        """
+        Checks to see if swap is in a healthy state. This is a convenience for is_healthy("swp.percent")
+
+        :param seconds: The number of seconds of history to check for health.
+        :param low_water: The low water level in swap percent used.
+        :param high_water: The high water level in swap percent used.
+        :return: True if swap is healthy, False otherwise.
+        """
+        self.swap_alert = not self.is_healthy("swp.percent", seconds, self.swap_alert, low_water, high_water)
+        return not self.swap_alert
 
