@@ -31,7 +31,7 @@ class Heartbeat(object):
         :return: None
         """
         self.last_heartbeat = current_node_time
-        self.cpu_load.update(psutil.cpu_percent(interval=1))
+        self.cpu_load.update(psutil.cpu_percent(interval=None))
         for i, value in enumerate(psutil.cpu_times()):
             self.cpu[i].update(value)
 
@@ -67,19 +67,19 @@ class Heartbeat(object):
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
-        return min(dp.fetch(from_time, until_time))
+        return min([x for x in dp.fetch(from_time, until_time)[1] if x is not None])
 
     def max(self, dp, from_time, until_time=None):
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
-        return max(dp.fetch(from_time, until_time))
+        return max([x for x in dp.fetch(from_time, until_time)[1] if x is not None])
 
     def avg(self, dp, from_time, until_time=None):
         if type(dp) == type(str()):
             dp = self.lookup(dp)
 
-        values = dp.fetch(from_time, until_time)
+        values = [x for x in dp.fetch(from_time, until_time)[1] if x is not None]
         return sum(values) / len(values)
 
 

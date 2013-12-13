@@ -2,6 +2,7 @@ __author__ = 'Christopher Nelson'
 
 import os
 import sys
+import time
 import unittest
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
@@ -26,7 +27,7 @@ class TestHeartbeat(unittest.TestCase):
         for i in range(0, 1000):
             h.capture(i)
 
-        self.assertLess(0, h.min("cpu.load"))
+        self.assertLessEqual(0.0, h.min("cpu.load", time.time()-100))
 
     def test_max(self):
         h = Heartbeat(node1_id, 0, "/tmp/hb")
@@ -34,7 +35,7 @@ class TestHeartbeat(unittest.TestCase):
         for i in range(0, 1000):
             h.capture(i)
 
-        self.assertLess(0, h.max("cpu.load"))
+        self.assertLess(0, h.max("cpu.load", time.time()-100))
 
     def test_avg(self):
         h = Heartbeat(node1_id, 0, "/tmp/hb")
@@ -42,7 +43,7 @@ class TestHeartbeat(unittest.TestCase):
         for i in range(0, 1000):
             h.capture(i)
 
-        self.assertLess(0, h.avg("cpu.load"))
+        self.assertLess(0, h.avg("cpu.load", time.time()-100))
 
 
 if __name__ == "__main__":
