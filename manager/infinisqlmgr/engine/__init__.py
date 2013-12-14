@@ -22,16 +22,26 @@ class Configuration(object):
         self.socket = None
         self.poller = zmq.Poller()
 
+        self.receive_handler = None
+
     def _connect(self):
         logging.debug("connecting to database engine management port (%s:%s)", self.management_ip, self.management_port)
         self.socket = self.ctx.socket(zmq.REQ)
         self.socket.connect("tcp://%s:%s" % self.management_ip, self.management_port)
+        self.poller.register(self.socket, zmq.POLLIN)
 
     def _send(self, msg):
         self.socket.send(msg)
 
     def process(self):
-        pass
+        events = self.poller.poll(timeout=100)
+        for sock, event in events:
+            data = sock.recv()
+            if self.receive_handler is None:
+                continue
+            self.receive_handler(data)
+
+
 
     def start(self):
         """
