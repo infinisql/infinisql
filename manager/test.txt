@@ -31,3 +31,24 @@ python3 -m unittest tests.test_election.TestElection.test_tally_vote
 Ran 1 test in 0.000s
 
 OK
+
+NOTE: some tests may log errors to the console. This is expected, since some tests deliberately simulate error
+conditions. There is no need to be concerned about error diagnostics as long as the TESTS pass. For example, this
+is normal, GOOD behavior:
+
+christopher@eon-dev:~/workspace/infinisql/infinisql/manager$ python3 -m unittest
+.................ERROR:root:Partition involving nodes '('192.168.0.16', 13000)' experienced.
+ERROR:root:Leader node ('192.168.0.16', 13000) was involved in a partition event.
+ERROR:root:Partition involving nodes '('192.168.0.16', 13000)' experienced.
+ERROR:root:Leader node ('192.168.0.16', 13000) was involved in a partition event.
+.ERROR:root:Partition involving nodes '('192.168.0.16', 13000)' experienced.
+ERROR:root:Leader node ('192.168.0.16', 13000) was involved in a partition event.
+ERROR:root:Partition involving nodes '('192.168.0.16', 13000)' experienced.
+ERROR:root:Leader node ('192.168.0.16', 13000) was involved in a partition event.
+.ERROR:root:Partition involving nodes '('192.168.0.16', 12000)' experienced.
+ERROR:root:Partition involving nodes '('192.168.0.16', 12000)' experienced.
+.
+----------------------------------------------------------------------
+Ran 20 tests in 151.068s
+
+OK

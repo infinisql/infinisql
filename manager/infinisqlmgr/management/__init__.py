@@ -35,12 +35,15 @@ class Controller(object):
         self.sub_sockets = {}
 
         self.node_id = (self._get_ip(), cmd_port)
-        self.nodes = set([self.node_id])
+        self.nodes = {self.node_id}
         self.leader_node_id = None
         self.current_election = None
         self.current_cluster_time = 0
+        self.current_cluster_size = 1
         self.current_node_time = 0
         self.current_election_id = 0
+        self.peak_cluster_size = 1
+
         self.settle_time = 10
         self.heartbeat_period = 10
         self.node_partition_threshold = 50
@@ -104,9 +107,9 @@ class Controller(object):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sockfd = sock.fileno()
         SIOCGIFADDR = 0x8915
-        ifreq = struct.pack('16sH14s', bytes(interface, "ascii"), socket.AF_INET, b'\x00'*14)
+        ifreq = struct.pack('16sH14s', bytes(interface, "ascii"), socket.AF_INET, b'\x00' * 14)
         try:
-             res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
+            res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
         except:
             return None
         finally:
@@ -162,14 +165,34 @@ class Controller(object):
         logging.debug("caught termination signal: signal %d", signum)
         self.stop()
 
+    def _start_transaction_engines(self):
+        """
+        Turns on all transaction engines for this node.
+        :return:
+        """
+        logging.info("Starting transaction engines.")
+
+    def _shutdown_transaction_engines(self):
+        """
+        Turns off all transaction engines.
+        :return: None
+        """
+        logging.warning("Shutting down all transaction engines for management node %s", self.node_id)
+
     def _elect_leader(self):
         """
         Processes the leader election. If no election is in progress then a new election is started. If an election is
         in progress we check to see if the election is ready to proceed. If so, we election a new leader and terminate
         the election.
 
+        The exception to the rule is when the cluster is part of a minority partition. In this case no elections
+        are allowed to proceed.
+
         :return: None
         """
+        if self.current_cluster_size < self.peak_cluster_size/2:
+            return
+
         if self.current_election is None:
             logging.info("No leader, node=%s forcing election.", self.node_id)
             self.current_election = election.Election(self.nodes, self.current_node_time)
@@ -192,14 +215,14 @@ class Controller(object):
         self.current_election_id += 1
 
         logging.info("On node=%s, elected new leader=%s in election %s",
-                     self.node_id, self.leader_node_id, self.current_election_id-1)
+                     self.node_id, self.leader_node_id, self.current_election_id - 1)
 
     def _beat_heart(self):
         """
         Broadcast a heartbeat, update current node time.
         :return: None
         """
-        self.current_node_time+=1
+        self.current_node_time += 1
         if self.current_node_time % self.heartbeat_period == 0:
             self._send(msg.HEARTBEAT, msgpack.packb((self.cluster_name, self.node_id), encoding="utf8"))
 
@@ -234,6 +257,14 @@ class Controller(object):
             del self.sub_sockets[node_id]
 
             self.nodes.remove(node_id)
+
+        # Re-adjust the current cluster size
+        self.current_cluster_size = len(self.nodes)
+        if self.current_cluster_size < self.peak_cluster_size/2:
+            logging.warning("Node %s is part of a minority partition. "
+                            "Elections will not proceed until a majority is established.",
+                            self.node_id)
+            self._shutdown_transaction_engines()
 
     def _check_topology_stability(self):
         """
@@ -277,7 +308,7 @@ class Controller(object):
 
         # Drop the announcement if we are receiving our own broadcast
         if remote_ip == self._get_ip() and \
-            remote_port == self.cmd_port:
+                remote_port == self.cmd_port:
             logging.debug("dropping add_node because I have caught my own announcement")
             return
 
@@ -295,6 +326,8 @@ class Controller(object):
         # Register the new subscription socket.
         self.poller.register(sub_sock, flags=zmq.POLLIN)
         self.nodes.add(node_id)
+        self.current_cluster_size += 1
+        self.peak_cluster_size = max(self.current_cluster_size, self.peak_cluster_size)
 
         # Initialize the heartbeat
         self.heartbeats[node_id] = self.current_node_time
@@ -350,14 +383,14 @@ class Controller(object):
         :param force: If set to true the announcement is forced regardless of the last time an announcement was made.
         """
         now = time.time()
-        if  (now - self.last_presence_announcement < self.presence_announcement_period) and \
-            force==False:
+        if (now - self.last_presence_announcement < self.presence_announcement_period) and force == False:
             return
 
         self.last_presence_announcement = now
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 8)
-        sock.sendto(msgpack.packb([self.cluster_name, self._get_ip(), self.cmd_port]), (self.mcast_group, self.mcast_port))
+        sock.sendto(msgpack.packb([self.cluster_name, self._get_ip(), self.cmd_port]),
+                    (self.mcast_group, self.mcast_port))
         sock.close()
 
     def get_nodes(self):
@@ -389,7 +422,7 @@ class Controller(object):
         Performs processing of tasks delegated to the leader.
         :return:
         """
-        self.current_cluster_time+=1
+        self.current_cluster_time += 1
 
     def process(self):
         """
