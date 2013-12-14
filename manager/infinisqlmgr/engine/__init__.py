@@ -6,7 +6,7 @@ import signal
 
 import zmq
 
-from infinisqlmgr.engine import msg
+from infinisqlmgr.engine import state
 
 class Configuration(object):
     def __init__(self, node_id, dist_dir, management_ip, management_port):
@@ -14,6 +14,7 @@ class Configuration(object):
         self.dist_dir = dist_dir
         self.infinisql = os.path.join(dist_dir, "sbin", "infinisqld")
         self.log_file = os.path.join(dist_dir, "var", "log", "infinisql.%s.log" % node_id)
+
         self.management_ip = management_ip
         self.management_port = management_port
         self.pid = None
@@ -22,26 +23,37 @@ class Configuration(object):
         self.socket = None
         self.poller = zmq.Poller()
 
+        self.state = state.ConfigurationState(self)
         self.receive_handler = None
 
     def _connect(self):
+        """
+        Connects to the database engine's management port.
+        :return: None
+        """
+        ip = "127.0.0.1" if self.management_ip=="*" else self.management_ip
+
         logging.debug("connecting to database engine management port (%s:%s)", self.management_ip, self.management_port)
         self.socket = self.ctx.socket(zmq.REQ)
-        self.socket.connect("tcp://%s:%s" % self.management_ip, self.management_port)
+        self.socket.connect("tcp://%s:%s" % (ip, self.management_port))
         self.poller.register(self.socket, zmq.POLLIN)
+        self.state.get_topology_mgr_mbox_ptr(self.socket)
 
-    def _send(self, msg):
-        self.socket.send(msg)
+    def set_next_handler(self, handler):
+        self.receive_handler = handler
 
     def process(self):
+        """
+        Processes engine events.
+        :return: None
+        """
         events = self.poller.poll(timeout=100)
         for sock, event in events:
-            data = sock.recv()
             if self.receive_handler is None:
                 continue
-            self.receive_handler(data)
-
-
+            handler = self.receive_handler
+            self.receive_handler = None
+            handler(sock)
 
     def start(self):
         """
@@ -52,13 +64,20 @@ class Configuration(object):
             logging.debug("database engine already started")
             return
 
+        log_dir = os.path.dirname(self.log_file)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        print("%s:%s" % (self.management_ip, self.management_port))
+
         # -m <management ip:port> -n <nodeid> -l <log path/file>
-        self.pid = os.spawnlp(os.P_NOWAIT, self.infinisql,
-                              "-m", "%s:%s" % (self.management_ip, self.management_port),
-                              "-n", str(self.node_id),
-                              "-l", self.log_file)
+        self.pid = os.spawnl(os.P_NOWAIT, self.infinisql,
+                              '-m', '%s:%s' % (self.management_ip, self.management_port),
+                              '-n', str(self.node_id),
+                              '-l', self.log_file)
 
         logging.info("Started database engine pid=%s", self.pid)
+        self._connect()
 
     def stop(self):
         """

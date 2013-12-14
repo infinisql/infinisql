@@ -24,7 +24,8 @@
  */
 
 #include "infinisql_TopologyMgr.h"
-#line 28 "TopologyMgr.cc"
+#include "infinisql_Log.h"
+#line 29 "TopologyMgr.cc"
 
 extern cfg_s cfgs;
 
@@ -45,7 +46,7 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
 
   if (daemon(1, 1))
   {
-    fprintf(logfile, "%s %i daemon errno %i\n", __FILE__, __LINE__, errno);
+    LOG_ERROR("daemon error %i (%s)", errno, strerror(errno));
     exit(1);
   }
 
@@ -56,6 +57,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
 
   if (rv == -1)
   {
+    LOG_ERROR("zmq_bind(%s) failed with error %i (%s)", zmqsocket.c_str(), errno, strerror(errno));
+
     perror("zmq_bind");
     printf("%s %i zmq_bind errno %i\n", __FILE__, __LINE__, errno);
     exit(1);
