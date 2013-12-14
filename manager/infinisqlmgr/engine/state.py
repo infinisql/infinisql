@@ -65,7 +65,8 @@ class ConfigurationState(object):
 
             self._send(sock, (cfg.CMD_LOCALCONFIG, types, instances, mbox_ptrs))
             for msg in self._recv(sock):
-                print(msg)
+                if msg != cfg.CMD_OK:
+                    logging.warning("Expected CMD_OK updating node local config, but response=%s", msg)
 
     def get_topology_mgr_mbox_ptr(self, sock):
         """

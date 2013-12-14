@@ -99,7 +99,7 @@ class Configuration(object):
         # Now search for any remaining database processes in order to ensure that we have closed everything down.
         for p in psutil.process_iter():
             if "infinisqld" in p.name:
-                logging.info("Terminating '%s' (pid=%s)", p.name, p.pid)
+                logging.info("Terminating '%s' pid=%s", p.name, p.pid)
                 p.terminate()
         logging.info("Stopped database engine.")
         self.pid = None
