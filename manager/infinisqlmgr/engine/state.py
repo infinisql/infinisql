@@ -64,6 +64,8 @@ class ConfigurationState(object):
             mbox_ptrs.append(x[2])
 
             self._send(sock, (cfg.CMD_LOCALCONFIG, types, instances, mbox_ptrs))
+            for msg in self._recv(sock):
+                print(msg)
 
     def get_topology_mgr_mbox_ptr(self, sock):
         """

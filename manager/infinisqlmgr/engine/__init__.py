@@ -4,6 +4,7 @@ import logging
 import os
 import signal
 
+import psutil
 import zmq
 
 from infinisqlmgr.engine import state
@@ -68,10 +69,8 @@ class Configuration(object):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        print("%s:%s" % (self.management_ip, self.management_port))
-
         # -m <management ip:port> -n <nodeid> -l <log path/file>
-        self.pid = os.spawnl(os.P_NOWAIT, self.infinisql,
+        self.pid = os.spawnl(os.P_NOWAIT, self.infinisql, self.infinisql,
                               '-m', '%s:%s' % (self.management_ip, self.management_port),
                               '-n', str(self.node_id),
                               '-l', self.log_file)
@@ -88,9 +87,20 @@ class Configuration(object):
             logging.debug("database engine already stopped")
             return
 
+        logging.debug("disconnecting from database engine management command port")
+        self.poller.unregister(self.socket)
+        self.socket.close()
+        self.socket = None
+
         logging.info("Stopping database engine pid=%s", self.pid)
         os.kill(self.pid, signal.SIGTERM)
         os.waitpid(self.pid, 0)
+
+        # Now search for any remaining database processes in order to ensure that we have closed everything down.
+        for p in psutil.process_iter():
+            if "infinisqld" in p.name:
+                logging.info("Terminating '%s' (pid=%s)", p.name, p.pid)
+                p.terminate()
         logging.info("Stopped database engine.")
         self.pid = None
 

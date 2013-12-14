@@ -1,7 +1,10 @@
 __author__ = 'Christopher Nelson'
 
+import logging
 import unittest
 from infinisqlmgr import engine
+
+logging.basicConfig(level=logging.DEBUG)
 
 dist_dir = "/home/christopher/workspace/infinisql/dist"
 
