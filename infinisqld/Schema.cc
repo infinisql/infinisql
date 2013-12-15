@@ -32,16 +32,16 @@ Schema::~Schema()
 // return status, let the caller reply to ta, or whatever
 int Schema::createTable(int64_t id)
 {
-  if (tables.count(id))   // tableid exists
-  {
-    return BUILTIN_STATUS_NOTOK;
-  }
+    if (tables.count(id))   // tableid exists
+    {
+        return BUILTIN_STATUS_NOTOK;
+    }
 
-  tables[id] = new Table(id);
-  return BUILTIN_STATUS_OK;
+    tables[id] = new Table(id);
+    return BUILTIN_STATUS_OK;
 }
 
 int64_t Schema::getnexttableid(void)
 {
-  return ++nexttableid;
+    return ++nexttableid;
 }

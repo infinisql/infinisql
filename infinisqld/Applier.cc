@@ -29,11 +29,11 @@ int64_t partitioncount;
 
 Applier::Applier(class TransactionAgent *taPtrarg, int64_t domainidarg,
                  Topology::addressStruct sourceAddrarg, int64_t partitioncountarg) :
-  taPtr(taPtrarg), domainid(domainidarg), sourceAddr(sourceAddrarg),
-  partitioncount(partitioncountarg)
+    taPtr(taPtrarg), domainid(domainidarg), sourceAddr(sourceAddrarg),
+    partitioncount(partitioncountarg)
 {
-  applierid = taPtr->getnextapplierid();
-  taPtr->Appliers[applierid] = this;
+    applierid = taPtr->getnextapplierid();
+    taPtr->Appliers[applierid] = this;
 }
 
 Applier::~Applier()
@@ -42,17 +42,17 @@ Applier::~Applier()
 
 void Applier::ackedApply(class MessageAckApply &msg)
 {
-  if (msg.ackapplyStruct.status != STATUS_OK)
-  {
-    printf("%s %i bad apply ack status %i %li,%li,%li\n", __FILE__, __LINE__,
-           msg.ackapplyStruct.status, msg.ackapplyStruct.subtransactionid, msg.ackapplyStruct.applierid, msg.ackapplyStruct.partitionid);
-    delete this;
-    return;
-  }
+    if (msg.ackapplyStruct.status != STATUS_OK)
+    {
+        printf("%s %i bad apply ack status %i %li,%li,%li\n", __FILE__, __LINE__,
+               msg.ackapplyStruct.status, msg.ackapplyStruct.subtransactionid, msg.ackapplyStruct.applierid, msg.ackapplyStruct.partitionid);
+        delete this;
+        return;
+    }
 
-  if (!--partitioncount)
-  {
-    taPtr->Appliers.erase(applierid);
-    delete this;
-  }
+    if (!--partitioncount)
+    {
+        taPtr->Appliers.erase(applierid);
+        delete this;
+    }
 }

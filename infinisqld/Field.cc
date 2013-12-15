@@ -22,9 +22,9 @@
 
 Field::Field(fieldtype_e typearg, int64_t lengtharg,
              indextype_e indextypearg, string namearg) : type(typearg),
-  length(lengtharg), indextype(indextypearg), name(namearg)
+                                                         length(lengtharg), indextype(indextypearg), name(namearg)
 {
-  index.makeindex(indextype, type);
+    index.makeindex(indextype, type);
 }
 
 Field::~Field()

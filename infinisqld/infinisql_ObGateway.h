@@ -25,22 +25,22 @@
 class ObGateway
 {
 public:
-  ObGateway(Topology::partitionAddress *);
-  virtual ~ObGateway();
-  void updateRemoteGateways();
+    ObGateway(Topology::partitionAddress *);
+    virtual ~ObGateway();
+    void updateRemoteGateways();
 
-  Topology::partitionAddress myIdentity;
-  class Mboxes mboxes;
-  class Topology myTopology;
+    Topology::partitionAddress myIdentity;
+    class Mboxes mboxes;
+    class Topology myTopology;
 
 private:
-  // remoteGateways[nodeid]=socket for corresponding ibgw's
-  vector<int> remoteGateways;
-  socklen_t optlen;
-  int so_sndbuf;
-  char *serstrsmall;
-  char *cstrsmall;
-  bool ismultinode;
+    // remoteGateways[nodeid]=socket for corresponding ibgw's
+    vector<int> remoteGateways;
+    socklen_t optlen;
+    int so_sndbuf;
+    char *serstrsmall;
+    char *cstrsmall;
+    bool ismultinode;
 };
 
 void *obGateway(void *);

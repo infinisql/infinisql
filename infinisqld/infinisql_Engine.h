@@ -28,67 +28,59 @@
 class Engine
 {
 public:
-  struct background_s
-  {
-    int64_t applierid;
-    Topology::addressStruct taAddress;
+    struct background_s
+    {
+        int64_t applierid;
+        Topology::addressStruct taAddress;
 
-    vector<MessageDispatch::record_s> rows;
-    vector<MessageApply::applyindex_s> indices;
-  };
+        vector<MessageDispatch::record_s> rows;
+        vector<MessageApply::applyindex_s> indices;
+    };
 
-  Engine(Topology::partitionAddress *);
-  virtual ~Engine();
+    Engine(Topology::partitionAddress *);
+    virtual ~Engine();
 
-  bool applyItem(int64_t, class Schema &, MessageDispatch::record_s &);
-  bool applyItem(int64_t, class Schema &, MessageApply::applyindex_s &);
+    bool applyItem(int64_t, class Schema &, MessageDispatch::record_s &);
+    bool applyItem(int64_t, class Schema &, MessageApply::applyindex_s &);
 
-  friend class SubTransaction;
+    friend class SubTransaction;
 
-  // public for replyTa:
-  class Message *msgsnd;
-  int64_t operationid;
-  int64_t domainid;
-  int64_t userid;
-  int64_t status;
-  Topology::addressStruct taAddr;
-  //public for createSchema:
-  class Message *msgrcv;
-  REUSEMESSAGES
-  domainidToSchemaMap domainidsToSchemata;
-  class Mboxes mboxes;
-  Topology::partitionAddress myIdentity;
-  int64_t partitionid;
+    // public for replyTa:
+    class Message *msgsnd;
+    int64_t operationid;
+    int64_t domainid;
+    int64_t userid;
+    int64_t status;
+    Topology::addressStruct taAddr;
+    //public for createSchema:
+    class Message *msgrcv;
+    REUSEMESSAGES
+        domainidToSchemaMap domainidsToSchemata;
+    class Mboxes mboxes;
+    Topology::partitionAddress myIdentity;
+    int64_t partitionid;
 
 private:
-  int64_t getnextsubtransactionid();
-  void createschema();
-  void createtable();
-  void addcolumn();
-  void deleteindex();
-  void deletetable();
-  void deleteschema();
-  void getMyPartitionid();
-  void apply();
-  void background(class MessageApply &, MessageDispatch::record_s &);
-  void background(class MessageApply &, MessageApply::applyindex_s &);
+    int64_t getnextsubtransactionid();
+    void createschema();
+    void createtable();
+    void addcolumn();
+    void deleteindex();
+    void deletetable();
+    void deleteschema();
+    void getMyPartitionid();
+    void apply();
+    void background(class MessageApply &, MessageDispatch::record_s &);
+    void background(class MessageApply &, MessageApply::applyindex_s &);
 
-  class Topology myTopology;
+    class Topology myTopology;
 
-  class Mbox *mymboxPtr;
-  int64_t argsize;
-  int64_t nextsubtransactionid;
-  int64_t instance;
-  boost::unordered_map<int64_t, class SubTransaction *> SubTransactions;
-  map<int64_t, background_s> backgrounded;
-
-#ifdef PROFILE
-  // profiling:
-  int rid;
-  PROFILERENGINE inboundProfile[2];
-  PROFILERENGINECOMPREHENSIVE *profiles;
-  int profilecount;
-#endif
+    class Mbox *mymboxPtr;
+    int64_t argsize;
+    int64_t nextsubtransactionid;
+    int64_t instance;
+    boost::unordered_map<int64_t, class SubTransaction *> SubTransactions;
+    map<int64_t, background_s> backgrounded;
 };
 
 void *engine(void *);

@@ -28,17 +28,17 @@ void *topologyMgr(void *);
 class TopologyMgr
 {
 public:
-  TopologyMgr(Topology::partitionAddress *);
-  TopologyMgr(const TopologyMgr &orig);
-  virtual ~TopologyMgr();
+    TopologyMgr(Topology::partitionAddress *);
+    TopologyMgr(const TopologyMgr &orig);
+    virtual ~TopologyMgr();
 private:
-  void updateLocalConfig(msgpack::unpacker &, msgpack::unpacked &);
-  void updateGlobalConfig(msgpack::unpacker &, msgpack::unpacked &);
-  void broadcastConfig();
+    void updateLocalConfig(msgpack::unpacker &, msgpack::unpacked &);
+    void updateGlobalConfig(msgpack::unpacker &, msgpack::unpacked &);
+    void broadcastConfig();
 
-  Topology::partitionAddress myIdentity;
-  class Mboxes mboxes;
-  class Topology myTopology;
+    Topology::partitionAddress myIdentity;
+    class Mboxes mboxes;
+    class Topology myTopology;
 };
 
 #endif  /* TOPOLOGYMGR_H */

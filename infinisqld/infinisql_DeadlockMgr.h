@@ -24,55 +24,55 @@
 
 typedef struct
 {
-  //  int64_t taid;
-  Topology::addressStruct addr;
-  int64_t pendingcmdid;
+    //  int64_t taid;
+    Topology::addressStruct addr;
+    int64_t pendingcmdid;
 } taCmd;
 
 class DeadlockMgr
 {
 public:
-  DeadlockMgr(Topology::partitionAddress *);
-  virtual ~DeadlockMgr();
+    DeadlockMgr(Topology::partitionAddress *);
+    virtual ~DeadlockMgr();
 
-  friend class Transaction; // uses makeLockedItem
+    friend class Transaction; // uses makeLockedItem
 
 private:
-  static void makeLockedItem(bool, int64_t, int64_t, int64_t, int64_t, int64_t,
-                             long double, string *, string *);
-  void algorithm(void);
-  void deadlock(int64_t);
-  bool walk(int64_t);
-  bool walk(boost::unordered_set<string>::iterator);
-  void removeTransaction(int64_t);
-  class Mbox *mymboxPtr;
+    static void makeLockedItem(bool, int64_t, int64_t, int64_t, int64_t, int64_t,
+                               long double, string *, string *);
+    void algorithm(void);
+    void deadlock(int64_t);
+    bool walk(int64_t);
+    bool walk(boost::unordered_set<string>::iterator);
+    void removeTransaction(int64_t);
+    class Mbox *mymboxPtr;
 
-  Topology::partitionAddress myIdentity;
-  class Mboxes mboxes;
-  class Topology myTopology;
+    Topology::partitionAddress myIdentity;
+    class Mboxes mboxes;
+    class Topology myTopology;
 
-  REUSEMESSAGES
-  // maps:
-  // transactions with the locks it holds
-  boost::unordered_map< int64_t, boost::unordered_set<string> >
-  transactionLocksMap;
-  // transactions with what it waits on
-  boost::unordered_map< int64_t, boost::unordered_set<string> >
-  transactionWaitsMap;
-  // items whose locks are held by transactions
-  boost::unordered_map< string, boost::unordered_set<int64_t> >
-  locksTransactionMap;
-  // items whose locks are waited for by transactions
-  boost::unordered_map< string, boost::unordered_set<int64_t> >
-  waitsTransactionMap;
+    REUSEMESSAGES
+        // maps:
+        // transactions with the locks it holds
+        boost::unordered_map< int64_t, boost::unordered_set<string> >
+        transactionLocksMap;
+    // transactions with what it waits on
+    boost::unordered_map< int64_t, boost::unordered_set<string> >
+        transactionWaitsMap;
+    // items whose locks are held by transactions
+    boost::unordered_map< string, boost::unordered_set<int64_t> >
+        locksTransactionMap;
+    // items whose locks are waited for by transactions
+    boost::unordered_map< string, boost::unordered_set<int64_t> >
+        waitsTransactionMap;
 
-  boost::unordered_map<int64_t, taCmd> returnMap;
+    boost::unordered_map<int64_t, taCmd> returnMap;
 
-  boost::unordered_set<int64_t> skipTransactionSet;
-  boost::unordered_set<string> skipItemSet;
+    boost::unordered_set<int64_t> skipTransactionSet;
+    boost::unordered_set<string> skipItemSet;
 
-  // duplicates here mean deadlock:
-  boost::unordered_set<int64_t> transactionGraphSet;
+    // duplicates here mean deadlock:
+    boost::unordered_set<int64_t> transactionGraphSet;
 
 };
 

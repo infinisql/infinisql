@@ -25,15 +25,15 @@
 class Listener
 {
 public:
-  Listener(Topology::partitionAddress *);
-  virtual ~Listener();
+    Listener(Topology::partitionAddress *);
+    virtual ~Listener();
 
-  int startsocket(string &, string &);
+    int startsocket(string &, string &);
 
-  //private:
-  class Mboxes mboxes;
-  Topology::partitionAddress myIdentity;
-  class Topology myTopology;
+    //private:
+    class Mboxes mboxes;
+    Topology::partitionAddress myIdentity;
+    class Topology myTopology;
 };
 
 void *listener(void *);

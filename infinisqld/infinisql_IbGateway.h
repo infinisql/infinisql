@@ -25,26 +25,26 @@
 class IbGateway
 {
 public:
-  IbGateway(Topology::partitionAddress *);
-  virtual ~IbGateway();
+    IbGateway(Topology::partitionAddress *);
+    virtual ~IbGateway();
 
-  Topology::partitionAddress myIdentity;
-  class Mboxes mboxes;
-  class Topology myTopology;
+    Topology::partitionAddress myIdentity;
+    class Mboxes mboxes;
+    class Topology myTopology;
 
 private:
-  void inbufhandler(const char *, size_t);
-  boost::unordered_map<int, string> pendingReads;
+    void inbufhandler(const char *, size_t);
+    boost::unordered_map<int, string> pendingReads;
   
-  void addtofds(int);
-  void removefds();
+    void addtofds(int);
+    void removefds();
 
-  boost::unordered_set<int> fdremoveset;
-  struct pollfd *fds;
-  nfds_t nfds;
-  char *inbuf;
-  char *dcstrsmall;
-  bool ismultinode;
+    boost::unordered_set<int> fdremoveset;
+    struct pollfd *fds;
+    nfds_t nfds;
+    char *inbuf;
+    char *dcstrsmall;
+    bool ismultinode;
 };
 
 void *ibGateway(void *);

@@ -43,78 +43,78 @@ class Mbox;
 class Topology
 {
 public:
-  /** Address for each actor in the environment. This is embedded into
-   * every message, as source and destination, so should be relatively
-   * small.
-   */
-  struct __attribute__ ((__packed__)) addressStruct
-  {
-    int16_t nodeid; /**< node is a server process (not an OS instance) */
-    int16_t actorid; /**< each actor has a unique id per node */
-  };
+    /** Address for each actor in the environment. This is embedded into
+     * every message, as source and destination, so should be relatively
+     * small.
+     */
+    struct __attribute__ ((__packed__)) addressStruct
+    {
+        int16_t nodeid; /**< node is a server process (not an OS instance) */
+        int16_t actorid; /**< each actor has a unique id per node */
+    };
 
-  /** Actor address with pointer to Mbox and actor type. Mbox and
-   * type are not necessary in message headers. This also contains
-   * identification information for each actor instance's self */
-  struct partitionAddress
-  {
-    addressStruct address;
-    int64_t instance;
-    class Mbox *mbox;
-    actortypes_e type; /**< actor type */
-    int epollfd;
-    string argstring;
-    string node;
-    string service;
-    vector<string> nodes;
-    vector<string> services;
-  };
+    /** Actor address with pointer to Mbox and actor type. Mbox and
+     * type are not necessary in message headers. This also contains
+     * identification information for each actor instance's self */
+    struct partitionAddress
+    {
+        addressStruct address;
+        int64_t instance;
+        class Mbox *mbox;
+        actortypes_e type; /**< actor type */
+        int epollfd;
+        string argstring;
+        string node;
+        string service;
+        vector<string> nodes;
+        vector<string> services;
+    };
 
-  struct actor_s
-  {
-    actortypes_e type;
-    int64_t instance;
-    class Mbox *mbox;
-  };
+    struct actor_s
+    {
+        actortypes_e type;
+        int64_t instance;
+        class Mbox *mbox;
+    };
 
-  Topology();
-  Topology(const Topology &orig);
-  virtual ~Topology();
+    Topology();
+    Topology(const Topology &orig);
+    virtual ~Topology();
 
-  /** creates a new actor's addressing in the local node. Should be
-   * followed by launching the thread */
-  partitionAddress *newActor(actortypes_e, class Mbox *, int, const string &,
-                             int64_t, const vector<string> &, const vector<string> &);
+    /** creates a new actor's addressing in the local node. Should be
+     * followed by launching the thread */
+    partitionAddress *newActor(actortypes_e, class Mbox *, int, const string &,
+                               int64_t, const vector<string> &, const vector<string> &);
 
-  int16_t nodeid; /**< this gets propagated to all addresses created by this
-                   * class instance */
-  int numreplicas;
-  int activereplica;
+    int16_t nodeid; /**< this gets propagated to all addresses created by this
+                     * class instance */
+    int numreplicas;
+    int activereplica;
 
-  //local
-  size_t numtransactionagents;
-  size_t numengines;
-  size_t numobgateways;
+    //local
+    size_t numtransactionagents;
+    size_t numengines;
+    size_t numobgateways;
 
-  vector<actor_s> actorList;
+    vector<actor_s> actorList;
 
-  //global
-  int16_t numpartitions;
-  int16_t userSchemaMgrNode;
-  class Mbox *userSchemaMgrMbox;
-  int16_t deadlockMgrNode;
-  class Mbox *deadlockMgrMbox;
-  // partitionList[replicaid][partition] = {nodeid, actorid}
-  vector< vector<partitionAddress> > partitionList;
-  vector<partitionAddress> partitionListThisReplica;
-  map< int64_t, vector<string> > ibGateways;
-  // allActors[nodeid][actorid] = type
-  vector< vector<int> > allActors;
-  boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
-  // replicaMembers[replica][member] = nodeid
-  vector< vector<int16_t> > replicaMembers;
-  // tas[nodeid][tainstance] = actorid
-  vector< vector<int16_t> > tas;
+    //global
+    int16_t numpartitions;
+    int16_t userSchemaMgrNode;
+    class Mbox *userSchemaMgrMbox;
+    int16_t deadlockMgrNode;
+    class Mbox *deadlockMgrMbox;
+    // partitionList[replicaid][partition] = {nodeid, actorid}
+    vector< vector<partitionAddress> > partitionList;
+    vector<partitionAddress> partitionListThisReplica;
+    map< int64_t, vector<string> > ibGateways;
+    // allActors[nodeid][actorid] = type
+    vector< vector<int> > allActors;
+    boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
+    // replicaMembers[replica][member] = nodeid
+    vector< vector<int16_t> > replicaMembers;
+    // tas[nodeid][tainstance] = actorid
+    vector< vector<int16_t> > tas;
 };
 
 #endif  /* TOPOLOGY_H */

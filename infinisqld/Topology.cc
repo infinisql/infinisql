@@ -21,9 +21,9 @@
 #line 22 "Topology.cc"
 
 Topology::Topology() : nodeid(0), numreplicas(1), activereplica(-1),
-  numtransactionagents(0),
-  numengines(0), numobgateways(0), numpartitions(0), userSchemaMgrNode(0),
-  userSchemaMgrMbox(0), deadlockMgrNode(0), deadlockMgrMbox(0)
+                       numtransactionagents(0),
+                       numengines(0), numobgateways(0), numpartitions(0), userSchemaMgrNode(0),
+                       userSchemaMgrMbox(0), deadlockMgrNode(0), deadlockMgrMbox(0)
 {
 }
 
@@ -36,25 +36,25 @@ Topology::~Topology()
 }
 
 Topology::partitionAddress *Topology::newActor(actortypes_e type,
-    class Mbox *mbox, int epollfd, const string &argstring,
-    int64_t actorid, const vector<string> &nodes,
-    const vector<string> &services)
+                                               class Mbox *mbox, int epollfd, const string &argstring,
+                                               int64_t actorid, const vector<string> &nodes,
+                                               const vector<string> &services)
 {
-  partitionAddress *addr = new partitionAddress();
-  partitionAddress &addrRef = *addr;
-  addrRef.type = type;
-  addrRef.mbox = mbox;
-  addrRef.address.nodeid = nodeid;
-  addrRef.address.actorid = actorid;
-  addrRef.epollfd = epollfd;
-  addrRef.nodes = nodes;
-  addrRef.services = services;
-  addrRef.argstring = argstring;
+    partitionAddress *addr = new partitionAddress();
+    partitionAddress &addrRef = *addr;
+    addrRef.type = type;
+    addrRef.mbox = mbox;
+    addrRef.address.nodeid = nodeid;
+    addrRef.address.actorid = actorid;
+    addrRef.epollfd = epollfd;
+    addrRef.nodes = nodes;
+    addrRef.services = services;
+    addrRef.argstring = argstring;
 
-  if (addr==NULL)
-  {
-    printf("%s %i ERROR\n", __FILE__, __LINE__);
-  }
+    if (addr==NULL)
+    {
+        printf("%s %i ERROR\n", __FILE__, __LINE__);
+    }
 
-  return addr;
+    return addr;
 }

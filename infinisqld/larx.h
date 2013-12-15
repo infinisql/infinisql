@@ -29,8 +29,8 @@ class Larxer;
 
 struct perlarxer
 {
-  void *scaninfo;
-  class Larxer *larxerPtr;
+    void *scaninfo;
+    class Larxer *larxerPtr;
 };
 
 int yyparse(struct perlarxer *);

@@ -26,20 +26,20 @@
 class Field
 {
 public:
-  Field(fieldtype_e, int64_t, indextype_e, string);
-  virtual ~Field();
+    Field(fieldtype_e, int64_t, indextype_e, string);
+    virtual ~Field();
 
-  friend class Transaction;
-  friend class ApiInterface;
-  friend class Table;
-  friend class SubTransaction;
+    friend class Transaction;
+    friend class ApiInterface;
+    friend class Table;
+    friend class SubTransaction;
 
-  //private:
-  fieldtype_e type;
-  size_t length;
-  indextype_e indextype;
-  class Index index;
-  string name;
+    //private:
+    fieldtype_e type;
+    size_t length;
+    indextype_e indextype;
+    class Index index;
+    string name;
 };
 
 #endif  /* FIELD_HPP */

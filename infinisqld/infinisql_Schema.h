@@ -26,45 +26,45 @@
 class Schema
 {
 public:
-  Schema(int64_t);
-  virtual ~Schema();
+    Schema(int64_t);
+    virtual ~Schema();
 
-  friend class ApiInterface;
-  friend class TransactionAgent;
-  friend class Engine;
-  friend class Transaction;
-  friend class SubTransaction;
-  friend class UserSchemaMgr;
+    friend class ApiInterface;
+    friend class TransactionAgent;
+    friend class Engine;
+    friend class Transaction;
+    friend class SubTransaction;
+    friend class UserSchemaMgr;
 
-  //private:
-  int64_t getnexttableid(void);
-  int createTable(int64_t);
+    //private:
+    int64_t getnexttableid(void);
+    int createTable(int64_t);
 
-  int64_t domainid;
-  int64_t nexttableid;
-  boost::unordered_map< int64_t, class Table *> tables;
-  boost::unordered_map< string, int64_t > tableNameToId;
-  // fieldNameToId[tableid][fieldname] = fieldid
-  boost::unordered_map< int64_t, boost::unordered_map<string, int64_t> >
-  fieldNameToId;
+    int64_t domainid;
+    int64_t nexttableid;
+    boost::unordered_map< int64_t, class Table *> tables;
+    boost::unordered_map< string, int64_t > tableNameToId;
+    // fieldNameToId[tableid][fieldname] = fieldid
+    boost::unordered_map< int64_t, boost::unordered_map<string, int64_t> >
+        fieldNameToId;
 };
 
 template < typename T >
 void createSchema(T servent)
 {
-  class MessageUserSchema &msgref =
+    class MessageUserSchema &msgref =
         *(class MessageUserSchema *)servent->msgrcv;
 
-  if (servent->domainidsToSchemata.count(msgref.userschemaStruct.domainid))
-{
-    servent->status = BUILTIN_STATUS_NOTOK;
-  }
-  else
-  {
-    class Schema *sptr = new class Schema(msgref.userschemaStruct.domainid);
-    servent->domainidsToSchemata[msgref.userschemaStruct.domainid] = sptr;
-    servent->status = BUILTIN_STATUS_OK;
-  }
+    if (servent->domainidsToSchemata.count(msgref.userschemaStruct.domainid))
+    {
+        servent->status = BUILTIN_STATUS_NOTOK;
+    }
+    else
+    {
+        class Schema *sptr = new class Schema(msgref.userschemaStruct.domainid);
+        servent->domainidsToSchemata[msgref.userschemaStruct.domainid] = sptr;
+        servent->status = BUILTIN_STATUS_OK;
+    }
 }
 
 #endif  /* SCHEMA_HPP */

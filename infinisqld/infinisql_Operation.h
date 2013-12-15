@@ -27,32 +27,32 @@
 enum state_schema_e { usm, tasengines };
 typedef struct
 {
-  int builtincmd;
-  state_schema_e state;
-  int64_t msgwaits;
+    int builtincmd;
+    state_schema_e state;
+    int64_t msgwaits;
 } schemastruct;
 
 class Operation
 {
 public:
-  Operation(int, class TransactionAgent *, int64_t, int64_t);
-  virtual ~Operation();
+    Operation(int, class TransactionAgent *, int64_t, int64_t);
+    virtual ~Operation();
 
-  friend class TransactionAgent;
+    friend class TransactionAgent;
 
-  //private:
-  void setbuiltincmd(int);
-  void setDomainName(string);
-  int64_t getid(void);
-  void handleOperation(class MessageUserSchema &);
-  int type;
-  class TransactionAgent *taPtr;
-  int64_t operationid;
-  int sockfd;
-  int64_t userid;
-  int64_t domainid;
-  string domainName; // for login
-  schemastruct schemaData;
+    //private:
+    void setbuiltincmd(int);
+    void setDomainName(string);
+    int64_t getid(void);
+    void handleOperation(class MessageUserSchema &);
+    int type;
+    class TransactionAgent *taPtr;
+    int64_t operationid;
+    int sockfd;
+    int64_t userid;
+    int64_t domainid;
+    string domainName; // for login
+    schemastruct schemaData;
 };
 
 #endif  /* OPERATION_H */
