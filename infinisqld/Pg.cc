@@ -98,11 +98,11 @@ void Pg::cont()
     case -1: // bogus input
         closesocket(*taPtr);
         return;
-        break;
+//        break;
 
     case 0: // command not completely received
         return;
-        break;
+//        break;
 
     case 1: // command completely received
         pos = 0;
@@ -779,7 +779,7 @@ short Pg::rewritesocket()
     {
     case -1:
         return -1;
-        break;
+//        break;
 
     case 0:
     {
@@ -793,7 +793,7 @@ short Pg::rewritesocket()
 
     case 1:
         return 1;
-        break;
+//        break;
 
     default:
         printf("%s %i anomaly WTF\n", __FILE__, __LINE__);

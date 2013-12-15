@@ -96,8 +96,8 @@ bool Table::makerow(vector<fieldValue_s> *fieldVal, string *res)
 
     if (fieldValRef.size() != fields.size())
     {
-        fprintf(logfile, "%s %i anomaly fieldValRef.size() %lu fields.size() %lu\n",
-                __FILE__, __LINE__, fieldValRef.size(), fields.size());
+        fprintf(logfile, "%s %i anomaly fieldValRef.size() %lu fields.size() %lu\n", __FILE__, __LINE__, (unsigned long)fieldValRef.size(),
+                (unsigned long)fields.size());
         return false;
     }
 
@@ -582,19 +582,10 @@ int64_t Table::updaterow(int64_t rowid, int64_t subtransactionid, string *row)
         return STATUS_NOTOK;
     }
 
-    if (!shadowTable->rows.count(rowid))
-    {
-        rowdata_s *newrow = new rowdata_s();
-        // should probably validate the row is not garbage, but o well
-        newrow->row = *row;
-        shadowTable->rows[rowid] = newrow;
-    }
-    else
-    {
-        rowdata_s *newrow = new rowdata_s();
-        newrow->row = *row;
-        shadowTable->rows[rowid] = newrow;
-    }
+    // should probably validate the row is not garbage, but o well    
+    rowdata_s *nrow=new rowdata_s();
+    nrow->row=*row;
+    shadowTable->rows[rowid]=nrow;
 
     return STATUS_OK;
 }
@@ -881,7 +872,7 @@ void Table::commitRollbackUnlock(int64_t rowid, int64_t subtransactionid,
             boost::unordered_set<int64_t>::const_iterator it;
 
             for (it = currentRowRef.readlockHolders->begin();
-                 it != currentRowRef.readlockHolders->end(); it++)
+                 it != currentRowRef.readlockHolders->end(); ++it)
             {
                 printf("%s %i readlockHolder %li\n", __FILE__, __LINE__, *it);
             }
@@ -1145,7 +1136,7 @@ bool Table::unmakerow(string *rowstring, vector<fieldValue_s> *resultFields)
             if (resultFieldsRef[n].str.size() < fields[n].length)
             {
                 // this should not be, but pad it anyway
-                printf("%s %i rowstring.size() %lu field %lu resultFieldsRef[n].str.size() %lu fields[n].length %lu\n", __FILE__, __LINE__, rowstring->size(), n, resultFieldsRef[n].str.size(), fields[n].length);
+                printf("%s %i rowstring.size() %lu field %lu resultFieldsRef[n].str.size() %lu fields[n].length %lu\n", __FILE__, __LINE__, (unsigned long)rowstring->size(), (unsigned long)n, resultFieldsRef[n].str.size(), fields[n].length);
                 resultFieldsRef[n].str.append(fields[n].length -
                                               resultFieldsRef[n].str.size(), 0);
             }

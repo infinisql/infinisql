@@ -177,7 +177,11 @@ Listener::~Listener()
 
 void *listener(void *identity)
 {
-    Listener((Topology::partitionAddress *)identity);
+    new Listener((Topology::partitionAddress *)identity);
+    while (1)
+    {
+        sleep(250000);
+    }
     return NULL;
 }
 

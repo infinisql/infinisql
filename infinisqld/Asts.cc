@@ -550,7 +550,7 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         delete rightchild;
         rightchild=NULL;
         return false;
-        break;
+//        break;
 
     case OPERATOR_TRUE:
         /* IS TRUE is gratuitous*/
@@ -560,7 +560,7 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         delete rightchild;
         rightchild=NULL;
         return false;
-        break;
+//        break;
 
     case OPERATOR_FALSE:
         /* IS FALSE requires a call to retrieve all rows like NOT, and
@@ -571,7 +571,7 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         delete rightchild;
         rightchild=NULL;
         return false;
-        break;
+//        break;
 
     case OPERATOR_UNKNOWN:
         /* IS UNKNOWN is a variation on ISNULL predicates */
@@ -581,7 +581,7 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         delete rightchild;
         rightchild=NULL;
         return false;
-        break;
+//        break;
 
     case OPERATOR_EQ:
         isoperator=false;

@@ -63,13 +63,13 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
                 boost::unordered_set<string>::iterator it;
 
                 for (it = listsRef.locked.begin();
-                     it != listsRef.locked.end(); it++)
+                     it != listsRef.locked.end(); ++it)
                 {
                     locksTransactionMap[*it].insert(msgrcvref.deadlockStruct.transactionid);
                 }
 
                 for (it = listsRef.waiting.begin();
-                     it != listsRef.waiting.end(); it++)
+                     it != listsRef.waiting.end(); ++it)
                 {
                     waitsTransactionMap[*it].insert(msgrcvref.deadlockStruct.transactionid);
                 }
@@ -181,7 +181,11 @@ DeadlockMgr::~DeadlockMgr()
 // launcher
 void *deadlockMgr(void *identity)
 {
-    DeadlockMgr((Topology::partitionAddress *)identity);
+    new DeadlockMgr((Topology::partitionAddress *)identity);
+    while (1)
+    {
+        sleep(10);
+    }
     return NULL;
 }
 
@@ -239,8 +243,8 @@ void DeadlockMgr::algorithm(void)
 
         boost::unordered_map< int64_t, boost::unordered_set<string> >::iterator it;
 
-        for (it = transactionWaitsMap.begin(); it != transactionWaitsMap.end();
-             it++)
+        for (it = transactionWaitsMap.begin();
+             it != transactionWaitsMap.end(); ++it)
         {
 
             if (walk(it->first)==true) // means a deadlock was found
@@ -303,7 +307,7 @@ bool DeadlockMgr::walk(int64_t transactionid)
     boost::unordered_set<string>::iterator it;
 
     for (it = transactionWaitsMap[transactionid].begin();
-         it != transactionWaitsMap[transactionid].end(); it++)
+         it != transactionWaitsMap[transactionid].end(); ++it)
     {
         if (walk(it)==true)   // deadlock happened at some point!
         {
@@ -335,7 +339,7 @@ bool DeadlockMgr::walk(boost::unordered_set<string>::iterator itemIt)
     boost::unordered_set<int64_t>::iterator it;
 
     for (it = locksTransactionMap[itemRef].begin();
-         it != locksTransactionMap[itemRef].end(); it++)
+         it != locksTransactionMap[itemRef].end(); ++it)
     {
         if (walk(*it)==true)   // deadlock happened!
         {
@@ -355,7 +359,7 @@ void DeadlockMgr::removeTransaction(int64_t transactionid)
 
     for (it = transactionLocksMap[transactionid].begin();
          it != transactionLocksMap[transactionid].end();
-         it++)
+         ++it)
     {
         locksTransactionMap[*it].erase(transactionid);
 
@@ -367,7 +371,7 @@ void DeadlockMgr::removeTransaction(int64_t transactionid)
 
     for (it = transactionWaitsMap[transactionid].begin();
          it != transactionWaitsMap[transactionid].end();
-         it++)
+         ++it)
     {
         waitsTransactionMap[*it].erase(transactionid);
 

@@ -178,7 +178,7 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
                                         [domainid][*operation].proceduredestroyer;
                                     spC(this, NULL, (void *)spD);
                                     continue;
-                                    break;
+//                                    break;
                                 }
                             }
 

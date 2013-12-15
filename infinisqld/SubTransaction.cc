@@ -1765,80 +1765,80 @@ void SubTransaction::replyTransaction(class MessageTransaction &sndRef,
 void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
 {
     return;
-    class Table &tableRef = *schemaPtr->tables[tableid];
-    std::queue<lockQueueRowEntry> &qRef = tableRef.lockQueue[rowid];
-    //    subtransactionCmd *subtransactionCmdPtr;
-    class MessageSubtransactionCmd *subtransactionCmdPtr;
+    // class Table &tableRef = *schemaPtr->tables[tableid];
+    // std::queue<lockQueueRowEntry> &qRef = tableRef.lockQueue[rowid];
+    // //    subtransactionCmd *subtransactionCmdPtr;
+    // class MessageSubtransactionCmd *subtransactionCmdPtr;
 
-    bool readlockedflag=false;
+    // bool readlockedflag=false;
 
-    while (!qRef.empty())   // remember to return when a WRITELOCK is processed
-    {
-        lockQueueRowEntry &entry = qRef.front();
+    // while (!qRef.empty())   // remember to return when a WRITELOCK is processed
+    // {
+    //     lockQueueRowEntry &entry = qRef.front();
 
-        if (enginePtr->SubTransactions.count(entry.subtransactionid))
-        {
-            // oh yeah gotta lock the row, but don't know how to stage the
-            // row itself
-            if (entry.locktype==WRITELOCK)
-            {
-                setwritelock(&tableRef.rows[rowid]->flags);
-                tableRef.rows[rowid]->writelockHolder = entry.subtransactionid;
+    //     if (enginePtr->SubTransactions.count(entry.subtransactionid))
+    //     {
+    //         // oh yeah gotta lock the row, but don't know how to stage the
+    //         // row itself
+    //         if (entry.locktype==WRITELOCK)
+    //         {
+    //             setwritelock(&tableRef.rows[rowid]->flags);
+    //             tableRef.rows[rowid]->writelockHolder = entry.subtransactionid;
 
-                subtransactionCmdPtr = new class MessageSubtransactionCmd();
-                returnRow_s returnRow= {};
-                returnRow.rowid=rowid;
-                returnRow.locktype=PENDINGTOWRITELOCK;
-                subtransactionCmdPtr->returnRows.push_back(returnRow);
-            }
-            else if (entry.locktype==READLOCK)
-            {
-                if (readlockedflag==false)
-                {
-                    setreadlock(&tableRef.rows[rowid]->flags);
-                    tableRef.rows[rowid]->readlockHolders =
-                        new boost::unordered_set<int64_t>;
-                    readlockedflag=true;
-                }
+    //             subtransactionCmdPtr = new class MessageSubtransactionCmd();
+    //             returnRow_s returnRow= {};
+    //             returnRow.rowid=rowid;
+    //             returnRow.locktype=PENDINGTOWRITELOCK;
+    //             subtransactionCmdPtr->returnRows.push_back(returnRow);
+    //         }
+    //         else if (entry.locktype==READLOCK)
+    //         {
+    //             if (readlockedflag==false)
+    //             {
+    //                 setreadlock(&tableRef.rows[rowid]->flags);
+    //                 tableRef.rows[rowid]->readlockHolders =
+    //                     new boost::unordered_set<int64_t>;
+    //                 readlockedflag=true;
+    //             }
 
-                tableRef.rows[rowid]->readlockHolders->insert(entry.subtransactionid);
+    //             tableRef.rows[rowid]->readlockHolders->insert(entry.subtransactionid);
 
-                subtransactionCmdPtr = new class MessageSubtransactionCmd();
-                subtransactionCmdPtr->returnRows[0].locktype = PENDINGTOREADLOCK;
-                subtransactionCmdPtr->returnRows[0].rowid = rowid;
-                subtransactionCmdPtr->returnRows[0].row = tableRef.rows[rowid]->row;
-            }
-            else
-            {
-                qRef.pop();
-                fprintf(logfile, "anomaly: %i %s %i\n", entry.locktype, __FILE__,
-                        __LINE__);
-                continue;
-            }
+    //             subtransactionCmdPtr = new class MessageSubtransactionCmd();
+    //             subtransactionCmdPtr->returnRows[0].locktype = PENDINGTOREADLOCK;
+    //             subtransactionCmdPtr->returnRows[0].rowid = rowid;
+    //             subtransactionCmdPtr->returnRows[0].row = tableRef.rows[rowid]->row;
+    //         }
+    //         else
+    //         {
+    //             qRef.pop();
+    //             fprintf(logfile, "anomaly: %i %s %i\n", entry.locktype, __FILE__,
+    //                     __LINE__);
+    //             continue;
+    //         }
 
-            // ok gotta fake msgrcv for replyTransaction
-            class SubTransaction &subTransactionRef =
-                *enginePtr->SubTransactions[entry.subtransactionid];
-            class MessageSubtransactionCmd rcv;
-            rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
-            rcv.transactionStruct.subtransactionid = entry.subtransactionid;
-            rcv.transactionStruct.engineinstance = enginePtr->partitionid;
-            rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-            rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
-            rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
+    //         // ok gotta fake msgrcv for replyTransaction
+    //         class SubTransaction &subTransactionRef =
+    //             *enginePtr->SubTransactions[entry.subtransactionid];
+    //         class MessageSubtransactionCmd rcv;
+    //         rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+    //         rcv.transactionStruct.subtransactionid = entry.subtransactionid;
+    //         rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+    //         rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+    //         rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+    //         rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
-            subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
+    //         subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
 
-            // there can only be 1 lock holder if it's a WRITELOCK
-            if (entry.locktype==WRITELOCK)
-            {
-                qRef.pop();
-                return;
-            }
-        }
+    //         // there can only be 1 lock holder if it's a WRITELOCK
+    //         if (entry.locktype==WRITELOCK)
+    //         {
+    //             qRef.pop();
+    //             return;
+    //         }
+    //     }
 
-        qRef.pop();
-    }
+    //     qRef.pop();
+    // }
 }
 
 void SubTransaction::drainRowLockQueue(int64_t tableid, int64_t rowid)
@@ -1879,237 +1879,237 @@ void SubTransaction::processIndexLockQueue(int64_t tableid, int64_t fieldid,
                                            fieldValue_s *val)
 {
     return;
-    class Index &indexRef = schemaPtr->tables[tableid]->fields[fieldid].index;
-    std::queue<lockQueueIndexEntry> *lockQueuePtr = NULL;
+    // class Index &indexRef = schemaPtr->tables[tableid]->fields[fieldid].index;
+    // std::queue<lockQueueIndexEntry> *lockQueuePtr = NULL;
 
-    switch (indexRef.fieldtype)
-    {
-    case INT:
-        if (indexRef.intLockQueue->count(val->value.integer))
-        {
-            lockQueuePtr = &indexRef.intLockQueue->at(val->value.integer);
-        }
+    // switch (indexRef.fieldtype)
+    // {
+    // case INT:
+    //     if (indexRef.intLockQueue->count(val->value.integer))
+    //     {
+    //         lockQueuePtr = &indexRef.intLockQueue->at(val->value.integer);
+    //     }
 
-        break;
+    //     break;
 
-    case UINT:
-        if (indexRef.uintLockQueue->count(val->value.uinteger))
-        {
-            lockQueuePtr = &indexRef.uintLockQueue->at(val->value.uinteger);
-        }
+    // case UINT:
+    //     if (indexRef.uintLockQueue->count(val->value.uinteger))
+    //     {
+    //         lockQueuePtr = &indexRef.uintLockQueue->at(val->value.uinteger);
+    //     }
 
-        break;
+    //     break;
 
-    case BOOL:
-        if (indexRef.boolLockQueue->count(val->value.boolean))
-        {
-            lockQueuePtr = &indexRef.boolLockQueue->at(val->value.boolean);
-        }
+    // case BOOL:
+    //     if (indexRef.boolLockQueue->count(val->value.boolean))
+    //     {
+    //         lockQueuePtr = &indexRef.boolLockQueue->at(val->value.boolean);
+    //     }
 
-        break;
+    //     break;
 
-    case FLOAT:
-        if (indexRef.floatLockQueue->count(val->value.floating))
-        {
-            lockQueuePtr = &indexRef.floatLockQueue->at(val->value.floating);
-        }
+    // case FLOAT:
+    //     if (indexRef.floatLockQueue->count(val->value.floating))
+    //     {
+    //         lockQueuePtr = &indexRef.floatLockQueue->at(val->value.floating);
+    //     }
 
-        break;
+    //     break;
 
-    case CHAR:
-        if (indexRef.charLockQueue->count(val->value.character))
-        {
-            lockQueuePtr = &indexRef.charLockQueue->at(val->value.character);
-        }
+    // case CHAR:
+    //     if (indexRef.charLockQueue->count(val->value.character))
+    //     {
+    //         lockQueuePtr = &indexRef.charLockQueue->at(val->value.character);
+    //     }
 
-        break;
+    //     break;
 
-    case CHARX:
-        if (indexRef.stringLockQueue->count(val->str))
-        {
-            lockQueuePtr = &indexRef.stringLockQueue->at(val->str);
-        }
+    // case CHARX:
+    //     if (indexRef.stringLockQueue->count(val->str))
+    //     {
+    //         lockQueuePtr = &indexRef.stringLockQueue->at(val->str);
+    //     }
 
-        break;
+    //     break;
 
-    case VARCHAR:
-        if (indexRef.stringLockQueue->count(val->str))
-        {
-            lockQueuePtr = &indexRef.stringLockQueue->at(val->str);
-        }
+    // case VARCHAR:
+    //     if (indexRef.stringLockQueue->count(val->str))
+    //     {
+    //         lockQueuePtr = &indexRef.stringLockQueue->at(val->str);
+    //     }
 
-        break;
+    //     break;
 
-    default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexRef.fieldtype, __FILE__,
-                __LINE__);
-    }
+    // default:
+    //     fprintf(logfile, "anomaly: %i %s %i\n", indexRef.fieldtype, __FILE__,
+    //             __LINE__);
+    // }
 
-    if (lockQueuePtr==NULL)
-    {
-        return;
-    }
+    // if (lockQueuePtr==NULL)
+    // {
+    //     return;
+    // }
 
-    std::queue<lockQueueIndexEntry> &lockQueueRef = *lockQueuePtr;
+    // std::queue<lockQueueIndexEntry> &lockQueueRef = *lockQueuePtr;
 
-    while (!lockQueueRef.empty())
-    {
-        lockQueueIndexEntry &entry = lockQueueRef.front();
+    // while (!lockQueueRef.empty())
+    // {
+    //     lockQueueIndexEntry &entry = lockQueueRef.front();
 
-        if (enginePtr->SubTransactions.count(entry.entry.subtransactionid))
-        {
-            class SubTransaction &subTransactionRef =
-                *enginePtr->SubTransactions[entry.entry.subtransactionid];
+    //     if (enginePtr->SubTransactions.count(entry.entry.subtransactionid))
+    //     {
+    //         class SubTransaction &subTransactionRef =
+    //             *enginePtr->SubTransactions[entry.entry.subtransactionid];
 
-            // do stuff
-            switch (indexRef.fieldtype)
-            {
-            case INT:
-                if (indexRef.indexmaptype==unorderedint)
-                {
-                    indexRef.unorderedIntIndex->at(val->value.integer) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniqueint)
-                {
-                    indexRef.uniqueIntIndex->at(val->value.integer) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         // do stuff
+    //         switch (indexRef.fieldtype)
+    //         {
+    //         case INT:
+    //             if (indexRef.indexmaptype==unorderedint)
+    //             {
+    //                 indexRef.unorderedIntIndex->at(val->value.integer) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniqueint)
+    //             {
+    //                 indexRef.uniqueIntIndex->at(val->value.integer) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-            case UINT:
-                if (indexRef.indexmaptype==unordereduint)
-                {
-                    indexRef.unorderedUintIndex->at(val->value.uinteger) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniqueuint)
-                {
-                    indexRef.uniqueUintIndex->at(val->value.uinteger) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case UINT:
+    //             if (indexRef.indexmaptype==unordereduint)
+    //             {
+    //                 indexRef.unorderedUintIndex->at(val->value.uinteger) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniqueuint)
+    //             {
+    //                 indexRef.uniqueUintIndex->at(val->value.uinteger) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            case BOOL:
-                if (indexRef.indexmaptype==unorderedbool)
-                {
-                    indexRef.unorderedBoolIndex->at(val->value.boolean) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniquebool)
-                {
-                    indexRef.uniqueBoolIndex->at(val->value.boolean) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case BOOL:
+    //             if (indexRef.indexmaptype==unorderedbool)
+    //             {
+    //                 indexRef.unorderedBoolIndex->at(val->value.boolean) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniquebool)
+    //             {
+    //                 indexRef.uniqueBoolIndex->at(val->value.boolean) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            case FLOAT:
-                if (indexRef.indexmaptype==unorderedfloat)
-                {
-                    indexRef.unorderedFloatIndex->at(val->value.floating) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniquefloat)
-                {
-                    indexRef.uniqueFloatIndex->at(val->value.floating) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case FLOAT:
+    //             if (indexRef.indexmaptype==unorderedfloat)
+    //             {
+    //                 indexRef.unorderedFloatIndex->at(val->value.floating) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniquefloat)
+    //             {
+    //                 indexRef.uniqueFloatIndex->at(val->value.floating) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            case CHAR:
-                if (indexRef.indexmaptype==unorderedchar)
-                {
-                    indexRef.unorderedCharIndex->at(val->value.character) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniquechar)
-                {
-                    indexRef.uniqueCharIndex->at(val->value.character) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case CHAR:
+    //             if (indexRef.indexmaptype==unorderedchar)
+    //             {
+    //                 indexRef.unorderedCharIndex->at(val->value.character) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniquechar)
+    //             {
+    //                 indexRef.uniqueCharIndex->at(val->value.character) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            case CHARX:
-                if (indexRef.indexmaptype==unorderedcharx)
-                {
-                    indexRef.unorderedStringIndex->at(val->str) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniquecharx)
-                {
-                    indexRef.uniqueStringIndex->at(val->str) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case CHARX:
+    //             if (indexRef.indexmaptype==unorderedcharx)
+    //             {
+    //                 indexRef.unorderedStringIndex->at(val->str) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniquecharx)
+    //             {
+    //                 indexRef.uniqueStringIndex->at(val->str) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            case VARCHAR:
-                if (indexRef.indexmaptype==unorderedvarchar)
-                {
-                    indexRef.unorderedStringIndex->at(val->str) = entry.entry;
-                }
-                else if (indexRef.indexmaptype==uniquevarchar)
-                {
-                    indexRef.uniqueStringIndex->at(val->str) = entry.entry;
-                }
-                else
-                {
-                    fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
-                            __FILE__, __LINE__);
-                }
+    //         case VARCHAR:
+    //             if (indexRef.indexmaptype==unorderedvarchar)
+    //             {
+    //                 indexRef.unorderedStringIndex->at(val->str) = entry.entry;
+    //             }
+    //             else if (indexRef.indexmaptype==uniquevarchar)
+    //             {
+    //                 indexRef.uniqueStringIndex->at(val->str) = entry.entry;
+    //             }
+    //             else
+    //             {
+    //                 fprintf(logfile, "anomaly: %i %s %i\n", indexRef.indexmaptype,
+    //                         __FILE__, __LINE__);
+    //             }
 
-                break;
+    //             break;
 
-            default:
-                fprintf(logfile, "anomaly: %i %s %i\n", indexRef.fieldtype, __FILE__,
-                        __LINE__);
-            }
+    //         default:
+    //             fprintf(logfile, "anomaly: %i %s %i\n", indexRef.fieldtype, __FILE__,
+    //                     __LINE__);
+    //         }
 
-            //reply
-            class MessageSubtransactionCmd *subtransactionCmdPtr =
-                new MessageSubtransactionCmd();
-            subtransactionCmdPtr->subtransactionStruct.locktype = PENDINGTOINDEXLOCK;
-            subtransactionCmdPtr->subtransactionStruct.tableid = tableid;
-            subtransactionCmdPtr->subtransactionStruct.fieldid = fieldid;
-            subtransactionCmdPtr->fieldVal = *val;
+    //         //reply
+    //         class MessageSubtransactionCmd *subtransactionCmdPtr =
+    //             new MessageSubtransactionCmd();
+    //         subtransactionCmdPtr->subtransactionStruct.locktype = PENDINGTOINDEXLOCK;
+    //         subtransactionCmdPtr->subtransactionStruct.tableid = tableid;
+    //         subtransactionCmdPtr->subtransactionStruct.fieldid = fieldid;
+    //         subtransactionCmdPtr->fieldVal = *val;
 
-            // ok gotta fake msgrcv for replyTransaction
-            class MessageSubtransactionCmd rcv;
-            rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
-            rcv.transactionStruct.subtransactionid = entry.entry.subtransactionid;
-            rcv.transactionStruct.engineinstance = enginePtr->partitionid;
-            rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
-            rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
-            rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
+    //         // ok gotta fake msgrcv for replyTransaction
+    //         class MessageSubtransactionCmd rcv;
+    //         rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+    //         rcv.transactionStruct.subtransactionid = entry.entry.subtransactionid;
+    //         rcv.transactionStruct.engineinstance = enginePtr->partitionid;
+    //         rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+    //         rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
+    //         rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
-            subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
+    //         subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
 
-            lockQueueRef.pop();
-        }
+    //         lockQueueRef.pop();
+    //     }
 
-        lockQueueRef.pop();
-    }
+    //     lockQueueRef.pop();
+    // }
 }
 
 void SubTransaction::drainIndexLockQueue(int64_t tableid, int64_t fieldid,

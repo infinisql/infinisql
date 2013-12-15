@@ -195,12 +195,14 @@ MessageSocket::MessageSocket()
 }
 
 MessageSocket::MessageSocket(int socketarg, uint32_t eventsarg,
-                             listenertype_e listenertypearg, int64_t nodeidarg, topic_e topicarg)
+                             listenertype_e listenertypearg, int64_t nodeidarg,
+                             topic_e topicarg) :
+    socketStruct({socketarg, eventsarg, listenertypearg})
 {
     messageStruct.topic=topicarg;
     messageStruct.payloadtype=PAYLOADSOCKET;
     messageStruct.destAddr.nodeid=nodeidarg;
-    socketStruct={socketarg, eventsarg, listenertypearg};
+//    socketStruct={socketarg, eventsarg, listenertypearg};
 }
 
 MessageSocket::~MessageSocket()
@@ -245,7 +247,8 @@ MessageUserSchema::MessageUserSchema()
 {
 }
 
-MessageUserSchema::MessageUserSchema(topic_e topicarg)
+MessageUserSchema::MessageUserSchema(topic_e topicarg) :
+    procs()
 {
     messageStruct.topic = topicarg;
     messageStruct.payloadtype = PAYLOADUSERSCHEMA;
@@ -367,7 +370,7 @@ void MessageDeadlock::clear()
     nodes={};
 }
 
-MessageTransaction::MessageTransaction()
+MessageTransaction::MessageTransaction() : transactionStruct()
 {
 }
 
@@ -410,7 +413,8 @@ void MessageTransaction::clear()
     transactionStruct={};
 }
 
-MessageSubtransactionCmd::MessageSubtransactionCmd()
+MessageSubtransactionCmd::MessageSubtransactionCmd() :
+    subtransactionStruct (), fieldVal ()
 {
 }
 
@@ -586,11 +590,11 @@ MessageAckDispatch::MessageAckDispatch()
 {
 }
 
-MessageAckDispatch::MessageAckDispatch(int64_t transactionidarg, int statusarg)
+MessageAckDispatch::MessageAckDispatch(int64_t transactionidarg, int statusarg) :
+    ackdispatchStruct ({transactionidarg, statusarg})
 {
     messageStruct.topic = TOPIC_ACKDISPATCH;
     messageStruct.payloadtype = PAYLOADACKDISPATCH;
-    ackdispatchStruct={transactionidarg, statusarg};
 }
 
 MessageAckDispatch::~MessageAckDispatch()
@@ -636,11 +640,11 @@ MessageApply::MessageApply()
 }
 
 MessageApply::MessageApply(int64_t subtransactionidarg, int64_t applieridarg,
-                           int64_t domainidarg)
+                           int64_t domainidarg) :
+    applyStruct ({subtransactionidarg, applieridarg, domainidarg})
 {
     messageStruct.topic = TOPIC_APPLY;
     messageStruct.payloadtype = PAYLOADAPPLY;
-    applyStruct={subtransactionidarg, applieridarg, domainidarg};
 }
 
 MessageApply::~MessageApply()
@@ -711,11 +715,12 @@ MessageAckApply::MessageAckApply()
 
 MessageAckApply::MessageAckApply(int64_t subtransactionidarg,
                                  int64_t applieridarg, int64_t partitionidarg,
-                                 int statusarg)
+                                 int statusarg) :
+    ackapplyStruct ({subtransactionidarg, applieridarg, partitionidarg,
+                statusarg})
 {
     messageStruct.topic = TOPIC_ACKAPPLY;
     messageStruct.payloadtype = PAYLOADACKAPPLY;
-    ackapplyStruct={subtransactionidarg, applieridarg, partitionidarg, statusarg};
 }
 
 MessageAckApply::~MessageAckApply()
@@ -920,7 +925,7 @@ void SerializedMessage::ser(boost::unordered_map<int64_t, int64_t> &d)
 {
     ser((int64_t)d.size());
     boost::unordered_map<int64_t, int64_t>::const_iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(it->first);
         ser(it->second);
@@ -1158,7 +1163,7 @@ void SerializedMessage::ser(boost::unordered_set<string> &d)
     size_t s=d.size();
     ser((int64_t)s);
     boost::unordered_set<string>::const_iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1168,7 +1173,7 @@ size_t SerializedMessage::sersize(boost::unordered_set<string> &d)
 {
     size_t retval=sizeof(size_t);
     boost::unordered_set<string>::const_iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1260,7 +1265,7 @@ void SerializedMessage::ser(vector<nonLockingIndexEntry_s> &d)
 {
     ser((int64_t)d.size());
     vector<nonLockingIndexEntry_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1307,7 +1312,7 @@ void SerializedMessage::ser(vector<fieldValue_s> &d)
 {
     ser((int64_t)d.size());
     vector<fieldValue_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1317,7 +1322,7 @@ size_t SerializedMessage::sersize(vector<fieldValue_s> &d)
 {
     size_t retval=sizeof(int64_t);
     vector<fieldValue_s>::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
+    for (it = d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1341,7 +1346,7 @@ void SerializedMessage::ser(vector<returnRow_s> &d)
 {
     ser((int64_t)d.size());
     vector<returnRow_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1351,7 +1356,7 @@ size_t SerializedMessage::sersize(vector<returnRow_s> &d)
 {
     size_t retval=sizeof(int64_t);
     vector<returnRow_s>::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
+    for (it = d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1375,7 +1380,7 @@ void SerializedMessage::ser(vector<MessageDispatch::record_s> &d)
 {
     ser((int64_t)d.size());
     vector<MessageDispatch::record_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1385,7 +1390,7 @@ size_t SerializedMessage::sersize(vector<MessageDispatch::record_s> &d)
 {
     size_t retval=sizeof(int64_t);
     vector<MessageDispatch::record_s>::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
+    for (it = d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1491,7 +1496,7 @@ void SerializedMessage::ser(vector<rowOrField_s> &d)
 {
     ser((int64_t)d.size());
     vector<rowOrField_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1501,7 +1506,7 @@ size_t SerializedMessage::sersize(vector<rowOrField_s> &d)
 {
     size_t retval=sizeof(int64_t);
     vector<rowOrField_s>::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
+    for (it = d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1525,7 +1530,7 @@ void SerializedMessage::ser(vector<MessageApply::applyindex_s> &d)
 {
     ser((int64_t)d.size());
     vector<MessageApply::applyindex_s>::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(*it);
     }
@@ -1535,7 +1540,7 @@ size_t SerializedMessage::sersize(vector<MessageApply::applyindex_s> &d)
 {
     size_t retval=sizeof(int64_t);
     vector<MessageApply::applyindex_s>::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
+    for (it = d.begin(); it != d.end(); ++it)
     {
         retval += sersize(*it);
     }
@@ -1559,7 +1564,7 @@ void SerializedMessage::ser(boost::unordered_map< int64_t, vector<MessageDispatc
 {
     ser((int64_t)d.size());
     boost::unordered_map< int64_t, vector<MessageDispatch::record_s> >::iterator it;
-    for (it=d.begin(); it != d.end(); it++)
+    for (it=d.begin(); it != d.end(); ++it)
     {
         ser(it->first);
         ser(it->second);
@@ -1569,12 +1574,6 @@ void SerializedMessage::ser(boost::unordered_map< int64_t, vector<MessageDispatc
 size_t SerializedMessage::sersize(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
 {
     return d.size() + (d.size() * 2 * sizeof(int64_t));
-    size_t retval=sizeof(int64_t) + (d.size()*sizeof(int64_t));
-    boost::unordered_map< int64_t, vector<MessageDispatch::record_s> >::iterator it;
-    for (it = d.begin(); it != d.end(); it++)
-    {
-        retval +=sersize(it->second);
-    }
 }
 
 void SerializedMessage::des(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
@@ -1604,7 +1603,8 @@ MessageSerialized::~MessageSerialized()
 {
 }
 
-MessageBatchSerialized::MessageBatchSerialized(int16_t nodeidarg) : nmsgs(0)
+MessageBatchSerialized::MessageBatchSerialized(int16_t nodeidarg) : nmsgs(0),
+                                                                    msgbatch ()
 {
     messageStruct.destAddr.nodeid=nodeidarg;
     messageStruct.topic=TOPIC_BATCHSERIALIZED;

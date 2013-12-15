@@ -123,11 +123,9 @@ it->second.end());
         buildup=true;
         */
 
-        ssize_t sended;
-
         // send all pendings
         boost::unordered_map< int64_t, vector<string *> >::iterator it;
-        for (it=pendingMsgs.begin(); it != pendingMsgs.end(); it++)
+        for (it=pendingMsgs.begin(); it != pendingMsgs.end(); ++it)
         {
             vector<string *> &msgsRef = it->second;
             size_t s=sizeof(size_t);
@@ -191,7 +189,7 @@ it->second.end());
                 sendsize=s;
             }
 
-            if ((sended=send(remoteGateways[it->first], sendstr, sendsize, 0))==-1)
+            if (send(remoteGateways[it->first], sendstr, sendsize, 0)==-1)
             {
                 printf("%s %i send errno %i nodeid %i instance %li it->first %li socket %i\n",
                        __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
@@ -201,11 +199,11 @@ it->second.end());
 
             if (isserstrbig==true)
             {
-                delete serstrbig;
+                delete[] serstrbig;
             }
             if (iscstrbig==true)
             {
-                delete cstrbig;
+                delete[] cstrbig;
             }
 
             /*
@@ -237,8 +235,8 @@ void ObGateway::updateRemoteGateways()
         remoteGateways.resize(myTopology.ibGateways.rbegin()->first+1, 0);
     }
 
-    for (it = myTopology.ibGateways.begin(); it != myTopology.ibGateways.end();
-         it++)
+    for (it = myTopology.ibGateways.begin();
+         it != myTopology.ibGateways.end(); ++it)
     {
         vector<string> &vecstringRef = it->second;
     
@@ -310,6 +308,10 @@ void ObGateway::updateRemoteGateways()
 // launcher, regular function
 void *obGateway(void *identity)
 {
-    ObGateway((Topology::partitionAddress *)identity);
+    new ObGateway((Topology::partitionAddress *)identity);
+    while (1)
+    {
+        sleep(150000);
+    }
     return NULL;
 }

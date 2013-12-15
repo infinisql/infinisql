@@ -27,7 +27,16 @@ Topology::Topology() : nodeid(0), numreplicas(1), activereplica(-1),
 {
 }
 
-Topology::Topology(const Topology &orig)
+Topology::Topology(const Topology &orig) : nodeid (), numreplicas (),
+                                           activereplica (),
+                                           numtransactionagents (),
+                                           numengines (),
+                                           numobgateways (),
+                                           numpartitions (),
+                                           userSchemaMgrNode (),
+                                           userSchemaMgrMbox (),
+    deadlockMgrNode (),
+    deadlockMgrMbox ()
 {
 }
 
@@ -36,11 +45,18 @@ Topology::~Topology()
 }
 
 Topology::partitionAddress *Topology::newActor(actortypes_e type,
-                                               class Mbox *mbox, int epollfd, const string &argstring,
-                                               int64_t actorid, const vector<string> &nodes,
+                                               class Mbox *mbox, int epollfd,
+                                               const string &argstring,
+                                               int64_t actorid,
+                                               const vector<string> &nodes,
                                                const vector<string> &services)
 {
     partitionAddress *addr = new partitionAddress();
+    if (addr==NULL)
+    {
+        fprintf(logfile, "%s %i can't create addr\n", __FILE__, __LINE__);
+        exit(1);
+    }
     partitionAddress &addrRef = *addr;
     addrRef.type = type;
     addrRef.mbox = mbox;
@@ -50,11 +66,6 @@ Topology::partitionAddress *Topology::newActor(actortypes_e type,
     addrRef.nodes = nodes;
     addrRef.services = services;
     addrRef.argstring = argstring;
-
-    if (addr==NULL)
-    {
-        printf("%s %i ERROR\n", __FILE__, __LINE__);
-    }
 
     return addr;
 }

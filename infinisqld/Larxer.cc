@@ -226,7 +226,7 @@ class Ast *Larxer::consumeExpression()
     case TYPE_operand:
         rootnode = new class Ast(NULL, item.val);
         return rootnode;
-        break;
+//        break;
 
     default:
         printf("%s %i anomaly %i\n", __FILE__, __LINE__, item.type);
@@ -580,7 +580,7 @@ void Larxer::consumeSelect(string &columns)
             }
 
             return; // end of select statement
-            break;
+//            break;
 
         case TYPE_FROM:
             consumeFrom();

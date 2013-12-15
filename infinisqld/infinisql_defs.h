@@ -81,6 +81,7 @@ enum __attribute__ ((__packed__)) indextype_e
 
 enum indexmaptype_e
 {
+    noindexmaptype = -1,
     uniqueint = 0,
     nonuniqueint = 1,
     unorderedint = 2,
@@ -106,6 +107,7 @@ enum indexmaptype_e
 
 enum maptype_e
 {
+    Nomaptype = -1,
     Unique = 0,
     Nonunique = 1,
     Unordered = 2
@@ -271,18 +273,19 @@ using boost::lexical_cast;
 // enums
 enum __attribute__ ((__packed__)) fieldtype_e
 {
+    NOFIELDTYPE = -1,
     INT = 0,
-        UINT = 1,
-        BOOL = 2,
-        FLOAT = 3,
-        CHAR = 4,
-        CHARX = 5,
-        VARCHAR = 6
-        };
+    UINT = 1,
+    BOOL = 2,
+    FLOAT = 3,
+    CHAR = 4,
+    CHARX = 5,
+    VARCHAR = 6
+};
 
 enum enginecmds_e
 {
-    newrow
+    enginecmdnewrow
 };
 
 enum __attribute__ ((__packed__)) locktype_e

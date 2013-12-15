@@ -575,7 +575,11 @@ TopologyMgr::~TopologyMgr()
 /** Launcher function for TopologyMgr actor */
 void *topologyMgr(void *identity)
 {
-    TopologyMgr((Topology::partitionAddress *)identity);
+    new TopologyMgr((Topology::partitionAddress *)identity);
+    while (1)
+    {
+        sleep(1000000);
+    }
     return NULL;
 }
 
@@ -621,27 +625,13 @@ void TopologyMgr::updateLocalConfig(msgpack::unpacker &pac,
 
     Topology::partitionAddress addr = {};
     addr.address.nodeid = nodeTopology.nodeid;
-    addr.address.actorid = 1;
-    addr.mbox = (class Mbox *)nodeTopology.actorList[1].mbox;
-    addr.type = ACTOR_TOPOLOGYMGR;
     addr.epollfd = -1;
     addr.argstring = "";
-
-    addr.address.actorid = 2;
-    addr.mbox = (class Mbox *)nodeTopology.actorList[2].mbox;
-    addr.type = ACTOR_DEADLOCKMGR;
-
-    addr.address.actorid = 3;
-    addr.mbox = (class Mbox *)nodeTopology.actorList[3].mbox;
-    addr.type = ACTOR_USERSCHEMAMGR;
-  
     addr.address.actorid = 4;
     addr.mbox = (class Mbox *)nodeTopology.actorList[4].mbox;
     addr.type = ACTOR_LISTENER;
 
     //  if (nodeTopology.actorList[]
-    vector<Topology::partitionAddress> tas;
-    vector<Topology::partitionAddress> engines;
     nodeTopology.numtransactionagents = 0;
     nodeTopology.numengines = 0;
     nodeTopology.numobgateways = 0;
@@ -795,7 +785,7 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
     allActors.resize(allActorsMap.rbegin()->first + 1, vector<int>());
     map< int64_t, vector<int> >::iterator it;
 
-    for (it = allActorsMap.begin(); it != allActorsMap.end(); it++)
+    for (it = allActorsMap.begin(); it != allActorsMap.end(); ++it)
     {
         allActors[it->first] = it->second;
     }
@@ -903,7 +893,6 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
     }
 
     nodeTopology.ibGateways.swap(ibgws);
-    map< int64_t, vector<string> >::iterator it2;
 
     nodeTopology.userSchemaMgrNode = usmgrnode;
     nodeTopology.userSchemaMgrMbox = (class Mbox *)usmgrmboxptr;

@@ -302,11 +302,10 @@ void IbGateway::inbufhandler(const char *buf, size_t bufsize)
     if (cfgs.compressgw==true)
     { // SERIALIZEDMAXSIZE
         int bs=SERIALIZEDMAXSIZE;
-        ssize_t dcsize;
         dcstr=dcstrsmall;
         while (1)
         {
-            dcsize=LZ4_decompress_safe(buf+sizeof(bufsize), dcstr,
+            ssize_t dcsize=LZ4_decompress_safe(buf+sizeof(bufsize), dcstr,
                                        bufsize-sizeof(bufsize), bs);
             if (dcsize < 0)
             {
@@ -348,7 +347,7 @@ void IbGateway::inbufhandler(const char *buf, size_t bufsize)
 
     if (isdcstrbig==true)
     {
-        delete dcstrbig;
+        delete[] dcstrbig;
     }
 }
 
@@ -400,6 +399,10 @@ void IbGateway::removefds()
 // launcher, regular function
 void *ibGateway(void *identity)
 {
-    IbGateway((Topology::partitionAddress *)identity);
+    new IbGateway((Topology::partitionAddress *)identity);
+    while (1)
+    {
+        sleep(500000);
+    }
     return NULL;
 }

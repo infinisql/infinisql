@@ -34,6 +34,7 @@ using std::string;
 using std::map;
 
 extern pthread_mutex_t nodeTopologyMutex;
+extern FILE *logfile;
 using std::vector;
 
 class Mbox;

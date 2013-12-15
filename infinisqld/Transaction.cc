@@ -207,7 +207,7 @@ void Transaction::dispatched(class Message *msgrcv)
 void Transaction::continueInsertRow(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
     switch (entrypoint)
     {
     case 1:
@@ -271,7 +271,7 @@ void Transaction::continueInsertRow(int64_t entrypoint)
         case NOLOCK: // constraint violation, abort command
             abortCmd(APISTATUS_UNIQUECONSTRAINT);
             return;
-            break;
+//            break;
 
         case INDEXLOCK:
             checkLock(ADDLOCKEDENTRY, false, 0, subtransactionCmdRef.subtransactionStruct.tableid,
@@ -286,7 +286,7 @@ void Transaction::continueInsertRow(int64_t entrypoint)
                       &subtransactionCmdRef.fieldVal);
             fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXLOCK:
             checkLock(TRANSITIONPENDINGTOLOCKEDENTRY, false, 0,
@@ -303,7 +303,7 @@ void Transaction::continueInsertRow(int64_t entrypoint)
                       &subtransactionCmdRef.fieldVal);
             fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
             return;
-            break;
+//            break;
 
         default:
             fprintf(logfile, "anomaly: %i %s %i\n",
@@ -345,7 +345,7 @@ void Transaction::continueInsertRow(int64_t entrypoint)
 void Transaction::continueDeleteRow(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     if (subtransactionCmdRef.subtransactionStruct.status != STATUS_OK)
     {
@@ -362,7 +362,7 @@ void Transaction::continueDeleteRow(int64_t entrypoint)
 void Transaction::continueSelectRows(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (entrypoint)
     {
@@ -531,7 +531,7 @@ void Transaction::continueSelectRows(int64_t entrypoint)
 
             case NOTFOUNDLOCK:
                 continue;
-                break;
+//                break;
 
             default:
                 fprintf(logfile, "anomaly: %i %s %i\n", rRow.locktype, __FILE__,
@@ -1229,7 +1229,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
     {
         // process updaterow message (status needs to be STATUS_OK)
         class MessageSubtransactionCmd &subtransactionCmdRef =
-            *((MessageSubtransactionCmd *)msgrcv);
+            *(static_cast<MessageSubtransactionCmd *>(msgrcv));
         int64_t status = subtransactionCmdRef.subtransactionStruct.status;
 
         if (status != STATUS_OK)
@@ -1317,7 +1317,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
     {
         // get responses from unique index set
         class MessageSubtransactionCmd &subtransactionCmdRef =
-            *((MessageSubtransactionCmd *)msgrcv);
+            *(static_cast<MessageSubtransactionCmd *>(msgrcv));
         int64_t tableid = subtransactionCmdRef.subtransactionStruct.tableid;
         int64_t fieldid = subtransactionCmdRef.subtransactionStruct.fieldid;
         fieldValue_s fieldVal;
@@ -1332,7 +1332,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
             printf("%s %i APISTATUS_UNIQUECONSTRAINT (NOLOCK)\n", __FILE__, __LINE__);
             abortCmd(APISTATUS_UNIQUECONSTRAINT);
             return;
-            break;
+//            break;
 
         case INDEXLOCK:
             currentCmdState.pendingStagedRows[currentCmdState.originaluur].
@@ -1347,7 +1347,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
             checkLock(ADDLOCKPENDINGENTRY, false, 0, tableid, 0,
                       fieldid, &fieldVal);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXLOCK:
             currentCmdState.pendingStagedRows[currentCmdState.originaluur].
@@ -1360,7 +1360,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
             printf("%s %i APISTATUS_UNIQUECONSTRAINT (PENDINGTOINDEXNOLOCK)\n", __FILE__, __LINE__);
             abortCmd(APISTATUS_UNIQUECONSTRAINT);
             return;
-            break;
+//            break;
 
         default:
             fprintf(logfile, "anomaly: %i %s %i\n",
@@ -1395,7 +1395,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
 void Transaction::continueReplaceRow(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (entrypoint)
     {
@@ -2802,7 +2802,7 @@ void Transaction::sqlPredicate(class Statement *statement,
 void Transaction::continueSqlPredicate(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (entrypoint)
     {
@@ -2905,29 +2905,29 @@ void Transaction::continueSqlPredicate(int64_t entrypoint)
                 // abort if lock pending for now, but make backlog (6/26/2013)
                 sqlcmdstate.statement->abortQuery(APISTATUS_LOCK);
                 return;
-                break;
+//                break;
 
             case PENDINGTOWRITELOCK:
                 // abort if lock pending for now, but make backlog (6/26/2013)
                 sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
                 return;
-                break;
+//                break;
 
             case PENDINGTOREADLOCK:
                 // abort if lock pending for now, but make backlog (6/26/2013)
                 sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
                 return;
-                break;
+//                break;
 
             case PENDINGTONOLOCK:
                 // abort if lock pending for now, but make backlog (6/26/2013)
                 sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
                 return;
-                break;
+//                break;
 
             case NOTFOUNDLOCK:
                 continue;
-                break;
+//                break;
 
             default:
                 fprintf(logfile, "anomaly: %i %s %i\n", returnrowRef.locktype, __FILE__,
@@ -3028,7 +3028,7 @@ void Transaction::sqlSelectAll(class Statement *statement, int64_t tableid,
 void Transaction::continueSqlDelete(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &msgrcvRef =
-        *((MessageSubtransactionCmd *)msgrcv);
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     if (pendingcmdid != msgrcvRef.transactionStruct.transaction_pendingcmdid)
     {
@@ -3053,7 +3053,7 @@ void Transaction::continueSqlDelete(int64_t entrypoint)
 void Transaction::continueSqlInsert(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &msgrcvRef =
-        *(MessageSubtransactionCmd *)msgrcv;
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (entrypoint)
     {
@@ -3125,7 +3125,7 @@ void Transaction::continueSqlInsert(int64_t entrypoint)
         case NOLOCK: // constraint violation, abort command
             sqlcmdstate.statement->abortQuery(APISTATUS_UNIQUECONSTRAINT);
             return;
-            break;
+//            break;
 
         case INDEXLOCK:
             break;
@@ -3134,19 +3134,19 @@ void Transaction::continueSqlInsert(int64_t entrypoint)
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXLOCK:
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXNOLOCK: // unique constraint violation
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
             return;
-            break;
+//            break;
 
         default:
             fprintf(logfile, "anomaly: %i %s %i\n", msgrcvRef.subtransactionStruct.locktype,
@@ -3174,7 +3174,7 @@ void Transaction::continueSqlUpdate(int64_t entrypoint)
 {
     // only 1 entrypoint
     class MessageSubtransactionCmd &msgrcvRef =
-        *(MessageSubtransactionCmd *)msgrcv;
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (msgrcvRef.subtransactionStruct.locktype)
     {
@@ -3185,7 +3185,7 @@ void Transaction::continueSqlUpdate(int64_t entrypoint)
         printf("%s %i APISTATUS_UNIQUECONSTRAINT (NOLOCK)\n", __FILE__, __LINE__);
         sqlcmdstate.statement->abortQuery(APISTATUS_UNIQUECONSTRAINT);
         return;
-        break;
+//        break;
 
     case INDEXLOCK:
         break;
@@ -3193,17 +3193,17 @@ void Transaction::continueSqlUpdate(int64_t entrypoint)
     case INDEXPENDINGLOCK:
         sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
         return;
-        break;
+//        break;
 
     case PENDINGTOINDEXLOCK:
         sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
         return;
-        break;
+//        break;
 
     case PENDINGTOINDEXNOLOCK: // unique constraint violation
         sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
         return;
-        break;
+//        break;
 
     default:
         printf("%s %i locktype %i\n", __FILE__, __LINE__, msgrcvRef.subtransactionStruct.locktype);
@@ -3223,7 +3223,7 @@ void Transaction::continueSqlUpdate(int64_t entrypoint)
 void Transaction::continueSqlReplace(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &msgrcvRef =
-        *(MessageSubtransactionCmd *)msgrcv;
+        *(static_cast<MessageSubtransactionCmd *>(msgrcv));
 
     switch (entrypoint)
     {
@@ -3307,7 +3307,7 @@ void Transaction::continueSqlReplace(int64_t entrypoint)
         case NOLOCK:
             sqlcmdstate.statement->abortQuery(APISTATUS_UNIQUECONSTRAINT);
             return;
-            break;
+//            break;
 
         case INDEXLOCK:
             break;
@@ -3315,20 +3315,21 @@ void Transaction::continueSqlReplace(int64_t entrypoint)
         case INDEXPENDINGLOCK:
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXLOCK:
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             return;
-            break;
+//            break;
 
         case PENDINGTOINDEXNOLOCK: // unique constraint violation
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             return;
-            break;
+//            break;
 
         default:
-            printf("%s %i locktype %i\n", __FILE__, __LINE__, msgrcvRef.subtransactionStruct.locktype);
+            printf("%s %i locktype %i\n", __FILE__, __LINE__,
+                   msgrcvRef.subtransactionStruct.locktype);
             sqlcmdstate.statement->abortQuery(STATUS_NOTOK);
             return;
         }

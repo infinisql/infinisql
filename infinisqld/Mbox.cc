@@ -188,13 +188,16 @@ void MboxProducer::sendMsg(class Message &msgsnd)
                                                                                     __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
 
-Mboxes::Mboxes()
+Mboxes::Mboxes() : Mboxes(0)
 {
-    Mboxes(0);
 }
 
 Mboxes::Mboxes(int64_t nodeidarg) : nodeid(nodeidarg),
-                                    topologyMgrPtr(NULL), listenerPtr(NULL), obGatewayPtr(NULL)
+                                    topologyMgrPtr(NULL),
+                                    userSchemaMgrLocation (),
+                                    deadlockMgrLocation (),
+                                    listenerPtr(NULL),
+                                    obGatewayPtr (NULL)
 {
     topologyMgr.mbox = NULL;
     userSchemaMgr.mbox = NULL;
@@ -203,8 +206,8 @@ Mboxes::Mboxes(int64_t nodeidarg) : nodeid(nodeidarg),
     ibGateway.mbox = NULL;
     obGateway.mbox = NULL;
 
-    userSchemaMgrLocation = {};
-    deadlockMgrLocation = {};
+//    userSchemaMgrLocation = {};
+//    deadlockMgrLocation = {};
 }
 
 Mboxes::~Mboxes()
@@ -374,7 +377,7 @@ void Mboxes::toPartition(const Topology::addressStruct &source,
     if (partitionid < 0 || (size_t)partitionid > partitionToProducers.size()-1)
     {
         printf("%s %i anomaly %li %lu\n", __FILE__, __LINE__, partitionid,
-               partitionToProducers.size());
+               (unsigned long)partitionToProducers.size());
         return;
     }
 
@@ -446,7 +449,8 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
                 break;
 
                 default:
-                    printf("%s %i anomaly %i\n", __FILE__, __LINE__, msg.messageStruct.payloadtype);
+                    printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                           msg.messageStruct.payloadtype);
                 }
 
                 tally++;
@@ -465,7 +469,7 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
     boost::unordered_map< int16_t, vector<int> >::iterator it;
 
     for (it = allActorsThisReplica.begin(); it != allActorsThisReplica.end();
-         it++)
+         ++it)
     {
         for (int16_t m=FIRSTACTORID; m < (int16_t)allActorsThisReplica[it->first].size(); m++)
         {

@@ -20,7 +20,24 @@
 #include "infinisql_Index.h"
 #line 22 "Index.cc"
 
-Index::Index(void)
+Index::Index(void) : indextype (NONE), fieldtype (NOFIELDTYPE),
+                     maptype (Nomaptype), notNull (true), isunique (true),
+                     indexmaptype (noindexmaptype), uniqueIntIndex (NULL),
+                     nonuniqueIntIndex (NULL), unorderedIntIndex (NULL),
+                     uniqueUintIndex (NULL), nonuniqueUintIndex (NULL),
+                     unorderedUintIndex (NULL), uniqueBoolIndex (NULL),
+                     nonuniqueBoolIndex (NULL), unorderedBoolIndex (NULL),
+    uniqueFloatIndex (NULL), nonuniqueFloatIndex (NULL),
+    unorderedFloatIndex (NULL), uniqueCharIndex (NULL),
+    nonuniqueCharIndex (NULL), unorderedCharIndex (NULL),
+    uniqueStringIndex (NULL), nonuniqueStringIndex (NULL),
+    unorderedStringIndex (NULL), intIndexShadow (NULL),
+    uintIndexShadow (NULL), boolIndexShadow (NULL),
+    floatIndexShadow (NULL), charIndexShadow (NULL),
+    stringIndexShadow (NULL), intLockQueue (NULL),
+    uintLockQueue (NULL), boolLockQueue (NULL),
+    floatLockQueue (NULL), charLockQueue (NULL),
+    stringLockQueue (NULL)
 {
     ;
 }
@@ -792,7 +809,7 @@ void Index::replace(int64_t entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueIntIndex->equal_range(entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -829,7 +846,7 @@ void Index::replace(uint64_t entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueUintIndex->equal_range(entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -866,7 +883,7 @@ void Index::replace(bool entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueBoolIndex->equal_range(entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -903,7 +920,7 @@ void Index::replace(long double entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueFloatIndex->equal_range(entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -940,7 +957,7 @@ void Index::replace(char entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueCharIndex->equal_range(entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -980,7 +997,7 @@ void Index::replace(string *entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueStringIndex->equal_range(*entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -1009,7 +1026,7 @@ void Index::replace(string *entry, int64_t rowid, int64_t engineid)
 
         iteratorRange = nonuniqueStringIndex->equal_range(*entry);
 
-        for (it=iteratorRange.first; it != iteratorRange.second; it++)
+        for (it=iteratorRange.first; it != iteratorRange.second; ++it)
         {
             if (it->second.rowid==rowid && it->second.engineid==engineid)
             {
@@ -1038,7 +1055,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueIntMap::iterator it;
 
-        for (it=uniqueIntIndex->begin(); it != uniqueIntIndex->end(); it++)
+        for (it=uniqueIntIndex->begin(); it != uniqueIntIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1052,7 +1069,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         nonuniqueIntMap::iterator it;
 
-        for (it=nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); it++)
+        for (it=nonuniqueIntIndex->begin();
+             it != nonuniqueIntIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1066,7 +1084,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         unorderedIntMap::iterator it;
 
-        for (it=unorderedIntIndex->begin(); it != unorderedIntIndex->end(); it++)
+        for (it=unorderedIntIndex->begin(); it != unorderedIntIndex->end();
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1080,7 +1099,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueUintMap::iterator it;
 
-        for (it=uniqueUintIndex->begin(); it != uniqueUintIndex->end(); it++)
+        for (it=uniqueUintIndex->begin(); it != uniqueUintIndex->end();
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1094,8 +1114,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         nonuniqueUintMap::iterator it;
 
-        for (it=nonuniqueUintIndex->begin(); it != nonuniqueUintIndex->end();
-             it++)
+        for (it=nonuniqueUintIndex->begin();
+             it != nonuniqueUintIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1109,8 +1129,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         unorderedUintMap::iterator it;
 
-        for (it=unorderedUintIndex->begin(); it != unorderedUintIndex->end();
-             it++)
+        for (it=unorderedUintIndex->begin();
+             it != unorderedUintIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1124,7 +1144,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueBoolMap::iterator it;
 
-        for (it=uniqueBoolIndex->begin(); it != uniqueBoolIndex->end(); it++)
+        for (it=uniqueBoolIndex->begin();
+             it != uniqueBoolIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1138,8 +1159,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         nonuniqueBoolMap::iterator it;
 
-        for (it=nonuniqueBoolIndex->begin(); it != nonuniqueBoolIndex->end();
-             it++)
+        for (it=nonuniqueBoolIndex->begin();
+             it != nonuniqueBoolIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1153,8 +1174,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         unorderedBoolMap::iterator it;
 
-        for (it=unorderedBoolIndex->begin(); it != unorderedBoolIndex->end();
-             it++)
+        for (it=unorderedBoolIndex->begin();
+             it != unorderedBoolIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1168,7 +1189,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueFloatMap::iterator it;
 
-        for (it=uniqueFloatIndex->begin(); it != uniqueFloatIndex->end(); it++)
+        for (it=uniqueFloatIndex->begin();
+             it != uniqueFloatIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1182,8 +1204,8 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         nonuniqueFloatMap::iterator it;
 
-        for (it=nonuniqueFloatIndex->begin(); it != nonuniqueFloatIndex->end();
-             it++)
+        for (it=nonuniqueFloatIndex->begin();
+             it != nonuniqueFloatIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1198,7 +1220,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         unorderedFloatMap::iterator it;
 
         for (it=unorderedFloatIndex->begin(); it != unorderedFloatIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1212,7 +1234,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueCharMap::iterator it;
 
-        for (it=uniqueCharIndex->begin(); it != uniqueCharIndex->end(); it++)
+        for (it=uniqueCharIndex->begin(); it != uniqueCharIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1227,7 +1249,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         nonuniqueCharMap::iterator it;
 
         for (it=nonuniqueCharIndex->begin(); it != nonuniqueCharIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1242,7 +1264,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         unorderedCharMap::iterator it;
 
         for (it=unorderedCharIndex->begin(); it != unorderedCharIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1256,7 +1278,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueStringMap::iterator it;
 
-        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1271,7 +1293,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         nonuniqueStringMap::iterator it;
 
         for (it=nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1286,7 +1308,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         unorderedStringMap::iterator it;
 
         for (it=unorderedStringIndex->begin(); it != unorderedStringIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1300,7 +1322,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
     {
         uniqueStringMap::iterator it;
 
-        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1315,7 +1337,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         nonuniqueStringMap::iterator it;
 
         for (it=nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1330,7 +1352,7 @@ void Index::getnotnulls(vector<indexEntry_s> *returnEntries)
         unorderedStringMap::iterator it;
 
         for (it=unorderedStringIndex->begin(); it != unorderedStringIndex->end();
-             it++)
+             ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -1370,7 +1392,7 @@ void Index::getequal_f(int64_t input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueIntIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1417,7 +1439,7 @@ void Index::getequal_f(uint64_t input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueUintIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1465,7 +1487,7 @@ void Index::getequal_f(bool input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueBoolIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1495,8 +1517,6 @@ void Index::getequal_f(long double input, vector<indexEntry_s> *returnEntries)
     {
     case uniquefloat:
     {
-        uniqueFloatMap::const_iterator it;
-
         if (uniqueFloatIndex->count(input))
         {
             indexEntry_s entry;
@@ -1515,7 +1535,7 @@ void Index::getequal_f(long double input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueFloatIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1564,7 +1584,7 @@ void Index::getequal_f(char input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueCharIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1614,7 +1634,7 @@ void Index::getequal_f(string input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueStringIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1653,7 +1673,7 @@ void Index::getequal_f(string input, vector<indexEntry_s> *returnEntries)
 
         itRange = nonuniqueStringIndex->equal_range(input);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
@@ -1685,7 +1705,7 @@ void Index::getnotequal(int64_t input, vector<indexEntry_s> *returnEntries)
     {
         uniqueIntMap::iterator it;
 
-        for (it=uniqueIntIndex->begin(); it != uniqueIntIndex->end(); it++)
+        for (it=uniqueIntIndex->begin(); it != uniqueIntIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1702,7 +1722,7 @@ void Index::getnotequal(int64_t input, vector<indexEntry_s> *returnEntries)
     {
         nonuniqueIntMap::iterator it;
 
-        for (it=nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); it++)
+        for (it=nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1716,7 +1736,7 @@ void Index::getnotequal(int64_t input, vector<indexEntry_s> *returnEntries)
     {
         unorderedIntMap::iterator it;
 
-        for (it=unorderedIntIndex->begin(); it != unorderedIntIndex->end(); it++)
+        for (it=unorderedIntIndex->begin(); it != unorderedIntIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1742,7 +1762,7 @@ void Index::getnotequal(uint64_t input, vector<indexEntry_s> *returnEntries)
     {
         uniqueUintMap::iterator it;
 
-        for (it=uniqueUintIndex->begin(); it != uniqueUintIndex->end(); it++)
+        for (it=uniqueUintIndex->begin(); it != uniqueUintIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1760,7 +1780,7 @@ void Index::getnotequal(uint64_t input, vector<indexEntry_s> *returnEntries)
         nonuniqueUintMap::iterator it;
 
         for (it=nonuniqueUintIndex->begin(); it != nonuniqueUintIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1776,7 +1796,7 @@ void Index::getnotequal(uint64_t input, vector<indexEntry_s> *returnEntries)
         unorderedUintMap::iterator it;
 
         for (it=unorderedUintIndex->begin(); it != unorderedUintIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1803,7 +1823,7 @@ void Index::getnotequal(bool input, vector<indexEntry_s> *returnEntries)
         uniqueBoolMap::iterator it;
 
         for (it=uniqueBoolIndex->begin(); it != uniqueBoolIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1821,7 +1841,7 @@ void Index::getnotequal(bool input, vector<indexEntry_s> *returnEntries)
         nonuniqueBoolMap::iterator it;
 
         for (it=nonuniqueBoolIndex->begin(); it != nonuniqueBoolIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1837,7 +1857,7 @@ void Index::getnotequal(bool input, vector<indexEntry_s> *returnEntries)
         unorderedBoolMap::iterator it;
 
         for (it=unorderedBoolIndex->begin(); it != unorderedBoolIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1863,7 +1883,7 @@ void Index::getnotequal(long double input, vector<indexEntry_s> *returnEntries)
     {
         uniqueFloatMap::iterator it;
 
-        for (it=uniqueFloatIndex->begin(); it != uniqueFloatIndex->end(); it++)
+        for (it=uniqueFloatIndex->begin(); it != uniqueFloatIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1881,7 +1901,7 @@ void Index::getnotequal(long double input, vector<indexEntry_s> *returnEntries)
         nonuniqueFloatMap::iterator it;
 
         for (it=nonuniqueFloatIndex->begin(); it != nonuniqueFloatIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1897,7 +1917,7 @@ void Index::getnotequal(long double input, vector<indexEntry_s> *returnEntries)
         unorderedFloatMap::iterator it;
 
         for (it=unorderedFloatIndex->begin(); it != unorderedFloatIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1923,7 +1943,7 @@ void Index::getnotequal(char input, vector<indexEntry_s> *returnEntries)
     {
         uniqueCharMap::iterator it;
 
-        for (it=uniqueCharIndex->begin(); it != uniqueCharIndex->end(); it++)
+        for (it=uniqueCharIndex->begin(); it != uniqueCharIndex->end(); ++it)
         {
             if (it->first != input)
             {
@@ -1941,7 +1961,7 @@ void Index::getnotequal(char input, vector<indexEntry_s> *returnEntries)
         nonuniqueCharMap::iterator it;
 
         for (it=nonuniqueCharIndex->begin(); it != nonuniqueCharIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1957,7 +1977,7 @@ void Index::getnotequal(char input, vector<indexEntry_s> *returnEntries)
         unorderedCharMap::iterator it;
 
         for (it=unorderedCharIndex->begin(); it != unorderedCharIndex->end();
-             it++)
+             ++it)
         {
             if (it->first != input)
             {
@@ -1985,9 +2005,8 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
     {
         uniqueStringMap::iterator it;
 
-        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); ++it)
         {
-            //                if (it->first != input) {
             if (it->first.compare(input))
             {
                 indexEntry_s entry;
@@ -2004,7 +2023,7 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
         nonuniqueStringMap::iterator it;
 
         for (it=nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end();
-             it++)
+             ++it)
         {
             if (it->first.compare(input))
             {
@@ -2020,9 +2039,8 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
         unorderedStringMap::iterator it;
 
         for (it=unorderedStringIndex->begin(); it != unorderedStringIndex->end();
-             it++)
+             ++it)
         {
-            //                if (it->first != input) {
             if (it->first.compare(input))
             {
                 indexEntry_s entry;
@@ -2038,7 +2056,7 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
     {
         uniqueStringMap::iterator it;
 
-        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it=uniqueStringIndex->begin(); it != uniqueStringIndex->end(); ++it)
         {
             if (it->first.compare(input))
             {
@@ -2056,9 +2074,8 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
         nonuniqueStringMap::iterator it;
 
         for (it=nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end();
-             it++)
+             ++it)
         {
-            //                if (it->first != input) {
             if (it->first.compare(input))
             {
                 returnEntries->push_back(it->second);
@@ -2073,7 +2090,7 @@ void Index::getnotequal(string input, vector<indexEntry_s> *returnEntries)
         unorderedStringMap::iterator it;
 
         for (it=unorderedStringIndex->begin(); it != unorderedStringIndex->end();
-             it++)
+             ++it)
         {
             if (it->first.compare(input))
             {
@@ -2118,7 +2135,7 @@ void Index::comparison(int64_t input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2151,7 +2168,7 @@ void Index::comparison(int64_t input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2200,7 +2217,7 @@ void Index::comparison(uint64_t input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if (op==OPERATOR_GT)   // skip equal
             {
@@ -2250,7 +2267,7 @@ void Index::comparison(uint64_t input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if (op==OPERATOR_GT)   // skip equal
             {
@@ -2272,7 +2289,7 @@ void Index::comparison(uint64_t input, operatortypes_e op,
                  multimap<uint64_t, nonLockingIndexEntry_s>::iterator> iteratorRange;
             iteratorRange = nonuniqueUintIndex->equal_range(input);
 
-            for (it=iteratorRange.first; it != iteratorRange.second; it++)
+            for (it=iteratorRange.first; it != iteratorRange.second; ++it)
             {
                 indexEntry_s entry;
                 entry.rowid = it->second.rowid;
@@ -2320,7 +2337,7 @@ void Index::comparison(bool input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if (op==OPERATOR_GT)   // skip equal
             {
@@ -2370,7 +2387,7 @@ void Index::comparison(bool input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if (op==OPERATOR_GT)   // skip equal
             {
@@ -2392,7 +2409,7 @@ void Index::comparison(bool input, operatortypes_e op,
                  multimap<bool, nonLockingIndexEntry_s>::iterator> iteratorRange;
             iteratorRange = nonuniqueBoolIndex->equal_range(input);
 
-            for (it=iteratorRange.first; it != iteratorRange.second; it++)
+            for (it=iteratorRange.first; it != iteratorRange.second; ++it)
             {
                 indexEntry_s entry;
                 entry.rowid = it->second.rowid;
@@ -2440,7 +2457,7 @@ void Index::comparison(long double input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2473,7 +2490,7 @@ void Index::comparison(long double input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2522,7 +2539,7 @@ void Index::comparison(char input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2555,7 +2572,7 @@ void Index::comparison(char input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
             {
@@ -2607,7 +2624,7 @@ void Index::comparison(string *input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
             {
@@ -2640,7 +2657,7 @@ void Index::comparison(string *input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
             {
@@ -2679,7 +2696,7 @@ void Index::comparison(string *input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
             {
@@ -2712,7 +2729,7 @@ void Index::comparison(string *input, operatortypes_e op,
 
         // lower_bound: GTE
         // upper_bound: LT
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
             {
@@ -2765,7 +2782,7 @@ void Index::between(int64_t lower, int64_t upper,
         uniqueIntMap::const_iterator it;
 
         for (it = mapRef.lower_bound(lower); it != mapRef.lower_bound(upper);
-             it++)
+             ++it)
         {
             returnEntries->push_back({it->second.rowid, it->second.engineid});
         }
@@ -2787,7 +2804,7 @@ void Index::between(int64_t lower, int64_t upper,
         nonuniqueIntMap::iterator it;
 
         for (it = nonuniqueIntIndex->lower_bound(lower);
-             it != nonuniqueIntIndex->upper_bound(upper); it++)
+             it != nonuniqueIntIndex->upper_bound(upper); ++it)
         {
             if (it->first <= upper)
             {
@@ -2821,7 +2838,7 @@ void Index::between(uint64_t lower, uint64_t upper,
             returnEntries->push_back(entry);
         }
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -2841,12 +2858,12 @@ void Index::between(uint64_t lower, uint64_t upper,
              multimap<uint64_t, nonLockingIndexEntry_s>::iterator> itRange;
         itRange = nonuniqueUintIndex->equal_range(lower);
 
-        for (it=itRange.first; it != itRange.second; it++)
+        for (it=itRange.first; it != itRange.second; ++it)
         {
             returnEntries->push_back(it->second);
         }
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             indexEntry_s entry;
             entry.rowid = it->second.rowid;
@@ -2894,7 +2911,7 @@ void Index::between(long double lower, long double upper,
         uniqueFloatMap::const_iterator it;
 
         for (it = mapRef.lower_bound(lower); it != mapRef.lower_bound(upper);
-             it++)
+             ++it)
         {
             returnEntries->push_back({it->second.rowid, it->second.engineid});
         }
@@ -2916,7 +2933,7 @@ void Index::between(long double lower, long double upper,
         nonuniqueFloatMap::iterator it;
 
         for (it = nonuniqueFloatIndex->lower_bound(lower);
-             it != nonuniqueFloatIndex->upper_bound(upper); it++)
+             it != nonuniqueFloatIndex->upper_bound(upper); ++it)
         {
             if (it->first <= upper)
             {
@@ -2956,8 +2973,8 @@ void Index::between(char lower, char upper, vector<indexEntry_s> *returnEntries)
 
         uniqueCharMap::const_iterator it;
 
-        for (it = mapRef.lower_bound(lower); it != mapRef.lower_bound(upper);
-             it++)
+        for (it = mapRef.lower_bound(lower);
+             it != mapRef.lower_bound(upper); ++it)
         {
             returnEntries->push_back({it->second.rowid, it->second.engineid});
         }
@@ -2979,7 +2996,7 @@ void Index::between(char lower, char upper, vector<indexEntry_s> *returnEntries)
         nonuniqueCharMap::iterator it;
 
         for (it = nonuniqueCharIndex->lower_bound(lower);
-             it != nonuniqueCharIndex->upper_bound(upper); it++)
+             it != nonuniqueCharIndex->upper_bound(upper); ++it)
         {
             if (it->first <= upper)
             {
@@ -3024,7 +3041,7 @@ void Index::between(string lower, string upper,
         uniqueStringMap::const_iterator it;
 
         for (it = mapRef.lower_bound(lower); it != mapRef.lower_bound(upper);
-             it++)
+             ++it)
         {
             returnEntries->push_back({it->second.rowid, it->second.engineid});
         }
@@ -3046,7 +3063,7 @@ void Index::between(string lower, string upper,
         nonuniqueStringMap::iterator it;
 
         for (it = nonuniqueStringIndex->lower_bound(lower);
-             it != nonuniqueStringIndex->upper_bound(upper); it++)
+             it != nonuniqueStringIndex->upper_bound(upper); ++it)
         {
             if (it->first <= upper)
             {
@@ -3078,7 +3095,7 @@ void Index::between(string lower, string upper,
         uniqueStringMap::const_iterator it;
 
         for (it = mapRef.lower_bound(lower); it != mapRef.lower_bound(upper);
-             it++)
+             ++it)
         {
             returnEntries->push_back({it->second.rowid, it->second.engineid});
         }
@@ -3100,7 +3117,7 @@ void Index::between(string lower, string upper,
         nonuniqueStringMap::iterator it;
 
         for (it = nonuniqueStringIndex->lower_bound(lower);
-             it != nonuniqueStringIndex->upper_bound(upper); it++)
+             it != nonuniqueStringIndex->upper_bound(upper); ++it)
         {
             if (it->first <= upper)
             {
@@ -3125,7 +3142,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         getIterators(regexStr, uniqueStringIndex, &itBegin, &itEnd);
         pcrecpp::RE re(*regexStr);
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3145,7 +3162,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         pcrecpp::RE re(*regexStr);
 
         for (it = unorderedStringIndex->begin();
-             it != unorderedStringIndex->end(); it++)
+             it != unorderedStringIndex->end(); ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3162,7 +3179,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         getIterators(regexStr, nonuniqueStringIndex, &itBegin, &itEnd);
         pcrecpp::RE re(*regexStr);
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3179,7 +3196,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         getIterators(regexStr, uniqueStringIndex, &itBegin, &itEnd);
         pcrecpp::RE re(*regexStr);
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3199,7 +3216,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         pcrecpp::RE re(*regexStr);
 
         for (it = unorderedStringIndex->begin();
-             it != unorderedStringIndex->end(); it++)
+             it != unorderedStringIndex->end(); ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3216,7 +3233,7 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
         getIterators(regexStr, nonuniqueStringIndex, &itBegin, &itEnd);
         pcrecpp::RE re(*regexStr);
 
-        for (it=itBegin; it != itEnd; it++)
+        for (it=itBegin; it != itEnd; ++it)
         {
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
@@ -3258,7 +3275,7 @@ void Index::getnotin(vector<int64_t> &entries,
     {
         uniqueIntMap::iterator it;
 
-        for (it = uniqueIntIndex->begin(); it != uniqueIntIndex->end(); it++)
+        for (it = uniqueIntIndex->begin(); it != uniqueIntIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3283,7 +3300,7 @@ void Index::getnotin(vector<int64_t> &entries,
     {
         unorderedIntMap::iterator it;
 
-        for (it = unorderedIntIndex->begin(); it != unorderedIntIndex->end(); it++)
+        for (it = unorderedIntIndex->begin(); it != unorderedIntIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3308,7 +3325,7 @@ void Index::getnotin(vector<int64_t> &entries,
     {
         nonuniqueIntMap::iterator it;
 
-        for (it = nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); it++)
+        for (it = nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3343,7 +3360,7 @@ void Index::getnotin(vector<uint64_t> &entries,
     {
         uniqueUintMap::iterator it;
 
-        for (it = uniqueUintIndex->begin(); it != uniqueUintIndex->end(); it++)
+        for (it = uniqueUintIndex->begin(); it != uniqueUintIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3368,7 +3385,8 @@ void Index::getnotin(vector<uint64_t> &entries,
     {
         unorderedUintMap::iterator it;
 
-        for (it = unorderedUintIndex->begin(); it != unorderedUintIndex->end(); it++)
+        for (it = unorderedUintIndex->begin();
+             it != unorderedUintIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3393,7 +3411,8 @@ void Index::getnotin(vector<uint64_t> &entries,
     {
         nonuniqueUintMap::iterator it;
 
-        for (it = nonuniqueUintIndex->begin(); it != nonuniqueUintIndex->end(); it++)
+        for (it = nonuniqueUintIndex->begin(); it != nonuniqueUintIndex->end();
+             ++it)
         {
             bool isfound=false;
 
@@ -3428,7 +3447,7 @@ void Index::getnotin(vector<bool> &entries,
     {
         uniqueBoolMap::iterator it;
 
-        for (it = uniqueBoolIndex->begin(); it != uniqueBoolIndex->end(); it++)
+        for (it = uniqueBoolIndex->begin(); it != uniqueBoolIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3453,7 +3472,8 @@ void Index::getnotin(vector<bool> &entries,
     {
         unorderedBoolMap::iterator it;
 
-        for (it = unorderedBoolIndex->begin(); it != unorderedBoolIndex->end(); it++)
+        for (it = unorderedBoolIndex->begin();
+             it != unorderedBoolIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3478,7 +3498,8 @@ void Index::getnotin(vector<bool> &entries,
     {
         nonuniqueBoolMap::iterator it;
 
-        for (it = nonuniqueBoolIndex->begin(); it != nonuniqueBoolIndex->end(); it++)
+        for (it = nonuniqueBoolIndex->begin();
+             it != nonuniqueBoolIndex->end();++it)
         {
             bool isfound=false;
 
@@ -3513,7 +3534,7 @@ void Index::getnotin(vector<long double> &entries,
     {
         uniqueFloatMap::iterator it;
 
-        for (it = uniqueFloatIndex->begin(); it != uniqueFloatIndex->end(); it++)
+        for (it = uniqueFloatIndex->begin(); it != uniqueFloatIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3538,7 +3559,8 @@ void Index::getnotin(vector<long double> &entries,
     {
         unorderedFloatMap::iterator it;
 
-        for (it = unorderedFloatIndex->begin(); it != unorderedFloatIndex->end(); it++)
+        for (it = unorderedFloatIndex->begin();
+             it != unorderedFloatIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3563,7 +3585,8 @@ void Index::getnotin(vector<long double> &entries,
     {
         nonuniqueFloatMap::iterator it;
 
-        for (it = nonuniqueFloatIndex->begin(); it != nonuniqueFloatIndex->end(); it++)
+        for (it = nonuniqueFloatIndex->begin();
+             it != nonuniqueFloatIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3598,7 +3621,7 @@ void Index::getnotin(vector<char> &entries,
     {
         uniqueCharMap::iterator it;
 
-        for (it = uniqueCharIndex->begin(); it != uniqueCharIndex->end(); it++)
+        for (it = uniqueCharIndex->begin(); it != uniqueCharIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3623,7 +3646,8 @@ void Index::getnotin(vector<char> &entries,
     {
         unorderedCharMap::iterator it;
 
-        for (it = unorderedCharIndex->begin(); it != unorderedCharIndex->end(); it++)
+        for (it = unorderedCharIndex->begin();
+             it != unorderedCharIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3648,7 +3672,8 @@ void Index::getnotin(vector<char> &entries,
     {
         nonuniqueCharMap::iterator it;
 
-        for (it = nonuniqueCharIndex->begin(); it != nonuniqueCharIndex->end(); it++)
+        for (it = nonuniqueCharIndex->begin();
+             it != nonuniqueCharIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3683,7 +3708,8 @@ void Index::getnotin(vector<string> &entries,
     {
         uniqueStringMap::iterator it;
 
-        for (it = uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it = uniqueStringIndex->begin();
+             it != uniqueStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3710,7 +3736,8 @@ void Index::getnotin(vector<string> &entries,
     {
         unorderedStringMap::iterator it;
 
-        for (it = unorderedStringIndex->begin(); it != unorderedStringIndex->end(); it++)
+        for (it = unorderedStringIndex->begin();
+             it != unorderedStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3735,7 +3762,8 @@ void Index::getnotin(vector<string> &entries,
     {
         nonuniqueStringMap::iterator it;
 
-        for (it = nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end(); it++)
+        for (it = nonuniqueStringIndex->begin();
+             it != nonuniqueStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3762,7 +3790,8 @@ void Index::getnotin(vector<string> &entries,
     {
         uniqueStringMap::iterator it;
 
-        for (it = uniqueStringIndex->begin(); it != uniqueStringIndex->end(); it++)
+        for (it = uniqueStringIndex->begin();
+             it != uniqueStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3789,7 +3818,8 @@ void Index::getnotin(vector<string> &entries,
     {
         unorderedStringMap::iterator it;
 
-        for (it = unorderedStringIndex->begin(); it != unorderedStringIndex->end(); it++)
+        for (it = unorderedStringIndex->begin();
+             it != unorderedStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -3814,7 +3844,8 @@ void Index::getnotin(vector<string> &entries,
     {
         nonuniqueStringMap::iterator it;
 
-        for (it = nonuniqueStringIndex->begin(); it != nonuniqueStringIndex->end(); it++)
+        for (it = nonuniqueStringIndex->begin();
+             it != nonuniqueStringIndex->end(); ++it)
         {
             bool isfound=false;
 
@@ -4623,10 +4654,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 {
     pair<multimap<int64_t, nonLockingIndexEntry_s>::iterator,
          multimap<int64_t, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueIntMap::iterator itBegin, itEnd, it;
+    nonuniqueIntMap::iterator it;
     itRange = nonuniqueIntIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4641,10 +4672,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 {
     pair<multimap<uint64_t, nonLockingIndexEntry_s>::iterator,
          multimap<uint64_t, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueUintMap::iterator itBegin, itEnd, it;
+    nonuniqueUintMap::iterator it;
     itRange = nonuniqueUintIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4659,10 +4690,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 {
     pair<multimap<bool, nonLockingIndexEntry_s>::iterator,
          multimap<bool, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueBoolMap::iterator itBegin, itEnd, it;
+    nonuniqueBoolMap::iterator it;
     itRange = nonuniqueBoolIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4677,10 +4708,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 {
     pair<multimap<long double, nonLockingIndexEntry_s>::iterator,
          multimap<long double, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueFloatMap::iterator itBegin, itEnd, it;
+    nonuniqueFloatMap::iterator it;
     itRange = nonuniqueFloatIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4695,10 +4726,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 {
     pair<multimap<char, nonLockingIndexEntry_s>::iterator,
          multimap<char, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueCharMap::iterator itBegin, itEnd, it;
+    nonuniqueCharMap::iterator it;
     itRange = nonuniqueCharIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4715,10 +4746,10 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 
     pair<multimap<string, nonLockingIndexEntry_s>::iterator,
          multimap<string, nonLockingIndexEntry_s>::iterator> itRange;
-    nonuniqueStringMap::iterator itBegin, itEnd, it;
+    nonuniqueStringMap::iterator it;
     itRange = nonuniqueStringIndex->equal_range(input);
 
-    for (it = itRange.first; it != itRange.second; it++)
+    for (it = itRange.first; it != itRange.second; ++it)
     {
         if (it->second.rowid==oldrowid && it->second.engineid==oldengineid)
         {
@@ -4802,12 +4833,13 @@ void Index::deleteNonuniqueEntry(int64_t entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueIntIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            // baleet!
-            nonuniqueIntIndex->erase(it);
+            nonuniqueIntMap::iterator it2=it;
+            ++it;
+            nonuniqueIntIndex->erase(it2);
         }
     }
 }
@@ -4821,11 +4853,13 @@ void Index::deleteNonuniqueEntry(uint64_t entry, int64_t rowid,
 
     iteratorRange = nonuniqueUintIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueUintIndex->erase(it);
+            nonuniqueUintMap::iterator it2=it;
+            ++it;
+            nonuniqueUintIndex->erase(it2);
         }
     }
 }
@@ -4838,11 +4872,13 @@ void Index::deleteNonuniqueEntry(bool entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueBoolIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueBoolIndex->erase(it);
+            nonuniqueBoolMap::iterator it2=it;
+            ++it;
+            nonuniqueBoolIndex->erase(it2);
         }
     }
 }
@@ -4855,11 +4891,13 @@ void Index::deleteNonuniqueEntry(long double entry, int64_t rowid, int64_t engin
 
     iteratorRange = nonuniqueFloatIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueFloatIndex->erase(it);
+            nonuniqueFloatMap::iterator it2=it;
+            ++it;
+            nonuniqueFloatIndex->erase(it2);
         }
     }
 }
@@ -4872,11 +4910,13 @@ void Index::deleteNonuniqueEntry(char entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueCharIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueCharIndex->erase(it);
+            nonuniqueCharMap::iterator it2=it;
+            ++it;
+            nonuniqueCharIndex->erase(it2);
         }
     }
 }
@@ -4891,11 +4931,13 @@ void Index::deleteNonuniqueEntry(string *entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueStringIndex->equal_range(*entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; it++)
+    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueStringIndex->erase(it);
+            nonuniqueStringMap::iterator it2=it;
+            ++it;
+            nonuniqueStringIndex->erase(it2);
         }
     }
 }
@@ -5039,7 +5081,7 @@ void Index::getnulls(vector<indexEntry_s> *returnEntries)
     indexEntry_s entry;
 
     for (nullsIterator = nulls.begin(); nullsIterator != nulls.end();
-         nullsIterator++)
+         ++nullsIterator)
     {
         entry.rowid = nullsIterator->at(0);
         entry.engineid = nullsIterator->at(1);
