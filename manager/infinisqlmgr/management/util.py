@@ -39,7 +39,8 @@ def get_pid(dist_dir, cluster_name):
 
     run_path = get_run_path(dist_dir, cluster_name)
     with open(run_path, "r") as run_file:
-        return int(run_file.read().strip())
+        pid = run_file.read().strip()
+        return int(pid) if pid else None
 
 
 def write_pid(dist_dir, cluster_name, pid):

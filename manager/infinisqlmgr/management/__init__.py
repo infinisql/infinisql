@@ -9,15 +9,17 @@ import struct
 import time
 
 import msgpack
+import tornado.ioloop
+import tornado.web
 import zmq
+import zmq.eventloop.ioloop as zmq_ioloop
 
-from infinisqlmgr.management import msg
-from infinisqlmgr.management import election
-from infinisqlmgr.management import health
-
+from infinisqlmgr.management import msg, election, health, api
 
 class Controller(object):
-    def __init__(self, cluster_name, data_dir="/tmp", mcast_group="224.0.0.1", mcast_port=21001, cmd_port=21000):
+    def __init__(self, cluster_name, data_dir="/tmp",
+                 mcast_group="224.0.0.1", mcast_port=21001,
+                 cmd_port=21000, cfg_port=21002):
         """
         Creates a new management node controller.
 
@@ -48,14 +50,17 @@ class Controller(object):
         self.heartbeat_period = 10
         self.node_partition_threshold = 50
 
-        self.presence_recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.presence_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.last_presence_announcement = 0
         self.presence_announcement_period = 1
+
+        self.application = None
 
         self.cluster_name = cluster_name
         self.mcast_group = mcast_group
         self.mcast_port = mcast_port
         self.cmd_port = cmd_port
+        self.cfg_port = cfg_port
 
         self.health = health.Health(self.node_id, data_dir)
         self.heartbeats = {}
@@ -74,11 +79,11 @@ class Controller(object):
         Configures the presence socket.
         :return: None
         """
-        self.presence_recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.presence_recv_socket.bind((self.mcast_group, self.mcast_port))
+        self.presence_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.presence_socket.bind((self.mcast_group, self.mcast_port))
         multicast_req = struct.pack("=4sl", socket.inet_aton(self.mcast_group), socket.INADDR_ANY)
-        self.presence_recv_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, multicast_req)
-        self.presence_poller.register(self.presence_recv_socket, select.POLLIN)
+        self.presence_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, multicast_req)
+        self.presence_poller.register(self.presence_socket, select.POLLIN)
 
     def _configure_pub_socket(self):
         """
@@ -136,11 +141,12 @@ class Controller(object):
         """
         del self.message_handlers[msg_id]
 
-    def _process_publication(self, sock):
+    def _process_publication(self, sock, events):
         """
         Processes a publication from another management node.
 
         :param sock: The ZMQ socket to handle data from.
+        :param events: The events that triggered this handler.
         :return: None
         """
         data = sock.recv()
@@ -149,8 +155,15 @@ class Controller(object):
         if handler is not None:
             handler(payload)
 
-    def _process_presence(self, sock):
-        data = sock.recv(4096)
+    def _process_presence(self, sock, events):
+        """
+        Processes announcements received on the presence socket.
+
+        :param sock: The socket to read.
+        :param events: The events that triggered this handler.
+        :return: None
+        """
+        data = self.presence_socket.recv(4096)
         cluster_name, remote_ip, remote_port = msgpack.unpackb(data, encoding="utf8")
         self.add_node(cluster_name, remote_ip, remote_port)
 
@@ -164,6 +177,7 @@ class Controller(object):
         """
         logging.debug("caught termination signal: signal %d", signum)
         self.stop()
+        zmq_ioloop.ZMQIOLoop.instance().stop()
 
     def _start_transaction_engines(self):
         """
@@ -417,11 +431,26 @@ class Controller(object):
         logging.info("Setting stop flag for management process.")
         self.keep_going = False
 
+    def process_node_tasks(self):
+        """
+        Performs local node processing tasks.
+
+        :return:
+        """
+        self._beat_heart()
+
+        # Perform local stability tasks
+        self._check_topology_stability()
+
     def process_leader_tasks(self):
         """
         Performs processing of tasks delegated to the leader.
-        :return:
+        :return: None
         """
+        # Perform leader tasks if I am the leader.
+        if self.leader_node_id != self.node_id:
+            return
+
         self.current_cluster_time += 1
 
     def process(self):
@@ -430,16 +459,13 @@ class Controller(object):
         there is no pending activity.
         :return: None
         """
-        self._beat_heart()
-
-        # Perform local stability tasks
-        self._check_topology_stability()
+        self.process_node_tasks()
 
         # Poll presence socket
         while True:
             events = self.presence_poller.poll(50)
             for sock, event in events:
-                self._process_presence(self.presence_recv_socket)
+                self._process_presence(self.presence_socket, [event])
             if not events:
                 break
 
@@ -448,19 +474,19 @@ class Controller(object):
         while True:
             events = self.poller.poll(timeout=50)
             for sock, event in events:
-                self._process_publication(sock)
+                self._process_publication(sock, [event])
             if not events:
                 break
 
-        # Perform leader tasks if I am the leader.
-        if self.leader_node_id == self.node_id:
-            self.process_leader_tasks()
+        self.process_leader_tasks()
 
-    def run(self):
+    def run_management_only(self):
         """
         The main run loop for the management process. Sets a signal handler so that the process can be
         stopped by sending SIGTERM. You can also call the "stop()" function from inside the same process
         to stop the management server.
+
+        This version of the run loop does not provide the web configuration front-end.
 
         :return: 0 on success, nonzero for error conditions.
         """
@@ -473,17 +499,55 @@ class Controller(object):
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         return 0
 
+    def run(self):
+        """
+        The main run loop for the management process. Sets a signal handler so that the process can be
+        stopped by sending SIGTERM. You can also call the "stop()" function from inside the same process
+        to stop the management server.
+
+        This version of the run loop does provides the web configuration front-end. The web front-end is a
+        RESTful API that provides status and configuration command and control interfaces. See api_client
+        for use.
+
+        :return: 0 on success, nonzero for error conditions.
+        """
+        zmq_ioloop.install()
+        signal.signal(signal.SIGTERM, self._stop_signal_handler)
+
+        # Setup the web application
+        self.application = tornado.web.Application(api.handlers)
+        self.application.listen(self.cfg_port)
+
+        # Setup handlers to care for the management tasks.
+        announce_timer = tornado.ioloop.PeriodicCallback(self.announce_presence, 1000)
+        announce_timer.start()
+
+        instance = zmq_ioloop.ZMQIOLoop.instance()
+        instance.add_handler(self.presence_socket.fileno(), self._process_presence, zmq_ioloop.ZMQIOLoop.READ)
+        instance.add_handler(self.cmd_socket, self._process_publication, zmq_ioloop.ZMQIOLoop.READ)
+
+        # Start the I/O loop
+        logging.info("Started management process, announcing on %s:%s, configuration port=%s, command port=%s",
+                     self.mcast_group, self.mcast_port, self.cfg_port, self.cmd_port)
+        instance.start()
+        announce_timer.stop()
+
+        # Unregister the signal handler and exit.
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+        logging.info("Stopped management process.")
+        return 0
+
     def shutdown(self):
         """
         Shuts down this management node, releases all resources.
         :return: None
         """
         self.stop()
-        self.presence_poller.unregister(self.presence_recv_socket)
+        self.presence_poller.unregister(self.presence_socket)
         for sock in self.sub_sockets.values():
             self.poller.unregister(sock)
 
-        self.presence_recv_socket.close()
+        self.presence_socket.close()
         self.cmd_socket.close()
         for sock in self.sub_sockets.values():
             sock.close()

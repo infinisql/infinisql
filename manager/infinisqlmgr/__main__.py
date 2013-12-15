@@ -5,7 +5,7 @@ def main():
     import argparse
     import logging
 
-    from infinisqlmgr import server
+    from infinisqlmgr import data_server, management_server
 
     parser = argparse.ArgumentParser(prog="isqlmgr", description='Manage an InfiniSQL cluster.')
 
@@ -28,14 +28,17 @@ def main():
                        default=False,
                        help='Enable debug logging. (default is off)')
 
-    server.add_args(parser.add_subparsers())
+    sp = parser.add_subparsers()
+    management_server.add_args(sp)
+    data_server.add_args(sp)
 
     # Process the arguments
     args = parser.parse_args()
 
     # The func attribute is set by parse_args() and represents the command handler
     # for whatever sub-command was specified by the user.
-    args.func(args)
+    if hasattr(args, "func"):
+        args.func(args)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,8 @@ import msgpack
 class ConfigurationState(object):
     def __init__(self, controller):
         self.controller = controller
-        self.actors = []
+        self.actors = {}
+        self.replica_members = {}
 
     def _recv(self, sock):
         """
@@ -44,11 +45,11 @@ class ConfigurationState(object):
         :param mbox_ptr: The mailbox pointer for this actor.
         :return:
         """
-        # Extend the list to have sufficent entries for the given id.
-        for x in range((actor_id + 1) - len(self.actors)):
-            self.actors.append((cfg.ACTOR_NONE, 0, 0))
         # Update the specified id.
         self.actors[actor_id] = (actor_type, instance, mbox_ptr)
+
+    def add_replica_member(self, replica, member, node_id):
+        self.replica_members[(replica, member)] = node_id
 
     def update_node(self, sock):
         """
@@ -58,15 +59,22 @@ class ConfigurationState(object):
         types = []
         instances = []
         mbox_ptrs = []
-        for x in self.actors:
+
+        actor_ids = sorted(self.actors.keys())
+
+        # Whenever an actor is added, we update the database engine with their configuration
+        # information. This loop collects that into a few parallel structures and sends it
+        # off to the database engine's topology manager.
+        for actor_id in actor_ids:
+            x = self.actors[actor_id]
             types.append(int(x[0]))
             instances.append(x[1])
             mbox_ptrs.append(x[2])
 
-            self._send(sock, (cfg.CMD_LOCALCONFIG, types, instances, mbox_ptrs))
-            for msg in self._recv(sock):
-                if msg != cfg.CMD_OK:
-                    logging.warning("Expected CMD_OK updating node local config, but response=%s", msg)
+        self._send(sock, (cfg.CMD_LOCALCONFIG, types, instances, mbox_ptrs))
+        for msg in self._recv(sock):
+            if msg != cfg.CMD_OK:
+                logging.warning("Expected CMD_OK updating node local config, but response=%s", msg)
 
     def get_topology_mgr_mbox_ptr(self, sock):
         """
@@ -91,7 +99,4 @@ class ConfigurationState(object):
         mbox_ptr = next(stream)
         self.add_actor(1, cfg.ACTOR_TOPOLOGYMGR, -1, mbox_ptr)
         self.update_node(sock)
-
-
-
 
