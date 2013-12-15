@@ -33,8 +33,8 @@ public:
         int64_t applierid;
         Topology::addressStruct taAddress;
 
-        vector<MessageDispatch::record_s> rows;
-        vector<MessageApply::applyindex_s> indices;
+        std::vector<MessageDispatch::record_s> rows;
+        std::vector<MessageApply::applyindex_s> indices;
     };
 
     Engine(Topology::partitionAddress *);
@@ -80,7 +80,7 @@ private:
     int64_t nextsubtransactionid;
     int64_t instance;
     boost::unordered_map<int64_t, class SubTransaction *> SubTransactions;
-    map<int64_t, background_s> backgrounded;
+    std::map<int64_t, background_s> backgrounded;
 };
 
 void *engine(void *);

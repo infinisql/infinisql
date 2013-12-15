@@ -26,12 +26,12 @@
 
 typedef struct
 {
-    string clearpassword;
+    std::string clearpassword;
     byte digest[64];
 } passwordStruct;
 
 typedef boost::unordered_map<std::string, int64_t> domainNameToDomainIdMap;
-typedef boost::unordered_map<string, int64_t> userNameToUserIdMap;
+typedef boost::unordered_map<std::string, int64_t> userNameToUserIdMap;
 typedef boost::unordered_map<int64_t, passwordStruct> userIdToPasswordMap;
 typedef boost::unordered_map<int64_t, userNameToUserIdMap *>
     domainIdToUserNamesMap;
@@ -99,11 +99,11 @@ private:
     userIdToPasswordMap::iterator userIdToPasswordIterator;
     passwordStruct pwdStruct;
     passwordStruct *pwdStructPtr;
-    vector<string> *resultVector;
+    std::vector<std::string> *resultVector;
     int64_t nextdomainid;
     domainidToSchemaMap::iterator domainidsToSchemataIterator;
-    boost::unordered_map <string, fieldtype_e> fieldTypeMap;
-    boost::unordered_map <string, indextype_e> indexTypeMap;
+    boost::unordered_map <std::string, fieldtype_e> fieldTypeMap;
+    boost::unordered_map <std::string, indextype_e> indexTypeMap;
 };
 
 void *userSchemaMgr(void *);

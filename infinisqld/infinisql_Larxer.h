@@ -106,7 +106,7 @@ public:
     struct stackmember_s
     {
         stacktypes_e type;
-        string val;
+        std::string val;
     };
 
     Larxer(char *, class TransactionAgent *, class Schema *);

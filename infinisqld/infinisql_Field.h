@@ -39,7 +39,7 @@ public:
     size_t length;
     indextype_e indextype;
     class Index index;
-    string name;
+    std::string name;
 };
 
 #endif  /* INFINISQLFIELD_H */

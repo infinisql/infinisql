@@ -64,11 +64,11 @@ public:
         class Mbox *mbox;
         actortypes_e type; /**< actor type */
         int epollfd;
-        string argstring;
-        string node;
-        string service;
-        vector<string> nodes;
-        vector<string> services;
+        std::string argstring;
+        std::string node;
+        std::string service;
+        std::vector<std::string> nodes;
+        std::vector<std::string> services;
     };
 
     struct actor_s
@@ -84,8 +84,10 @@ public:
 
     /** creates a new actor's addressing in the local node. Should be
      * followed by launching the thread */
-    partitionAddress *newActor(actortypes_e, class Mbox *, int, const string &,
-                               int64_t, const vector<string> &, const vector<string> &);
+    partitionAddress *newActor(actortypes_e, class Mbox *, int,
+                               const string &, int64_t,
+                               const vector<string> &,
+                               const vector<string> &);
 
     int16_t nodeid; /**< this gets propagated to all addresses created by this
                      * class instance */
@@ -106,16 +108,16 @@ public:
     int16_t deadlockMgrNode;
     class Mbox *deadlockMgrMbox;
     // partitionList[replicaid][partition] = {nodeid, actorid}
-    vector< vector<partitionAddress> > partitionList;
-    vector<partitionAddress> partitionListThisReplica;
-    map< int64_t, vector<string> > ibGateways;
+    std::vector< vector<partitionAddress> > partitionList;
+    std::vector<partitionAddress> partitionListThisReplica;
+    std::map< int64_t, vector<std::string> > ibGateways;
     // allActors[nodeid][actorid] = type
-    vector< vector<int> > allActors;
-    boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
+    std::vector< vector<int> > allActors;
+    boost::unordered_map< int16_t, std::vector<int> > allActorsThisReplica;
     // replicaMembers[replica][member] = nodeid
-    vector< vector<int16_t> > replicaMembers;
+    std::vector< vector<int16_t> > replicaMembers;
     // tas[nodeid][tainstance] = actorid
-    vector< vector<int16_t> > tas;
+    std::vector< vector<int16_t> > tas;
 };
 
 #endif  /* INFINISQLTOPOLOGY_H */

@@ -112,11 +112,11 @@ public:
 
     char pgcmdtype;
     uint32_t size;
-    string inbuf;
+    std::string inbuf;
     size_t pos;
     char outcmd;
-    string outmsg;
-    string outbuf;
+    std::string outmsg;
+    std::string outbuf;
 
     int64_t userid;
     //  int64_t domainid;
@@ -124,9 +124,9 @@ public:
     //  class Statement *statementPtr;
 
     // startupArgs["user"] and "database" are username & dbname
-    boost::unordered_map<string, string> startupArgs;
+    boost::unordered_map<std::string, std::string> startupArgs;
 
-    string procedureprefix;
+    std::string procedureprefix;
 
     // session settings
     bool session_isautocommit;

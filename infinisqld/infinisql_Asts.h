@@ -67,7 +67,7 @@ public:
 
     bool isoperator; // false is operand
     operatortypes_e operatortype;
-    string operand; // type and value is embedded
+    std::string operand; // type and value is embedded
     boost::unordered_map<uuRecord_s, returnRow_s> predicateResults;
     //private:
 };
@@ -81,21 +81,21 @@ public:
     struct orderbyitem_s
     {
         bool isasc; // false is descending
-        string operandstr;
+        std::string operandstr;
     };
 
     struct inobject_s
     {
         bool issubquery; // false is expressionlist
         int64_t subquery; // index value of subquery in subqueries
-        vector<class Ast *> expressionlist;
+        std::vector<class Ast *> expressionlist;
     };
 
     struct column_s
     {
         char aggregatetype;
         int64_t fieldid;
-        string name;
+        std::string name;
     };
 
     /* results of evaulations during query execution, including final results */
@@ -103,11 +103,11 @@ public:
     {
         boost::unordered_map<uuRecord_s, returnRow_s> searchResults;
         /* each string is a field, with type embedded in 1st char */
-        boost::unordered_map< uuRecord_s, vector<fieldValue_s> > selectResults;
+        boost::unordered_map< uuRecord_s, std::vector<fieldValue_s> > selectResults;
         size_t initerator;
-        vector<fieldValue_s> inValues;
-        vector<fieldValue_s> insertValues;
-        string newrow; // insert
+        std::vector<fieldValue_s> inValues;
+        std::vector<fieldValue_s> insertValues;
+        std::string newrow; // insert
         uuRecord_s originalrowuur;
         int64_t newrowengineid;
         uuRecord_s newrowuur;
@@ -128,23 +128,23 @@ public:
         bool hashaving;
         bool hasorderby;
 
-        string table;
+        std::string table;
         int64_t tableid;
         locktype_e locktype;
-        vector<string> groupByList; // identifiers
+        std::vector<std::string> groupByList; // identifiers
         // fromColumns are operands
-        vector<string> fromColumns;
-        vector<column_s> fromColumnids;
-        vector<orderbyitem_s> orderbylist;
+        std::vector<std::string> fromColumns;
+        std::vector<column_s> fromColumnids;
+        std::vector<orderbyitem_s> orderbylist;
         inobject_s inobject;
 
         class Ast *searchCondition;
         boost::unordered_map<string, class Ast *> assignments;
         boost::unordered_map<int64_t, class Ast *> fieldidAssignments;
-        vector<class Ast *> insertColumns;
+        std::vector<class Ast *> insertColumns;
 
-        string storedProcedure;
-        vector<string> storedProcedureArgs;
+        std::string storedProcedure;
+        std::vector<std::string> storedProcedureArgs;
 
         results_s results;
     };
@@ -211,8 +211,8 @@ public:
     class Transaction *transactionPtr;
     query_s *currentQuery;
 
-    vector<query_s> queries;
-    vector<string> parameters;
+    std::vector<query_s> queries;
+    std::vector<std::string> parameters;
 
     ssize_t queryindex;
 };

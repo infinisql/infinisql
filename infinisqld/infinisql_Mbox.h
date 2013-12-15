@@ -113,23 +113,23 @@ public:
     class MboxProducer listener;
     class MboxProducer obGateway;
     class MboxProducer ibGateway;
-    vector<class MboxProducer> transactionAgents;
-    vector<class MboxProducer> engines;
+    std::vector<class MboxProducer> transactionAgents;
+    std::vector<class MboxProducer> engines;
 
     // new
-    vector<class MboxProducer *> actoridToProducers;
-    vector<class MboxProducer *> transactionAgentPtrs;
-    vector<class MboxProducer *> enginePtrs;
+    std::vector<class MboxProducer *> actoridToProducers;
+    std::vector<class MboxProducer *> transactionAgentPtrs;
+    std::vector<class MboxProducer *> enginePtrs;
     class MboxProducer *topologyMgrPtr;
     location_s userSchemaMgrLocation;
     location_s deadlockMgrLocation;
     class MboxProducer *listenerPtr;
     class MboxProducer *obGatewayPtr;
 
-    vector<location_s> partitionToProducers;
+    std::vector<location_s> partitionToProducers;
     // allActors[nodeid][actorid] = actortype
-    vector< vector<int> > allActors;
-    boost::unordered_map< int16_t, vector<int> > allActorsThisReplica;
+    std::vector< vector<int> > allActors;
+    boost::unordered_map< int16_t, std::vector<int> > allActorsThisReplica;
 };
 
 // put this in each actor's class definition (except ObGw)

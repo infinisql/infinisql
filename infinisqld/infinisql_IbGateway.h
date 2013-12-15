@@ -34,7 +34,7 @@ public:
 
 private:
     void inbufhandler(const char *, size_t);
-    boost::unordered_map<int, string> pendingReads;
+    boost::unordered_map<int, std::string> pendingReads;
   
     void addtofds(int);
     void removefds();

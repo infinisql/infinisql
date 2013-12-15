@@ -43,9 +43,9 @@ public:
     int64_t domainid;
     int64_t nexttableid;
     boost::unordered_map< int64_t, class Table *> tables;
-    boost::unordered_map< string, int64_t > tableNameToId;
+    boost::unordered_map< std::string, int64_t > tableNameToId;
     // fieldNameToId[tableid][fieldname] = fieldid
-    boost::unordered_map< int64_t, boost::unordered_map<string, int64_t> >
+    boost::unordered_map< int64_t, boost::unordered_map<std::string, int64_t> >
         fieldNameToId;
 };
 

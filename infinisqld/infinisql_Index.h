@@ -38,24 +38,26 @@ typedef struct
 } lockQueueIndexEntry;
 
 // buncha index types!
-typedef map<int64_t, lockingIndexEntry> uniqueIntMap;
-typedef multimap<int64_t, nonLockingIndexEntry_s> nonuniqueIntMap;
+typedef std::map<int64_t, lockingIndexEntry> uniqueIntMap;
+typedef std::multimap<int64_t, nonLockingIndexEntry_s> nonuniqueIntMap;
 typedef boost::unordered_map<int64_t, lockingIndexEntry> unorderedIntMap;
-typedef map<uint64_t, lockingIndexEntry> uniqueUintMap;
-typedef multimap<uint64_t, nonLockingIndexEntry_s> nonuniqueUintMap;
+typedef std::map<uint64_t, lockingIndexEntry> uniqueUintMap;
+typedef std::multimap<uint64_t, nonLockingIndexEntry_s> nonuniqueUintMap;
 typedef boost::unordered_map<uint64_t, lockingIndexEntry> unorderedUintMap;
-typedef map<bool, lockingIndexEntry> uniqueBoolMap;
-typedef multimap<bool, nonLockingIndexEntry_s> nonuniqueBoolMap;
+typedef std::map<bool, lockingIndexEntry> uniqueBoolMap;
+typedef std::multimap<bool, nonLockingIndexEntry_s> nonuniqueBoolMap;
 typedef boost::unordered_map<bool, lockingIndexEntry> unorderedBoolMap;
-typedef map<long double, lockingIndexEntry> uniqueFloatMap;
-typedef multimap<long double, nonLockingIndexEntry_s> nonuniqueFloatMap;
+typedef std::map<long double, lockingIndexEntry> uniqueFloatMap;
+typedef std::multimap<long double, nonLockingIndexEntry_s> nonuniqueFloatMap;
 typedef boost::unordered_map<long double, lockingIndexEntry> unorderedFloatMap;
-typedef map<char, lockingIndexEntry> uniqueCharMap;
-typedef multimap<char, nonLockingIndexEntry_s> nonuniqueCharMap;
+typedef std::map<char, lockingIndexEntry> uniqueCharMap;
+typedef std::multimap<char, nonLockingIndexEntry_s> nonuniqueCharMap;
 typedef boost::unordered_map<char, lockingIndexEntry> unorderedCharMap;
-typedef map<string, lockingIndexEntry> uniqueStringMap;
-typedef multimap<string, nonLockingIndexEntry_s> nonuniqueStringMap;
-typedef boost::unordered_map<string, lockingIndexEntry> unorderedStringMap;
+typedef std::map<std::string, lockingIndexEntry> uniqueStringMap;
+typedef std::multimap<std::string, nonLockingIndexEntry_s>
+    nonuniqueStringMap;
+typedef boost::unordered_map<std::string, lockingIndexEntry>
+    unorderedStringMap;
 
 // well, upon creation, the following should always be knowable:
 // type,tableid,simple
@@ -313,7 +315,7 @@ public:
         *floatLockQueue;
     boost::unordered_map< char, std::queue<lockQueueIndexEntry> >
         *charLockQueue;
-    boost::unordered_map< string, std::queue<lockQueueIndexEntry> >
+    boost::unordered_map< std::string, std::queue<lockQueueIndexEntry> >
         *stringLockQueue;
     // field [0] is rowid, [1] is engineid, just need 1 type, since the entry is null
     // and might as well make it with the index, instead of having it as a pointer

@@ -42,9 +42,9 @@ private:
     void drainRowLockQueue(int64_t, int64_t); // keep
     void processIndexLockQueue(int64_t, int64_t, fieldValue_s *);
     void drainIndexLockQueue(int64_t, int64_t, fieldValue_s *);
-    int64_t newrow(int64_t tableid, string row);
+    int64_t newrow(int64_t tableid, std::string row);
     locktype_e uniqueIndex(int64_t, int64_t, int64_t, int64_t, fieldValue_s *);
-    int64_t updaterow(int64_t, int64_t, string *);
+    int64_t updaterow(int64_t, int64_t, std::string *);
     int64_t deleterow(int64_t, int64_t);
     int64_t deleterow(int64_t, int64_t, int64_t, int64_t);
     void indexSearch(int64_t, int64_t, searchParams_s *,

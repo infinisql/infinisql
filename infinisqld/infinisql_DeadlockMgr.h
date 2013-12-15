@@ -54,22 +54,22 @@ private:
     REUSEMESSAGES
         // maps:
         // transactions with the locks it holds
-        boost::unordered_map< int64_t, boost::unordered_set<string> >
+        boost::unordered_map< int64_t, boost::unordered_set<std::string> >
         transactionLocksMap;
     // transactions with what it waits on
-    boost::unordered_map< int64_t, boost::unordered_set<string> >
+    boost::unordered_map< int64_t, boost::unordered_set<std::string> >
         transactionWaitsMap;
     // items whose locks are held by transactions
-    boost::unordered_map< string, boost::unordered_set<int64_t> >
+    boost::unordered_map< std::string, boost::unordered_set<int64_t> >
         locksTransactionMap;
     // items whose locks are waited for by transactions
-    boost::unordered_map< string, boost::unordered_set<int64_t> >
+    boost::unordered_map< std::string, boost::unordered_set<int64_t> >
         waitsTransactionMap;
 
     boost::unordered_map<int64_t, taCmd> returnMap;
 
     boost::unordered_set<int64_t> skipTransactionSet;
-    boost::unordered_set<string> skipItemSet;
+    boost::unordered_set<std::string> skipItemSet;
 
     // duplicates here mean deadlock:
     boost::unordered_set<int64_t> transactionGraphSet;

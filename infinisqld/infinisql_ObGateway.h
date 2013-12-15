@@ -35,7 +35,7 @@ public:
 
 private:
     // remoteGateways[nodeid]=socket for corresponding ibgw's
-    vector<int> remoteGateways;
+    std::vector<int> remoteGateways;
     socklen_t optlen;
     int so_sndbuf;
     char *serstrsmall;

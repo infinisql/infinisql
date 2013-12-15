@@ -369,14 +369,14 @@ typedef struct
 extern cfg_s cfgs;
 
 extern FILE *logfile;
-extern string zmqsocket;
+extern std::string zmqsocket;
 extern void *zmqcontext;
-extern string storedprocprefix;
+extern std::string storedprocprefix;
 
 typedef struct
 {
     fieldtype_e type;
-    string name;
+    std::string name;
 } fieldtypename_s;
 
 typedef struct
@@ -394,8 +394,8 @@ typedef struct __attribute__ ((__packed__))
 
 typedef struct
 {
-    boost::unordered_set<string> locked;
-    boost::unordered_set<string> waiting;
+    boost::unordered_set<std::string> locked;
+    boost::unordered_set<std::string> waiting;
 } newDeadLockLists_s;
 
 typedef struct
@@ -403,7 +403,7 @@ typedef struct
     int64_t rowid;
     int64_t previoussubtransactionid;
     locktype_e locktype;
-    string row;
+    std::string row;
 } returnRow_s;
 
 typedef union __attribute__ ((__packed__)) fieldInput_u
@@ -418,7 +418,7 @@ typedef union __attribute__ ((__packed__)) fieldInput_u
 typedef struct
 {
     fieldInput_s value;
-    string str;
+    std::string str;
     bool isnull;
 } fieldValue_s;
 
@@ -442,8 +442,8 @@ typedef struct
 typedef struct
 {
     operatortypes_e op;
-    vector <fieldValue_s> values;
-    string regexString;
+    std::vector <fieldValue_s> values;
+    std::string regexString;
 } searchParams_s;
 
 typedef struct __attribute__ ((__packed__)) 
@@ -460,7 +460,7 @@ typedef struct
     bool isrow;
     int64_t rowid;
     int64_t tableid;
-    string row;
+    std::string row;
     locktype_e locktype;
     int64_t forward_rowid;
     int64_t forward_engineid;
@@ -468,16 +468,16 @@ typedef struct
     int64_t engineid; // index also uses rowid
 
     fieldValue_s fieldVal;
-    vector<nonLockingIndexEntry_s> indexHits;
+    std::vector<nonLockingIndexEntry_s> indexHits;
     searchParams_s searchParameters;
-    vector<int64_t> rowids;
-    vector<returnRow_s> returnRows;
+    std::vector<int64_t> rowids;
+    std::vector<returnRow_s> returnRows;
 } subtransactionCmd_s;
 
 typedef struct
 {
-    string node;
-    string service;
+    std::string node;
+    std::string service;
     int epollfd;
 } listenerStruct_s;
 
@@ -519,11 +519,11 @@ typedef struct
 {
     pendingprimitive_e cmd;
 
-    string originalRow;
+    std::string originalRow;
     int64_t originalrowid;
     int64_t originalengineid;
     int64_t previoussubtransactionid;
-    string newRow;
+    std::string newRow;
     int64_t newrowid;
     int64_t newengineid;
     locktype_e locktype;
@@ -557,8 +557,8 @@ class Topology;
 extern class Topology nodeTopology;
 extern pthread_mutex_t nodeTopologyMutex;
 extern pthread_mutex_t connectionsMutex;
-extern vector<class MboxProducer *> socketAffinity;
-extern vector<listenertype_e> listenerTypes;
+extern std::vector<class MboxProducer *> socketAffinity;
+extern std::vector<listenertype_e> listenerTypes;
 
 void msgpack2Vector(vector<string> *, char *, int64_t);
 

@@ -55,7 +55,7 @@ public:
         int64_t tableid;
         locktype_e locktype;
         int64_t eventwaitcount;
-        vector<indexEntry_s> indexHits;
+        std::vector<indexEntry_s> indexHits;
         void *continuationData;
         bool ispossibledeadlock;
     };
@@ -64,21 +64,21 @@ public:
     {
         int64_t tableid;
         class Table *tablePtr;
-        vector<indexInfo_s> indexEntries;
+        std::vector<indexInfo_s> indexEntries;
         int64_t rowEngineid; // partition for the main field of the table where the
         // row lives
         int64_t rowid;
         int64_t engineid; // for index value, not message destination!
         locktype_e locktype;
-        string row;
+        std::string row;
         int64_t enginesWithUniqueIndices;
         int64_t engines;
         int64_t fieldid;
         bool isunique; // for update 1 field
         int64_t destinationengineid;
-        string *rowPtr;
+        std::string *rowPtr;
 
-        vector<indexEntry_s> rowidsEngineids;
+        std::vector<indexEntry_s> rowidsEngineids;
         fieldValue_s oldFieldValue;
         boost::unordered_map< int64_t, class MessageCommitRollback *>
             replaceEngineMsgs; // for select
@@ -88,9 +88,9 @@ public:
         uuRecord_s newuur;
         bool isupdatemultiplefields;
         fieldValue_s fieldVal;
-        string newRow;
-        vector<fieldValue_s> originalFieldValues;
-        vector<fieldValue_s> newFieldValues;
+        std::string newRow;
+        std::vector<fieldValue_s> originalFieldValues;
+        std::vector<fieldValue_s> newFieldValues;
         int64_t uniqueindices;
     } cmdState_s;
 
@@ -211,7 +211,7 @@ public:
     // row lives
     int64_t resultCode;
     // things for insert()
-    vector<fieldValue_s> fieldValues;
+    std::vector<fieldValue_s> fieldValues;
     int64_t enginesWithUniqueIndices; // drain this as unique index insert
     // messages come in
     // rowid,tableid,engineid
@@ -225,7 +225,7 @@ public:
     // for delete
     // to rollback: rowid,tableid,engineid (and subtransactionid)
     // for select, vector of [rowid,tableid,engineid]:
-    vector< uuRecord_s > returnselectedrows;
+    std::vector< uuRecord_s > returnselectedrows;
     boost::unordered_map< uuRecord_s, stagedRow_s > stagedRows;
     boost::unordered_map< int64_t, fieldValue_s > fieldsToUpdate;
 

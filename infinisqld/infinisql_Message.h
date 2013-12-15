@@ -80,7 +80,7 @@ public:
     Message();
     virtual ~Message();
     size_t size();
-    string *ser();
+    std::string *ser();
     void package(class SerializedMessage &);
     void unpack(SerializedMessage &);
     void clear();
@@ -152,12 +152,12 @@ public:
 
     userschema_s userschemaStruct;
     procedures_s procs;
-    string argstring;
-    string pathname;
-    string procname;
-    string username;
-    string domainname;
-    string password;
+    std::string argstring;
+    std::string pathname;
+    std::string procname;
+    std::string username;
+    std::string domainname;
+    std::string password;
 };
 
 class MessageDeadlock : public Message
@@ -179,7 +179,7 @@ public:
     void clear();
 
     deadlock_s deadlockStruct;
-    string deadlockNode;
+    std::string deadlockNode;
     newDeadLockLists_s nodes;
 };
 
@@ -234,12 +234,12 @@ public:
 
     subtransaction_s subtransactionStruct;
 
-    string row;
+    std::string row;
     fieldValue_s fieldVal;
-    vector<nonLockingIndexEntry_s> indexHits;
+    std::vector<nonLockingIndexEntry_s> indexHits;
     searchParams_s searchParameters;
-    vector<int64_t> rowids;
-    vector<returnRow_s> returnRows;
+    std::vector<int64_t> rowids;
+    std::vector<returnRow_s> returnRows;
 };
 
 class MessageCommitRollback : public MessageTransaction
@@ -253,7 +253,7 @@ public:
     void unpack(SerializedMessage &);
     void clear();
 
-    vector<rowOrField_s> rofs;
+    std::vector<rowOrField_s> rofs;
 };
 
 class MessageDispatch : public Message
@@ -271,8 +271,8 @@ public:
         pendingprimitive_e primitive;
         int64_t tableid;
         int64_t previoussubtransactionid;
-        string row;
-        string oldrow;
+        std::string row;
+        std::string oldrow;
     };
 
     MessageDispatch();
@@ -288,7 +288,7 @@ public:
     // pidsids[partitionid] = subtransactionid
     boost::unordered_map<int64_t, int64_t> pidsids;
     // records[partitionid][#] = {recordinfo}
-    boost::unordered_map< int64_t, vector<record_s> > records;
+    boost::unordered_map< int64_t, std::vector<record_s> > records;
 };
 
 class MessageAckDispatch : public Message
@@ -347,8 +347,8 @@ public:
 
     apply_s applyStruct;
   
-    vector<MessageDispatch::record_s> rows;
-    vector<applyindex_s> indices;
+    std::vector<MessageDispatch::record_s> rows;
+    std::vector<applyindex_s> indices;
 };
 
 class MessageAckApply : public Message
@@ -403,7 +403,7 @@ public:
   
     size_t size;
     size_t pos;
-    string *data;
+    std::string *data;
   
     payloadtype_e getpayloadtype();
     // raw
@@ -526,7 +526,7 @@ public:
     MessageSerialized(string *);
     virtual ~MessageSerialized();
   
-    string *data;
+    std::string *data;
 };
 
 class MessageBatchSerialized : public Message
@@ -535,7 +535,7 @@ public:
     struct msgbatch_s
     {
         int16_t nodeid;
-        string *serializedmsg;
+        std::string *serializedmsg;
     };
   
     MessageBatchSerialized(int16_t);

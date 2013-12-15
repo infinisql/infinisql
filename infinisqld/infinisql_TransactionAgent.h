@@ -58,7 +58,7 @@ typedef struct
 
     int64_t rowid;
     int64_t tableid;
-    string row;
+    std::string row;
     locktype_e locktype;
 
     // for index
@@ -81,20 +81,20 @@ typedef vector<idl> cmds;
   } procedureResponse;
 */
 
-typedef boost::unordered_map<string, procedures_s> domainProceduresMap;
+typedef boost::unordered_map<std::string, procedures_s> domainProceduresMap;
 
 typedef struct
 {
     int64_t resultCode;
     msgpack::sbuffer *sbuf;
-    vector<string> *responseVector;
+    std::vector<std::string> *responseVector;
 } responseData;
 
 typedef struct
 {
     int64_t domainid;
     int64_t userid;
-    string domainName;
+    std::string domainName;
 } authInfo;
 
 typedef boost::unordered_map<int, responseData> sendLaterMap;
@@ -102,12 +102,12 @@ typedef boost::unordered_map<int, responseData> sendLaterMap;
 // this thing to dump core when trying to count or erase a key under
 // some circumstances. no time presently to figure it out
 //typedef boost::unordered_map<int, authInfo> socketAuthInfo;
-typedef map<int, authInfo> socketAuthInfo;
+typedef std::map<int, authInfo> socketAuthInfo;
 typedef boost::unordered_map<int64_t, class Operation *> operationMap;
 
 msgpack::sbuffer *makeSbuf(msgpack::sbuffer *);
 msgpack::sbuffer *makeSbuf(vector<string> *);
-msgpack::sbuffer *makeSbuf(map<string, string> *);
+msgpack::sbuffer *makeSbuf(std::map<string, string> *);
 
 class TransactionAgent
 {
@@ -260,17 +260,17 @@ public:
     int epollfd;
     int sockfd;
     char payload[PAYLOADSIZE];
-    string *operation;
+    std::string *operation;
     socketAuthInfo loggedInUsers;
     int64_t argsize;
     char args[PAYLOADSIZE]; // get rid of this when possible
-    string argstring;
+    std::string argstring;
     sendLaterMap waitingToSend;
     operationMap pendingOperations;
     operationMap::iterator pendingOperationsIterator;
     int64_t operationidcounter; // never touch this!
-    string domainName;
-    vector<string> responseVector;
+    std::string domainName;
+    std::vector<std::string> responseVector;
     class Operation *operationPtr;
     domainidToSchemaMap::iterator domainidsToSchemataIterator;
     boost::unordered_map<int64_t, domainProceduresMap> domainidsToProcedures;
@@ -285,12 +285,12 @@ public:
     size_t myreplica;
     size_t mymember;
     Topology::addressStruct replicaAddress;
-    vector<Topology::addressStruct> replicaAddresses;
+    std::vector<Topology::addressStruct> replicaAddresses;
 
     // statements[domainid][statementname] = compiledstatement
     // user submits statementname
     boost::unordered_map< int64_t,
-        boost::unordered_map<string, class Statement> > statements;
+        boost::unordered_map<std::string, class Statement> > statements;
 };
 
 class ApiInterface;

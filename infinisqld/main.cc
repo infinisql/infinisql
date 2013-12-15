@@ -27,14 +27,14 @@ void *topologyMgr(void *);
 
 FILE *logfile;
 cfg_s cfgs;
-string zmqsocket;
+std::string zmqsocket;
 class Topology nodeTopology;
 pthread_mutex_t nodeTopologyMutex;
 pthread_mutex_t connectionsMutex;
 void *zmqcontext;
-string storedprocprefix = "InfiniSQL_";
-vector<class MboxProducer *> socketAffinity;
-vector<listenertype_e> listenerTypes;
+std::string storedprocprefix = "InfiniSQL_";
+std::vector<class MboxProducer *> socketAffinity;
+std::vector<listenertype_e> listenerTypes;
 
 int main(int argc, char **argv)
 {

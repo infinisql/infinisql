@@ -70,10 +70,10 @@ public:
 
     //private:
     void setname(string);
-    string *getname(void);
-    int64_t addfield(fieldtype_e, int64_t, string, indextype_e);
-    bool makerow(vector<fieldValue_s> *, string *);
-    bool unmakerow(string *, vector<fieldValue_s> *);
+    std::string *getname(void);
+    int64_t addfield(fieldtype_e, int64_t, std::string, indextype_e);
+    bool makerow(vector<fieldValue_s> *, std::string *);
+    bool unmakerow(std::string *, vector<fieldValue_s> *);
     // for fetch (cursor)
     void getrows(vector<int64_t>, locktype_e, int64_t, int64_t,
                  vector<returnRow_s> *, vector<int64_t> *, int64_t);
@@ -97,12 +97,12 @@ public:
 
     //private:
     int64_t id;
-    string name;
+    std::string name;
     int64_t nextindexid;
-    vector<class Field> fields;
+    std::vector<class Field> fields;
     boost::unordered_map< int64_t, std::queue<lockQueueRowEntry> > lockQueue;
     class Table *shadowTable;
-    boost::unordered_map<string, int64_t> columnaNameToFieldMap;
+    boost::unordered_map<std::string, int64_t> columnaNameToFieldMap;
     //  std::unordered_map<int64_t, rowdata_s *> rows; // this is the actual data
     boost::unordered_map<int64_t, rowdata_s *> rows; // this is the actual data
     //  boost::unordered_map<int64_t, rowdata_s> rows; // this is the actual data

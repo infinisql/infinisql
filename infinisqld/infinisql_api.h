@@ -37,12 +37,10 @@ public:
         class Transaction *transactionPtr;
         int64_t statementStatus;
         boost::unordered_map< uuRecord_s, returnRow_s > statementResults;
-        vector<fieldtypename_s> selectFields;
-        boost::unordered_map< uuRecord_s, vector<fieldValue_s> > selectResults;
+        std::vector<fieldtypename_s> selectFields;
+        boost::unordered_map< uuRecord_s, std::vector<fieldValue_s> > selectResults;
     };
 
-    //  ApiInterface(void);
-    //  virtual ~ApiInterface(void);
     ApiInterface()
     {
         ;
@@ -136,18 +134,18 @@ public:
     void addFieldToRow(string &);
 
     void setReEntry(apifPtr, int64_t, void *);
-    void sendResponse(int64_t, vector<string> *);
+    void sendResponse(int64_t, vector<std::string> *);
 
     class Statement *newStatement(char *);
-    bool execStatement(const char *, vector<string> &, apifPtr, int64_t, void *);
+    bool execStatement(const char *, vector<std::string> &, apifPtr, int64_t, void *);
 
     class TransactionAgent *taPtr;
     class ApiInterface *pgPtr;
     class Statement *statementPtr;
-    vector<string> inputVector;
+    std::vector<std::string> inputVector;
     class Transaction *transactionPtr;
     procedureResponse_s response;
-    vector<string> responseVector;
+    std::vector<std::string> responseVector;
     void *destroyerPtr;
     apifPtr continueFunc1Ptr;
     apifPtr continueFunc2Ptr;
@@ -156,12 +154,6 @@ public:
     int64_t domainid;
 
     results_s results;
-
-    //  cmd_e cmdtype;
-    //  int64_t statementStatus;
-    //  boost::unordered_map< uuRecord_s, returnRow_s > statementResults;
-    //  vector<fieldtypename_s> selectFields;
-    //  boost::unordered_map< uuRecord_s, vector<fieldValue_s> > selectResults;
 };
 
 typedef ApiInterface *(*spclasscreate)(class TransactionAgent *,
