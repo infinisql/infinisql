@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 # Copyright (c) 2013 Mark Travis <mtravis15432+src@gmail.com>
 # All rights reserved. No warranty, explicit or implicit, provided.
