@@ -3,6 +3,7 @@ __author__ = 'Christopher Nelson'
 import logging
 import os
 import signal
+import time
 
 from infinisqlmgr import common, management
 
@@ -65,6 +66,11 @@ def stop_management_server(args):
     logging.info("Stopped management process for cluster: %s" % args.cluster_name)
 
 
+def restart_management_server(args):
+    stop_management_server(args)
+    time.sleep(1)
+    start_management_server(args)
+
 def add_args(sub_parsers):
     mgr_parser = sub_parsers.add_parser('manager', help='Options for controlling a management process')
     mgr_parser.add_argument('--no-background', dest='daemonize', action='store_false',
@@ -81,4 +87,7 @@ def add_args(sub_parsers):
 
     stop_parser = ss_parsers.add_parser('stop', help='Stop a management process')
     stop_parser.set_defaults(func=stop_management_server)
+
+    restart_parser = ss_parsers.add_parser('restart', help='Restart a management process')
+    restart_parser.set_defaults(func=restart_management_server)
 

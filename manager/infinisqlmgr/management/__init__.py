@@ -16,7 +16,12 @@ import zmq.eventloop.ioloop as zmq_ioloop
 
 from infinisqlmgr.management import msg, election, health, api
 
+
 class Controller(object):
+    # Contains the current controller instance. This is only available
+    # when the controller is run() in tornado I/O loop mode.
+    instance = None
+
     def __init__(self, cluster_name, data_dir="/tmp",
                  mcast_group="224.0.0.1", mcast_port=21001,
                  cmd_port=21000, cfg_port=21002):
@@ -414,6 +419,9 @@ class Controller(object):
         """
         return self.nodes
 
+    def get_health(self):
+        return self.health
+
     def is_node_known(self, node_id):
         """
         Indicates if the node_id is known to this manager.
@@ -511,16 +519,22 @@ class Controller(object):
 
         :return: 0 on success, nonzero for error conditions.
         """
+        Controller.instance = self
+
         zmq_ioloop.install()
         signal.signal(signal.SIGTERM, self._stop_signal_handler)
 
         # Setup the web application
-        self.application = tornado.web.Application(api.handlers)
+        self.application = tornado.web.Application(api.handlers, gzip=True)
         self.application.listen(self.cfg_port)
 
         # Setup handlers to care for the management tasks.
         announce_timer = tornado.ioloop.PeriodicCallback(self.announce_presence, 1000)
+        management_timer = tornado.ioloop.PeriodicCallback(self.process_node_tasks, 100)
+        leader_timer = tornado.ioloop.PeriodicCallback(self.process_leader_tasks, 100)
         announce_timer.start()
+        management_timer.start()
+        leader_timer.start()
 
         instance = zmq_ioloop.ZMQIOLoop.instance()
         instance.add_handler(self.presence_socket.fileno(), self._process_presence, zmq_ioloop.ZMQIOLoop.READ)
@@ -531,6 +545,8 @@ class Controller(object):
                      self.mcast_group, self.mcast_port, self.cfg_port, self.cmd_port)
         instance.start()
         announce_timer.stop()
+        management_timer.stop()
+        leader_timer.stop()
 
         # Unregister the signal handler and exit.
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
