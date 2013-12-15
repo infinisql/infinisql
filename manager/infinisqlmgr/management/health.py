@@ -38,6 +38,14 @@ class Health(object):
         self.dsk_io = {}
         self.net = {}
 
+    def get_metric_names(self):
+        metrics = []
+        for root, dirnames, filenames in os.walk(self.path):
+            for filename in filenames:
+                if filename.endswith(".dp"):
+                    metrics.append(os.path.join(root, filename).replace(self.path, "").replace("/", ".")[1:-3])
+        return sorted(metrics)
+
     def capture(self):
         """
         Captures stats of the local system and writes them into the series database.

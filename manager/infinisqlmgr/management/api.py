@@ -82,12 +82,16 @@ class MetricsHandler(tornado.web.RequestHandler):
             "values"     : result[1] if operation=="values" else self.process_metric(operation, result[1])
          }))
 
+class MetricsListHandler(tornado.web.RequestHandler):
+    def get(self):
+        instance = infinisqlmgr.management.Controller.instance
+        health = instance.get_health()
+        self.write(json.dumps(health.get_metric_names()))
 
 handlers = [
     (r"/", MainHandler),
     (r"/nodes/management/([-a-zA-Z0-9.]+:\d+)/", ManagementNodeDetailsHandler),
     (r"/nodes/management/", ManagementNodeListHandler),
     (r"/metrics/([a-zaA-Z0-9.]+)/(avg|min|max|values)/", MetricsHandler),
-
-
+    (r"/metrics/", MetricsListHandler),
 ]
