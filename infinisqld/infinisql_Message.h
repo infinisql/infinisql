@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MESSAGE_HPP
-#define MESSAGE_HPP
+#ifndef INFINISQLMESSAGE_H
+#define INFINISQLMESSAGE_H
 
 #include "infinisql_gch.h"
 #include "infinisql_defs.h"
@@ -545,4 +545,4 @@ public:
     msgbatch_s msgbatch[OBGWMSGBATCHSIZE];
 };
 
-#endif  /* MESSAGE_HPP */
+#endif  /* INFINISQLMESSAGE_H */

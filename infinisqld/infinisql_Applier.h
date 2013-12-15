@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPLIER_H
-#define APPLIER_H
+#ifndef INFINISQLAPPLIER_H
+#define INFINISQLAPPLIER_H
 
 class TransactionAgent;
 
@@ -37,5 +37,5 @@ public:
   int64_t partitioncount;
 };
 
-#endif  /* APPLIER_H */
+#endif  /* INFINISQLAPPLIER_H */
 

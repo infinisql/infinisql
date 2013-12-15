@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef USERSCHEMAMGR_H
-#define USERSCHEMAMGR_H
+#ifndef INFINISQLUSERSCHEMAMGR_H
+#define INFINISQLUSERSCHEMAMGR_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Table.h"
@@ -108,4 +108,4 @@ private:
 
 void *userSchemaMgr(void *);
 
-#endif  /* USERSCHEMAMGR_H */
+#endif  /* INFINISQLUSERSCHEMAMGR_H */

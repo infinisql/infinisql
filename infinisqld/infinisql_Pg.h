@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PG_H
-#define PG_H
+#ifndef INFINISQLPG_H
+#define INFINISQLPG_H
 
 #include "infinisql_gch.h"
 #include "infinisql_api.h"
@@ -135,4 +135,4 @@ public:
     bool isintransactionblock;
 };
 
-#endif  /* PG_H */
+#endif  /* INFINISQLPG_H */

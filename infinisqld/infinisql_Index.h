@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INDEX_HPP
-#define INDEX_HPP
+#ifndef INFINISQLINDEX_H
+#define INFINISQLINDEX_H
 
 #include "infinisql_gch.h"
 
@@ -321,4 +321,4 @@ public:
     boost::unordered_set< vector<int64_t> > nulls;
 };
 
-#endif  /* INDEX_HPP */
+#endif  /* INFINISQLINDEX_H */

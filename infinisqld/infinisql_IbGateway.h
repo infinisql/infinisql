@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IBGATEWAY_H
-#define IBGATEWAY_H
+#ifndef INFINISQLIBGATEWAY_H
+#define INFINISQLIBGATEWAY_H
 
 #include "infinisql_gch.h"
 
@@ -49,4 +49,4 @@ private:
 
 void *ibGateway(void *);
 
-#endif  /* IBGATEWAY_H */
+#endif  /* INFINISQLIBGATEWAY_H */

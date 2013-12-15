@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
+#ifndef INFINISQLENGINE_H
+#define INFINISQLENGINE_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Table.h"
@@ -85,4 +85,4 @@ private:
 
 void *engine(void *);
 
-#endif  /* ENGINE_HPP */
+#endif  /* INFINISQLENGINE_H */

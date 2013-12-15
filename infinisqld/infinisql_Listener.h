@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LISTENER_H
-#define LISTENER_H
+#ifndef INFINISQLLISTENER_H
+#define INFINISQLLISTENER_H
 
 #include "infinisql_gch.h"
 
@@ -38,4 +38,4 @@ public:
 
 void *listener(void *);
 
-#endif  /* LISTENER_H */
+#endif  /* INFINISQLLISTENER_H */

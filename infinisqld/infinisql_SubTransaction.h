@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SUBTRANSACTION_HPP
-#define SUBTRANSACTION_HPP
+#ifndef INFINISQLSUBTRANSACTION_H
+#define INFINISQLSUBTRANSACTION_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Engine.h"
@@ -66,4 +66,4 @@ private:
     class Schema *schemaPtr;
 };
 
-#endif  /* SUBTRANSACTION_HPP */
+#endif  /* INFINISQLSUBTRANSACTION_H */

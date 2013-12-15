@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef API_H
-#define API_H
+#ifndef INFINISQLAPI_H
+#define INFINISQLAPI_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Transaction.h"
@@ -172,4 +172,4 @@ typedef void(*spclassdestroy)(ApiInterface *);
 typedef ApiInterface *create_t();
 typedef void destroy_t(ApiInterface *);
 
-#endif  /* API_H */
+#endif  /* INFINISQLAPI_H */

@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSACTION_HPP
-#define TRANSACTION_HPP
+#ifndef INFINISQLTRANSACTION_H
+#define INFINISQLTRANSACTION_H
 
 #include "infinisql_gch.h"
 #include "infinisql_TransactionAgent.h"
@@ -234,4 +234,4 @@ public:
     int waitfordispatched;
 };
 
-#endif  /* TRANSACTION_HPP */
+#endif  /* INFINISQLTRANSACTION_H */

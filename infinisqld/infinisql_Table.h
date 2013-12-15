@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TABLE_HPP
-#define TABLE_HPP
+#ifndef INFINISQLTABLE_H
+#define INFINISQLTABLE_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Field.h"
@@ -112,4 +112,4 @@ public:
     boost::unordered_map<int64_t, forwarderEntry> forwarderMap;
 };
 
-#endif  /* TABLE_HPP */
+#endif  /* INFINISQLTABLE_H */

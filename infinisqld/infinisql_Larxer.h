@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LARXER_H
-#define LARXER_H
+#ifndef INFINISQLLARXER_H
+#define INFINISQLLARXER_H
 
 #include "larx.h"
 #include "infinisql_Asts.h"
@@ -149,4 +149,4 @@ public:
     class Statement *statementPtr;
 };
 
-#endif /* LARXER_H */
+#endif /* INFINISQLLARXER_H */

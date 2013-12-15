@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FB_H
-#define FB_H
+#ifndef INFINISQLLARX_H
+#define INFINISQLLARX_H
 
 #include <stdint.h>
 #include "parser.h"
@@ -39,5 +39,4 @@ void flexinit(struct perlarxer *);
 void flexbuffer(char *, size_t, void *);
 void flexdestroy(void *);
 
-#endif /* FB_H */
-
+#endif /* INFINISQLLARX_H */

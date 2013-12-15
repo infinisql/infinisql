@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSACTIONAGENT_H
-#define TRANSACTIONAGENT_H
+#ifndef INFINISQLTRANSACTIONAGENT_H
+#define INFINISQLTRANSACTIONAGENT_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Operation.h"
@@ -313,4 +313,4 @@ void replyTa(T servent, topic_e result, void *msg)
 
 void *transactionAgent(void *);
 
-#endif  /* TRANSACTIONAGENT_H */
+#endif  /* INFINISQLTRANSACTIONAGENT_H */

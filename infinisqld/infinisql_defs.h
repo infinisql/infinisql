@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEFS_HPP
-#define DEFS_HPP
+#ifndef INFINISQLDEFS_H
+#define INFINISQLDEFS_H
 
 #define APISTATUS_OK 0
 #define APISTATUS_NOTOK 1
@@ -582,4 +582,4 @@ bool compareFields(fieldtype_e, const fieldValue_s &, const fieldValue_s &);
 void stagedRow2ReturnRow(const stagedRow_s &, returnRow_s &);
 void setprio();
 
-#endif // DEFS_HPP
+#endif // INFINISQLDEFS_H

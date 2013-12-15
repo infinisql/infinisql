@@ -25,8 +25,8 @@
 // slower than MD5.
 //
 
-#ifndef SPOOKY_HPP
-#define SPOOKY_HPP
+#ifndef INFINISQLSPOOKY_H
+#define INFINISQLSPOOKY_H
 
 #include <stddef.h>
 
@@ -411,5 +411,5 @@ private:
   uint8  m_remainder;          // length of unhashed data stashed in m_data
 };
 
-#endif  /* SPOOKY_HPP */
+#endif  /* INFINISQLSPOOKY_H */
 

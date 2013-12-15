@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ASTS_H
-#define ASTS_H
+#ifndef INFINISQLASTS_H
+#define INFINISQLASTS_H
 
 #include <string>
 #include <vector>
@@ -217,4 +217,4 @@ public:
     ssize_t queryindex;
 };
 
-#endif  /* ASTS_H */
+#endif  /* INFINISQLASTS_H */

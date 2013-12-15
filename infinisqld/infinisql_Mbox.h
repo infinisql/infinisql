@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MBOX_HPP
-#define MBOX_HPP
+#ifndef INFINISQLMBOX_H
+#define INFINISQLMBOX_H
 
 #include "infinisql_Message.h"
 #include "infinisql_Topology.h"
@@ -268,4 +268,4 @@ printf("%s %i anomaly %i\n", __FILE__, __LINE__, serobj.getpayloadtype()); \
      delete serobj.data;                                                \
      }
 
-#endif  /* MBOX_HPP */
+#endif  /* INFINISQLMBOX_H */

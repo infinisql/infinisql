@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SCHEMA_HPP
-#define SCHEMA_HPP
+#ifndef INFINISQLSCHEMA_H
+#define INFINISQLSCHEMA_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Table.h"
@@ -67,4 +67,4 @@ void createSchema(T servent)
     }
 }
 
-#endif  /* SCHEMA_HPP */
+#endif  /* INFINISQLSCHEMA_H */

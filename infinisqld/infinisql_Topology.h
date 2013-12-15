@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TOPOLOGY_H
-#define TOPOLOGY_H
+#ifndef INFINISQLTOPOLOGY_H
+#define INFINISQLTOPOLOGY_H
 
 #include <cstdlib>
 #include <vector>
@@ -117,4 +117,4 @@ public:
     vector< vector<int16_t> > tas;
 };
 
-#endif  /* TOPOLOGY_H */
+#endif  /* INFINISQLTOPOLOGY_H */

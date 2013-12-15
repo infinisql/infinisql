@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FIELD_HPP
-#define FIELD_HPP
+#ifndef INFINISQLFIELD_H
+#define INFINISQLFIELD_H
 
 #include "infinisql_gch.h"
 #include "infinisql_Index.h"
@@ -42,5 +42,5 @@ public:
     string name;
 };
 
-#endif  /* FIELD_HPP */
+#endif  /* INFINISQLFIELD_H */
 

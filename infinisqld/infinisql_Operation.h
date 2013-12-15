@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERATION_H
-#define OPERATION_H
+#ifndef INFINISQLOPERATION_H
+#define INFINISQLOPERATION_H
 
 #include "infinisql_gch.h"
 #include "infinisql_TransactionAgent.h"
@@ -55,4 +55,4 @@ public:
     schemastruct schemaData;
 };
 
-#endif  /* OPERATION_H */
+#endif  /* INFINISQLOPERATION_H */

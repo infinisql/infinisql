@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEADLOCKMGR_HPP
-#define DEADLOCKMGR_HPP
+#ifndef INFINISQLDEADLOCKMGR_H
+#define INFINISQLDEADLOCKMGR_H
 
 #include "infinisql_gch.h"
 
@@ -78,4 +78,4 @@ private:
 
 void *deadlockMgr(void *);
 
-#endif  /* DEADLOCKMGR_HPP */
+#endif  /* INFINISQLDEADLOCKMGR_H */

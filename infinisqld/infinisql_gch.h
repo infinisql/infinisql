@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GCH_HPP
-#define GCH_HPP
+#ifndef INFINISQLGCH_H
+#define INFINISQLGCH_H
 
 // 3rd party, non-sys
 #include <boost/unordered_map.hpp>
@@ -74,4 +74,4 @@
 #include "infinisql_Mbox.h"
 #include "infinisql_defs.h"
 
-#endif // GCH_HPP
+#endif // INFINISQLGCH_H

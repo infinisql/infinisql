@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TOPOLOGYMGR_H
-#define TOPOLOGYMGR_H
+#ifndef INFINISQLTOPOLOGYMGR_H
+#define INFINISQLTOPOLOGYMGR_H
 
 #include "infinisql_gch.h"
 #include "infinisql_cfgenum.h"
@@ -41,5 +41,5 @@ private:
     class Topology myTopology;
 };
 
-#endif  /* TOPOLOGYMGR_H */
+#endif  /* INFINISQLTOPOLOGYMGR_H */
 
