@@ -20,8 +20,8 @@
 #ifndef INFINISQLAPI_H
 #define INFINISQLAPI_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Transaction.h"
+//#include "infinisql_gch.h"
+//#include "infinisql_Transaction.h"
 
 class Field;
 
