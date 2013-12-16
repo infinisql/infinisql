@@ -83,6 +83,10 @@ def add_args(sub_parsers):
 
     ss_parsers = mgr_parser.add_subparsers()
     start_parser = ss_parsers.add_parser('start', help='Start a management process')
+    mgr_parser.add_argument('--listen-interface', dest='management_interface',
+                              default="*",
+                              help='Set the interface to listen on.'
+                                   '(default is %(default)s)')
     start_parser.set_defaults(func=start_management_server)
 
     stop_parser = ss_parsers.add_parser('stop', help='Stop a management process')

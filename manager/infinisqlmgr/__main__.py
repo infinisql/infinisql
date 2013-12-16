@@ -13,12 +13,12 @@ def main():
                        default="/opt/infinisql",
                        help='The path where the database distribution is installed. (default is %(default)s)')
 
-    parser.add_argument('--host', dest='host',
+    parser.add_argument('--host', dest='management_host',
                        default="localhost",
                        help='The management host to control. (default is %(default)s)')
 
-    parser.add_argument('--port', dest='port',
-                       default="21000",
+    parser.add_argument('--port', dest='management_port',
+                       default=21000,
                        help='The management port. (default is %(default)s)')
 
     parser.add_argument('--version', action='version',

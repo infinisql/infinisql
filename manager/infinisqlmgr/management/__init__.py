@@ -14,6 +14,7 @@ import tornado.web
 import zmq
 import zmq.eventloop.ioloop as zmq_ioloop
 
+import infinisqlmgr
 from infinisqlmgr.management import msg, election, health, api
 
 
@@ -22,7 +23,8 @@ class Controller(object):
     # when the controller is run() in tornado I/O loop mode.
     instance = None
 
-    def __init__(self, cluster_name, data_dir="/tmp",
+    def __init__(self, cluster_name,
+                 data_dir="/tmp", dist_dir="/tmp",
                  mcast_group="224.0.0.1", mcast_port=21001,
                  cmd_port=21000, cfg_port=21002):
         """
@@ -66,9 +68,12 @@ class Controller(object):
         self.mcast_port = mcast_port
         self.cmd_port = cmd_port
         self.cfg_port = cfg_port
+        self.dist_dir = dist_dir
 
         self.health = health.Health(self.node_id, data_dir)
         self.heartbeats = {}
+
+        self.engines = {}
 
         self.message_handlers = {}
 
@@ -343,6 +348,7 @@ class Controller(object):
         self.sub_sockets[node_id] = sub_sock
 
         # Register the new subscription socket.
+        zmq_ioloop.ZMQIOLoop.instance().add_handler(sub_sock, self._process_publication, zmq_ioloop.ZMQIOLoop.READ)
         self.poller.register(sub_sock, flags=zmq.POLLIN)
         self.nodes.add(node_id)
         self.current_cluster_size += 1
@@ -477,7 +483,6 @@ class Controller(object):
             if not events:
                 break
 
-
         # Poll ZMQ sockets
         while True:
             events = self.poller.poll(timeout=50)
@@ -487,6 +492,10 @@ class Controller(object):
                 break
 
         self.process_leader_tasks()
+
+    def start_engine(self, dbe_node_id):
+        engine = infinisqlmgr.engine.Configuration(dbe_node_id, self.dis)
+        self.engines[dbe_node_id] = engine
 
     def run_management_only(self):
         """
@@ -538,7 +547,6 @@ class Controller(object):
 
         instance = zmq_ioloop.ZMQIOLoop.instance()
         instance.add_handler(self.presence_socket.fileno(), self._process_presence, zmq_ioloop.ZMQIOLoop.READ)
-        instance.add_handler(self.cmd_socket, self._process_publication, zmq_ioloop.ZMQIOLoop.READ)
 
         # Start the I/O loop
         logging.info("Started management process, announcing on %s:%s, configuration port=%s, command port=%s",

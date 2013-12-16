@@ -10,9 +10,6 @@ import tornado.web
 
 import infinisqlmgr
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("Hello, world")
 
 class ManagementNodeListHandler(tornado.web.RequestHandler):
     def get(self):
@@ -25,6 +22,7 @@ class ManagementNodeListHandler(tornado.web.RequestHandler):
             "nodes"  : ["%s:%s" % (n[0], n[1]) for n in instance.get_nodes()],
             "leader" : instance.leader_node_id
         }))
+
 
 class ManagementNodeDetailsHandler(tornado.web.RequestHandler):
     def get(self, node_name):
@@ -47,6 +45,7 @@ class ManagementNodeDetailsHandler(tornado.web.RequestHandler):
             "leader"               : instance.leader_node_id == node_id,
             "local"                : instance.node_id == node_id,
         }))
+
 
 class MetricsHandler(tornado.web.RequestHandler):
     def process_metric(self, operation, values):
@@ -82,16 +81,24 @@ class MetricsHandler(tornado.web.RequestHandler):
             "values"     : result[1] if operation=="values" else self.process_metric(operation, result[1])
          }))
 
+
 class MetricsListHandler(tornado.web.RequestHandler):
     def get(self):
         instance = infinisqlmgr.management.Controller.instance
         health = instance.get_health()
         self.write(json.dumps(health.get_metric_names()))
 
+
+class DatabaseEngineHandler(tornado.web.RequestHandler):
+    def get(self, operation, dbe_node_id):
+        instance = infinisqlmgr.management.Controller.instance
+
+
+
 handlers = [
-    (r"/", MainHandler),
     (r"/nodes/management/([-a-zA-Z0-9.]+:\d+)/", ManagementNodeDetailsHandler),
     (r"/nodes/management/", ManagementNodeListHandler),
     (r"/metrics/([a-zaA-Z0-9.]+)/(avg|min|max|values)/", MetricsHandler),
     (r"/metrics/", MetricsListHandler),
+    (r"/dbe/(start|stop)/(\w+)/", DatabaseEngineHandler)
 ]
