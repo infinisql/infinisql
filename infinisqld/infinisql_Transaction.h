@@ -26,8 +26,10 @@
 
 class TransactionAgent;
 
+/*
 size_t hash_value(uuRecord_s const &);
 bool operator==(uuRecord_s const &, uuRecord_s const &);
+*/
 
 class ApiInterface;
 typedef void(ApiInterface::*apifPtr)(int64_t, void *);

@@ -57,9 +57,8 @@ public:
             exitProc(STATUS_NOTOK, 0);
             return;
         }
-        storedProcedureArgs=pgPtr->statementPtr->queries[0].storedProcedureArgs;
+        getStoredProcedureArgs(pgPtr->statementPtr, storedProcedureArgs);
         results.statementStatus=STATUS_OK;
-
         beginTransaction();
     
         continueFunc1(1, NULL);
@@ -186,13 +185,13 @@ public:
                 return;
             }
 
-            delete transactionPtr;
+            deleteTransaction();
             exitProc(STATUS_OK, 0);
             break;
      
             // return from rollback
         case 3:
-            delete transactionPtr;
+            deleteTransaction();
             exitProc(badstatus, 0);
             break;
 
@@ -217,7 +216,7 @@ public:
     {
         pgPtr->results.statementStatus=status;
         class ApiInterface *retobject=pgPtr;
-        delete pgPtr->statementPtr;
+        deleteStatement();
         InfiniSQL_benchmark_PgbenchNoinsert_destroy(this);
         (*retobject.*(&ApiInterface::continuePgFunc))(0, NULL);
     }

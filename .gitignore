@@ -48,3 +48,4 @@ stamp-h1
 .*.swp
 ylwrap
 *.pyc
+*.so

@@ -49,8 +49,8 @@ public:
 
         beginTransaction();
         if (execStatement("keyval_select", 
-                          pgPtr->statementPtr->queries[0].storedProcedureArgs,
-                          &ApiInterface::continueFunc1, 1, NULL)==false)
+                          pgPtr->statementPtr, &ApiInterface::continueFunc1,
+                          1, NULL)==false)
         {
             rollback(&ApiInterface::continueFunc1, 2, NULL);
         }
@@ -64,7 +64,7 @@ public:
         {
         case 1:
         {
-            if (transactionPtr->resultCode != STATUS_OK)
+            if (getResultCode() != STATUS_OK)
             {
                 rollback(&ApiInterface::continueFunc1, 2, NULL);
                 return;
@@ -78,15 +78,15 @@ public:
       
         case 2:
         { // return from rollback
-            delete transactionPtr;
+            deleteTransaction();
             exitProc(STATUS_NOTOK);
         }
         break;
       
         case 3:
         { // return from commit
-            int64_t s=transactionPtr->resultCode;
-            delete transactionPtr;
+            int64_t s=getResultCode();
+            deleteTransaction();
             exitProc(s);
         }
         break;
@@ -109,7 +109,7 @@ public:
     {
         pgPtr->results.statementStatus=status;
         class ApiInterface *retobject=pgPtr;
-        delete pgPtr->statementPtr;
+        deleteStatement();
         InfiniSQL_benchmark_Getkey_destroy(this);
         (*retobject.*(&ApiInterface::continuePgFunc))(0, NULL);
     }

@@ -20,6 +20,7 @@
 #ifndef INFINISQLDEFS_H
 #define INFINISQLDEFS_H
 
+/*
 #define APISTATUS_OK 0
 #define APISTATUS_NOTOK 1
 #define APISTATUS_NULLCONSTRAINT 2
@@ -30,10 +31,7 @@
 #define APISTATUS_FOUND 7
 #define APISTATUS_DEADLOCK 8
 #define APISTATUS_LOCK 9
-
-// statuses to client
-#define STATUS_OK 0
-#define STATUS_NOTOK 1
+*/
 
 // statuses builtins
 #define BUILTIN_STATUS_OK 0
@@ -48,6 +46,8 @@
 #define RTPRIO 30
 #define MSGRECEIVEBATCHSIZE 500
 #define OBGWMSGBATCHSIZE 5000
+
+#include "infinisql_api.h"
 
 enum __attribute__ ((__packed__)) listenertype_e
 {
@@ -185,6 +185,7 @@ enum __attribute__ ((__packed__)) operationtype_e
         OPERATION_LOGIN
         };
 
+/*
 enum __attribute__ ((__packed__)) operatortypes_e
 {
     OPERATOR_NONE = 0,
@@ -221,6 +222,7 @@ enum __attribute__ ((__packed__)) operatortypes_e
         OPERATOR_SELECTALL = 32,
         OPERATOR_NULL = 33
         };
+*/
 
 #define OPERAND_STRING  'a'
 #define OPERAND_IDENTIFIER  'b'
@@ -271,6 +273,7 @@ using msgpack::sbuffer;
 using boost::lexical_cast;
 
 // enums
+/*
 enum __attribute__ ((__packed__)) fieldtype_e
 {
     NOFIELDTYPE = -1,
@@ -282,12 +285,14 @@ enum __attribute__ ((__packed__)) fieldtype_e
     CHARX = 5,
     VARCHAR = 6
 };
+*/
 
 enum enginecmds_e
 {
     enginecmdnewrow
 };
 
+/*
 enum __attribute__ ((__packed__)) locktype_e
 {
     NOTFOUNDLOCK = -1,
@@ -303,6 +308,7 @@ enum __attribute__ ((__packed__)) locktype_e
         PENDINGTOINDEXLOCK,
         PENDINGTOINDEXNOLOCK
         };
+*/
 
 enum __attribute__ ((__packed__)) pendingprimitive_e
 {
@@ -326,7 +332,7 @@ enum __attribute__ ((__packed__)) pendingprimitive_e
         PRIMITIVE_SQLREPLACE
         };
 
-// should merge this with pendingprimitive probably
+/*
 enum cmd_e
 {
     CMD_NONE = 0,
@@ -340,6 +346,7 @@ enum cmd_e
     CMD_SET,
     CMD_STOREDPROCEDURE
 };
+*/
 
 enum enginecmd_e
 {
@@ -373,11 +380,13 @@ extern std::string zmqsocket;
 extern void *zmqcontext;
 extern std::string storedprocprefix;
 
+/*
 typedef struct
 {
     fieldtype_e type;
     std::string name;
 } fieldtypename_s;
+*/
 
 typedef struct
 {
@@ -398,6 +407,7 @@ typedef struct
     boost::unordered_set<std::string> waiting;
 } newDeadLockLists_s;
 
+/*
 typedef struct
 {
     int64_t rowid;
@@ -405,7 +415,9 @@ typedef struct
     locktype_e locktype;
     std::string row;
 } returnRow_s;
+*/
 
+  /*
 typedef union __attribute__ ((__packed__)) fieldInput_u
 {
     int64_t integer;
@@ -414,13 +426,16 @@ typedef union __attribute__ ((__packed__)) fieldInput_u
     long double floating;
     char character;
 } fieldInput_s;
+  */
 
+/*
 typedef struct
 {
     fieldInput_s value;
     std::string str;
     bool isnull;
 } fieldValue_s;
+*/
 
 typedef struct
 {
@@ -481,18 +496,22 @@ typedef struct
     int epollfd;
 } listenerStruct_s;
 
+/*
 typedef struct
 {
     int64_t resultCode;
     msgpack::sbuffer *sbuf;
 } procedureResponse_s;
+*/
 
+/*
 typedef struct
 {
     int64_t rowid;
     int64_t tableid;
     int64_t engineid;
 } uuRecord_s;
+*/
 
 typedef struct
 {

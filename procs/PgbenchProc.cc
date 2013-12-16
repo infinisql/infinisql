@@ -57,7 +57,7 @@ public:
             exitProc(STATUS_NOTOK, 0);
             return;
         }
-        storedProcedureArgs=pgPtr->statementPtr->queries[0].storedProcedureArgs;
+        getStoredProcedureArgs(pgPtr->statementPtr, storedProcedureArgs);
         results.statementStatus=STATUS_OK;
 
         beginTransaction();
@@ -186,13 +186,13 @@ public:
                 return;
             }
 
-            delete transactionPtr;
+            deleteTransaction();
             exitProc(STATUS_OK, 0);
             break;
      
             // return from rollback
         case 3:
-            delete transactionPtr;
+            deleteTransaction();
             exitProc(badstatus, 0);
             break;
 

@@ -2161,6 +2161,7 @@ void Transaction::reenter(int64_t res)
     }
 }
 
+/*
 size_t hash_value(uuRecord_s const &uur)
 {
     std::size_t seed = 0;
@@ -2176,6 +2177,7 @@ bool operator==(uuRecord_s const &uur1, uuRecord_s const &uur2)
     return (uur1.rowid==uur2.rowid) && (uur1.tableid==uur2.tableid) &&
         (uur1.engineid==uur2.engineid);
 }
+*/
 
 void Transaction::zeroCurrentCmdState(void)
 {

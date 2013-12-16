@@ -48,8 +48,9 @@ public:
         // end boilerplate
         beginTransaction();
         vector<string> args;
-        args.push_back(pgPtr->statementPtr->queries[0].storedProcedureArgs[2]);
-        args.push_back(pgPtr->statementPtr->queries[0].storedProcedureArgs[0]);
+        getStoredProcedureArgs(pgPtr->statementPtr, storedProcedureArgs);
+        args.push_back(storedProcedureArgs[2]);
+        args.push_back(storedProcedureArgs[0]);
         if (execStatement("debitbuyer", args, &ApiInterface::continueFunc1, 1,
                           NULL)==false)
         {
@@ -76,8 +77,8 @@ public:
 
             // next update
             vector<string> args;
-            args.push_back(pgPtr->statementPtr->queries[0].storedProcedureArgs[2]);
-            args.push_back(pgPtr->statementPtr->queries[0].storedProcedureArgs[1]);
+            args.push_back(storedProcedureArgs[2]);
+            args.push_back(storedProcedureArgs[1]);
             results = results_s();
             if (execStatement("creditseller", args, &ApiInterface::continueFunc1, 2,
                               NULL)==false)
@@ -124,7 +125,7 @@ public:
         // after rollback
         case 10:
         {
-            delete transactionPtr;
+            deleteTransaction();
             if (*(int64_t *)statePtr==STATUS_OK)
             {
                 pgPtr->results.selectFields.push_back({INT, string("SqlProcResult")});
@@ -159,6 +160,8 @@ public:
         InfiniSQL_texas_SqlProc_destroy(this);
         (*retobject.*(&ApiInterface::continuePgFunc))(0, NULL);
     }
+
+    vector<string> storedProcedureArgs;
 };
 
 extern "C" ApiInterface* InfiniSQL_texas_SqlProc_create \

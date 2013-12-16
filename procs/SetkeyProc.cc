@@ -65,7 +65,7 @@ public:
             exitProc(STATUS_NOTOK);
             return;
         }
-        storedProcedureArgs=pgPtr->statementPtr->queries[0].storedProcedureArgs;
+        getStoredProcedureArgs(pgPtr->statementPtr, storedProcedureArgs);
         results.statementStatus=STATUS_OK;
 
         continueFunc1(1, NULL);
@@ -141,8 +141,8 @@ public:
           
             case UPDATELOCKED:
             { // came from rollback, so retry update
-                int64_t s=transactionPtr->resultCode;
-                delete transactionPtr;
+                int64_t s=getResultCode();
+                deleteTransaction();
                 if (s != STATUS_OK)
                 {
                     exitProc(s);
@@ -156,8 +156,8 @@ public:
                     
             case INSERTNOTUNIQUE:
             { // came back from rollback, retry update
-                int64_t s=transactionPtr->resultCode;
-                delete transactionPtr;
+                int64_t s=getResultCode();
+                deleteTransaction();
                 if (s != STATUS_OK)
                 {
                     exitProc(s);
@@ -171,15 +171,15 @@ public:
           
             case COMMITTED:
             {
-                int64_t s=transactionPtr->resultCode;
-                delete transactionPtr;
+                int64_t s=getResultCode();
+                deleteTransaction();
                 exitProc(s);
             }
             break;
           
             case UNRECOVERABLE:
             { // came back from rollback
-                delete transactionPtr;
+                deleteTransaction();
                 exitProc(STATUS_NOTOK);
             }
             break;
@@ -228,7 +228,7 @@ public:
     {
         pgPtr->results.statementStatus=status;
         class ApiInterface *retobject=pgPtr;
-        delete pgPtr->statementPtr;
+        deleteStatement();
         InfiniSQL_benchmark_Setkey_destroy(this);
         (*retobject.*(&ApiInterface::continuePgFunc))(0, NULL);
     }

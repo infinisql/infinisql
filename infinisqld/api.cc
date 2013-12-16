@@ -760,8 +760,17 @@ void ApiInterface::addFieldToRow(string &val)
     transactionPtr->addFieldToRow(val);
 }
 
+bool ApiInterface::execStatement(const char *stmtname, Statement *stmtPtr,
+                                 apifPtr reentryfunction, int64_t reentrypoint,
+                                 void *reentrydata)
+{
+    return execStatement(stmtname, stmtPtr->queries[0].storedProcedureArgs,
+                  reentryfunction, reentrypoint, reentrydata);
+}
+
 bool ApiInterface::execStatement(const char *stmtname, vector<string> &args,
-                                 apifPtr reentryfunction, int64_t reentrypoint, void *reentrydata)
+                                 apifPtr reentryfunction, int64_t reentrypoint,
+                                 void *reentrydata)
 {
     if (!taPtr->statements[domainid].count(string(stmtname)))
     {
@@ -772,4 +781,41 @@ bool ApiInterface::execStatement(const char *stmtname, vector<string> &args,
     stmt->execute(this, reentryfunction, reentrypoint, reentrydata,
                   transactionPtr, args);
     return true;
+}
+
+int64_t ApiInterface::getResultCode()
+{
+    return transactionPtr->resultCode;
+}
+
+void ApiInterface::deleteTransaction()
+{
+    delete transactionPtr;
+}
+
+void ApiInterface::deleteStatement()
+{
+    delete pgPtr->statementPtr;
+}
+
+void ApiInterface::getStoredProcedureArgs(Statement *stmtPtr,
+                                          vector<string> &argsRef)
+{
+    argsRef=stmtPtr->queries[0].storedProcedureArgs;
+}
+
+size_t hash_value(uuRecord_s const &uur)
+{
+    std::size_t seed = 0;
+    boost::hash_combine(seed, uur.rowid);
+    boost::hash_combine(seed, uur.tableid);
+    boost::hash_combine(seed, uur.engineid);
+
+    return seed;
+}
+
+bool operator==(uuRecord_s const &uur1, uuRecord_s const &uur2)
+{
+    return (uur1.rowid==uur2.rowid) && (uur1.tableid==uur2.tableid) &&
+        (uur1.engineid==uur2.engineid);
 }
