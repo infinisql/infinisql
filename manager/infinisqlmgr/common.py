@@ -3,24 +3,27 @@ __author__ = 'Christopher Nelson'
 import logging
 import os
 
-def configure_logging(args):
+from io import StringIO
+
+def configure_logging(config):
     from logging import handlers
 
-    log_conf = os.path.join(args.dist_dir, "etc", "%s.logging.conf" % args.cluster_name)
+    debug = config.get_boolean("management", "debug")
+    log_conf = config.get("management", "log_config_file")
     if os.path.exists(log_conf):
         # Configure logging from a file.
         logging.config.fileConfig(log_conf)
         # Make sure that we have actually configured something in the file.
         if logging.getLogger().hasHandlers():
             # Override all handlers with DEBUG mode if that's set on the command line
-            if args.debug:
+            if config.getboolean("debug"):
                 for handler in logging.getLogger().handlers:
                     handler.setLevel(logging.DEBUG)
             return
 
     # Perform default configuration
     log_format = "%(asctime)-15s %(levelname)s (%(module)s:%(lineno)s) %(message)s"
-    log_path = os.path.abspath(os.path.normpath(os.path.join(args.dist_dir, "log", "%s.log" % args.cluster_name)))
+    log_path = config.get("management", "log_file")
     log_dir = os.path.dirname(log_path)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
@@ -30,15 +33,20 @@ def configure_logging(args):
 
     # create console handler
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO if not args.debug else logging.DEBUG)
+    ch.setLevel(logging.INFO if not debug else logging.DEBUG)
     ch.setFormatter(formatter)
 
     # create file handler
     fh = handlers.RotatingFileHandler(log_path, maxBytes=1024*1024, backupCount=10)
-    fh.setLevel(logging.INFO if not args.debug else logging.DEBUG)
+    fh.setLevel(logging.INFO if not debug else logging.DEBUG)
     fh.setFormatter(formatter)
 
     # add handlers
     logger.addHandler(ch)
     logger.addHandler(fh)
+
+    # write actual configuration to log file
+    buf = StringIO()
+    config.config.write(buf)
+    logging.debug(buf.getvalue())
 

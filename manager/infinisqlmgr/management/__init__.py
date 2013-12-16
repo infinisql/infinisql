@@ -23,10 +23,7 @@ class Controller(object):
     # when the controller is run() in tornado I/O loop mode.
     instance = None
 
-    def __init__(self, cluster_name,
-                 data_dir="/tmp", dist_dir="/tmp",
-                 mcast_group="224.0.0.1", mcast_port=21001,
-                 cmd_port=21000, cfg_port=21002):
+    def __init__(self, config):
         """
         Creates a new management node controller.
 
@@ -36,6 +33,9 @@ class Controller(object):
         :param mcast_port: The port for the multicast group.
         :param cmd_port: The TCP command port for the management node.
         """
+        self.config = config
+        mt = self.config.config["management"]
+
         self.ctx = zmq.Context.instance()
         self.poller = zmq.Poller()
         self.presence_poller = select.poll()
@@ -43,7 +43,13 @@ class Controller(object):
         self.cmd_socket = self.ctx.socket(zmq.PUB)
         self.sub_sockets = {}
 
-        self.node_id = (self._get_ip(), cmd_port)
+        self.cluster_name = mt["cluster_name"]
+        self.mcast_group = mt["announcement_mcast_group"]
+        self.mcast_port = int(mt["announcement_mcast_port"])
+        self.cmd_port = int(mt["management_port"])
+        self.dist_dir = config.dist_dir
+
+        self.node_id = (mt["management_ip"], self.cmd_port)
         self.nodes = {self.node_id}
         self.leader_node_id = None
         self.current_election = None
@@ -63,14 +69,7 @@ class Controller(object):
 
         self.application = None
 
-        self.cluster_name = cluster_name
-        self.mcast_group = mcast_group
-        self.mcast_port = mcast_port
-        self.cmd_port = cmd_port
-        self.cfg_port = cfg_port
-        self.dist_dir = dist_dir
-
-        self.health = health.Health(self.node_id, data_dir)
+        self.health = health.Health(self.node_id, config)
         self.heartbeats = {}
 
         self.engines = {}
@@ -100,7 +99,9 @@ class Controller(object):
         Configures the command publisher socket.
         :return: None
         """
-        self.cmd_socket.bind("tcp://*:%d" % self.cmd_port)
+        address = "tcp://%s:%d" % (self.config.get("management", "management_ip"), self.cmd_port)
+        logging.debug("binding management configuration to '%s'", address)
+        self.cmd_socket.bind(address)
 
     def _configure_message_handlers(self):
         """
@@ -535,7 +536,8 @@ class Controller(object):
 
         # Setup the web application
         self.application = tornado.web.Application(api.handlers, gzip=True)
-        self.application.listen(self.cfg_port)
+        self.application.listen(self.config.get("management", "configuration_port"),
+                                address=self.config.get("management", "configuration_ip"))
 
         # Setup handlers to care for the management tasks.
         announce_timer = tornado.ioloop.PeriodicCallback(self.announce_presence, 1000)
@@ -549,8 +551,13 @@ class Controller(object):
         instance.add_handler(self.presence_socket.fileno(), self._process_presence, zmq_ioloop.ZMQIOLoop.READ)
 
         # Start the I/O loop
-        logging.info("Started management process, announcing on %s:%s, configuration port=%s, command port=%s",
-                     self.mcast_group, self.mcast_port, self.cfg_port, self.cmd_port)
+        logging.info("Started management process, announcing on %s:%s, configuration=%s:%s, command=%s:%s",
+                     self.mcast_group, self.mcast_port,
+                     self.config.get("management", "configuration_ip"),
+                     self.config.get("management", "configuration_port"),
+                     self.config.get("management", "management_ip"),
+                     self.config.get("management", "management_port")
+        )
         instance.start()
         announce_timer.stop()
         management_timer.stop()

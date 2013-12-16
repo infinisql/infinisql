@@ -15,7 +15,7 @@ disk_io = ["read_count", "write_count", "read_bytes", "write_bytes", "read_time"
 net_io = ["bytes_sent", "bytes_recv", "packets_sent", "packets_recv", "errin", "errout", "dropin", "dropout"]
 
 class Health(object):
-    def __init__(self, node_id, data_dir):
+    def __init__(self, node_id, config):
         """
         Creates a new health object for the given node. Databases for health statistics will be created in
         the 'data_dir'. The databases use the "whisper" database format from graphite, so they automatically
@@ -25,7 +25,7 @@ class Health(object):
         :param node_id: The node to create this health object for.
         :param data_dir: The data directory to use for the health stats.
         """
-        self.path = os.path.join(data_dir, "health", node_id[0], str(node_id[1]))
+        self.path = os.path.join(config.get("metrics", "data_dir"), "health", node_id[0], str(node_id[1]))
         self.node_id = node_id
         self.memory_alert = False
         self.swap_alert = False

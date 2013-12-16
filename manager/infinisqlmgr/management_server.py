@@ -7,11 +7,12 @@ import time
 
 from infinisqlmgr import common, management
 
-def start_management_server(args):
+def start_management_server(config):
     from infinisqlmgr.management import util
 
-    common.configure_logging(args)
-    existing_pid = util.get_pid(args.dist_dir, args.cluster_name)
+    common.configure_logging(config)
+    cluster_name = config.get("management", "cluster_name")
+    existing_pid = util.get_pid(config.dist_dir, cluster_name)
     if existing_pid is not None:
         logging.error("A management process appears to exist already. You should run the 'manager stop' command first "
                       "to make sure the existing process has stopped.")
@@ -21,22 +22,23 @@ def start_management_server(args):
     pid = os.fork()
 
     if pid!=0:
-        util.write_pid(args.dist_dir, args.cluster_name, pid)
+        util.write_pid(config.dist_dir, cluster_name, pid)
         logging.info("Parent start_management_server() finished")
         return 0
 
     logging.debug("creating management process")
-    management_server = management.Controller(args.cluster_name, os.path.join(args.dist_dir, "var", "infinisql"))
+    management_server = management.Controller(config)
     logging.debug("starting management process")
     return management_server.run()
 
 
-def stop_management_server(args):
+def stop_management_server(config):
     from infinisqlmgr.management import util
 
-    common.configure_logging(args)
+    common.configure_logging(config)
+    cluster_name = config.get("management", "cluster_name")
 
-    existing_pid = util.get_pid(args.dist_dir, args.cluster_name)
+    existing_pid = util.get_pid(config.dist_dir, cluster_name)
     if existing_pid is not None:
         logging.info("Trying to stop the existing process at pid %d", existing_pid)
         try:
@@ -58,18 +60,18 @@ def stop_management_server(args):
                     logging.warning("There was an error while stopping the management process, check the logs for more detail.")
 
     # Make sure that the pid file is gone, even if it's empty.
-    if util.exists(args.dist_dir, args.cluster_name):
-        run_path = util.get_run_path(args.dist_dir, args.cluster_name)
+    if util.exists(config.dist_dir, cluster_name):
+        run_path = util.get_run_path(config.dist_dir, cluster_name)
         logging.debug("deleting run file at: %s", run_path)
         os.unlink(run_path)
 
-    logging.info("Stopped management process for cluster: %s" % args.cluster_name)
+    logging.info("Stopped management process for cluster: %s" % cluster_name)
 
 
-def restart_management_server(args):
-    stop_management_server(args)
+def restart_management_server(config):
+    stop_management_server(config)
     time.sleep(1)
-    start_management_server(args)
+    start_management_server(config)
 
 def add_args(sub_parsers):
     mgr_parser = sub_parsers.add_parser('manager', help='Options for controlling a management process')
