@@ -20,11 +20,11 @@
 #ifndef INFINISQLTRANSACTIONAGENT_H
 #define INFINISQLTRANSACTIONAGENT_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Operation.h"
-#include "infinisql_Table.h"
-#include "infinisql_Schema.h"
-#include "infinisql_Larxer.h"
+#include "gch.h"
+#include "Operation.h"
+#include "Table.h"
+#include "Schema.h"
+#include "Larxer.h"
 
 enum transactionpayload_e
 {
@@ -70,8 +70,8 @@ typedef struct
 // delete this
 typedef vector<idl> cmds;
 
-#include "infinisql_Transaction.h"
-#include "infinisql_Applier.h"
+#include "Transaction.h"
+#include "Applier.h"
 
 /*
   typedef struct

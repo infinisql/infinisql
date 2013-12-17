@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_IbGateway.h"
+#include "IbGateway.h"
 #line 22 "IbGateway.cc"
 
 #define EPOLLEVENTS 1024

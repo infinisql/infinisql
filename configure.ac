@@ -4,7 +4,7 @@
 AC_INIT([infinisql], [0.1.2-alpha], [mtravis15432+src@gmail.com])
 AM_INIT_AUTOMAKE
 LT_INIT
-AC_CONFIG_SRCDIR([infinisqld/infinisql_defs.h])
+AC_CONFIG_SRCDIR([infinisqld/defs.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile infinisqld/Makefile infinisqld/version.h])
 

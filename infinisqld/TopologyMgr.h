@@ -17,32 +17,29 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLOBGATEWAY_H
-#define INFINISQLOBGATEWAY_H
+#ifndef INFINISQLTOPOLOGYMGR_H
+#define INFINISQLTOPOLOGYMGR_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
+#include "cfgenum.h"
 
-class ObGateway
+void *topologyMgr(void *);
+
+class TopologyMgr
 {
 public:
-    ObGateway(Topology::partitionAddress *);
-    virtual ~ObGateway();
-    void updateRemoteGateways();
+    TopologyMgr(Topology::partitionAddress *);
+    TopologyMgr(const TopologyMgr &orig);
+    virtual ~TopologyMgr();
+private:
+    void updateLocalConfig(msgpack::unpacker &, msgpack::unpacked &);
+    void updateGlobalConfig(msgpack::unpacker &, msgpack::unpacked &);
+    void broadcastConfig();
 
     Topology::partitionAddress myIdentity;
     class Mboxes mboxes;
     class Topology myTopology;
-
-private:
-    // remoteGateways[nodeid]=socket for corresponding ibgw's
-    std::vector<int> remoteGateways;
-    socklen_t optlen;
-    int so_sndbuf;
-    char *serstrsmall;
-    char *cstrsmall;
-    bool ismultinode;
 };
 
-void *obGateway(void *);
+#endif  /* INFINISQLTOPOLOGYMGR_H */
 
-#endif  /* INFINISQLOBGATEWAY_H */

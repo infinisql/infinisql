@@ -20,7 +20,7 @@
 #ifndef INFINISQLINDEX_H
 #define INFINISQLINDEX_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
 
 typedef struct
 {

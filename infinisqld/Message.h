@@ -20,9 +20,9 @@
 #ifndef INFINISQLMESSAGE_H
 #define INFINISQLMESSAGE_H
 
-#include "infinisql_gch.h"
-#include "infinisql_defs.h"
-#include "infinisql_Topology.h"
+#include "gch.h"
+#include "defs.h"
+#include "Topology.h"
 
 /* THIS STUFF PROBABLY NEEDS TO BE CONSIDERED THROUGHOUT THE CODE BASE
  * BECAUSE SIZES CHANGED FROM int64_t TO OTHER THINGS, SUCH AS int16_t

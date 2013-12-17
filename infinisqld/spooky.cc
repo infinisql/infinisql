@@ -7,7 +7,7 @@
 //   April 10 2012: buffer overflow on platforms without unaligned reads
 
 #include <memory.h>
-#include "infinisql_spooky.h"
+#include "spooky.h"
 #line 12 "spooky.cc"
 
 #define ALLOW_UNALIGNED_READS 1

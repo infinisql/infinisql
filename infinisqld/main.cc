@@ -19,8 +19,8 @@
 
 #include <sys/un.h>
 #include "version.h"
-#include "infinisql_gch.h"
-#include "infinisql_Topology.h"
+#include "gch.h"
+#include "Topology.h"
 #line 31 "main.cc"
 
 void *topologyMgr(void *);

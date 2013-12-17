@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_SubTransaction.h"
+#include "SubTransaction.h"
 #line 22 "SubTransaction.cc"
 
 //SubTransaction::SubTransaction(int64_t taidarg, int64_t transactionidarg,

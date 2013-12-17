@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_DeadlockMgr.h"
+#include "DeadlockMgr.h"
 #line 22 "DeadlockMgr.cc"
 
 DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :

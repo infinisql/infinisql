@@ -58,7 +58,7 @@ actortypesdict = {
 
 firstactorid = 100
 
-cheader = open('infinisql_cfgenum.h', 'w')
+cheader = open('cfgenum.h', 'w')
 
 cheader.write('#ifndef CFGENUM_H\n\
 #define CFGENUM_H\n\

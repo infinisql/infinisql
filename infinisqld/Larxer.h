@@ -21,10 +21,9 @@
 #define INFINISQLLARXER_H
 
 #include "larx.h"
-#include "infinisql_Asts.h"
-#include "infinisql_gch.h"
-
-#include "infinisql_defs.h"
+#include "Asts.h"
+#include "gch.h"
+#include "defs.h"
 
 class Larxer
 {

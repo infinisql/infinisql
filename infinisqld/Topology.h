@@ -27,7 +27,7 @@
 #include <string>
 #include <stdio.h>
 #include <boost/unordered_map.hpp>
-#include "infinisql_cfgenum.h"
+#include "cfgenum.h"
 #include <map>
 
 using std::string;

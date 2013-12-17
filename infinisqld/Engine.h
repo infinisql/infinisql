@@ -20,10 +20,10 @@
 #ifndef INFINISQLENGINE_H
 #define INFINISQLENGINE_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Table.h"
-#include "infinisql_TransactionAgent.h"
-#include "infinisql_SubTransaction.h"
+#include "gch.h"
+#include "Table.h"
+#include "TransactionAgent.h"
+#include "SubTransaction.h"
 
 class Engine
 {

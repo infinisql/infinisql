@@ -20,9 +20,9 @@
 #ifndef INFINISQLUSERSCHEMAMGR_H
 #define INFINISQLUSERSCHEMAMGR_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Table.h"
-#include "infinisql_TransactionAgent.h"
+#include "gch.h"
+#include "Table.h"
+#include "TransactionAgent.h"
 
 typedef struct
 {

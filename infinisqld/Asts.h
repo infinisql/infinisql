@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <boost/unordered_map.hpp>
-#include "infinisql_defs.h"
+#include "defs.h"
 #include "larx.h"
 
 class ApiInterface;

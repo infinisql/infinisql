@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Engine.h"
+#include "Engine.h"
 #line 22 "Engine.cc"
 
 Engine::Engine(Topology::partitionAddress *myIdentityArg) :

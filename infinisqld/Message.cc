@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Message.h"
+#include "Message.h"
 #line 22 "Message.cc"
 
 Message::Message()

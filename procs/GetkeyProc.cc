@@ -17,11 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include "infinisql_gch.h"
-//#include "infinisql_defs.h"
 #include "infinisql.h"
-//#include "infinisql_Asts.h"
-#line 25 "GetkeyProc.cc"
+#line 22 "GetkeyProc.cc"
 
 extern "C" void InfiniSQL_benchmark_Getkey_destroy(ApiInterface *p)
 {

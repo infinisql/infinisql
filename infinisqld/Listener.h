@@ -17,30 +17,25 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLFIELD_H
-#define INFINISQLFIELD_H
+#ifndef INFINISQLLISTENER_H
+#define INFINISQLLISTENER_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Index.h"
+#include "gch.h"
 
-class Field
+class Listener
 {
 public:
-    Field(fieldtype_e, int64_t, indextype_e, string);
-    virtual ~Field();
+    Listener(Topology::partitionAddress *);
+    virtual ~Listener();
 
-    friend class Transaction;
-    friend class ApiInterface;
-    friend class Table;
-    friend class SubTransaction;
+    int startsocket(string &, string &);
 
     //private:
-    fieldtype_e type;
-    size_t length;
-    indextype_e indextype;
-    class Index index;
-    std::string name;
+    class Mboxes mboxes;
+    Topology::partitionAddress myIdentity;
+    class Topology myTopology;
 };
 
-#endif  /* INFINISQLFIELD_H */
+void *listener(void *);
 
+#endif  /* INFINISQLLISTENER_H */

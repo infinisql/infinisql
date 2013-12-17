@@ -20,7 +20,7 @@
 #ifndef INFINISQLDEADLOCKMGR_H
 #define INFINISQLDEADLOCKMGR_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
 
 typedef struct
 {

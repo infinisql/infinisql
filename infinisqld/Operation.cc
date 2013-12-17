@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Operation.h"
-#include "infinisql_Pg.h"
+#include "Operation.h"
+#include "Pg.h"
 #line 23 "Operation.cc"
 
 Operation::Operation(int typearg, class TransactionAgent *taarg, int64_t uid,

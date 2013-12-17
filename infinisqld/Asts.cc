@@ -17,10 +17,10 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_gch.h"
-#include "infinisql_Asts.h"
+#include "gch.h"
+#include "Asts.h"
 #include "infinisql.h"
-#include "infinisql_Transaction.h"
+#include "Transaction.h"
 #line 24 "Asts.cc"
 
 Ast::Ast()

@@ -22,8 +22,8 @@
 
 %{
 #include "larx.h"
-#include "infinisql_gch.h"
-#include "infinisql_Larxer.h"
+#include "gch.h"
+#include "Larxer.h"
 
 #define YYLEX_PARAM pld->scaninfo
 #define PUSHSTACK(X) pld->larxerPtr->pushstack(X)

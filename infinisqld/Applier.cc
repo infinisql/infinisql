@@ -17,9 +17,9 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_gch.h"
-#include "infinisql_Applier.h"
-#include "infinisql_TransactionAgent.h"
+#include "gch.h"
+#include "Applier.h"
+#include "TransactionAgent.h"
 #line 24 "Applier.cc"
 
 int64_t applierid;

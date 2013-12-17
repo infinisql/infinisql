@@ -20,7 +20,7 @@
 #ifndef INFINISQLPG_H
 #define INFINISQLPG_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
 #include "infinisql.h"
 
 class Pg : public ApiInterface

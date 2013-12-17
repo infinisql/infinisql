@@ -20,8 +20,8 @@
 #ifndef INFINISQLMBOX_H
 #define INFINISQLMBOX_H
 
-#include "infinisql_Message.h"
-#include "infinisql_Topology.h"
+#include "Message.h"
+#include "Topology.h"
 
 using std::vector;
 using std::string;

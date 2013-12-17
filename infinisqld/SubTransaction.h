@@ -20,8 +20,8 @@
 #ifndef INFINISQLSUBTRANSACTION_H
 #define INFINISQLSUBTRANSACTION_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Engine.h"
+#include "gch.h"
+#include "Engine.h"
 
 // both SubTransaction and Transaction use this, for different purposes, so
 // not all fields have meaning for both classes.

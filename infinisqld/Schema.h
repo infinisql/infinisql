@@ -20,8 +20,8 @@
 #ifndef INFINISQLSCHEMA_H
 #define INFINISQLSCHEMA_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Table.h"
+#include "gch.h"
+#include "Table.h"
 
 class Schema
 {

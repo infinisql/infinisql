@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_ObGateway.h"
+#include "ObGateway.h"
 #line 22 "ObGateway.cc"
 
 ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :

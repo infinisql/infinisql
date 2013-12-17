@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_UserSchemaMgr.h"
+#include "UserSchemaMgr.h"
 #line 22 "UserSchemaMgr.cc"
 
 //UserSchemaMgr::UserSchemaMgr(mboxid_t idarg) : id (idarg) {

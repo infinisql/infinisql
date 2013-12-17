@@ -20,9 +20,9 @@
 #ifndef INFINISQLTRANSACTION_H
 #define INFINISQLTRANSACTION_H
 
-#include "infinisql_gch.h"
-#include "infinisql_TransactionAgent.h"
-#include "infinisql_DeadlockMgr.h"
+#include "gch.h"
+#include "TransactionAgent.h"
+#include "DeadlockMgr.h"
 
 class TransactionAgent;
 

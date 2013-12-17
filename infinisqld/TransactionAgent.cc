@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_TransactionAgent.h"
-#include "infinisql_Pg.h"
+#include "TransactionAgent.h"
+#include "Pg.h"
 #line 23 "TransactionAgent.cc"
 
 TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :

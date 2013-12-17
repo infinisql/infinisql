@@ -20,8 +20,8 @@
 #ifndef INFINISQLOPERATION_H
 #define INFINISQLOPERATION_H
 
-#include "infinisql_gch.h"
-#include "infinisql_TransactionAgent.h"
+#include "gch.h"
+#include "TransactionAgent.h"
 
 // usm: waiting for usm to reply, tasengines: waiting for replies
 enum state_schema_e { usm, tasengines };

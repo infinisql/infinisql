@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Table.h"
+#include "Table.h"
 #line 22 "Table.cc"
 
 Table::Table(int64_t idarg) : id(idarg)

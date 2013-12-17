@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Field.h"
+#include "Field.h"
 #line 22 "Field.cc"
 
 Field::Field(fieldtype_e typearg, int64_t lengtharg,

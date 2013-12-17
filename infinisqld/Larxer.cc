@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_gch.h"
-#include "infinisql_Larxer.h"
+#include "gch.h"
+#include "Larxer.h"
 #include <stdint.h>
 #line 24 "Larxer.cc"
 

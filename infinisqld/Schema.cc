@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Schema.h"
+#include "Schema.h"
 #line 22 "Schema.cc"
 
 Schema::Schema(int64_t domainidarg) : domainid(domainidarg), nexttableid(0)

@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Topology.h"
+#include "Topology.h"
 #line 22 "Topology.cc"
 
 Topology::Topology() : nodeid(0), numreplicas(1), activereplica(-1),

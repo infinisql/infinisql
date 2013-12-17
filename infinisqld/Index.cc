@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Index.h"
+#include "Index.h"
 #line 22 "Index.cc"
 
 Index::Index(void) : indextype (NONE), fieldtype (NOFIELDTYPE),

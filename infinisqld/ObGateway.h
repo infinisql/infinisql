@@ -17,25 +17,32 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLLISTENER_H
-#define INFINISQLLISTENER_H
+#ifndef INFINISQLOBGATEWAY_H
+#define INFINISQLOBGATEWAY_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
 
-class Listener
+class ObGateway
 {
 public:
-    Listener(Topology::partitionAddress *);
-    virtual ~Listener();
+    ObGateway(Topology::partitionAddress *);
+    virtual ~ObGateway();
+    void updateRemoteGateways();
 
-    int startsocket(string &, string &);
-
-    //private:
-    class Mboxes mboxes;
     Topology::partitionAddress myIdentity;
+    class Mboxes mboxes;
     class Topology myTopology;
+
+private:
+    // remoteGateways[nodeid]=socket for corresponding ibgw's
+    std::vector<int> remoteGateways;
+    socklen_t optlen;
+    int so_sndbuf;
+    char *serstrsmall;
+    char *cstrsmall;
+    bool ismultinode;
 };
 
-void *listener(void *);
+void *obGateway(void *);
 
-#endif  /* INFINISQLLISTENER_H */
+#endif  /* INFINISQLOBGATEWAY_H */

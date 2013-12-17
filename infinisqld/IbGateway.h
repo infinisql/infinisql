@@ -20,7 +20,7 @@
 #ifndef INFINISQLIBGATEWAY_H
 #define INFINISQLIBGATEWAY_H
 
-#include "infinisql_gch.h"
+#include "gch.h"
 
 class IbGateway
 {

@@ -17,9 +17,9 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Pg.h"
+#include "Pg.h"
 #include "pgoids.h"
-#include "infinisql_TransactionAgent.h"
+#include "TransactionAgent.h"
 #line 24 "Pg.cc"
 
 /* implemented based on http://www.postgresql.org/docs/9.2/static/protocol.html */

@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_TopologyMgr.h"
+#include "TopologyMgr.h"
 #line 22 "TopologyMgr.cc"
 
 extern cfg_s cfgs;

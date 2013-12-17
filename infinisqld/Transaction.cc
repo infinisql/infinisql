@@ -17,7 +17,7 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Transaction.h"
+#include "Transaction.h"
 #line 22 "Transaction.cc"
 
 Transaction::Transaction(class TransactionAgent *taPtrarg, int64_t domainidarg)

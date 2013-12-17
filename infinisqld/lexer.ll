@@ -22,8 +22,8 @@
 %option bison-bridge
 %option nounput noinput
 %{
-#include "infinisql_gch.h"
-#include "infinisql_Larxer.h"
+#include "gch.h"
+#include "Larxer.h"
 #include "parser.h"
 #include <stdio.h>
 #include <string.h>

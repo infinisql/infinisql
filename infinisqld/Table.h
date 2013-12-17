@@ -20,8 +20,8 @@
 #ifndef INFINISQLTABLE_H
 #define INFINISQLTABLE_H
 
-#include "infinisql_gch.h"
-#include "infinisql_Field.h"
+#include "gch.h"
+#include "Field.h"
 
 typedef struct
 {

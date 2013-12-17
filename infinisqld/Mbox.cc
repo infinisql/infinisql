@@ -17,8 +17,8 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_gch.h"
-#include "infinisql_Mbox.h"
+#include "gch.h"
+#include "Mbox.h"
 #include <time.h>
 #line 24 "Mbox.cc"
 

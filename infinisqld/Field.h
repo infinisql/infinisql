@@ -17,29 +17,30 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLTOPOLOGYMGR_H
-#define INFINISQLTOPOLOGYMGR_H
+#ifndef INFINISQLFIELD_H
+#define INFINISQLFIELD_H
 
-#include "infinisql_gch.h"
-#include "infinisql_cfgenum.h"
+#include "gch.h"
+#include "Index.h"
 
-void *topologyMgr(void *);
-
-class TopologyMgr
+class Field
 {
 public:
-    TopologyMgr(Topology::partitionAddress *);
-    TopologyMgr(const TopologyMgr &orig);
-    virtual ~TopologyMgr();
-private:
-    void updateLocalConfig(msgpack::unpacker &, msgpack::unpacked &);
-    void updateGlobalConfig(msgpack::unpacker &, msgpack::unpacked &);
-    void broadcastConfig();
+    Field(fieldtype_e, int64_t, indextype_e, string);
+    virtual ~Field();
 
-    Topology::partitionAddress myIdentity;
-    class Mboxes mboxes;
-    class Topology myTopology;
+    friend class Transaction;
+    friend class ApiInterface;
+    friend class Table;
+    friend class SubTransaction;
+
+    //private:
+    fieldtype_e type;
+    size_t length;
+    indextype_e indextype;
+    class Index index;
+    std::string name;
 };
 
-#endif  /* INFINISQLTOPOLOGYMGR_H */
+#endif  /* INFINISQLFIELD_H */
 

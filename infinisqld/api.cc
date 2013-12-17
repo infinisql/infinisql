@@ -17,10 +17,10 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_gch.h"
-#include "infinisql_Transaction.h"
+#include "gch.h"
+#include "Transaction.h"
 #include "infinisql.h"
-#include "infinisql_Asts.h"
+#include "Asts.h"
 #line 25 "api.cc"
 
 void ApiInterface::deserialize2Vector(void)

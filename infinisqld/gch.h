@@ -29,7 +29,7 @@
 #include <cryptopp/sha.h>
 #include <pcrecpp.h>
 #include <zmq.h>
-#include "infinisql_spooky.h"
+#include "spooky.h"
 #include <lz4.h>
 
 // sys C++
@@ -71,7 +71,7 @@
 #include <sched.h>
 
 // project headers
-#include "infinisql_Mbox.h"
-#include "infinisql_defs.h"
+#include "Mbox.h"
+#include "defs.h"
 
 #endif // INFINISQLGCH_H
