@@ -4833,13 +4833,15 @@ void Index::deleteNonuniqueEntry(int64_t entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueIntIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueIntMap::iterator it2=it;
+            nonuniqueIntIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueIntIndex->erase(it2);
         }
     }
 }
@@ -4853,13 +4855,15 @@ void Index::deleteNonuniqueEntry(uint64_t entry, int64_t rowid,
 
     iteratorRange = nonuniqueUintIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueUintMap::iterator it2=it;
+            nonuniqueUintIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueUintIndex->erase(it2);
         }
     }
 }
@@ -4872,13 +4876,15 @@ void Index::deleteNonuniqueEntry(bool entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueBoolIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueBoolMap::iterator it2=it;
+            nonuniqueBoolIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueBoolIndex->erase(it2);
         }
     }
 }
@@ -4891,13 +4897,15 @@ void Index::deleteNonuniqueEntry(long double entry, int64_t rowid, int64_t engin
 
     iteratorRange = nonuniqueFloatIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueFloatMap::iterator it2=it;
+            nonuniqueFloatIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueFloatIndex->erase(it2);
         }
     }
 }
@@ -4910,13 +4918,15 @@ void Index::deleteNonuniqueEntry(char entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueCharIndex->equal_range(entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueCharMap::iterator it2=it;
+            nonuniqueCharIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueCharIndex->erase(it2);
         }
     }
 }
@@ -4931,13 +4941,15 @@ void Index::deleteNonuniqueEntry(string *entry, int64_t rowid, int64_t engineid)
 
     iteratorRange = nonuniqueStringIndex->equal_range(*entry);
 
-    for (it=iteratorRange.first; it != iteratorRange.second; ++it)
+    for (it=iteratorRange.first; it != iteratorRange.second; )
     {
         if (it->second.rowid==rowid && it->second.engineid==engineid)
         {
-            nonuniqueStringMap::iterator it2=it;
+            nonuniqueStringIndex->erase(it++);
+        }
+        else
+        {
             ++it;
-            nonuniqueStringIndex->erase(it2);
         }
     }
 }
