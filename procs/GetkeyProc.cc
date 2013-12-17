@@ -19,7 +19,7 @@
 
 //#include "infinisql_gch.h"
 //#include "infinisql_defs.h"
-#include "infinisql_api.h"
+#include "infinisql.h"
 //#include "infinisql_Asts.h"
 #line 25 "GetkeyProc.cc"
 

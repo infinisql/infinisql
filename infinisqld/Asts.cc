@@ -19,7 +19,7 @@
 
 #include "infinisql_gch.h"
 #include "infinisql_Asts.h"
-#include "infinisql_api.h"
+#include "infinisql.h"
 #include "infinisql_Transaction.h"
 #line 24 "Asts.cc"
 

@@ -21,7 +21,7 @@
 #define INFINISQLPG_H
 
 #include "infinisql_gch.h"
-#include "infinisql_api.h"
+#include "infinisql.h"
 
 class Pg : public ApiInterface
 {

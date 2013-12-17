@@ -47,7 +47,7 @@
 #define MSGRECEIVEBATCHSIZE 500
 #define OBGWMSGBATCHSIZE 5000
 
-#include "infinisql_api.h"
+#include "infinisql.h"
 
 enum __attribute__ ((__packed__)) listenertype_e
 {
