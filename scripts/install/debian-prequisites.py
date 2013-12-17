@@ -9,8 +9,7 @@ required_packages = ["binutils", "g++", "flex", "bison",
                      "libmsgpack-dev", "libreadline-dev",
                      "libcrypto++-dev", "libzmq3-dev", "libpcre3-dev",
                      "libreadline-dev", "liblz4-dev", "zlib1g-dev",
-                     "python-dev", "python-pip", "msgpack-python",
-                     "python-zmq"
+                     "python-dev", "python-pip"
                      ]
 print ("Reading and updating package cache...")
 c=apt.cache.Cache()
