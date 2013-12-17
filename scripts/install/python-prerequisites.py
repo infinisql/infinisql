@@ -2,7 +2,7 @@
 import pip
 
 cmd = ["install", "--upgrade"]
-libs = ["pyzmq", "psutil", "lmdb", "msgpack-python", "tornado"]
+libs = ["parsedatetime", "pyzmq", "psutil", "lmdb", "msgpack-python", "tornado"]
 
 pip.main(cmd + libs)
 
