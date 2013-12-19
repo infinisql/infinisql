@@ -117,7 +117,7 @@ class Configuration(object):
         """
         if hasattr(self.args, name):
             return getattr(self.args, name)
-        if self.config.has_option(section, name):
+        if hasattr(self, "config") and self.config.has_option(section, name):
             return self.config.get(section, name, default)
         return default
 

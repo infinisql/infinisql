@@ -1,13 +1,29 @@
 __author__ = 'Christopher Nelson'
 
 import unittest
-from infinisqlmgr import management
+from infinisqlmgr import management, config
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+class SimpleConfig(object):
+    def __init__(self, dist_dir):
+        self.dist_dir = dist_dir
 
 class TestNetworkPartition(unittest.TestCase):
     def setUp(self):
-        self.c1 = management.Controller("default_cluster", cmd_port=11000)
-        self.c2 = management.Controller("default_cluster", cmd_port=12000)
-        self.c3 = management.Controller("default_cluster", cmd_port=13000)
+        args = object()
+        co1 = config.Configuration(SimpleConfig("/tmp/i1"))
+        co2 = config.Configuration(SimpleConfig("/tmp/i2"))
+        co3 = config.Configuration(SimpleConfig("/tmp/i3"))
+
+        co1.config.set("management", "management_port", "11000")
+        co2.config.set("management", "management_port", "12000")
+        co3.config.set("management", "management_port", "13000")
+
+        self.c1 = management.Controller(co1)
+        self.c2 = management.Controller(co2)
+        self.c3 = management.Controller(co3)
 
         self.c1.announce_presence()
         self.c2.announce_presence()

@@ -10,14 +10,15 @@ import zmq
 from infinisqlmgr.engine import state
 
 class Configuration(object):
-    def __init__(self, node_id, dist_dir, management_ip, management_port):
+    def __init__(self, node_id, config):
         self.node_id = node_id
-        self.dist_dir = dist_dir
-        self.infinisql = os.path.join(dist_dir, "sbin", "infinisqld")
-        self.log_file = os.path.join(dist_dir, "var", "log", "infinisql.%s.log" % node_id)
+        self.dist_dir = config.dist_dir
+        self.config = config
+        self.infinisql = config.get("data engine", "infinisqld")
+        self.log_file = config.get("data engine", "log_file")
 
-        self.management_ip = management_ip
-        self.management_port = management_port
+        self.management_ip = config.get("data engine", "management_ip")
+        self.management_port = config.get("data engine", "management_port")
         self.pid = None
 
         self.ctx = zmq.Context.instance()
@@ -32,7 +33,7 @@ class Configuration(object):
         Connects to the database engine's management port.
         :return: None
         """
-        ip = "127.0.0.1" if self.management_ip=="*" else self.management_ip
+        ip = "*" if self.management_ip=="*" else self.management_ip
 
         logging.debug("connecting to database engine management port (%s:%s)", self.management_ip, self.management_port)
         self.socket = self.ctx.socket(zmq.REQ)
