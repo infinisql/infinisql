@@ -49,3 +49,8 @@ stamp-h1
 ylwrap
 *.pyc
 *.so
+docs/doxy/html/*
+docs/pubs/html/*
+docs/.DS_Store
+docs/._.DS_Store
+

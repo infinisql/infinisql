@@ -17,8 +17,18 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Message.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:33:21 2013
+ * 
+ * @brief  Message objects of varying types. Each type eventually inherits
+ * from the Message base class. Each type serves a different role in
+ * inter-actor communication.
+ */
+
 #include "Message.h"
-#line 22 "Message.cc"
+#line 32 "Message.cc"
 
 Message::Message()
 {
@@ -39,7 +49,8 @@ string *Message::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -184,7 +195,8 @@ string *Message::sermsg()
 }
 
 void Message::setEnvelope(const Topology::addressStruct &source,
-                          const Topology::addressStruct &dest, class Message &msg)
+                          const Topology::addressStruct &dest,
+                          class Message &msg)
 {
     msg.messageStruct.sourceAddr = source;
     msg.messageStruct.destAddr = dest;
@@ -202,7 +214,6 @@ MessageSocket::MessageSocket(int socketarg, uint32_t eventsarg,
     messageStruct.topic=topicarg;
     messageStruct.payloadtype=PAYLOADSOCKET;
     messageStruct.destAddr.nodeid=nodeidarg;
-//    socketStruct={socketarg, eventsarg, listenertypearg};
 }
 
 MessageSocket::~MessageSocket()
@@ -220,7 +231,8 @@ string *MessageSocket::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -260,7 +272,8 @@ MessageUserSchema::~MessageUserSchema()
 
 size_t MessageUserSchema::size()
 {
-    return (size_t) (Message::size() + SerializedMessage::sersize(userschemaStruct) +
+    return (size_t) (Message::size() +
+                     SerializedMessage::sersize(userschemaStruct) +
                      SerializedMessage::sersize(procs) +
                      SerializedMessage::sersize(argstring) +
                      SerializedMessage::sersize(pathname) +
@@ -276,7 +289,8 @@ string *MessageUserSchema::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -341,7 +355,8 @@ string *MessageDeadlock::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -390,7 +405,8 @@ string *MessageTransaction::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -440,7 +456,8 @@ string *MessageSubtransactionCmd::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -501,7 +518,8 @@ string *MessageCommitRollback::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -547,7 +565,8 @@ string *MessageDispatch::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -612,7 +631,8 @@ string *MessageAckDispatch::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -664,7 +684,8 @@ string *MessageApply::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -738,7 +759,8 @@ string *MessageAckApply::ser()
     package(serobj);
     if (serobj.data->size() != serobj.pos)
     {
-        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__, serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
+        fprintf(logfile, "%s %i ser %i size %lu pos %lu\n", __FILE__, __LINE__,
+                serobj.getpayloadtype(), serobj.data->size(), serobj.pos);
     }
     return serobj.data;
 }
@@ -1428,8 +1450,10 @@ void SerializedMessage::ser(rowOrField_s &d)
 size_t SerializedMessage::sersize(rowOrField_s &d)
 {
     return sersize((int8_t)d.isrow)+sersize(d.tableid)+sersize(d.rowid)+
-        sersize(d.fieldid)+sersize(d.engineid)+sersize((int8_t)d.deleteindexentry)+
-        sersize((int8_t)d.isnotaddunique)+sersize((int8_t)d.isreplace)+sersize(d.newrowid)+
+        sersize(d.fieldid)+sersize(d.engineid)+
+        sersize((int8_t)d.deleteindexentry)+
+        sersize((int8_t)d.isnotaddunique)+
+        sersize((int8_t)d.isreplace)+sersize(d.newrowid)+
         sersize(d.newengineid)+sersize(d.fieldVal);
 }
 
@@ -1560,10 +1584,12 @@ void SerializedMessage::des(vector<MessageApply::applyindex_s> &d)
     }
 }
 
-void SerializedMessage::ser(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
+void SerializedMessage::ser(boost::unordered_map< int64_t,
+                            vector<MessageDispatch::record_s> > &d)
 {
     ser((int64_t)d.size());
-    boost::unordered_map< int64_t, vector<MessageDispatch::record_s> >::iterator it;
+    boost::unordered_map< int64_t,
+                          vector<MessageDispatch::record_s> >::iterator it;
     for (it=d.begin(); it != d.end(); ++it)
     {
         ser(it->first);
@@ -1571,12 +1597,14 @@ void SerializedMessage::ser(boost::unordered_map< int64_t, vector<MessageDispatc
     }
 }
 
-size_t SerializedMessage::sersize(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
+size_t SerializedMessage::sersize(boost::unordered_map< int64_t,
+                                  vector<MessageDispatch::record_s> > &d)
 {
     return d.size() + (d.size() * 2 * sizeof(int64_t));
 }
 
-void SerializedMessage::des(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d)
+void SerializedMessage::des(boost::unordered_map< int64_t,
+                            vector<MessageDispatch::record_s> > &d)
 {
     size_t s;
     memcpy(&s, &data->at(pos), sizeof(s));

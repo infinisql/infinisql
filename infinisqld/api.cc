@@ -17,13 +17,23 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   api.cc
+ * @author  <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:01:05 2013
+ * 
+ * @brief  API for creating stored procedures. Pg objects also inherit
+ * from this class, because they perform the same types of transactional
+ * activities as a stored procedure.
+ */
+
 #include "gch.h"
 #include "Transaction.h"
 #include "infinisql.h"
 #include "Asts.h"
-#line 25 "api.cc"
+#line 35 "api.cc"
 
-void ApiInterface::deserialize2Vector(void)
+void ApiInterface::deserialize2Vector()
 {
     msgpack::unpacked msg;
     msgpack::unpack(&msg, taPtr->args, taPtr->argsize);
@@ -31,18 +41,18 @@ void ApiInterface::deserialize2Vector(void)
     obj.convert(&inputVector);
 }
 
-void ApiInterface::beginTransaction(void)
+void ApiInterface::beginTransaction()
 {
     transactionPtr = new class Transaction(taPtr, domainid);
 }
 
-void ApiInterface::destruct(void)
+void ApiInterface::destruct()
 {
     spclassdestroy d = (spclassdestroy)destroyerPtr;
     d(this);
 }
 
-void ApiInterface::bouncebackproxy(void)
+void ApiInterface::bouncebackproxy()
 {
     transactionPtr->reenter();
 }
@@ -87,8 +97,7 @@ void ApiInterface::insertRow(apifPtr re, int64_t recmd, void *reptr,
         if (transactionPtr->currentCmdState.tablePtr->fields[n].indextype != NONE)
         {
             transactionPtr->currentCmdState.indexEntries[n].engineid =
-                transactionPtr->getEngineid(transactionPtr->currentCmdState.tablePtr,
-                                            n);
+                transactionPtr->getEngineid(transactionPtr->currentCmdState.tablePtr, n);
             transactionPtr->currentCmdState.indexEntries[n].fieldid = n;
             transactionPtr->currentCmdState.indexEntries[n].tableid =
                 transactionPtr->currentCmdState.tableid;
@@ -114,7 +123,8 @@ void ApiInterface::insertRow(apifPtr re, int64_t recmd, void *reptr,
     }
 
     // now, prepare message for Engine, which expects:
-    // transaction_enginecmd NEWROW, transaction_messageStruct.payloadtype SUBTRANSACTIONCMDPAYLOAD
+    // transaction_enginecmd NEWROW, transaction_messageStruct.payloadtype
+    // SUBTRANSACTIONCMDPAYLOAD
     // reentrypoint 1
     // tableid, row
     // expects in return: rowid
@@ -130,12 +140,12 @@ void ApiInterface::insertRow(apifPtr re, int64_t recmd, void *reptr,
         return;
     }
 
-    // put unmake row here and print the fields, just to see if make/unmake are the problem
     vector<fieldValue_s> f;
     transactionPtr->currentCmdState.tablePtr->unmakerow(&msgref.row, &f);
     transactionPtr->currentCmdState.row = msgref.row;
     transactionPtr->sendTransaction(NEWROW, PAYLOADSUBTRANSACTION, 1,
-                                    transactionPtr->currentCmdState.rowEngineid, (void *)msg);
+                                    transactionPtr->currentCmdState.rowEngineid,
+                                    (void *)msg);
 }
 
 void ApiInterface::deleteRow(apifPtr re, int64_t recmd, void *reptr,
@@ -166,10 +176,13 @@ void ApiInterface::deleteRow(apifPtr re, int64_t recmd, void *reptr,
     // tableid,rowid,DELETEROW,SUBTRANSACTIONCMDPAYLOAD, returns status
     class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
     class MessageSubtransactionCmd &msgref = *msg;
-    msgref.subtransactionStruct.rowid = transactionPtr->currentCmdState.originaluur.rowid;
-    msgref.subtransactionStruct.tableid = transactionPtr->currentCmdState.originaluur.tableid;
+    msgref.subtransactionStruct.rowid =
+        transactionPtr->currentCmdState.originaluur.rowid;
+    msgref.subtransactionStruct.tableid =
+        transactionPtr->currentCmdState.originaluur.tableid;
     transactionPtr->sendTransaction(DELETEROW, PAYLOADSUBTRANSACTION, 1,
-                                    transactionPtr->currentCmdState.originaluur.engineid, (void *)msg);
+                                    transactionPtr->currentCmdState.originaluur.engineid,
+                                    (void *)msg);
 }
 
 void ApiInterface::replaceRow(apifPtr re, int64_t recmd, void *reptr)
@@ -270,11 +283,13 @@ void ApiInterface::revert(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uu
 
 // for isnull and isnotnull and selectall only
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op)
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op)
 {
     setReEntry(re, recmd, reptr);
 
-    if ((op != OPERATOR_ISNULL) && (op != OPERATOR_ISNOTNULL) && (op != OPERATOR_SELECTALL))
+    if ((op != OPERATOR_ISNULL) && (op != OPERATOR_ISNOTNULL) &&
+        (op != OPERATOR_SELECTALL))
     {
         transactionPtr->reenter(APISTATUS_NOTOK);
         return;
@@ -287,7 +302,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 
 // eq,neq,gt,lt,gte,lte,regex
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               int64_t input)
 {
     setReEntry(re, recmd, reptr);
@@ -300,7 +316,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               uint64_t input)
 {
     setReEntry(re, recmd, reptr);
@@ -313,7 +330,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               bool input)
 {
     setReEntry(re, recmd, reptr);
@@ -326,7 +344,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               long double input)
 {
     setReEntry(re, recmd, reptr);
@@ -339,7 +358,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               char input)
 {
     setReEntry(re, recmd, reptr);
@@ -352,7 +372,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               string *input)
 {
     setReEntry(re, recmd, reptr);
@@ -375,7 +396,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 
 // in
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<int64_t> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -397,7 +419,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<uint64_t> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -419,7 +442,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<bool> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -441,7 +465,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<long double> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -463,7 +488,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<char> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -485,7 +511,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               vector<string> *input)
 {
     setReEntry(re, recmd, reptr);
@@ -508,7 +535,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 
 // between
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               int64_t lower, int64_t upper)
 {
     setReEntry(re, recmd, reptr);
@@ -524,8 +552,9 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op, uint64_t lower,
-                              uint64_t upper)
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
+                              uint64_t lower, uint64_t upper)
 {
     setReEntry(re, recmd, reptr);
     searchParams_s searchParameters = {};
@@ -539,9 +568,11 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
     transactionPtr->select(tableid, fieldid, locktype, &searchParameters);
 }
 
+// between bools makes no sense, but whatever
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
-                              bool lower, bool upper)   // between bools makes no sense, but whatever
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
+                              bool lower, bool upper)
 {
     setReEntry(re, recmd, reptr);
     searchParams_s searchParameters = {};
@@ -556,7 +587,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               long double lower, long double upper)
 {
     setReEntry(re, recmd, reptr);
@@ -572,7 +604,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               char lower, char upper)
 {
     setReEntry(re, recmd, reptr);
@@ -588,7 +621,8 @@ void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
 }
 
 void ApiInterface::selectRows(apifPtr re, int64_t recmd, void *reptr,
-                              int64_t tableid, int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                              int64_t tableid, int64_t fieldid,
+                              locktype_e locktype, operatortypes_e op,
                               string *lower, string *upper)
 {
     setReEntry(re, recmd, reptr);
@@ -725,7 +759,7 @@ void ApiInterface::setReEntry(apifPtr re, int64_t recmd, void *reptr)
     transactionPtr->reentryState = reptr;
 }
 
-void ApiInterface::addFieldToRow(void)
+void ApiInterface::addFieldToRow()
 {
     transactionPtr->addFieldToRow();
 }

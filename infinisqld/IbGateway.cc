@@ -17,8 +17,18 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   IbGateway.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:18:43 2013
+ * 
+ * @brief  Inbound Gateway actor. Counterpart to ObGateway.Receives messages
+ * over the network from remote senders and distributes them to their
+ * destination actors on the current node.
+ */
+
 #include "IbGateway.h"
-#line 22 "IbGateway.cc"
+#line 32 "IbGateway.cc"
 
 #define EPOLLEVENTS 1024
 
@@ -33,7 +43,8 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
     size_t found = myIdentity.argstring.find(':');
     string node = myIdentity.argstring.substr(0, found);
     string service = myIdentity.argstring.substr(found+1,
-                                                 myIdentity.argstring.size()-(found+1));
+                                                 myIdentity.argstring.size()-
+                                                 (found+1));
 
     struct addrinfo hints = {};
     hints.ai_family = AF_INET;
@@ -69,7 +80,8 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
 
         if (sockfd == -1)
         {
-            fprintf(logfile, "%s %i socket errno %i\n", __FILE__, __LINE__, errno);
+            fprintf(logfile, "%s %i socket errno %i\n", __FILE__, __LINE__,
+                    errno);
             continue;
         }
 
@@ -156,17 +168,20 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
                 }
                 else if (event & POLLIN)
                 {
-                    int newfd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+                    int newfd = accept(sockfd, (struct sockaddr *)&their_addr,
+                                       &sin_size);
 
                     if (newfd == -1)
                     {
-                        printf("%s %i accept errno %i\n", __FILE__, __LINE__, errno);
+                        printf("%s %i accept errno %i\n", __FILE__, __LINE__,
+                               errno);
                         continue;
                     }
-                    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &so_rcvbuf, optlen)==-1)
+                    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &so_rcvbuf,
+                                   optlen)==-1)
                     {
-                        fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__, __LINE__,
-                                errno);
+                        fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__,
+                                __LINE__, errno);
                         continue;
                     }
                     fcntl(newfd, F_SETFL, O_NONBLOCK);
@@ -184,7 +199,8 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
             {
                 close(fds[n].fd);
                 fdremoveset.insert(fds[n].fd);
-                fprintf(logfile, "%s %i instance %li n %lu\n", __FILE__, __LINE__, myIdentity.instance, n);
+                fprintf(logfile, "%s %i instance %li n %lu\n", __FILE__,
+                        __LINE__, myIdentity.instance, n);
                 continue;
             }
             else if (event & POLLIN)
@@ -206,11 +222,13 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
                                 size_t pos=0;
                                 while (pos < strRef.size())
                                 {
-                                    if (sizeof(size_t)>(size_t)(strRef.size()-pos))
+                                    if (sizeof(size_t)>(size_t)(strRef.size()-
+                                                                pos))
                                     { // can't even read size of message group
                                         break;
                                     }
-                                    size_t packagesize=*(size_t *)(strRef.c_str()+pos);
+                                    size_t packagesize=*(size_t *)(strRef.c_str()+
+                                                                   pos);
                                     if (packagesize > strRef.size()-pos)
                                     { // can't read next message group entirely
                                         break;
@@ -269,7 +287,8 @@ IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
                             }
                             if (pos<(size_t)readed)
                             { // background the remainder
-                                pendingReads[readfd].assign(inbuf+pos, readed-pos);
+                                pendingReads[readfd].assign(inbuf+pos,
+                                                            readed-pos);
                             }
                         }
                     }
@@ -393,7 +412,8 @@ void IbGateway::removefds()
     fds = newfds;
     nfds -= fdremoveset.size();
     fdremoveset.clear();
-    fprintf(logfile, "%s %i instance %li removefds nfds %lu\n", __FILE__, __LINE__, myIdentity.instance, nfds);
+    fprintf(logfile, "%s %i instance %li removefds nfds %lu\n", __FILE__,
+            __LINE__, myIdentity.instance, nfds);
 }
 
 // launcher, regular function

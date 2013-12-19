@@ -20,18 +20,14 @@
 #ifndef INFINISQLDEFS_H
 #define INFINISQLDEFS_H
 
-/*
-#define APISTATUS_OK 0
-#define APISTATUS_NOTOK 1
-#define APISTATUS_NULLCONSTRAINT 2
-#define APISTATUS_PENDING 3
-#define APISTATUS_FIELD 4
-#define APISTATUS_STATE 5
-#define APISTATUS_UNIQUECONSTRAINT 6
-#define APISTATUS_FOUND 7
-#define APISTATUS_DEADLOCK 8
-#define APISTATUS_LOCK 9
-*/
+/**
+ * @file   defs.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 12:47:30 2013
+ * 
+ * @brief  Global struct & enum types, global function declarations,
+ * global symbols in general.
+ */
 
 // statuses builtins
 #define BUILTIN_STATUS_OK 0
@@ -185,45 +181,6 @@ enum __attribute__ ((__packed__)) operationtype_e
         OPERATION_LOGIN
         };
 
-/*
-enum __attribute__ ((__packed__)) operatortypes_e
-{
-    OPERATOR_NONE = 0,
-        OPERATOR_CONCATENATION = 1,
-        OPERATOR_ADDITION = 2,
-        OPERATOR_SUBTRACTION = 3,
-        OPERATOR_MULTIPLICATION = 4,
-        OPERATOR_DIVISION = 5,
-        OPERATOR_NEGATION = 7,
-        OPERATOR_AND = 8,
-        OPERATOR_OR = 9,
-        OPERATOR_NOT = 10,
-        OPERATOR_TRUE = 11,
-        OPERATOR_FALSE = 12,
-        OPERATOR_UNKNOWN = 13,
-        OPERATOR_EQ = 14,
-        OPERATOR_NE = 15,
-        OPERATOR_LT = 16,
-        OPERATOR_GT = 17,
-        OPERATOR_LTE = 18,
-        OPERATOR_GTE = 19,
-        OPERATOR_BETWEEN = 20,
-        OPERATOR_ISNULL = 21,
-        OPERATOR_IN = 22,
-        OPERATOR_LIKE = 23,
-        OPERATOR_EXISTS = 24,
-        OPERATOR_UNIQUE = 25,
-        OPERATOR_BETWEENAND = 26,
-        OPERATOR_NOTBETWEEN = 27,
-        OPERATOR_ISNOTNULL = 28,
-        OPERATOR_NOTIN = 29,
-        OPERATOR_NOTLIKE = 30,
-        OPERATOR_REGEX = 31,
-        OPERATOR_SELECTALL = 32,
-        OPERATOR_NULL = 33
-        };
-*/
-
 #define OPERAND_STRING  'a'
 #define OPERAND_IDENTIFIER  'b'
 #define OPERAND_PARAMETER   'c'
@@ -273,42 +230,10 @@ using msgpack::sbuffer;
 using boost::lexical_cast;
 
 // enums
-/*
-enum __attribute__ ((__packed__)) fieldtype_e
-{
-    NOFIELDTYPE = -1,
-    INT = 0,
-    UINT = 1,
-    BOOL = 2,
-    FLOAT = 3,
-    CHAR = 4,
-    CHARX = 5,
-    VARCHAR = 6
-};
-*/
-
 enum enginecmds_e
 {
     enginecmdnewrow
 };
-
-/*
-enum __attribute__ ((__packed__)) locktype_e
-{
-    NOTFOUNDLOCK = -1,
-        NOLOCK = 0,
-        READLOCK,
-        WRITELOCK,
-        PENDINGLOCK,
-        INDEXLOCK,
-        INDEXPENDINGLOCK,
-        PENDINGTOWRITELOCK,
-        PENDINGTOREADLOCK,
-        PENDINGTONOLOCK,
-        PENDINGTOINDEXLOCK,
-        PENDINGTOINDEXNOLOCK
-        };
-*/
 
 enum __attribute__ ((__packed__)) pendingprimitive_e
 {
@@ -331,22 +256,6 @@ enum __attribute__ ((__packed__)) pendingprimitive_e
         PRIMITIVE_SQLUPDATE,
         PRIMITIVE_SQLREPLACE
         };
-
-/*
-enum cmd_e
-{
-    CMD_NONE = 0,
-    CMD_SELECT,
-    CMD_INSERT,
-    CMD_UPDATE,
-    CMD_DELETE,
-    CMD_BEGIN,
-    CMD_COMMIT,
-    CMD_ROLLBACK,
-    CMD_SET,
-    CMD_STOREDPROCEDURE
-};
-*/
 
 enum enginecmd_e
 {
@@ -380,14 +289,6 @@ extern std::string zmqsocket;
 extern void *zmqcontext;
 extern std::string storedprocprefix;
 
-/*
-typedef struct
-{
-    fieldtype_e type;
-    std::string name;
-} fieldtypename_s;
-*/
-
 typedef struct
 {
     uint64_t instance;
@@ -397,7 +298,7 @@ typedef struct
 
 typedef struct __attribute__ ((__packed__))
 {
-    void *procedurecreator; //typedef ApiInterface*(*spclasscreate)(void);
+    void *procedurecreator; //typedef ApiInterface*(*spclasscreate)();
     void *proceduredestroyer; //typedef void(*spclassdestroy)(ApiInterface*);
 } procedures_s;
 
@@ -407,36 +308,6 @@ typedef struct
     boost::unordered_set<std::string> waiting;
 } newDeadLockLists_s;
 
-/*
-typedef struct
-{
-    int64_t rowid;
-    int64_t previoussubtransactionid;
-    locktype_e locktype;
-    std::string row;
-} returnRow_s;
-*/
-
-  /*
-typedef union __attribute__ ((__packed__)) fieldInput_u
-{
-    int64_t integer;
-    uint64_t uinteger;
-    bool boolean;
-    long double floating;
-    char character;
-} fieldInput_s;
-  */
-
-/*
-typedef struct
-{
-    fieldInput_s value;
-    std::string str;
-    bool isnull;
-} fieldValue_s;
-*/
-
 typedef struct
 {
     bool isrow;
@@ -444,9 +315,9 @@ typedef struct
     int64_t rowid; // used both for row's rowid, and index value
     int16_t fieldid;
     int16_t engineid; // used with rowid for index value if
-    bool deleteindexentry; // true = add, false = remove, for delete unique entry,
+    bool deleteindexentry; // true=add, false=remove, for delete unique entry,
     // add/delete nonunique, add/delete null
-    bool isnotaddunique; //simple flag for index entries that don't get pre-staged
+    bool isnotaddunique; //simple flag for index entries that don't get prestaged
     bool isreplace;
     int64_t newrowid;
     int16_t newengineid;
@@ -495,23 +366,6 @@ typedef struct
     std::string service;
     int epollfd;
 } listenerStruct_s;
-
-/*
-typedef struct
-{
-    int64_t resultCode;
-    msgpack::sbuffer *sbuf;
-} procedureResponse_s;
-*/
-
-/*
-typedef struct
-{
-    int64_t rowid;
-    int64_t tableid;
-    int64_t engineid;
-} uuRecord_s;
-*/
 
 typedef struct
 {
@@ -579,29 +433,30 @@ extern pthread_mutex_t connectionsMutex;
 extern std::vector<class MboxProducer *> socketAffinity;
 extern std::vector<listenertype_e> listenerTypes;
 
-void msgpack2Vector(vector<string> *, char *, int64_t);
-
-char setdeleteflag(char *);
-bool getdeleteflag(char);
-char cleardeleteflag(char *);
-char setinsertflag(char *);
-bool getinsertflag(char);
-char clearinsertflag(char *);
-bool getlockedflag(char);
-char clearlockedflag(char *);
-locktype_e getlocktype(char);
+void msgpack2Vector(vector<string> *resultvector, char *payload,
+                    int64_t length);
+char setdeleteflag(char *c);
+bool getdeleteflag(char c);
+char cleardeleteflag(char *c);
+char setinsertflag(char *c);
+bool getinsertflag(char c);
+char clearinsertflag(char *c);
+char clearlockedflag(char *c);
+locktype_e getlocktype(char c);
 // return false if a problem
-bool setwritelock(char *);
-bool setreadlock(char *);
-char setreplacedeleteflag(char *);
-bool getreplacedeleteflag(char);
-char clearreplacedeleteflag(char *);
+bool setwritelock(char *c);
+bool setreadlock(char *c);
+char setreplacedeleteflag(char c*);
+bool getreplacedeleteflag(char c);
+char clearreplacedeleteflag(char *c);
 // end of flags stuff
 
-int16_t getPartitionid(fieldValue_s &, fieldtype_e, int16_t);
-void like2Regex(string &);
-bool compareFields(fieldtype_e, const fieldValue_s &, const fieldValue_s &);
-void stagedRow2ReturnRow(const stagedRow_s &, returnRow_s &);
+int16_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
+                       int16_t numpartitions);
+void like2Regex(string &likeStr);
+bool compareFields(fieldtype_e type, const fieldValue_s &val1,
+                   const fieldValue_s &val2);
+void stagedRow2ReturnRow(const stagedRow_s &stagedRow, returnRow_s &returnRow);
 void setprio();
 
 #endif // INFINISQLDEFS_H

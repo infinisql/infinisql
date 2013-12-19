@@ -17,17 +17,27 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Pg.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:42:38 2013
+ * 
+ * @brief  Objects created for every SQL login and associated with a specific
+ * TransactionAgent. Takes incoming requests, has them processed and responds
+ * to client.
+ */
+
 #include "Pg.h"
 #include "pgoids.h"
 #include "TransactionAgent.h"
-#line 24 "Pg.cc"
+#line 34 "Pg.cc"
 
 /* implemented based on http://www.postgresql.org/docs/9.2/static/protocol.html */
 
-Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg) : state(STATE_BEGIN),
-                                                          sockfd(sockfdarg), pgcmdtype('\0'), size(0),
-                                                          outcmd('\0'), userid(-1), schemaPtr(NULL),
-                                                          session_isautocommit(true), isintransactionblock(false)
+Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg) :
+    state(STATE_BEGIN),
+    sockfd(sockfdarg), pgcmdtype('\0'), size(0), outcmd('\0'), userid(-1),
+    schemaPtr(NULL), session_isautocommit(true), isintransactionblock(false)
 {
     domainid=-1;
     taPtr = taPtrarg;
@@ -55,7 +65,8 @@ void Pg::cont()
 
     string newdata;
 
-    if ((msgrcvref.socketStruct.events & EPOLLERR) || (msgrcvref.socketStruct.events & EPOLLHUP))
+    if ((msgrcvref.socketStruct.events & EPOLLERR) ||
+        (msgrcvref.socketStruct.events & EPOLLHUP))
     {
         closesocket(*taPtr);
         return;
@@ -87,7 +98,8 @@ void Pg::cont()
     }
     else
     {
-        printf("%s %i anomaly events %u\n", __FILE__, __LINE__, msgrcvref.socketStruct.events);
+        printf("%s %i anomaly events %u\n", __FILE__, __LINE__,
+               msgrcvref.socketStruct.events);
         return;
     }
 
@@ -415,7 +427,8 @@ short Pg::initcmd(string &newdata)
             inbuf.clear();
         }
 
-        if (newdata.size() < (state==STATE_BEGIN ? sizeof(size) : sizeof(size)+1))
+        if (newdata.size() < (state==STATE_BEGIN ? sizeof(size) :
+                              sizeof(size)+1))
         {
             // wait for more data
             inbuf.append(newdata);
@@ -452,7 +465,8 @@ short Pg::initcmd(string &newdata)
     if (inbuf.size() + sizeof(size) < size)
     {
         // wait for more
-        fprintf(logfile, "%s %i sockfd %i pgcmdtype %c inbuf.size() %lu sizeof(size) %lu size %u state %i '%s'\n", __FILE__, __LINE__, sockfd, pgcmdtype, inbuf.size(), sizeof(size), size, state, inbuf.c_str());
+        fprintf(logfile, "%s %i sockfd %i pgcmdtype %c inbuf.size() %lu sizeof(size) %lu size %u state %i '%s'\n", __FILE__, __LINE__, sockfd, pgcmdtype,
+                inbuf.size(), sizeof(size), size, state, inbuf.c_str());
         return 0;
     }
 
@@ -747,7 +761,8 @@ short Pg::writesocket()
     while (curpos < outbuflen)
     {
         ssize_t sent = send(sockfd, &outbuf[curpos],
-                            (outbuflen-curpos) >= 8192 ? 8192 : outbuflen-curpos, 0);
+                            (outbuflen-curpos) >= 8192 ? 8192 :
+                            outbuflen-curpos, 0);
 
         if (sent == -1)
         {
@@ -758,7 +773,8 @@ short Pg::writesocket()
                 struct epoll_event epevent;
                 epevent.events = EPOLLOUT | EPOLLHUP | EPOLLET;
                 epevent.data.fd = sockfd;
-                epoll_ctl(taPtr->myIdentity.epollfd, EPOLL_CTL_MOD, sockfd, &epevent);
+                epoll_ctl(taPtr->myIdentity.epollfd, EPOLL_CTL_MOD, sockfd,
+                          &epevent);
                 return 1;
             }
 
@@ -879,7 +895,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
     {
         if (transactionPtr==NULL)
         {
-            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__, this);
+            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__,
+                    this);
             delete this;
             return;
         }
@@ -910,7 +927,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
             return;
         }
 
-        if (isintransactionblock==false && (session_isautocommit==true || command_autocommit==true))
+        if (isintransactionblock==false && (session_isautocommit==true ||
+                                            command_autocommit==true))
         {
             sqlcommitimplicit();
         }
@@ -936,7 +954,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
             return;
         }
 
-        if (isintransactionblock==false && (session_isautocommit==true || command_autocommit==true))
+        if (isintransactionblock==false && (session_isautocommit==true ||
+                                            command_autocommit==true))
         {
             sqlcommitimplicit();
         }
@@ -965,7 +984,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
             return;
         }
 
-        if (isintransactionblock==false && (session_isautocommit==true || command_autocommit==true))
+        if (isintransactionblock==false && (session_isautocommit==true ||
+                                            command_autocommit==true))
         {
             /*
               sqlrollbackimplicit();
@@ -999,7 +1019,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
             return;
         }
 
-        if (isintransactionblock==false && (session_isautocommit==true || command_autocommit==true))
+        if (isintransactionblock==false && (session_isautocommit==true ||
+                                            command_autocommit==true))
         {
             sqlcommitimplicit();
         }
@@ -1097,7 +1118,8 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
             return;
         }
 
-        if (isintransactionblock==false && (session_isautocommit==true || command_autocommit==true))
+        if (isintransactionblock==false && (session_isautocommit==true ||
+                                            command_autocommit==true))
         {
             sqlcommitimplicit();
         }
@@ -1359,7 +1381,8 @@ void Pg::putDataRows()
                 std::stringstream val;
                 val << (double)fieldValues[n].value.floating;
 
-                if ((double)fieldValues[n].value.floating / (int64_t)fieldValues[n].value.floating == 1)
+                if ((double)fieldValues[n].value.floating /
+                    (int64_t)fieldValues[n].value.floating == 1)
                 {
                     val << ".0";
                 }
@@ -1414,7 +1437,8 @@ void Pg::continuePgCommitimplicit(int64_t entrypoint, void *statePtr)
     {
         if (statementPtr==NULL)
         {
-            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__, this);
+            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__,
+                    this);
             delete this;
         }
 
@@ -1441,7 +1465,8 @@ void Pg::continuePgCommitexplicit(int64_t entrypoint, void *statePtr)
     {
         if (statementPtr==NULL)
         {
-            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__, this);
+            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__,
+                    this);
             delete this;
         }
 
@@ -1470,7 +1495,8 @@ void Pg::continuePgRollbackimplicit(int64_t entrypoint, void *statePtr)
     {
         if (statementPtr==NULL)
         {
-            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__, this);
+            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__,
+                    this);
             delete this;
         }
 
@@ -1490,7 +1516,8 @@ void Pg::continuePgRollbackexplicit(int64_t entrypoint, void *statePtr)
     {
         if (statementPtr==NULL)
         {
-            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__, this);
+            fprintf(logfile, "%s %i deleting this %p\n", __FILE__, __LINE__,
+                    this);
             delete this;
         }
 

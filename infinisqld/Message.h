@@ -17,6 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Message.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:34:17 2013
+ * 
+ * @brief  Message objects of varying types. Each type eventually inherits
+ * from the Message base class. Each type serves a different role in
+ * inter-actor communication.
+ */
+
 #ifndef INFINISQLMESSAGE_H
 #define INFINISQLMESSAGE_H
 
@@ -81,16 +91,15 @@ public:
     virtual ~Message();
     size_t size();
     std::string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
-    static class Message *des(string *);
+    static class Message *des(string *serstr);
     string *sermsg();
-    void setEnvelope(const Topology::addressStruct &,
-                     const Topology::addressStruct &, class Message &);
+    void setEnvelope(const Topology::addressStruct &source,
+                     const Topology::addressStruct &dest, class Message &msg);
 
     __int128 nextmsg;
-  
     message_s messageStruct;
 };
 
@@ -104,12 +113,14 @@ public:
         listenertype_e listenertype;
     };
     MessageSocket();
-    MessageSocket(int, uint32_t, listenertype_e, int64_t, topic_e);
+    MessageSocket(int socketarg, uint32_t eventsarg,
+                  listenertype_e listenertype, int64_t nodeidarg,
+                  topic_e topicarg);
     virtual ~MessageSocket();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     socket_s socketStruct;
@@ -142,12 +153,12 @@ public:
         fieldtype_e fieldtype;
     };
     MessageUserSchema();
-    MessageUserSchema(topic_e);
+    MessageUserSchema(topic_e topicarg);
     virtual ~MessageUserSchema();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     userschema_s userschemaStruct;
@@ -174,8 +185,8 @@ public:
     virtual ~MessageDeadlock();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     deadlock_s deadlockStruct;
@@ -202,8 +213,8 @@ public:
     virtual ~MessageTransaction();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     transaction_s transactionStruct;
@@ -228,8 +239,8 @@ public:
     virtual ~MessageSubtransactionCmd();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     subtransaction_s subtransactionStruct;
@@ -249,8 +260,8 @@ public:
     virtual ~MessageCommitRollback();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     std::vector<rowOrField_s> rofs;
@@ -279,8 +290,8 @@ public:
     virtual ~MessageDispatch();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     dispatch_s dispatchStruct;
@@ -301,12 +312,12 @@ public:
     };
   
     MessageAckDispatch();
-    MessageAckDispatch(int64_t, int);
+    MessageAckDispatch(int64_t transactionidarg, int statusarg);
     virtual ~MessageAckDispatch();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
     ackdispatch_s ackdispatchStruct;
@@ -333,17 +344,18 @@ public:
     };
 
     MessageApply();
-    MessageApply(int64_t, int64_t, int64_t);
+    MessageApply(int64_t subtransactionidarg, int64_t applieridarg,
+                 int64_t domainidarg);
     virtual ~MessageApply();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
-    static void setisaddflag(char *);
-    static char getisaddflag(char);
-    static void cleariaddflag(char *);
+    static void setisaddflag(char *c);
+    static char getisaddflag(char c);
+    static void cleariaddflag(char *c);
 
     apply_s applyStruct;
   
@@ -362,17 +374,15 @@ public:
         int status;
     };
     MessageAckApply();
-    MessageAckApply(int64_t, int64_t, int64_t, int);
+    MessageAckApply(int64_t subtransactionidarg, int64_t applieridarg,
+                    int64_t partitionidarg, int statusarg);
     virtual ~MessageAckApply();
     size_t size();
     string *ser();
-    void package(class SerializedMessage &);
-    void unpack(SerializedMessage &);
+    void package(class SerializedMessage &serobj);
+    void unpack(SerializedMessage &serobj);
     void clear();
 
-    void serialize(msgpack::packer<msgpack::sbuffer> &);
-    void deserialize(msgpack::unpacker &, class Message &);
-  
     ackapply_s ackapplyStruct;
 };
 
@@ -396,9 +406,9 @@ class SerializedMessage
 {
 public:
     // source sender
-    SerializedMessage(size_t);
+    SerializedMessage(size_t sizearg);
     // ibgw sender
-    SerializedMessage(string *);
+    SerializedMessage(string *dataarg);
     virtual ~SerializedMessage();
   
     size_t size;
@@ -407,123 +417,126 @@ public:
   
     payloadtype_e getpayloadtype();
     // raw
-    void ser(size_t, void *);
-    void des(size_t, void *);
+    void ser(size_t s, void *dataptr);
+    void des(size_t s, void *dataptr);
     // pods
-    void ser(int64_t);
-    static size_t sersize(int64_t);
-    void des(int64_t *);
-    void ser(int32_t);
-    static size_t sersize(int32_t);
-    void des(int32_t *);
-    void ser(int16_t);
-    static size_t sersize(int16_t);
-    void des(int16_t *);
-    void ser(int8_t);
-    static size_t sersize(int8_t);
-    void des(int8_t *);
+    void ser(int64_t d);
+    static size_t sersize(int64_t d);
+    void des(int64_t *d);
+    void ser(int32_t d);
+    static size_t sersize(int32_t d);
+    void des(int32_t *d);
+    void ser(int16_t d);
+    static size_t sersize(int16_t d);
+    void des(int16_t *d);
+    void ser(int8_t d);
+    static size_t sersize(int8_t d);
+    void des(int8_t *d);
     // containers
-    void ser(const string &);
-    static size_t sersize(const string &);
-    void des(string &);
-    void ser(vector<int64_t> &);
-    static size_t sersize(vector<int64_t> &);
-    void des(vector<int64_t> &);
-    void ser(boost::unordered_map<int64_t, int64_t> &);
-    static size_t sersize(boost::unordered_map<int64_t, int64_t> &);
-    void des(boost::unordered_map<int64_t, int64_t> &);
+    void ser(const string &d);
+    static size_t sersize(const string &d);
+    void des(string &d);
+    void ser(vector<int64_t> &d);
+    static size_t sersize(vector<int64_t> &d);
+    void des(vector<int64_t> &d);
+    void ser(boost::unordered_map<int64_t, int64_t> &d);
+    static size_t sersize(boost::unordered_map<int64_t, int64_t> &d);
+    void des(boost::unordered_map<int64_t, int64_t> &d);
     // pod structs
-    void ser(Message::message_s &);
-    static size_t sersize(Message::message_s &);
-    void des(Message::message_s &);
-    void ser(MessageSocket::socket_s &);
-    static size_t sersize(MessageSocket::socket_s &);
-    void des(MessageSocket::socket_s &);
-    void ser(MessageUserSchema::userschema_s &);
-    static size_t sersize(MessageUserSchema::userschema_s &);
-    void des(MessageUserSchema::userschema_s &);
-    void ser(procedures_s &);
-    static size_t sersize(procedures_s &);
-    void des(procedures_s &);
-    void ser(MessageDeadlock::deadlock_s &);
-    static size_t sersize(MessageDeadlock::deadlock_s &);
-    void des(MessageDeadlock::deadlock_s &);
-    void ser(MessageTransaction::transaction_s &);
-    static size_t sersize(MessageTransaction::transaction_s &);
-    void des(MessageTransaction::transaction_s &);
-    void ser(MessageSubtransactionCmd::subtransaction_s &);
-    static size_t sersize(MessageSubtransactionCmd::subtransaction_s &);
-    void des(MessageSubtransactionCmd::subtransaction_s &);
-    void ser(nonLockingIndexEntry_s &);
-    static size_t sersize(nonLockingIndexEntry_s &);
-    void des(nonLockingIndexEntry_s &);
-    void ser(MessageDispatch::dispatch_s &);
-    static size_t sersize(MessageDispatch::dispatch_s &);
-    void des(MessageDispatch::dispatch_s &);
-    void ser(MessageAckDispatch::ackdispatch_s &);
-    static size_t sersize(MessageAckDispatch::ackdispatch_s &);
-    void des(MessageAckDispatch::ackdispatch_s &);
-    void ser(MessageApply::apply_s &);
-    static size_t sersize(MessageApply::apply_s &);
-    void des(MessageApply::apply_s &);
-    void ser(MessageAckApply::ackapply_s &);
-    static size_t sersize(MessageAckApply::ackapply_s &);
-    void des(MessageAckApply::ackapply_s &);
+    void ser(Message::message_s &d);
+    static size_t sersize(Message::message_s &d);
+    void des(Message::message_s &d);
+    void ser(MessageSocket::socket_s &d);
+    static size_t sersize(MessageSocket::socket_s &d);
+    void des(MessageSocket::socket_s &d);
+    void ser(MessageUserSchema::userschema_s &d);
+    static size_t sersize(MessageUserSchema::userschema_s &d);
+    void des(MessageUserSchema::userschema_s &d);
+    void ser(procedures_s &d);
+    static size_t sersize(procedures_s &d);
+    void des(procedures_s &d);
+    void ser(MessageDeadlock::deadlock_s &d);
+    static size_t sersize(MessageDeadlock::deadlock_s &d);
+    void des(MessageDeadlock::deadlock_s &d);
+    void ser(MessageTransaction::transaction_s &d);
+    static size_t sersize(MessageTransaction::transaction_s &d);
+    void des(MessageTransaction::transaction_s &d);
+    void ser(MessageSubtransactionCmd::subtransaction_s &d);
+    static size_t sersize(MessageSubtransactionCmd::subtransaction_s &d);
+    void des(MessageSubtransactionCmd::subtransaction_s &d);
+    void ser(nonLockingIndexEntry_s &d);
+    static size_t sersize(nonLockingIndexEntry_s &d);
+    void des(nonLockingIndexEntry_s &d);
+    void ser(MessageDispatch::dispatch_s &d);
+    static size_t sersize(MessageDispatch::dispatch_s &d);
+    void des(MessageDispatch::dispatch_s &d);
+    void ser(MessageAckDispatch::ackdispatch_s &d);
+    static size_t sersize(MessageAckDispatch::ackdispatch_s &d);
+    void des(MessageAckDispatch::ackdispatch_s &d);
+    void ser(MessageApply::apply_s &d);
+    static size_t sersize(MessageApply::apply_s &d);
+    void des(MessageApply::apply_s &d);
+    void ser(MessageAckApply::ackapply_s &d);
+    static size_t sersize(MessageAckApply::ackapply_s &d);
+    void des(MessageAckApply::ackapply_s &d);
     // level 1
-    void ser(boost::unordered_set<string> &);
-    static size_t sersize(boost::unordered_set<string> &);
-    void des(boost::unordered_set<string> &);
-    void ser(fieldValue_s &);
-    static size_t sersize(fieldValue_s &);
-    void des(fieldValue_s &);
-    void ser(returnRow_s &);
-    static size_t sersize(returnRow_s &);
-    void des(returnRow_s &);
-    void ser(MessageDispatch::record_s &);
-    static size_t sersize(MessageDispatch::record_s &);
-    void des(MessageDispatch::record_s &);
-    void ser(vector<nonLockingIndexEntry_s> &);
-    static size_t sersize(vector<nonLockingIndexEntry_s> &);
-    void des(vector<nonLockingIndexEntry_s> &);
+    void ser(boost::unordered_set<string> &d);
+    static size_t sersize(boost::unordered_set<string> &d);
+    void des(boost::unordered_set<string> &d);
+    void ser(fieldValue_s &d);
+    static size_t sersize(fieldValue_s &d);
+    void des(fieldValue_s &d);
+    void ser(returnRow_s &d);
+    static size_t sersize(returnRow_s &d);
+    void des(returnRow_s &d);
+    void ser(MessageDispatch::record_s &d);
+    static size_t sersize(MessageDispatch::record_s &d);
+    void des(MessageDispatch::record_s &d);
+    void ser(vector<nonLockingIndexEntry_s> &d);
+    static size_t sersize(vector<nonLockingIndexEntry_s> &d);
+    void des(vector<nonLockingIndexEntry_s> &d);
     // level 2
-    void ser(newDeadLockLists_s &);
-    static size_t sersize(newDeadLockLists_s &);
-    void des(newDeadLockLists_s &);
-    void ser(vector<fieldValue_s> &);
-    static size_t sersize(vector<fieldValue_s> &);
-    void des(vector<fieldValue_s> &);
-    void ser(vector<returnRow_s> &);
-    static size_t sersize(vector<returnRow_s> &);
-    void des(vector<returnRow_s> &);
-    void ser(vector<MessageDispatch::record_s> &);
-    static size_t sersize(vector<MessageDispatch::record_s> &);
-    void des(vector<MessageDispatch::record_s> &);
-    void ser(rowOrField_s &);
-    static size_t sersize(rowOrField_s &);
-    void des(rowOrField_s &);
-    void ser(MessageApply::applyindex_s &);
-    static size_t sersize(MessageApply::applyindex_s &);
-    void des(MessageApply::applyindex_s &);
+    void ser(newDeadLockLists_s &d);
+    static size_t sersize(newDeadLockLists_s &d);
+    void des(newDeadLockLists_s &d);
+    void ser(vector<fieldValue_s> &d);
+    static size_t sersize(vector<fieldValue_s> &d);
+    void des(vector<fieldValue_s> &d);
+    void ser(vector<returnRow_s> &d);
+    static size_t sersize(vector<returnRow_s> &d);
+    void des(vector<returnRow_s> &d);
+    void ser(vector<MessageDispatch::record_s> &d);
+    static size_t sersize(vector<MessageDispatch::record_s> &d);
+    void des(vector<MessageDispatch::record_s> &d);
+    void ser(rowOrField_s &d);
+    static size_t sersize(rowOrField_s &d);
+    void des(rowOrField_s &d);
+    void ser(MessageApply::applyindex_s &d);
+    static size_t sersize(MessageApply::applyindex_s &d);
+    void des(MessageApply::applyindex_s &d);
     // level 3
-    void ser(searchParams_s &);
-    static size_t sersize(searchParams_s &);
-    void des(searchParams_s &);
-    void ser(vector<rowOrField_s> &);
-    static size_t sersize(vector<rowOrField_s> &);
-    void des(vector<rowOrField_s> &);
-    void ser(vector<MessageApply::applyindex_s> &);
-    static size_t sersize(vector<MessageApply::applyindex_s> &);
-    void des(vector<MessageApply::applyindex_s> &);
-    void ser(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d);
-    static size_t sersize(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d);
-    void des(boost::unordered_map< int64_t, vector<MessageDispatch::record_s> > &d);
+    void ser(searchParams_s &d);
+    static size_t sersize(searchParams_s &d);
+    void des(searchParams_s &d);
+    void ser(vector<rowOrField_s> &d);
+    static size_t sersize(vector<rowOrField_s> &d);
+    void des(vector<rowOrField_s> &d);
+    void ser(vector<MessageApply::applyindex_s> &d);
+    static size_t sersize(vector<MessageApply::applyindex_s> &d);
+    void des(vector<MessageApply::applyindex_s> &d);
+    void ser(boost::unordered_map< int64_t,
+             vector<MessageDispatch::record_s> > &d);
+    static size_t sersize(boost::unordered_map< int64_t,
+                          vector<MessageDispatch::record_s> > &d);
+    void des(boost::unordered_map< int64_t,
+             vector<MessageDispatch::record_s> > &d);
 };
 
 // this is a Message* which contains a serialized Message* as payload
 class MessageSerialized : public Message
 {
 public:
-    MessageSerialized(string *);
+    MessageSerialized(string *dataarg);
     virtual ~MessageSerialized();
   
     std::string *data;
@@ -538,7 +551,7 @@ public:
         std::string *serializedmsg;
     };
   
-    MessageBatchSerialized(int16_t);
+    MessageBatchSerialized(int16_t nodeidarg);
     virtual ~MessageBatchSerialized();
   
     short nmsgs;

@@ -17,6 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   infinisql.h
+ * @author  <infinisql@localhost.localdomain>
+ * @date   Tue Dec 17 13:22:49 2013
+ * 
+ * @brief  API for creating stored procedures. Pg objects also inherit from
+ * this class, because they perform the same types of transactional activities
+ * as a stored procedure.
+ */
+
 #ifndef INFINISQLAPI_H
 #define INFINISQLAPI_H
 
@@ -126,6 +136,12 @@ typedef struct
     std::string row;
 } returnRow_s;
 
+/** 
+ * @brief type of field
+ *
+ *
+ * @return 
+ */
 enum __attribute__ ((__packed__)) fieldtype_e
 {
     NOFIELDTYPE = -1,
@@ -173,6 +189,12 @@ class Field;
 class ApiInterface;
 typedef void(ApiInterface::*apifPtr)(int64_t, void *);
 
+/** 
+ * @brief Stored procedure API
+ *
+ * Stored procedure programming is described in detail in
+ * http://www.infinisql.org/docs/reference/
+ */
 class ApiInterface
 {
 public:
@@ -183,7 +205,8 @@ public:
         int64_t statementStatus;
         boost::unordered_map< uuRecord_s, returnRow_s > statementResults;
         std::vector<fieldtypename_s> selectFields;
-        boost::unordered_map< uuRecord_s, std::vector<fieldValue_s> > selectResults;
+        boost::unordered_map< uuRecord_s,
+                              std::vector<fieldValue_s> > selectResults;
     };
 
     ApiInterface()
@@ -195,100 +218,136 @@ public:
         ;
     }
 
-    virtual void doit(void) = 0;
-    virtual void continueFunc1(int64_t, void *) = 0;
-    virtual void continueFunc2(int64_t, void *) = 0;
-    virtual void continuePgFunc(int64_t, void *) = 0;
-    virtual void continuePgCommitimplicit(int64_t, void *) = 0;
-    virtual void continuePgCommitexplicit(int64_t, void *) = 0;
-    virtual void continuePgRollbackimplicit(int64_t, void *) = 0;
-    virtual void continuePgRollbackexplicit(int64_t, void *) = 0;
-    void deserialize2Vector(void);
-    void beginTransaction(void);
-    void destruct(void);
-    void bouncebackproxy(void);
-    void insertRow(apifPtr, int64_t, void *, int64_t);
-    void deleteRow(apifPtr, int64_t, void *, uuRecord_s &);
-    void replaceRow(apifPtr, int64_t, void *);
+    virtual void doit() = 0;
+    virtual void continueFunc1(int64_t entrypoint, void *statePtr) = 0;
+    virtual void continueFunc2(int64_t entrypoint, void *statePtr) = 0;
+    virtual void continuePgFunc(int64_t entrypoint, void *statePtr) = 0;
+    virtual void continuePgCommitimplicit(int64_t entrypoint,
+                                          void *statePtr) = 0;
+    virtual void continuePgCommitexplicit(int64_t entrypoint,
+                                          void *statePtr) = 0;
+    virtual void continuePgRollbackimplicit(int64_t entrypoint,
+                                            void *statePtr) = 0;
+    virtual void continuePgRollbackexplicit(int64_t entrypoint,
+                                            void *statePtr) = 0;
+    void deserialize2Vector();
+    void beginTransaction();
+    void destruct();
+    void bouncebackproxy();
+    void insertRow(apifPtr re, int64_t recmd, void *reptr, int64_t tableid);
+    void deleteRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
+    void replaceRow(apifPtr re, int64_t recmd, void *reptr);
     // isnull,isnotnull
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op);
     // eq,neq,gt,lt,gte,lte,regex
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, int64_t);
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, uint64_t);
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, bool);
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, long double);
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, char);
-    void selectRows(apifPtr, int64_t, void *, int64_t,
-                    int64_t, locktype_e, operatortypes_e, string *);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    t_int64 input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    uint64_t input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    bool input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    long double input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    char input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    string *input);
     // in
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<int64_t> *);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<uint64_t> *);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<bool> *);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<long double> *);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<char> *);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, vector<string> *);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    vector<int64_t> *input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    vector<uint64_t> *input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    vector<bool> *input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    vector<long double> *input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid,
+                    locktype_e locktype, operatortypes_e op,
+                    vector<char> *input);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    vector<string> *input);
     // between
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, int64_t, int64_t);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, uint64_t, uint64_t);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, bool, bool);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, long double, long double);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, char, char);
-    void selectRows(apifPtr, int64_t, void *, int64_t, int64_t,
-                    locktype_e, operatortypes_e, string *, string *);
-    void fetchRows(apifPtr, int64_t, void *);
-    void unlock(apifPtr, int64_t, void *, int64_t, int64_t, int64_t);
-    void rollback(apifPtr, int64_t, void *, uuRecord_s &);
-    void commit(apifPtr, int64_t, void *);
-    void rollback(apifPtr, int64_t, void *);
-    void revert(apifPtr, int64_t, void *, uuRecord_s &);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &); // calls a map of fields
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    int64_t lower, int64_t upper);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    uint64_t lower, uint64_t upper);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    bool lower, bool upper);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    long double lower, long double upper);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    char lower, char upper);
+    void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
+                    int64_t fieldid, locktype_e locktype, operatortypes_e op,
+                    string *lower, string *upper);
+    void fetchRows(apifPtr re, int64_t recmd, void *reptr);
+    void unlock(apifPtr re, int64_t recmd, void *reptr, int64_t rowid,
+                int64_t tableid, int64_t engineid);
+    void rollback(apifPtr re, int64_t recmd, void *reptr);
+    void rollback(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
+    void commit(apifPtr re, int64_t recmd, void *reptr);
+    void revert(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
+    // calls a map of fields:
+    void updateRow(apifPtr re, int64_t recmd, void  reptr*, uuRecord_s &uur);
     // sets the field to null:
-    void updateRowNullField(apifPtr, int64_t, void *, uuRecord_s &, int64_t);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, int64_t);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, uint64_t);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, bool);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, long double);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, char);
-    void updateRow(apifPtr, int64_t, void *, uuRecord_s &, int64_t, string);
-    bool unmakerow(int64_t, string *, vector<fieldValue_s> *);
-    void prepareResponseVector(int64_t);
+    void updateRowNullField(apifPtr re, int64_t recmd, void *reptr,
+                            uuRecord_s &uur, int64_t fieldid);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_t fieldid, int64_t input);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_t fieldid, uint64_t input);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_tfieldid, bool input);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_t fieldid, long double input);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_t fieldid, char input);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
+                   int64_t fieldid, string input);
+    bool unmakerow(int64_t tableid, string *rowstring,
+                   vector<fieldValue_s> *resultFields);
+    void prepareResponseVector(int64_t resultCode);
 
-    void addFieldToRow(void);
-    void addFieldToRow(int64_t);
-    void addFieldToRow(uint64_t);
-    void addFieldToRow(bool);
-    void addFieldToRow(long double);
-    void addFieldToRow(char);
-    void addFieldToRow(string &);
+    void addFieldToRow();
+    void addFieldToRow(int64_t val);
+    void addFieldToRow(uint64_t val);
+    void addFieldToRow(bool val);
+    void addFieldToRow(long double val);
+    void addFieldToRow(char val);
+    void addFieldToRow(string &val);
 
-    void setReEntry(apifPtr, int64_t, void *);
-    void sendResponse(int64_t, vector<std::string> *);
+    void setReEntry(apifPtr re, int64_t recmd, void *reptr);
+    void sendResponse(int64_t resultCode, vector<std::string> *v);
 
     class Statement *newStatement(char *);
-    bool execStatement(const char *, Statement *, apifPtr,
-                       int64_t, void *);
-    bool execStatement(const char *, vector<std::string> &, apifPtr, int64_t, void *);
+    bool execStatement(const char *stmtname, Statement *stmtPtr,
+                       apifPtr reentryfunction, int64_t reentrypoint,
+                       void *reentrydata);
+    bool execStatement(const char *, vector<std::string> &, apifPtr, int64_t,
+                       void *);
     int64_t getResultCode();
     void deleteTransaction();
     void deleteStatement();
-    void getStoredProcedureArgs(Statement *, std::vector<std::string> &);
+    void getStoredProcedureArgs(Statement *stmtPtr,
+                                std::vector<std::string> &argsRef);
 
     class TransactionAgent *taPtr;
     class ApiInterface *pgPtr;

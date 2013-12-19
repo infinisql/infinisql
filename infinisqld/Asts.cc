@@ -17,11 +17,20 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Asts.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:04:48 2013
+ * 
+ * @brief  Abstract Syntax Tree class and Statement class. A SQL statement
+ * turns into these in order to be executed.
+ */
+
 #include "gch.h"
 #include "Asts.h"
 #include "infinisql.h"
 #include "Transaction.h"
-#line 24 "Asts.cc"
+#line 34 "Asts.cc"
 
 Ast::Ast()
 {
@@ -44,9 +53,9 @@ Ast::Ast(class Ast *parentarg,
     }
 }
 
-Ast::Ast(class Ast *parentarg,
-         string &operandarg) : parent(parentarg),
-                               rightchild(NULL), leftchild(NULL), isoperator(false),
+Ast::Ast(class Ast *parentarg, string &operandarg) : parent(parentarg),
+                               rightchild(NULL), leftchild(NULL),
+                               isoperator(false),
                                operand(operandarg)
 {
 }
@@ -519,11 +528,13 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             }
 
             statementPtr->transactionPtr->sendTransaction(ROLLBACKCMD,
-                                                          PAYLOADCOMMITROLLBACK, 0, it2->first, msg);
+                                                          PAYLOADCOMMITROLLBACK,
+                                                          0, it2->first, msg);
         }
 
         isoperator=false;
-        printf("%s %i this %p deleting leftchild %p rightchild %p\n", __FILE__, __LINE__, this, leftchild, rightchild);
+        printf("%s %i this %p deleting leftchild %p rightchild %p\n", __FILE__,
+               __LINE__, this, leftchild, rightchild);
         delete leftchild;
         leftchild=NULL;
         delete rightchild;
@@ -588,8 +599,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         isoperator=false;
 
         if (statementPtr->stagedPredicate(operatortype,
-                                          statementPtr->currentQuery->tableid, leftchild->operand,
-                                          rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                          statementPtr->currentQuery->tableid,
+                                          leftchild->operand,
+                                          rightchild->operand,
+                                          statementPtr->currentQuery->results.inValues,
                                           statementPtr->transactionPtr->stagedRows,
                                           predicateResults)==false)
         {
@@ -601,7 +614,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             {
                 statementPtr->andPredicate(operatortype,
                                            statementPtr->currentQuery->tableid,
-                                           leftchild->operand, rightchild->operand,
+                                           leftchild->operand,
+                                           rightchild->operand,
                                            statementPtr->currentQuery->results.inValues,
                                            parent->leftchild->predicateResults, predicateResults);
                 delete leftchild;
@@ -611,10 +625,15 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             }
             else
             {
-                statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                           statementPtr->currentQuery->tableid, leftchild->operand,
-                                                           rightchild->operand, statementPtr->currentQuery->locktype,
-                                                           statementPtr->currentQuery->results.inValues, this, predicateResults);
+                statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                           operatortype,
+                                                           statementPtr->currentQuery->tableid,
+                                                           leftchild->operand,
+                                                           rightchild->operand,
+                                                           statementPtr->currentQuery->locktype,
+                                                           statementPtr->currentQuery->results.inValues,
+                                                           this,
+                                                           predicateResults);
                 *nextAstNode = NULL;
                 delete leftchild;
                 leftchild=NULL;
@@ -635,8 +654,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_NE:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -660,10 +681,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -676,8 +701,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_LT:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -701,10 +728,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -717,8 +748,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_GT:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -734,7 +767,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                                        statementPtr->currentQuery->tableid,
                                        leftchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete leftchild;
             leftchild=NULL;
             delete rightchild;
@@ -742,10 +776,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -758,8 +796,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_LTE:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -783,10 +823,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -799,8 +843,9 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_GTE:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand, rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -824,10 +869,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -840,8 +889,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_BETWEEN:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -857,7 +908,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                                        statementPtr->currentQuery->tableid,
                                        leftchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete leftchild;
             leftchild=NULL;
             delete rightchild;
@@ -865,10 +917,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -881,8 +937,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_NOTBETWEEN:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -898,7 +956,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                                        statementPtr->currentQuery->tableid,
                                        leftchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete leftchild;
             leftchild=NULL;
             delete rightchild;
@@ -906,10 +965,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -922,8 +985,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_ISNULL: // unary operator
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -945,10 +1010,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, rightchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       rightchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete rightchild;
             rightchild=NULL;
@@ -959,8 +1028,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_ISNOTNULL: // unary operator
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -982,10 +1053,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, rightchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       rightchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete rightchild;
             rightchild=NULL;
@@ -996,8 +1071,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_IN: // unary operator
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -1016,7 +1093,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             fieldtype_e fieldtype = statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type;
 
             for (size_t n=0;
-                 n < statementPtr->currentQuery->inobject.expressionlist.size(); n++)
+                 n < statementPtr->currentQuery->inobject.expressionlist.size();
+                 n++)
             {
                 fieldValue_s fieldValue = {};
                 class Ast &astRef =
@@ -1070,7 +1148,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                         break;
 
                     default:
-                        printf("%s %i anomaly %i\n", __FILE__, __LINE__, fieldtype);
+                        printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                               fieldtype);
                     }
                 }
 
@@ -1091,16 +1170,21 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                                        statementPtr->currentQuery->tableid,
                                        rightchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete rightchild;
             rightchild=NULL;
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, rightchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       rightchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete rightchild;
             rightchild=NULL;
@@ -1111,8 +1195,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_NOTIN: // unary operator
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -1132,7 +1218,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                 statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type;
 
             for (size_t n=0;
-                 n < statementPtr->currentQuery->inobject.expressionlist.size(); n++)
+                 n < statementPtr->currentQuery->inobject.expressionlist.size();
+                 n++)
             {
                 fieldValue_s fieldValue = {};
                 class Ast &astRef =
@@ -1167,10 +1254,6 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
                     case FLOAT:
                         toFloat(astRef.operand, fieldValue);
-                        /*
-                          memcpy(&fieldValue.value.floating, &astRef.operand[1],
-                          sizeof(long double));
-                        */
                         break;
 
                     case CHAR:
@@ -1186,7 +1269,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                         break;
 
                     default:
-                        printf("%s %i anomaly %i\n", __FILE__, __LINE__, fieldtype);
+                        printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                               fieldtype);
                     }
                 }
 
@@ -1197,26 +1281,27 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             statementPtr->currentQuery->inobject.expressionlist.clear();
         }
 
-        /*
-          if (parent != NULL && parent->operatortype==OPERATOR_AND &&
-          this==parent->rightchild)
-        */
         if (0) // revert this back when andPredicate is tested
         {
             statementPtr->andPredicate(operatortype,
                                        statementPtr->currentQuery->tableid,
                                        rightchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete rightchild;
             rightchild=NULL;
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, rightchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       rightchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete rightchild;
             rightchild=NULL;
@@ -1227,24 +1312,24 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_LIKE:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
         isoperator=false;
 
-        /*
-          if (parent != NULL && parent->operatortype==OPERATOR_AND &&
-          this==parent->rightchild)
-        */
         if (0) // revert this back when andPredicate is tested
         {
             statementPtr->andPredicate(operatortype,
                                        statementPtr->currentQuery->tableid,
-                                       leftchild->operand, rightchild->operand,
+                                       leftchild->operand,
+                                       rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete leftchild;
             leftchild=NULL;
             delete rightchild;
@@ -1253,10 +1338,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         else
         {
             string str=rightchild->operand.substr(1, string::npos);
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -1269,8 +1358,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
 
     case OPERATOR_NOTLIKE:
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -1286,7 +1377,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                                        statementPtr->currentQuery->tableid,
                                        leftchild->operand, rightchild->operand,
                                        statementPtr->currentQuery->results.inValues,
-                                       parent->leftchild->predicateResults, predicateResults);
+                                       parent->leftchild->predicateResults,
+                                       predicateResults);
             delete leftchild;
             leftchild=NULL;
             delete rightchild;
@@ -1294,10 +1386,14 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
         }
         else
         {
-            statementPtr->transactionPtr->sqlPredicate(statementPtr, operatortype,
-                                                       statementPtr->currentQuery->tableid, leftchild->operand,
-                                                       rightchild->operand, statementPtr->currentQuery->locktype,
-                                                       statementPtr->currentQuery->results.inValues, this, predicateResults);
+            statementPtr->transactionPtr->sqlPredicate(statementPtr,
+                                                       operatortype,
+                                                       statementPtr->currentQuery->tableid,
+                                                       leftchild->operand,
+                                                       rightchild->operand,
+                                                       statementPtr->currentQuery->locktype,
+                                                       statementPtr->currentQuery->results.inValues,
+                                                       this, predicateResults);
             *nextAstNode = NULL;
             delete leftchild;
             leftchild=NULL;
@@ -1312,8 +1408,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
     {
         // need to process subqueries first
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -1327,8 +1425,10 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
     {
         //need to process subqueries first
         statementPtr->stagedPredicate(operatortype,
-                                      statementPtr->currentQuery->tableid, leftchild->operand,
-                                      rightchild->operand, statementPtr->currentQuery->results.inValues,
+                                      statementPtr->currentQuery->tableid,
+                                      leftchild->operand,
+                                      rightchild->operand,
+                                      statementPtr->currentQuery->results.inValues,
                                       statementPtr->transactionPtr->stagedRows,
                                       predicateResults);
 
@@ -1386,7 +1486,8 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
                 return false;
             }
 
-            operand.resize(1+sizeof(size_t)+(leftchild->operand.size()-1)+(rightchild->operand.size()-1), (char)0);
+            operand.resize(1+sizeof(size_t)+(leftchild->operand.size()-1) +
+                           (rightchild->operand.size()-1), (char)0);
             operand[0] = OPERAND_STRING;
             size_t len = leftchild->operand.size()-1;
             memcpy(&operand[1], &len, sizeof(len));
@@ -1423,7 +1524,7 @@ void Ast::evaluateAssignment(vector<fieldValue_s> &fieldValues,
 {
     if (isoperator==false)
     {
-        normalizeSetAssignmentOperand(fieldValues, statementPtr);
+        normalizeAssignmentOperand(fieldValues, statementPtr);
         return;
     }
 
@@ -1475,7 +1576,6 @@ void Ast::evaluateAssignment(vector<fieldValue_s> &fieldValues,
                 return;
             }
 
-            //          printf("%s %i leftchild %li rightchild %li\n", __FILE__, __LINE__, )
             operand.resize(1+sizeof(int64_t), (char)0);
             operand[0] = OPERAND_INTEGER;
             int64_t val = *(int64_t *)(leftchild->operand.c_str()+1) +
@@ -1892,8 +1992,9 @@ Statement::Statement()
 }
 
 Statement::Statement(class TransactionAgent *taPtrarg,
-                     class Schema *schemaPtrarg) : taPtr(taPtrarg), schemaPtr(schemaPtrarg),
-                                                   transactionPtr(NULL), currentQuery(NULL)
+                     class Schema *schemaPtrarg) :
+    taPtr(taPtrarg), schemaPtr(schemaPtrarg), transactionPtr(NULL),
+    currentQuery(NULL)
 {
     reentry = reentry_s();
 }
@@ -2102,8 +2203,8 @@ bool Statement::resolveTableFields2()
 
                 if (fid==-1)
                 {
-                    printf("%s %i tableid field not found %li %s\n", __FILE__, __LINE__,
-                           currentQuery->tableid, fname.c_str());
+                    printf("%s %i tableid field not found %li %s\n", __FILE__,
+                           __LINE__, currentQuery->tableid, fname.c_str());
                     return false;
                 }
                 else
@@ -2122,8 +2223,8 @@ bool Statement::resolveTableFields2()
 
                 if (fid==-1)
                 {
-                    printf("%s %i tableid field not found %li %s\n", __FILE__, __LINE__,
-                           currentQuery->tableid, fname.c_str());
+                    printf("%s %i tableid field not found %li %s\n", __FILE__,
+                           __LINE__, currentQuery->tableid, fname.c_str());
                     return false;
                 }
                 else
@@ -2136,7 +2237,8 @@ bool Statement::resolveTableFields2()
             break;
 
             default:
-                printf("%s %i anomaly %c\n", __FILE__, __LINE__, fromColumnRef[0]);
+                printf("%s %i anomaly %c\n", __FILE__, __LINE__,
+                       fromColumnRef[0]);
                 return false;
             }
         }
@@ -2152,8 +2254,8 @@ bool Statement::resolveTableFields2()
 
             if (fid==-1)
             {
-                printf("%s %i tableid field not found %li %s\n", __FILE__, __LINE__,
-                       currentQuery->tableid, it->first.c_str());
+                printf("%s %i tableid field not found %li %s\n", __FILE__,
+                       __LINE__, currentQuery->tableid, it->first.c_str());
                 return false;
             }
             else
@@ -2186,7 +2288,8 @@ bool Statement::resolveFieldNames(class Ast *myPosition)
 
     while (1)
     {
-        if (myPosition->isoperator==false && myPosition->operand[0]==OPERAND_IDENTIFIER)
+        if (myPosition->isoperator==false &&
+            myPosition->operand[0]==OPERAND_IDENTIFIER)
         {
             // CONVERT
             string fname = myPosition->operand.substr(1, string::npos);
@@ -2194,8 +2297,8 @@ bool Statement::resolveFieldNames(class Ast *myPosition)
 
             if (fid==-1)
             {
-                printf("%s %i tableid field not found %li %s\n", __FILE__, __LINE__,
-                       currentQuery->tableid, fname.c_str());
+                printf("%s %i tableid field not found %li %s\n", __FILE__,
+                       __LINE__, currentQuery->tableid, fname.c_str());
                 return false;
             }
             else
@@ -2291,9 +2394,12 @@ int64_t Statement::getfieldid(int64_t tableid, const string &fieldName)
 }
 
 bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
-                                string &leftoperand, string &rightoperand, vector<fieldValue_s> &inValues,
-                                const boost::unordered_map<uuRecord_s, stagedRow_s> &stagedRows,
-                                boost::unordered_map<uuRecord_s, returnRow_s> &results)
+                                string &leftoperand, string &rightoperand,
+                                vector<fieldValue_s> &inValues,
+                                const boost::unordered_map<uuRecord_s,
+                                stagedRow_s> &stagedRows,
+                                boost::unordered_map<uuRecord_s,
+                                returnRow_s> &results)
 {
     bool equalhit=false;
 
@@ -2302,8 +2408,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
     {
         if (leftoperand[0] != OPERAND_FIELDID)
         {
-            printf("%s %i left operand is not fieldid, it is '%c'\n", __FILE__, __LINE__,
-                   leftoperand[0]);
+            printf("%s %i left operand is not fieldid, it is '%c'\n",
+                   __FILE__, __LINE__, leftoperand[0]);
             return equalhit;
         }
     }
@@ -2417,7 +2523,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 int64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 int64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.integer >= rhsval && lhs.value.integer <= rhsval2)
                 {
@@ -2431,7 +2538,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 int64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 int64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.integer < rhsval || lhs.value.integer > rhsval2)
                 {
@@ -2612,7 +2720,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 bool rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 bool rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.boolean >= rhsval && lhs.value.boolean <= rhsval2)
                 {
@@ -2626,7 +2735,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 bool rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 bool rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.boolean < rhsval || lhs.value.boolean > rhsval2)
                 {
@@ -2813,9 +2923,11 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 long double rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 long double rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
-                if (lhs.value.floating >= rhsval && lhs.value.floating <= rhsval2)
+                if (lhs.value.floating >= rhsval && lhs.value.floating <=
+                    rhsval2)
                 {
                     results[uurRef] = returnRow;
                 }
@@ -2827,7 +2939,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 long double rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 long double rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.floating < rhsval || lhs.value.floating > rhsval2)
                 {
@@ -3002,7 +3115,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 char rhsval=rightoperand[1+sizeof(int64_t)];
                 char rhsval2=rightoperand[1+sizeof(int64_t)+1];
 
-                if (lhs.value.character >= rhsval && lhs.value.character <= rhsval2)
+                if (lhs.value.character >= rhsval && lhs.value.character <=
+                    rhsval2)
                 {
                     results[uurRef] = returnRow;
                 }
@@ -3014,7 +3128,8 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                 char rhsval=rightoperand[1+sizeof(int64_t)];
                 char rhsval2=rightoperand[1+sizeof(int64_t)+1];
 
-                if (lhs.value.character < rhsval || lhs.value.character > rhsval2)
+                if (lhs.value.character < rhsval || lhs.value.character >
+                    rhsval2)
                 {
                     results[uurRef] = returnRow;
                 }
@@ -3358,14 +3473,17 @@ bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
 /* to be called for predicates ANDed with results of other predicates
  * this avoids traffic to engines */
 void Statement::andPredicate(operatortypes_e op, int64_t tableid,
-                             string &leftoperand, string &rightoperand, vector<fieldValue_s> &inValues,
-                             const boost::unordered_map<uuRecord_s, returnRow_s> &andResults,
-                             boost::unordered_map<uuRecord_s, returnRow_s> &results)
+                             string &leftoperand, string &rightoperand,
+                             vector<fieldValue_s> &inValues,
+                             const boost::unordered_map<uuRecord_s,
+                             returnRow_s> &andResults,
+                             boost::unordered_map<uuRecord_s,
+                             returnRow_s> &results)
 {
     if (leftoperand[0] != OPERAND_FIELDID)
     {
-        printf("%s %i left operand is not fieldid, it is %c\n", __FILE__, __LINE__,
-               leftoperand[0]);
+        printf("%s %i left operand is not fieldid, it is %c\n", __FILE__,
+               __LINE__, leftoperand[0]);
         return;
     }
 
@@ -3467,7 +3585,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 int64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 int64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.integer >= rhsval && lhs.value.integer <= rhsval2)
                 {
@@ -3481,7 +3600,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 int64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 int64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.integer < rhsval || lhs.value.integer > rhsval2)
                 {
@@ -3492,7 +3612,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a
+                 * vector of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -3504,7 +3625,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -3532,7 +3654,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -3658,9 +3781,11 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 uint64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 uint64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
-                if (lhs.value.uinteger >= rhsval && lhs.value.uinteger <= rhsval2)
+                if (lhs.value.uinteger >= rhsval && lhs.value.uinteger <=
+                    rhsval2)
                 {
                     results[uurRef] = returnRowRef;
                 }
@@ -3672,7 +3797,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 uint64_t rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 uint64_t rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.uinteger < rhsval || lhs.value.uinteger > rhsval2)
                 {
@@ -3683,7 +3809,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -3695,7 +3822,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -3723,7 +3851,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -3849,7 +3978,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 bool rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 bool rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.boolean >= rhsval && lhs.value.boolean <= rhsval2)
                 {
@@ -3863,7 +3993,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 bool rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 bool rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.boolean < rhsval || lhs.value.boolean > rhsval2)
                 {
@@ -3886,7 +4017,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -3914,7 +4046,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -4046,9 +4179,11 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 long double rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 long double rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
-                if (lhs.value.floating >= rhsval && lhs.value.floating <= rhsval2)
+                if (lhs.value.floating >= rhsval && lhs.value.floating <=
+                    rhsval2)
                 {
                     results[uurRef] = returnRowRef;
                 }
@@ -4060,7 +4195,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 long double rhsval;
                 memcpy(&rhsval, &rightoperand[1], sizeof(rhsval));
                 long double rhsval2;
-                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)], sizeof(rhsval2));
+                memcpy(&rhsval2, &rightoperand[1+sizeof(rhsval)],
+                       sizeof(rhsval2));
 
                 if (lhs.value.floating < rhsval || lhs.value.floating > rhsval2)
                 {
@@ -4071,7 +4207,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4083,7 +4220,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -4099,7 +4237,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_NOTIN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4111,7 +4250,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -4231,7 +4371,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 char rhsval=rightoperand[1+sizeof(int64_t)];
                 char rhsval2=rightoperand[1+sizeof(int64_t)+1];
 
-                if (lhs.value.character >= rhsval && lhs.value.character <= rhsval2)
+                if (lhs.value.character >= rhsval && lhs.value.character <=
+                    rhsval2)
                 {
                     results[uurRef] = returnRowRef;
                 }
@@ -4243,7 +4384,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 char rhsval=rightoperand[1+sizeof(int64_t)];
                 char rhsval2=rightoperand[1+sizeof(int64_t)+1];
 
-                if (lhs.value.character < rhsval || lhs.value.character > rhsval2)
+                if (lhs.value.character < rhsval || lhs.value.character >
+                    rhsval2)
                 {
                     results[uurRef] = returnRowRef;
                 }
@@ -4252,7 +4394,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4264,7 +4407,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -4280,7 +4424,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_NOTIN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4292,7 +4437,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -4365,7 +4511,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4377,7 +4524,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -4393,7 +4541,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_NOTIN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4405,7 +4554,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -4506,7 +4656,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_IN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4518,7 +4669,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
 
                     for (size_t n=0; inValues.size(); n++)
                     {
@@ -4534,7 +4686,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 
             case OPERATOR_NOTIN:
             {
-                // do after AST is walkable since inobject contains a vector of Ast *
+                /* do after AST is walkable since inobject contains a vector
+                 * of Ast */
                 int64_t fieldid;
                 memcpy(&fieldid, &rightoperand[1], sizeof(fieldid));
                 vector<fieldValue_s> fieldValues;
@@ -4546,7 +4699,8 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
                 {
                     const uuRecord_s &uurRef = it->first;
                     const returnRow_s &returnRowRef = it->second;
-                    tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
+                    tableRef.unmakerow((string *)&returnRowRef.row,
+                                       &fieldValues);
                     bool notin=true;
 
                     for (size_t n=0; inValues.size(); n++)
@@ -4629,9 +4783,10 @@ void Statement::andPredicate(operatortypes_e op, int64_t tableid,
 /* create new transaction if transactionPtrarg is NULL return transactionPtr
  * Pg will probably need to have another version of this function
  */
-void Statement::execute(class ApiInterface *reentryObject,
-                        apifPtr reentryfptr, int64_t reentrypoint, void *reentrydata,
-                        class Transaction *transactionPtrarg, const vector<string> &parametersarg)
+void Statement::execute(class ApiInterface *reentryObject, apifPtr reentryfptr,
+                        int64_t reentrypoint, void *reentrydata,
+                        class Transaction *transactionPtrarg,
+                        const vector<string> &parametersarg)
 {
     reentry.reentryObject=reentryObject;
     reentry.reentryfptr=reentryfptr;
@@ -4775,7 +4930,8 @@ void Statement::branchtotype()
             }
 
             transactionPtr->sqlSelectAll(this, currentQuery->tableid,
-                                         currentQuery->locktype, PRIMITIVE_SQLSELECTALL,
+                                         currentQuery->locktype,
+                                         PRIMITIVE_SQLSELECTALL,
                                          currentQuery->results.searchResults);
         }
         else
@@ -4894,12 +5050,14 @@ void Statement::branchtotype()
         transactionPtr->sqlcmdstate.statement=this;
         transactionPtr->sqlcmdstate.tableid = currentQuery->tableid;
 
-        class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
+        class MessageSubtransactionCmd *msg =
+            new class MessageSubtransactionCmd();
         class MessageSubtransactionCmd &msgref = *msg;
         msgref.subtransactionStruct.tableid = currentQuery->tableid;
         msgref.row = currentQuery->results.newrow;
         transactionPtr->sendTransaction(NEWROW, PAYLOADSUBTRANSACTION, 1,
-                                        currentQuery->results.newrowengineid, msg);
+                                        currentQuery->results.newrowengineid,
+                                        msg);
     }
     break;
 
@@ -4919,8 +5077,8 @@ void Statement::branchtotype()
                 currentQuery->results.searchResults[uurRef]=returnRow;
             }
 
-            transactionPtr->sqlSelectAll(this, currentQuery->tableid,
-                                         WRITELOCK, PRIMITIVE_SQLSELECTALLFORUPDATE,
+            transactionPtr->sqlSelectAll(this, currentQuery->tableid, WRITELOCK,
+                                         PRIMITIVE_SQLSELECTALLFORUPDATE,
                                          currentQuery->results.searchResults);
             return;
         }
@@ -4947,8 +5105,8 @@ void Statement::branchtotype()
                 currentQuery->results.searchResults[uurRef]=returnRow;
             }
 
-            transactionPtr->sqlSelectAll(this, currentQuery->tableid,
-                                         WRITELOCK, PRIMITIVE_SQLSELECTALLFORDELETE,
+            transactionPtr->sqlSelectAll(this, currentQuery->tableid, WRITELOCK,
+                                         PRIMITIVE_SQLSELECTALLFORDELETE,
                                          currentQuery->results.searchResults);
         }
         else
@@ -4964,13 +5122,17 @@ void Statement::branchtotype()
 
         if (taPtr->domainidsToProcedures.count(schemaPtr->domainid))
         {
-            domainProceduresMap &procsMapRef = taPtr->domainidsToProcedures[schemaPtr->domainid];
+            domainProceduresMap &procsMapRef =
+                taPtr->domainidsToProcedures[schemaPtr->domainid];
 
             if (procsMapRef.count(currentQuery->storedProcedure))
             {
-                procedures_s &proceduresRef = procsMapRef[currentQuery->storedProcedure];
-                spclasscreate spC = (spclasscreate)proceduresRef.procedurecreator;
-                spclasscreate spD = (spclasscreate)proceduresRef.proceduredestroyer;
+                procedures_s &proceduresRef =
+                    procsMapRef[currentQuery->storedProcedure];
+                spclasscreate spC =
+                    (spclasscreate)proceduresRef.procedurecreator;
+                spclasscreate spD =
+                    (spclasscreate)proceduresRef.proceduredestroyer;
                 // make sure to delete this statement in the procedure!
                 spC(NULL, reentry.reentryObject, (void *)spD);
             }
@@ -5089,7 +5251,8 @@ void Statement::continueDelete(int64_t entrypoint, class Ast *ignorethis)
         {
             const uuRecord_s &uurRef = it->first;
             const returnRow_s &returnRowRef = it->second;
-            class MessageSubtransactionCmd *msg = new class MessageSubtransactionCmd();
+            class MessageSubtransactionCmd *msg =
+                new class MessageSubtransactionCmd();
             msg->subtransactionStruct.tableid = uurRef.tableid;
             msg->subtransactionStruct.rowid = uurRef.rowid;
             msg->subtransactionStruct.engineid = uurRef.engineid;
@@ -5157,7 +5320,8 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
             currentQuery->results.searchResults.end())
         {
             vector<fieldValue_s> fieldValues;
-            const returnRow_s &returnRowRef=currentQuery->results.updateIterator->second;
+            const returnRow_s &returnRowRef=
+                currentQuery->results.updateIterator->second;
             tableRef.unmakerow((string *)&returnRowRef.row, &fieldValues);
 
             // do update stuff
@@ -5181,19 +5345,22 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                     switch (fieldRef.type)
                     {
                     case INT:
-                        memcpy(&fieldValue.value.integer, &it->second->operand[1],
+                        memcpy(&fieldValue.value.integer,
+                               &it->second->operand[1],
                                sizeof(int64_t));
                         break;
 
                     case UINT:
-                        memcpy(&fieldValue.value.uinteger, &it->second->operand[1],
+                        memcpy(&fieldValue.value.uinteger,
+                               &it->second->operand[1],
                                sizeof(int64_t));
                         break;
 
                     case BOOL:
                     {
                         int64_t boolval;
-                        memcpy(&boolval, &it->second->operand[1], sizeof(int64_t));
+                        memcpy(&boolval, &it->second->operand[1],
+                               sizeof(int64_t));
                         fieldValue.value.boolean = (bool)boolval;
                     }
                     break;
@@ -5207,11 +5374,13 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                         break;
 
                     case CHARX:
-                        fieldValue.str=it->second->operand.substr(1, string::npos);
+                        fieldValue.str=it->second->operand.substr(1,
+                                                                  string::npos);
                         break;
 
                     case VARCHAR:
-                        fieldValue.str=it->second->operand.substr(1, string::npos);
+                        fieldValue.str=it->second->operand.substr(1,
+                                                                  string::npos);
                         break;
 
                     default:
@@ -5224,7 +5393,8 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                 currentQuery->results.setFields[it->first]=fieldValue;
             }
 
-            const uuRecord_s &uurRef = currentQuery->results.updateIterator->first;
+            const uuRecord_s &uurRef=
+                currentQuery->results.updateIterator->first;
 
             if (!currentQuery->results.setFields.count(0))
             {
@@ -5246,8 +5416,9 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                         if (fieldRef.index.isunique==true)
                         {
                             lockFieldValue_s lockFieldValue = {};
-                            lockFieldValue.engineid = transactionPtr->getengine(fieldRef.type,
-                                                                                fieldValues[n]);
+                            lockFieldValue.engineid =
+                                transactionPtr->getengine(fieldRef.type,
+                                                          fieldValues[n]);
                             // locktype could potentially change
                             lockFieldValue.locktype = INDEXLOCK;
                             lockFieldValue.fieldVal = fieldValues[n];
@@ -5263,7 +5434,10 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                             msg->subtransactionStruct.fieldid = n;
                             msg->fieldVal = lockFieldValue.fieldVal;
                             transactionPtr->sendTransaction(UNIQUEINDEX,
-                                                            PAYLOADSUBTRANSACTION, 1,lockFieldValue.engineid, msg);
+                                                            PAYLOADSUBTRANSACTION,
+                                                            1,
+                                                            lockFieldValue.engineid,
+                                                            msg);
                         }
                     }
                 }
@@ -5286,8 +5460,8 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                 msg->subtransactionStruct.tableid = uurRef.tableid;
                 msg->subtransactionStruct.rowid = uurRef.rowid;
                 msg->row = stagedRow.newRow;
-                transactionPtr->sendTransaction(UPDATEROW, PAYLOADSUBTRANSACTION, 1,
-                                                uurRef.engineid, msg);
+                transactionPtr->sendTransaction(UPDATEROW, PAYLOADSUBTRANSACTION,
+                                                1, uurRef.engineid, msg);
             }
             else
             {
@@ -5315,8 +5489,9 @@ void Statement::continueUpdate(int64_t entrypoint, class Ast *ignorethis)
                 }
 
                 tableRef.makerow(&fieldValues, &stagedRowRef.newRow);
-                currentQuery->results.newrowengineid = transactionPtr->getengine(
-                    tableRef.fields[0].type, fieldValues[0]);
+                currentQuery->results.newrowengineid =
+                    transactionPtr->getengine(tableRef.fields[0].type,
+                                              fieldValues[0]);
                 stagedRowRef.newengineid=currentQuery->results.newrowengineid;
 
                 class MessageSubtransactionCmd *msg =
@@ -5461,7 +5636,8 @@ void Statement::subqueryScalar(class Ast *astnode)
 
     case 1:
     {
-        boost::unordered_map< uuRecord_s, vector<fieldValue_s> >::const_iterator it;
+        boost::unordered_map< uuRecord_s,
+                              vector<fieldValue_s> >::const_iterator it;
         it = selectResultsRef.begin();
         const vector<fieldValue_s> &fieldValuesRef = it->second;
 
@@ -5522,7 +5698,8 @@ void Statement::subqueryScalar(class Ast *astnode)
                 break;
 
             default:
-                printf("%s %i anomaly %i\n", __FILE__, __LINE__, schemaPtr->tables[queryRef.tableid]->fields[0].type);
+                printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                       schemaPtr->tables[queryRef.tableid]->fields[0].type);
             }
 
             return;

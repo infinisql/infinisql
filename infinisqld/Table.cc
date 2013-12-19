@@ -17,8 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Table.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:52:19 2013
+ * 
+ * @brief  Table class. Has Fields and Indices.
+ */
+
 #include "Table.h"
-#line 22 "Table.cc"
+#line 30 "Table.cc"
 
 Table::Table(int64_t idarg) : id(idarg)
 {
@@ -36,7 +44,7 @@ void Table::setname(string namearg)
     name = namearg;
 }
 
-string *Table::getname(void)
+string *Table::getname()
 {
     return &name;
 }
@@ -213,7 +221,8 @@ bool Table::makerow(vector<fieldValue_s> *fieldVal, string *res)
             // pad if necessary
             if (fieldValRef[n].str.length() < (size_t)fields[n].length)
             {
-                fieldValRef[n].str.append(fields[n].length-fieldValRef[n].str.length(), ' ');
+                fieldValRef[n].str.append(fields[n].length-
+                                          fieldValRef[n].str.length(), ' ');
             }
 
             fieldValRef[n].str.copy(&res->operator [](pos), fields[n].length, 0);
@@ -223,7 +232,8 @@ bool Table::makerow(vector<fieldValue_s> *fieldVal, string *res)
         case VARCHAR:
         {
             int64_t varcharlength = fieldValRef[n].str.length();
-            memcpy(&res->operator [](pos), &varcharlength, sizeof(varcharlength));
+            memcpy(&res->operator [](pos),
+                   &varcharlength, sizeof(varcharlength));
             pos += sizeof(varcharlength);
             memcpy(&res->operator [](pos), fieldValRef[n].str.c_str(),
                    varcharlength);
@@ -240,192 +250,10 @@ bool Table::makerow(vector<fieldValue_s> *fieldVal, string *res)
     return true;
 }
 
-// stage. return rowid. take command (insert|update|delete), subtransactionid,
-// row
-// delete probably
-/*
-  int64_t Table::stage(pendingprimitive_e cmd, int64_t subtransactionid,
-  string *row, int64_t rowid)
-  {
-  switch (cmd)
-  {
-  case INSERT:
-  {
-  rowdata_s &shadowRowRef = *(new shadowRow());
-  rowid = getnextrowid();
-  setinsertflag(&shadowRowRef.flags);
-  setwritelock(&shadowRowRef.flags);
-  shadowRowRef.writelockHolder = subtransactionid;
-  shadowRowRef.previoussubtransactionid = 0;
-  shadowRowRef.row = *row;
-  rows[rowid] = &shadowRowRef;
-  shadowTable->rows[rowid] = &shadowRowRef;
-  return rowid;
-  }
-  break;
-
-  case UPDATE:
-  {
-  rowdata_s &currentRowRef *rows[rowid];
-
-  if (getlocktype(currentRowRef.flags) != WRITELOCK)
-  {
-  return -1;
-  }
-
-  if (currentRowRef.writelockHolder != 0)
-  {
-  fprintf(logfile, "anomaly %li %s %i\n", currentRowRef.writelockHolder,
-  __FILE__, __LINE__);
-  return -2;
-  }
-
-  currentRow->writelockHolder = subtransactionid;
-  cleardeleteflag(&currentRow->flags);
-  rowdata_s shadowRow = {};
-  shadowRow.row = currentRow->row;
-  shadowTable->rows[rowid] = shadowRow;
-  return 0;
-  }
-  break;
-
-  case DELETE:
-  {
-  rowdata_s *currentRow;
-  currentRow = &rows[rowid];
-
-  if (getlocktype(currentRow->flags) != WRITELOCK)
-  {
-  return -1;
-  }
-
-  if (currentRow->writelockHolder != 0)
-  {
-  fprintf(logfile, "anomaly %li %s %i\n", currentRow->writelockHolder,
-  __FILE__, __LINE__);
-  return -2;
-  }
-
-  currentRow->writelockHolder = subtransactionid;
-  setdeleteflag(&currentRow->flags);
-  return 0;
-  }
-  break;
-
-  default:
-  fprintf(logfile, "anomaly: %i %s %i\n", cmd, __FILE__, __LINE__);
-  }
-
-  return -1;
-  }
-*/
-
-/*
-  void Table::commit(int64_t rowid, int64_t subtransactionid)
-  {
-  rowdata_s &currentRowRef = *rows[rowid];
-
-  if ((getlocktype(currentRowRef.flags) != WRITELOCK) ||
-  (currentRowRef.writelockHolder != subtransactionid))
-  {
-  fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
-  return; // bogus request
-  }
-
-  if (getdeleteflag(currentRowRef.flags)==true)
-  {
-  if (getreplacedeleteflag(currentRowRef.flags)==true)
-  {
-  forwarderMap.erase(rowid);
-  }
-
-  rows.erase(rowid);
-  shadowTable->rows.erase(rowid);
-  // drain lockQueue
-  return;
-  }
-
-  currentRowRef.flags = 0;
-  currentRowRef.writelockHolder = 0;
-
-  if (currentRowRef.readlockHolders != NULL)
-  {
-  delete currentRowRef.readlockHolders;
-  currentRowRef.readlockHolders = NULL;
-  }
-
-  // only change the row if changes have been made, this covers in case a locked
-  // row didn't get modified, but still part of a commit
-  if (shadowTable->rows.count(rowid))
-  {
-  currentRowRef.previoussubtransactionid = currentRowRef.writelockHolder;
-  currentRowRef.row = shadowTable->rows[rowid].row;
-  shadowTable->rows.erase(rowid);
-  }
-  }
-*/
-
-/*
-  void Table::rollback(int64_t rowid, int64_t subtransactionid)
-  {
-  rowdata_s &currentRowRef = rows[rowid];
-
-  if ((currentRowRef.writelockHolder != subtransactionid) ||
-  (getlocktype(currentRowRef.flags) != WRITELOCK))
-  {
-  fprintf(logfile, "anomaly: %s %i\n", __FILE__, __LINE__);
-  return; // bogus request
-  }
-
-  if (getinsertflag(currentRowRef.flags)==true)
-  {
-  rows.erase(rowid);
-  shadowTable->rows.erase(rowid);
-  // drain Q
-  return;
-  }
-
-  if (getdeleteflag(currentRowRef.flags)==true)
-  {
-  if (getreplacedeleteflag(currentRowRef.flags)==true)
-  {
-  clearreplacedeleteflag(&currentRowRef.flags);
-  forwarderMap.erase(rowid);
-  }
-
-  cleardeleteflag(&currentRowRef.flags);
-  shadowTable->rows.erase(rowid);
-  }
-
-  // this means that the change was an update, or series of updates to the same
-  // row
-  currentRowRef.flags = 0;
-  currentRowRef.writelockHolder = 0;
-
-  if (currentRowRef.readlockHolders != NULL)
-  {
-  delete currentRowRef.readlockHolders;
-  currentRowRef.readlockHolders = NULL;
-  }
-
-  shadowTable->rows.erase(rowid);
-  }
-*/
-
-/* this is not the cursor
-   OK, if the row is not locked:
-
-   * LOCK it based on locktype (or no lock) & return it
-
-   If it is read locked, lock for read, pending for write. return if nolock or
-   * readlock
-   *
-   If it is write locked, pending lock if lock requested. If not insert and no lock
-   *  requested, return row. If insert and no lock requested, skip.
-   */
 void Table::getrows(vector<int64_t> rowids, locktype_e locktype,
                     int64_t subtransactionid, int64_t pendingcmdid,
-                    vector<returnRow_s> *returnRows, vector<int64_t> *lockPendingRowids,
+                    vector<returnRow_s> *returnRows,
+                    vector<int64_t> *lockPendingRowids,
                     int64_t tacmdentrypoint)
 {
     if (locktype != NOLOCK)
@@ -470,14 +298,16 @@ void Table::getrows(vector<int64_t> rowids, locktype_e locktype,
                     setreadlock(&currentRowPtr->flags);
                     currentRowPtr->readlockHolders =
                         new boost::unordered_set<int64_t>;
-                    printf("%s %i ROWID %li READLOCKHOLDERS->insert %li\n", __FILE__, __LINE__, rid, subtransactionid);
+                    printf("%s %i ROWID %li READLOCKHOLDERS->insert %li\n",
+                           __FILE__, __LINE__, rid, subtransactionid);
                     currentRowPtr->readlockHolders->insert(subtransactionid);
                 }
                 break;
 
                 case READLOCK:
                 {
-                    printf("%s %i ROWID %li READLOCKHOLDERS->insert %li\n", __FILE__, __LINE__, rid, subtransactionid);
+                    printf("%s %i ROWID %li READLOCKHOLDERS->insert %li\n",
+                           __FILE__, __LINE__, rid, subtransactionid);
                     currentRowPtr->readlockHolders->insert(subtransactionid);
                     returnRow_s r = {};
                     r.rowid = rid;
@@ -502,7 +332,8 @@ void Table::getrows(vector<int64_t> rowids, locktype_e locktype,
 
                 default:
                     fprintf(logfile, "anomaly: %i %s %i\n",
-                            getlocktype(currentRowPtr->flags), __FILE__, __LINE__);
+                            getlocktype(currentRowPtr->flags), __FILE__,
+                            __LINE__);
                 }
             }
             break;
@@ -553,13 +384,15 @@ void Table::getrows(vector<int64_t> rowids, locktype_e locktype,
 
                 default:
                     fprintf(logfile, "anomaly: %i %s %i\n",
-                            getlocktype(currentRowPtr->flags), __FILE__, __LINE__);
+                            getlocktype(currentRowPtr->flags), __FILE__,
+                            __LINE__);
                 }
             }
             break;
 
             default:
-                fprintf(logfile, "anomaly: %i %s %i\n", locktype, __FILE__, __LINE__);
+                fprintf(logfile, "anomaly: %i %s %i\n", locktype, __FILE__,
+                        __LINE__);
             }
         }
     }
@@ -692,7 +525,8 @@ void Table::selectrows(vector<int64_t> *rowids, locktype_e locktype,
                 {
                 case NOLOCK: // lock it & return row
                     setreadlock(&rows[rowid]->flags);
-                    rows[rowid]->readlockHolders = new boost::unordered_set<int64_t>;
+                    rows[rowid]->readlockHolders =
+                        new boost::unordered_set<int64_t>;
                     rows[rowid]->readlockHolders->insert(subtransactionid);
                     workrow.row = rows[rowid]->row;
                     workrow.locktype = READLOCK;
@@ -720,7 +554,8 @@ void Table::selectrows(vector<int64_t> *rowids, locktype_e locktype,
                     }
 
                     if (assignToLockQueue(rowid, READLOCK, subtransactionid,
-                                          pendingcmdid, tacmdentrypoint)==NOTFOUNDLOCK)
+                                          pendingcmdid,
+                                          tacmdentrypoint)==NOTFOUNDLOCK)
                     {
                         continue;
                     }
@@ -766,7 +601,8 @@ void Table::selectrows(vector<int64_t> *rowids, locktype_e locktype,
 
                 case READLOCK: // pending
                     if (assignToLockQueue(rowid, WRITELOCK, subtransactionid,
-                                          pendingcmdid, tacmdentrypoint)==NOTFOUNDLOCK)
+                                          pendingcmdid,
+                                          tacmdentrypoint)==NOTFOUNDLOCK)
                     {
                         continue;
                     }
@@ -784,7 +620,8 @@ void Table::selectrows(vector<int64_t> *rowids, locktype_e locktype,
                     else
                     {
                         if (assignToLockQueue(rowid, WRITELOCK, subtransactionid,
-                                              pendingcmdid, tacmdentrypoint)==NOTFOUNDLOCK)
+                                              pendingcmdid,
+                                              tacmdentrypoint)==NOTFOUNDLOCK)
                         {
                             continue;
                         }
@@ -824,7 +661,8 @@ void Table::commitRollbackUnlock(int64_t rowid, int64_t subtransactionid,
         {
             if (!currentRowRef.readlockHolders->count(subtransactionid))
             {
-                printf("%s %i anomaly subtransactionid %li\n", __FILE__, __LINE__, subtransactionid);
+                printf("%s %i anomaly subtransactionid %li\n", __FILE__,
+                       __LINE__, subtransactionid);
                 return; // bogus request
             }
 
@@ -843,7 +681,9 @@ void Table::commitRollbackUnlock(int64_t rowid, int64_t subtransactionid,
         if ((getlocktype(currentRowRef.flags) != WRITELOCK) ||
             (currentRowRef.writelockHolder != subtransactionid))
         {
-            printf("%s %i anomaly flags %i subtransactionid %li writelockHolder %li rowid %li cmd %i flags %i\n", __FILE__, __LINE__, (int)currentRowRef.flags, subtransactionid, currentRowRef.writelockHolder, rowid, cmd, (int)currentRowRef.flags);
+            printf("%s %i anomaly flags %i subtransactionid %li writelockHolder %li rowid %li cmd %i flags %i\n", __FILE__, __LINE__, (int)currentRowRef.flags,
+                   subtransactionid, currentRowRef.writelockHolder, rowid, cmd,
+                   (int)currentRowRef.flags);
             return; // bogus request
         }
 
@@ -893,12 +733,10 @@ void Table::commitRollbackUnlock(int64_t rowid, int64_t subtransactionid,
 
             if (rows[rowid]==shadowTable->rows[rowid]) // insert
             {
-                //          printf("%s %i committing insert\n", __FILE__, __LINE__);
                 shadowTable->rows.erase(rowid);
             }
             else // update
             {
-                //          printf("%s %i committing update\n", __FILE__, __LINE__);
                 delete &currentRowRef;
                 rows[rowid]=&shadowRowRef;
                 shadowTable->rows.erase(rowid);
@@ -1136,7 +974,9 @@ bool Table::unmakerow(string *rowstring, vector<fieldValue_s> *resultFields)
             if (resultFieldsRef[n].str.size() < fields[n].length)
             {
                 // this should not be, but pad it anyway
-                printf("%s %i rowstring.size() %lu field %lu resultFieldsRef[n].str.size() %lu fields[n].length %lu\n", __FILE__, __LINE__, (unsigned long)rowstring->size(), (unsigned long)n, resultFieldsRef[n].str.size(), fields[n].length);
+                printf("%s %i rowstring.size() %lu field %lu resultFieldsRef[n].str.size() %lu fields[n].length %lu\n", __FILE__, __LINE__,
+                       (unsigned long)rowstring->size(), (unsigned long)n,
+                       resultFieldsRef[n].str.size(), fields[n].length);
                 resultFieldsRef[n].str.append(fields[n].length -
                                               resultFieldsRef[n].str.size(), 0);
             }
@@ -1163,7 +1003,7 @@ bool Table::unmakerow(string *rowstring, vector<fieldValue_s> *resultFields)
     return true;
 }
 
-int64_t Table::getnextrowid(void)
+int64_t Table::getnextrowid()
 {
     return ++nextrowid;
 }

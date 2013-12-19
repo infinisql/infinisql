@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Schema.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:46:55 2013
+ * 
+ * @brief  Schema class. Contains tables (fields (indices)). One schemata per
+ * domain. Corresponds to tablespace or database on other RDBMS platforms.
+ */
+
 #ifndef INFINISQLSCHEMA_H
 #define INFINISQLSCHEMA_H
 
@@ -37,8 +46,8 @@ public:
     friend class UserSchemaMgr;
 
     //private:
-    int64_t getnexttableid(void);
-    int createTable(int64_t);
+    int64_t getnexttableid();
+    int createTable(int64_t id);
 
     int64_t domainid;
     int64_t nexttableid;

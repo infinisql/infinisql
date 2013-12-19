@@ -17,8 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   DeadlockMgr.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:06:38 2013
+ * 
+ * @brief  Actor which resolves deadlocks.
+ */
+
 #include "DeadlockMgr.h"
-#line 22 "DeadlockMgr.cc"
+#line 30 "DeadlockMgr.cc"
 
 DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
     myIdentity(*myIdentityArg)
@@ -51,13 +59,15 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
             case TOPIC_DEADLOCKNEW:
             {
                 newDeadLockLists_s &listsRef = msgrcvref.nodes;
-                transactionLocksMap[msgrcvref.deadlockStruct.transactionid] = listsRef.locked;
-                transactionWaitsMap[msgrcvref.deadlockStruct.transactionid] = listsRef.waiting;
+                transactionLocksMap[msgrcvref.deadlockStruct.transactionid] =
+                    listsRef.locked;
+                transactionWaitsMap[msgrcvref.deadlockStruct.transactionid] =
+                    listsRef.waiting;
 
                 taCmd returninfo;
                 returninfo.addr = msgrcvref.messageStruct.sourceAddr;
-                //          returninfo.taid = msgrcvref.tainstance;
-                returninfo.pendingcmdid = msgrcvref.deadlockStruct.transaction_pendingcmdid;
+                returninfo.pendingcmdid =
+                    msgrcvref.deadlockStruct.transaction_pendingcmdid;
                 returnMap[msgrcvref.deadlockStruct.transactionid] = returninfo;
 
                 boost::unordered_set<string>::iterator it;
@@ -85,34 +95,25 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
                 case ADDLOCKEDENTRY:
                     if (transactionLocksMap.count(msgrcvref.deadlockStruct.transactionid))
                     {
-                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
-                            insert(changedeadlockRef);
-                        locksTransactionMap[changedeadlockRef].
-                            insert(msgrcvref.deadlockStruct.transactionid);
+                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].insert(changedeadlockRef);
+                        locksTransactionMap[changedeadlockRef].insert(msgrcvref.deadlockStruct.transactionid);
                     }
-
                     break;
 
                 case ADDLOCKPENDINGENTRY:
                     if (transactionWaitsMap.count(msgrcvref.deadlockStruct.transactionid))
                     {
-                        transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
-                            insert(changedeadlockRef);
-                        waitsTransactionMap[changedeadlockRef].
-                            insert(msgrcvref.deadlockStruct.transactionid);
+                        transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].insert(changedeadlockRef);
+                        waitsTransactionMap[changedeadlockRef].insert(msgrcvref.deadlockStruct.transactionid);
                     }
-
                     break;
 
                 case REMOVELOCKEDENTRY:
                     if (transactionLocksMap.count(msgrcvref.deadlockStruct.transactionid))
                     {
-                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
-                            erase(changedeadlockRef);
-                        locksTransactionMap[changedeadlockRef].
-                            erase(msgrcvref.deadlockStruct.transactionid);
+                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].erase(changedeadlockRef);
+                        locksTransactionMap[changedeadlockRef].erase(msgrcvref.deadlockStruct.transactionid);
                     }
-
                     break;
 
                 case REMOVELOCKPENDINGENTRY:
@@ -120,8 +121,7 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
                     {
                         transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
                             erase(changedeadlockRef);
-                        waitsTransactionMap[changedeadlockRef].
-                            erase(msgrcvref.deadlockStruct.transactionid);
+                        waitsTransactionMap[changedeadlockRef].erase(msgrcvref.deadlockStruct.transactionid);
                     }
 
                     break;
@@ -129,15 +129,11 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
                 case TRANSITIONPENDINGTOLOCKEDENTRY:
                     if (transactionWaitsMap.count(msgrcvref.deadlockStruct.transactionid))
                     {
-                        transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].
-                            erase(changedeadlockRef);
-                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].
-                            insert(changedeadlockRef);
+                        transactionWaitsMap[msgrcvref.deadlockStruct.transactionid].erase(changedeadlockRef);
+                        transactionLocksMap[msgrcvref.deadlockStruct.transactionid].insert(changedeadlockRef);
 
-                        waitsTransactionMap[changedeadlockRef].
-                            erase(msgrcvref.deadlockStruct.transactionid);
-                        locksTransactionMap[changedeadlockRef].
-                            insert(msgrcvref.deadlockStruct.transactionid);
+                        waitsTransactionMap[changedeadlockRef].erase(msgrcvref.deadlockStruct.transactionid);
+                        locksTransactionMap[changedeadlockRef].insert(msgrcvref.deadlockStruct.transactionid);
                     }
 
                     break;
@@ -168,7 +164,8 @@ DeadlockMgr::DeadlockMgr(Topology::partitionAddress *myIdentityArg) :
         // set the waitval to -1 so next msg_receive() will block indefinitely
         // algorithm searches for all existing deadlocks, so there's no
         // need to run it until the maps change
-        // also maybe swap maps with blank to shrink memory if the whole thing has been searched
+        // also maybe swap maps with blank to shrink memory if the whole
+        // thing has been searched
         algorithm();
         waitval = 1000;
     }
@@ -190,8 +187,10 @@ void *deadlockMgr(void *identity)
 }
 
 void DeadlockMgr::makeLockedItem(bool isrow, int64_t rowid, int64_t tableid,
-                                 int64_t engineid, int64_t domainid, int64_t fieldid,
-                                 long double floatentry, string *stringentry, string *returnstring)
+                                 int64_t engineid, int64_t domainid,
+                                 int64_t fieldid, long double floatentry,
+                                 std::string *stringentry,
+                                 std::string *returnstring)
 {
     string &returnstringRef = *returnstring;
     size_t strlength = stringentry->length();
@@ -232,7 +231,7 @@ void DeadlockMgr::makeLockedItem(bool isrow, int64_t rowid, int64_t tableid,
     memcpy(&returnstringRef[pos], stringentry->c_str(), strlength);
 }
 
-void DeadlockMgr::algorithm(void)
+void DeadlockMgr::algorithm()
 {
     bool deadlockflag = true;
 
@@ -241,7 +240,8 @@ void DeadlockMgr::algorithm(void)
     {
         deadlockflag = false;
 
-        boost::unordered_map< int64_t, boost::unordered_set<string> >::iterator it;
+        boost::unordered_map< int64_t,
+                              boost::unordered_set<string> >::iterator it;
 
         for (it = transactionWaitsMap.begin();
              it != transactionWaitsMap.end(); ++it)
@@ -272,7 +272,8 @@ void DeadlockMgr::deadlock(int64_t transactionid)
     //  msgsnd.data = msg;
     msgref.messageStruct.topic = TOPIC_DEADLOCKABORT;
     msgref.deadlockStruct.transactionid = transactionid;
-    msgref.deadlockStruct.transaction_pendingcmdid = returnMap[transactionid].pendingcmdid;
+    msgref.deadlockStruct.transaction_pendingcmdid =
+        returnMap[transactionid].pendingcmdid;
 
     mboxes.toActor(myIdentity.address, returnMap[transactionid].addr, *msg);
     removeTransaction(transactionid);

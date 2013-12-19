@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Operation.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:37:35 2013
+ * 
+ * @brief  Class for non-transactional, user and schema-related activities,
+ * such as login, createuser, createtable, and so on.
+ */
+
 #ifndef INFINISQLOPERATION_H
 #define INFINISQLOPERATION_H
 
@@ -35,16 +44,18 @@ typedef struct
 class Operation
 {
 public:
-    Operation(int, class TransactionAgent *, int64_t, int64_t);
+    Operation(int typearg, class TransactionAgent *taarg, int64_t uid,
+              int64_t did);
     virtual ~Operation();
 
     friend class TransactionAgent;
 
     //private:
-    void setbuiltincmd(int);
-    void setDomainName(string);
-    int64_t getid(void);
-    void handleOperation(class MessageUserSchema &);
+    void setbuiltincmd(int cmd);
+    void setDomainName(string name);
+    int64_t getid();
+    void handleOperation(class MessageUserSchema &msgrcvref);
+
     int type;
     class TransactionAgent *taPtr;
     int64_t operationid;

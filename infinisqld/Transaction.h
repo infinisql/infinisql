@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Transaction.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 14:05:05 2013
+ * 
+ * @brief  Class which performs transactions. Associated with the
+ * TransactionAgent which connected to the client that initiated the request.
+ */
+
 #ifndef INFINISQLTRANSACTION_H
 #define INFINISQLTRANSACTION_H
 
@@ -67,8 +76,8 @@ public:
         int64_t tableid;
         class Table *tablePtr;
         std::vector<indexInfo_s> indexEntries;
-        int64_t rowEngineid; // partition for the main field of the table where the
-        // row lives
+        int64_t rowEngineid; // partition for the main field of the table
+                             // where the row lives
         int64_t rowid;
         int64_t engineid; // for index value, not message destination!
         locktype_e locktype;
@@ -106,84 +115,92 @@ public:
         ABORTED
     };
 
-    Transaction(class TransactionAgent *, int64_t);
+    Transaction(class TransactionAgent *taPtrarg, int64_t domainidarg);
     virtual ~Transaction();
 
     // keep all/mostly public for stored procedures
     //private:
-    void zeroCurrentCmdState(void);
-    void processTransactionMessage(class Message *); // keep
-    int64_t getEngineid(class Table *, int64_t);
-    int64_t getEngineid(class Table *, int64_t, fieldValue_s *);
-    int64_t getEngineid(int64_t);
-    int64_t getEngineid(uint64_t);
-    int64_t getEngineid(bool);
-    int64_t getEngineid(long double);
-    int64_t getEngineid(char);
-    int64_t getEngineid(string *);
-    int64_t getengine(fieldtype_e, fieldValue_s &);
-    void dispatch(class Message *);
-    void dispatched(class Message *);
-    void checkLock(deadlockchange_e, bool, int64_t, int64_t, int64_t, int64_t,
-                   fieldValue_s *);
-    void badMessageHandler(void);
+    void zeroCurrentCmdState();
+    void processTransactionMessage(class Message *msgrcvarg);
+    int64_t getEngineid(class Table *tablePtr, int64_t fieldnum);
+    int64_t getEngineid(class Table *tablePtr, int64_t fieldid,
+                        fieldValue_s *val);
+    int64_t getEngineid(int64_t input);
+    int64_t getEngineid(uint64_t input);
+    int64_t getEngineid(bool input);
+    int64_t getEngineid(long double input);
+    int64_t getEngineid(char input);
+    int64_t getEngineid(string *input);
+    int64_t getengine(fieldtype_e fieldtype, fieldValue_s &fieldValue);
+    void dispatch(class Message *msgrcv);
+    void dispatched(class Message *msgrcv);
+    void checkLock(deadlockchange_e changetype, bool isrow, int64_t rowid,
+                   int64_t tableid, int64_t engineid, int64_t fieldid,
+                   fieldValue_s *fieldValue);
+    void badMessageHandler();
     // for ApiInterface::insert()
-    void addFieldToRow(void);
-    void addFieldToRow(int64_t);
-    void addFieldToRow(uint64_t);
-    void addFieldToRow(bool);
-    void addFieldToRow(long double);
-    void addFieldToRow(char);
-    void addFieldToRow(string &);
-    void reenter(void);
+    void addFieldToRow();
+    void addFieldToRow(int64_t val);
+    void addFieldToRow(uint64_t val);
+    void addFieldToRow(bool val);
+    void addFieldToRow(long double val);
+    void addFieldToRow(char val);
+    void addFieldToRow(string &val);
+    void reenter();
     // returns true if field passes null constraint check, false if fails
     // constraint check
-    bool checkNullConstraintOK(int64_t);
-    void makeFieldValue(fieldValue_s *, bool, int64_t);
-    void makeFieldValue(fieldValue_s *, bool, uint64_t);
-    void makeFieldValue(fieldValue_s *, bool, bool);
-    void makeFieldValue(fieldValue_s *, bool, long double);
-    void makeFieldValue(fieldValue_s *, bool, char);
-    void makeFieldValue(fieldValue_s *, bool, string);
-    void reenter(int64_t);
-    void reenter(int64_t, class Transaction *);
-    void replace(void);
-    void select(int64_t, int64_t, locktype_e, searchParams_s *);
-    void continueInsertRow(int64_t);
-    void continueUpdateRow(int64_t);
-    void continueDeleteRow(int64_t);
-    void continueReplaceRow(int64_t);
-    void continueSelectRows(int64_t);
-    void continueFetchRows(int64_t);
-    void continueUnlockRow(int64_t);
-    void continueCommitTransaction(int64_t);
-    void continueRollbackTransaction(int64_t);
+    bool checkNullConstraintOK(int64_t fieldnum);
+    void makeFieldValue(fieldValue_s *val, bool isnull, int64_t input);
+    void makeFieldValue(fieldValue_s *val, bool isnull, uint64_t input);
+    void makeFieldValue(fieldValue_s *val, bool isnull, bool input);
+    void makeFieldValue(fieldValue_s *val, bool isnull, long double input);
+    void makeFieldValue(fieldValue_s *val, bool isnull, char input);
+    void makeFieldValue(fieldValue_s *val, bool isnull, string input);
+    void reenter(int64_t res);
+    void replace();
+    void select(int64_t tableid, int64_t fieldid, locktype_e locktype,
+                searchParams_s *searchParameters);
+    void continueInsertRow(int64_t entrypoint);
+    void continueUpdateRow(int64_t entrypoint);
+    void continueDeleteRow(int64_t entrypoint);
+    void continueReplaceRow(int64_t entrypoint);
+    void continueSelectRows(int64_t entrypoint);
+    void continueFetchRows(int64_t entrypoint);
+    void continueUnlockRow(int64_t entrypoint);
+    void continueCommitTransaction(int64_t entrypoint);
+    void continueRollbackTransaction(int64_t entrypoint);
     void rollback();
-    void revertback(uuRecord_s &uur, enginecmd_e);
-    void abortCmd(int);
-    void sendTransaction(enginecmd_e, payloadtype_e, int64_t, int64_t , void *);
-    void deadlockAbort(class MessageDeadlock &);
-    void updateRow(void);
-    void rollback(uuRecord_s &);
-    void revert(uuRecord_s &);
-    void addRof(int64_t, rowOrField_s &,
-                boost::unordered_map< int64_t, class MessageCommitRollback *> &);
+    void revertback(uuRecord_s &uur, enginecmd_e cmd);
+    void abortCmd(int reentrystatus);
+    void sendTransaction(enginecmd_e enginecmd, payloadtype_e payloadtype,
+                         int64_t tacmdentrypoint, int64_t engineid , void *data);
+    void deadlockAbort(class MessageDeadlock &msgref);
+    void updateRow();
+    void rollback(uuRecord_s &uur);
+    void revert(uuRecord_s &uur);
+    void addRof(int64_t engineid, rowOrField_s rof&,
+                boost::unordered_map< int64_t,
+                class MessageCommitRollback *> &msgs);
     class MessageDispatch *makeMessageDispatch();
 
-    void sqlPredicate(class Statement *, operatortypes_e, int64_t, string &,
-                      string &, locktype_e, vector<fieldValue_s> &, void *,
-                      boost::unordered_map<uuRecord_s, returnRow_s> &);
-    void continueSqlPredicate(int64_t);
-    void sqlSelectAll(class Statement *, int64_t, locktype_e, pendingprimitive_e,
-                      boost::unordered_map<uuRecord_s, returnRow_s> &);
-    void continueSqlDelete(int64_t);
-    void continueSqlInsert(int64_t);
-    void continueSqlUpdate(int64_t);
-    void continueSqlReplace(int64_t);
-    void checkSqlLock(deadlockchange_e, bool, int64_t, int64_t, int64_t, int64_t,
-                      fieldValue_s *);
+    void sqlPredicate(class Statement *statement, operatortypes_e op,
+                      int64_t tableid, string &leftoperand,
+                      string &rightoperand, locktype_e locktype,
+                      vector<fieldValue_s> &inValues, void *continuationData,
+                      boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    void continueSqlPredicate(int64_t entrypoint);
+    void sqlSelectAll(class Statement *statement, int64_t tableid,
+                      locktype_e locktype, pendingprimitive_e pendingprimitive,
+                      boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    void continueSqlDelete(int64_t entrypoint);
+    void continueSqlInsert(int64_t entrypoint);
+    void continueSqlUpdate(int64_t entrypoint);
+    void continueSqlReplace(int64_t entrypoint);
+    void checkSqlLock(deadlockchange_e changetype, bool isrow, int64_t rowid,
+                      int64_t tableid, int64_t engineid, int64_t fieldid,
+                      fieldValue_s *fieldVal);
     void commit();
-    int64_t getnextpendingcmdid(void);
+    int64_t getnextpendingcmdid();
 
     //private:
     class TransactionAgent *taPtr;
@@ -223,7 +240,8 @@ public:
     // for update
     fieldValue_s mainFieldValue;
     fieldValue_s updateFieldValue;
-    // update rollback info: engineid,tableid,fieldid,entry (and subtransactionid)
+    // update rollback info: engineid,tableid,fieldid,entry (and
+    // subtransactionid)
     // for delete
     // to rollback: rowid,tableid,engineid (and subtransactionid)
     // for select, vector of [rowid,tableid,engineid]:

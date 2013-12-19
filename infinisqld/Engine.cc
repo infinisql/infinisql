@@ -17,8 +17,17 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Engine.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:08:19 2013
+ * 
+ * @brief  Engine actors store and manipulate data. Each engine interacts with
+ * a single partition, and vice versa.
+ */
+
 #include "Engine.h"
-#line 22 "Engine.cc"
+#line 31 "Engine.cc"
 
 Engine::Engine(Topology::partitionAddress *myIdentityArg) :
     myIdentity(*myIdentityArg)
@@ -107,7 +116,9 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
                 {
                     class SubTransaction &subTransactionidRef =
                         *(new class SubTransaction(msgrcvRef.messageStruct.sourceAddr,
-                                                   msgrcvRef.transactionStruct.transactionid, msgrcvRef.transactionStruct.domainid, this));
+                                                   msgrcvRef.transactionStruct.transactionid,
+                                                   msgrcvRef.transactionStruct.domainid,
+                                                   this));
                     subTransactionidRef.processTransactionMessage(msgrcv);
                 }
                 else if (SubTransactions.count(msgrcvRef.transactionStruct.subtransactionid))
@@ -161,14 +172,14 @@ void *engine(void *identity)
 
 /* builtins for schema, no need for args, since abort is a function of status,
  * either figure it out in the function itself or outside in the main loop */
-void Engine::createschema(void)
+void Engine::createschema()
 {
     createSchema(this);
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-void Engine::createtable(void)
+void Engine::createtable()
 {
     // should check if map is ok
     class MessageUserSchema &msgrcvRef = *(class MessageUserSchema *)msgrcv;
@@ -179,48 +190,46 @@ void Engine::createtable(void)
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-void Engine::addcolumn(void)
+void Engine::addcolumn()
 {
     class MessageUserSchema &msgrcvRef = *(class MessageUserSchema *)msgrcv;
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
     // either succeeds or fails :-)
     class Schema &schemaRef = *domainidsToSchemata[domainid];
     class Table &tableRef = *schemaRef.tables[msgrcvRef.userschemaStruct.tableid];
-    msg->userschemaStruct.fieldid = tableRef.addfield((fieldtype_e) msgrcvRef.userschemaStruct.fieldtype,
-                                                      msgrcvRef.userschemaStruct.fieldlen, "", (indextype_e) msgrcvRef.userschemaStruct.indextype);
+    msg->userschemaStruct.fieldid =
+        tableRef.addfield((fieldtype_e) msgrcvRef.userschemaStruct.fieldtype,
+                          msgrcvRef.userschemaStruct.fieldlen, "",
+                          (indextype_e) msgrcvRef.userschemaStruct.indextype);
     status = BUILTIN_STATUS_OK;
-    //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-void Engine::deleteindex(void)
+void Engine::deleteindex()
 {
     // either succeeds or fails :-)
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
     status = BUILTIN_STATUS_OK;
-    //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-void Engine::deletetable(void)
+void Engine::deletetable()
 {
     // either succeeds or fails :-)
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
     status = BUILTIN_STATUS_OK;
-    //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-void Engine::deleteschema(void)
+void Engine::deleteschema()
 {
     // either succeeds or fails :-)
     class MessageUserSchema *msg = new class MessageUserSchema(TOPIC_SCHEMAREPLY);
     status = BUILTIN_STATUS_OK;
-    //  replyTa(this, TOPIC_SCHEMAREPLY, msg);
     TransactionAgent::usmReply(this, msgrcv->messageStruct.sourceAddr, *msg);
 }
 
-int64_t Engine::getnextsubtransactionid(void)
+int64_t Engine::getnextsubtransactionid()
 {
     return ++nextsubtransactionid;
 }
@@ -248,8 +257,8 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
     {
         if (tableRef.rows.count(record.rowid))
         {
-            printf("%s %i anomaly should not be an existing rowid %li\n", __FILE__,
-                   __LINE__, record.rowid);
+            printf("%s %i anomaly should not be an existing rowid %li\n",
+                   __FILE__, __LINE__, record.rowid);
             return false;
         }
 
@@ -358,8 +367,10 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
             if (MessageApply::getisaddflag(indexinfo.flags)==true)
             {
                 // is unique not null add
-                if (indexRef.addifnotthere(indexinfo.fieldVal, indexinfo.entry.rowid,
-                                           indexinfo.entry.engineid, subtransactionid)==false)
+                if (indexRef.addifnotthere(indexinfo.fieldVal,
+                                           indexinfo.entry.rowid,
+                                           indexinfo.entry.engineid,
+                                           subtransactionid)==false)
                 {
                     if (indexRef.getprevioussubtransactionid(indexinfo.fieldVal) >
                         subtransactionid)
@@ -373,7 +384,8 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                 // is unique not null delete
                 if (indexRef.checkifthere(indexinfo.fieldVal)==true)
                 {
-                    if (indexRef.checkifmatch(indexinfo.fieldVal, indexinfo.entry.rowid,
+                    if (indexRef.checkifmatch(indexinfo.fieldVal,
+                                              indexinfo.entry.rowid,
                                               indexinfo.entry.engineid)==true)
                     {
                         indexRef.rm(indexinfo.fieldVal);
@@ -504,10 +516,12 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                 case nonuniqueint:
                 {
                     pair<multimap<int64_t, nonLockingIndexEntry_s>::iterator,
-                         multimap<int64_t, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<int64_t, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueIntMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueIntIndex->equal_range(indexinfo.fieldVal.value.integer);
+                    iteratorRange =
+                        indexRef.nonuniqueIntIndex->equal_range(indexinfo.fieldVal.value.integer);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -519,17 +533,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniqueuint:
                 {
                     pair<multimap<uint64_t, nonLockingIndexEntry_s>::iterator,
-                         multimap<uint64_t, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<uint64_t, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueUintMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueUintIndex->equal_range(indexinfo.fieldVal.value.uinteger);
+                    iteratorRange =
+                        indexRef.nonuniqueUintIndex->equal_range(indexinfo.fieldVal.value.uinteger);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -541,17 +557,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniquebool:
                 {
                     pair<multimap<bool, nonLockingIndexEntry_s>::iterator,
-                         multimap<bool, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<bool, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueBoolMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueBoolIndex->equal_range(indexinfo.fieldVal.value.boolean);
+                    iteratorRange =
+                        indexRef.nonuniqueBoolIndex->equal_range(indexinfo.fieldVal.value.boolean);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -563,17 +581,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniquefloat:
                 {
                     pair<multimap<long double, nonLockingIndexEntry_s>::iterator,
-                         multimap<long double, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<long double, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueFloatMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueFloatIndex->equal_range(indexinfo.fieldVal.value.floating);
+                    iteratorRange =
+                        indexRef.nonuniqueFloatIndex->equal_range(indexinfo.fieldVal.value.floating);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -585,17 +605,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniquechar:
                 {
                     pair<multimap<char, nonLockingIndexEntry_s>::iterator,
-                         multimap<char, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<char, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueCharMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueCharIndex->equal_range(indexinfo.fieldVal.value.character);
+                    iteratorRange =
+                        indexRef.nonuniqueCharIndex->equal_range(indexinfo.fieldVal.value.character);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -607,17 +629,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniquecharx:
                 {
                     pair<multimap<string, nonLockingIndexEntry_s>::iterator,
-                         multimap<string, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<string, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueStringMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueStringIndex->equal_range(indexinfo.fieldVal.str);
+                    iteratorRange =
+                        indexRef.nonuniqueStringIndex->equal_range(indexinfo.fieldVal.str);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -629,17 +653,19 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
                 case nonuniquevarchar:
                 {
                     pair<multimap<string, nonLockingIndexEntry_s>::iterator,
-                         multimap<string, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                         multimap<string, nonLockingIndexEntry_s>::iterator>
+                        iteratorRange;
                     nonuniqueStringMap::iterator it;
 
-                    iteratorRange = indexRef.nonuniqueStringIndex->equal_range(indexinfo.fieldVal.str);
+                    iteratorRange =
+                        indexRef.nonuniqueStringIndex->equal_range(indexinfo.fieldVal.str);
 
                     for (it=iteratorRange.first; it != iteratorRange.second; it++)
                     {
@@ -651,7 +677,7 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
                         }
                     }
 
-                    return false; // found no entry, so it's not there, so background
+                    return false; // found no entry, so background it
                 }
                 break;
 
@@ -673,7 +699,8 @@ void Engine::apply()
 
     for (size_t n=0; n < inmsg.rows.size(); n++)
     {
-        if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef, inmsg.rows[n])==false)
+        if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef,
+                      inmsg.rows[n])==false)
         {
             background(inmsg, inmsg.rows[n]);
         }
@@ -681,7 +708,8 @@ void Engine::apply()
 
     for (size_t n=0; n < inmsg.indices.size(); n++)
     {
-        if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef, inmsg.indices[n])==false)
+        if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef,
+                      inmsg.indices[n])==false)
         {
             background(inmsg, inmsg.indices[n]);
         }
@@ -690,9 +718,10 @@ void Engine::apply()
     if (!backgrounded.count(inmsg.applyStruct.subtransactionid))
     {
         class MessageAckApply *ackmsg =
-            new class MessageAckApply(inmsg.applyStruct.subtransactionid, inmsg.applyStruct.applierid,
-                                      -1, STATUS_OK);
-        mboxes.toActor(myIdentity.address, inmsg.messageStruct.sourceAddr, *ackmsg);
+            new class MessageAckApply(inmsg.applyStruct.subtransactionid,
+                                      inmsg.applyStruct.applierid, -1, STATUS_OK);
+        mboxes.toActor(myIdentity.address, inmsg.messageStruct.sourceAddr,
+                       *ackmsg);
     }
 
     // now, walk through backgrounded items
@@ -725,7 +754,8 @@ void Engine::apply()
         if (!bref.rows.size() && !bref.indices.size())
         {
             class MessageAckApply *ackmsg =
-                new class MessageAckApply(itb->first, bref.applierid, -1, STATUS_OK);
+                new class MessageAckApply(itb->first, bref.applierid, -1,
+                                          STATUS_OK);
             mboxes.toActor(myIdentity.address, bref.taAddress, *ackmsg);
             backgrounded.erase(itb);
         }

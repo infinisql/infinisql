@@ -26,17 +26,31 @@
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+/**
+ * @file   pgoids.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:44:24 2013
+ * 
+ * @brief  Symbols necessary to implement the PostgreSQL Frontend/Backend
+ * Protocol.
+ * 
+ * This file has the same license as the PostgreSQL project, and is not covered
+ * by the GPL. This is because the contents were lifted from PostgreSQL source.
+ */
+
 #ifndef PGOID_H
 #define PGOID_H
 
 #define BOOLOID                 16 // boolean, 'true'/'false'
-#define BYTEAOID                17 // variable-length string, binary values escaped
+#define BYTEAOID                17 // variable-length string, binary values
+                                   // escaped
 #define CHAROID                 18 // single character
 #define NAMEOID                 19 // 63-byte type for storing system identifiers
 #define INT8OID                 20 // ~18 digit integer, 8-byte storage
 #define INT2OID                 21 // -32 thousand to 32 thousand, 2-byte storage
 #define INT2VECTOROID   22 // array of int2, used in system tables
-#define INT4OID                 23 // -2 billion to 2 billion integer, 4-byte storage
+#define INT4OID                 23 // -2 billion to 2 billion integer, 4-byte
+                                   // storage
 #define REGPROCOID              24 // registered procedure"
 #define TEXTOID                 25 // variable-length string, no limit specified
 #define OIDOID                  26 // object identifier(oid), maximum 4 billion
@@ -55,8 +69,10 @@
 #define LINEOID                 628 // geometric line (not implemented)
 #define FLOAT4OID 700 // single-precision floating point number, 4-byte storage
 #define FLOAT8OID 701 // double-precision floating point number, 8-byte storage
-#define ABSTIMEOID              702 // absolute, limited-range date and time (Unix system time)
-#define RELTIMEOID              703 // relative, limited-range time interval (Unix delta time)
+#define ABSTIMEOID              702 // absolute, limited-range date and time
+                                    // (Unix system time)
+#define RELTIMEOID              703 // relative, limited-range time interval
+                                    // (Unix delta time)
 #define TINTERVALOID    704 // (abstime,abstime), time interval
 #define UNKNOWNOID              705
 #define CIRCLEOID               718 // geometric circle '(center,radius)'
@@ -69,8 +85,10 @@
 #define FLOAT4ARRAYOID 1021
 #define ACLITEMOID              1033 // access control list
 #define CSTRINGARRAYOID         1263
-#define BPCHAROID               1042 // char(length), blank-padded string, fixed storage length
-#define VARCHAROID              1043 // varchar(length), non-blank-padded string, variable storage length
+#define BPCHAROID               1042 // char(length), blank-padded string,
+                                     // fixed storage length
+#define VARCHAROID              1043 // varchar(length), non-blank-padded
+                                     // string, variable storage length
 #define DATEOID                 1082 // date
 #define TIMEOID                 1083 // time of day
 #define TIMESTAMPOID    1114 // date and time
@@ -79,7 +97,8 @@
 #define TIMETZOID               1266 // time of day with time zone
 #define BITOID   1560 // fixed-length bit string
 #define VARBITOID         1562 // variable-length bit string
-#define NUMERICOID              1700 // numeric(precision, decimal), arbitrary precision number
+#define NUMERICOID              1700 // numeric(precision, decimal),
+                                     // arbitrary precision number
 #define REFCURSOROID    1790 // reference to cursor (portal name)
 #define REGPROCEDUREOID 2202 // registered procedure (with args)
 #define REGOPEROID              2203 // registered operator
@@ -88,8 +107,10 @@
 #define REGTYPEOID              2206 // registered type
 #define REGTYPEARRAYOID 2211
 #define TSVECTOROID             3614 // text representation for text search
-#define GTSVECTOROID    3642 // GiST index internal text representation for text search
-#define TSQUERYOID              3615 // GiST index internal text representation for text search
+#define GTSVECTOROID    3642 // GiST index internal text representation for
+                             // text search
+#define TSQUERYOID              3615 // GiST index internal text representation
+                                     // for text search
 #define REGCONFIGOID    3734 // registered text search configuration
 #define REGDICTIONARYOID        3769 // registered text search dictionary
 #define INT4RANGEOID            3904 // range of integers

@@ -17,8 +17,24 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Listener.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:27:04 2013
+ * 
+ * @brief  On each host, this actor accepts new connections and distributes
+ * incoming network traffic from clients to Transaction Agents.
+ * 
+ * There is only one listener per host. It takes a small amount of coding
+ * effort to allow for multiple listeners per host. But no workload as yet
+ * (benchmarked on 12-core Xeon) has been shown to warrant multiple listeners.
+ * It's very possible that larger hosts may benefit from distributing
+ * incoming TCP/IP traffic across multiple listeners, and the effort to allow
+ * that won't be difficult to implement.
+ */
+
 #include "Listener.h"
-#line 22 "Listener.cc"
+#line 38 "Listener.cc"
 
 #define EPOLLEVENTS 1024
 
@@ -77,16 +93,19 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                 {
                     if (event & EPOLLIN)
                     {
-                        int newfd = accept(fd, (struct sockaddr *)&their_addr, &sin_size);
+                        int newfd = accept(fd, (struct sockaddr *)&their_addr,
+                                           &sin_size);
 
                         if (newfd == -1)
                         {
-                            printf("%s %i accept errno %i\n", __FILE__, __LINE__, errno);
+                            printf("%s %i accept errno %i\n", __FILE__, __LINE__,
+                                   errno);
                             break;
                         }
                         if (newfd > NUMSOCKETS)
                         {
-                            fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, newfd,
+                            fprintf(logfile, "%s %i fd %i > %i\n", __FILE__,
+                                    __LINE__, newfd,
                                     NUMSOCKETS);
                             close(newfd);
                             continue;
@@ -99,7 +118,8 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                         ev.data.fd = newfd;
                         pthread_mutex_lock(&connectionsMutex);
                         socketAffinity[newfd]=
-                            mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
+                            mboxes.transactionAgentPtrs[roundrobin++ %
+                                                        myTopology.numtransactionagents];
                         listenerTypes[newfd]=LISTENER_RAW;
                         pthread_mutex_unlock(&connectionsMutex);
                         epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
@@ -110,13 +130,15 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                     //          if (event & EPOLLIN)
                     while (1)
                     {
-                        int newfd = accept(fd, (struct sockaddr *)&their_addr, &sin_size);
+                        int newfd = accept(fd, (struct sockaddr *)&their_addr,
+                                           &sin_size);
 
                         if (newfd == -1)
                         {
                             if (errno != EAGAIN && errno != EWOULDBLOCK)
                             {
-                                printf("%s %i accept errno %i\n", __FILE__, __LINE__, errno);
+                                printf("%s %i accept errno %i\n", __FILE__,
+                                       __LINE__, errno);
                             }
                             else
                             {
@@ -125,8 +147,8 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                         }
                         if (newfd > NUMSOCKETS)
                         {
-                            fprintf(logfile, "%s %i fd %i > %i\n", __FILE__, __LINE__, newfd,
-                                    NUMSOCKETS);
+                            fprintf(logfile, "%s %i fd %i > %i\n", __FILE__,
+                                    __LINE__, newfd, NUMSOCKETS);
                             close(newfd);
                             continue;
                         }
@@ -138,13 +160,12 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                         ev.data.fd = newfd;
                         pthread_mutex_lock(&connectionsMutex);
                         socketAffinity[newfd]=
-                            mboxes.transactionAgentPtrs[roundrobin++ % myTopology.numtransactionagents];
+                            mboxes.transactionAgentPtrs[roundrobin++ %
+                                                        myTopology.numtransactionagents];
                         listenerTypes[newfd]=LISTENER_PG;
                         pthread_mutex_unlock(&connectionsMutex);
                         epoll_ctl(myIdentity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
-                        socketAffinity[newfd]->sendMsg(*(new class MessageSocket(newfd, 0,
-                                                                                 listenerTypes[newfd], myIdentity.address.nodeid,
-                                                                                 TOPIC_SOCKETCONNECTED)));
+                        socketAffinity[newfd]->sendMsg(*(new class MessageSocket(newfd, 0, listenerTypes[newfd], myIdentity.address.nodeid, TOPIC_SOCKETCONNECTED)));
                     }
                 }
             }
@@ -164,8 +185,10 @@ Listener::Listener(Topology::partitionAddress *myIdentityArg)
                     continue;
                 }
                 pthread_mutex_unlock(&connectionsMutex);
-                producer->sendMsg(*(new class MessageSocket(fd, event, listenertype,
-                                                            myIdentity.address.nodeid, TOPIC_SOCKET)));
+                producer->sendMsg(*(new class MessageSocket(fd, event,
+                                                            listenertype,
+                                                            myIdentity.address.nodeid,
+                                                            TOPIC_SOCKET)));
             }
         }
     }
@@ -221,7 +244,8 @@ int Listener::startsocket(string &node, string &service)
 
         if (sockfd == -1)
         {
-            fprintf(logfile, "%s %i socket errno %i\n", __FILE__, __LINE__, errno);
+            fprintf(logfile, "%s %i socket errno %i\n", __FILE__, __LINE__,
+                    errno);
             continue;
         }
 

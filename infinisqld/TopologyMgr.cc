@@ -17,8 +17,21 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   TopologyMgr.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:58:20 2013
+ * 
+ * @brief  Actor which receives configuration commands over 0mq and MessagePack
+ * from infinisqlmgr.py.
+ *
+ * Launches all other actors, updates Topology, and distributes configuration
+ * changes to all other actors on each node. Facilitates dynamic
+ * reconfiguration.
+ */
+
 #include "TopologyMgr.h"
-#line 22 "TopologyMgr.cc"
+#line 35 "TopologyMgr.cc"
 
 extern cfg_s cfgs;
 
@@ -67,7 +80,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
 
         if (retval == -1)
         {
-            fprintf(logfile, "%s %i zmq_recv errno %i\n", __FILE__, __LINE__, errno);
+            fprintf(logfile, "%s %i zmq_recv errno %i\n", __FILE__, __LINE__,
+                    errno);
         }
 
         msgpack::sbuffer replysbuf;
@@ -126,8 +140,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 obj3.convert(&val);
 
                 // t or f
-                __sync_bool_compare_and_swap(&cfgs.anonymousping, !(val==0 ? 0 : 1),
-                                             val==0 ? 0 : 1);
+                __sync_bool_compare_and_swap(&cfgs.anonymousping,
+                                             !(val==0 ? 0 : 1), val==0 ? 0 : 1);
                 replypk.pack_int(CMDOK);
             }
             break;
@@ -284,8 +298,10 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 newmbox = new class Mbox;
 
                 if (pthread_create(&tid, NULL, listener,
-                                   nodeTopology.newActor(ACTOR_LISTENER,
-                                                         newmbox, epollfd, string(), actorid, nodes, services))==-1)
+                                   nodeTopology.newActor(ACTOR_LISTENER, newmbox,
+                                                         epollfd, string(),
+                                                         actorid, nodes,
+                                                         services))==-1)
                 {
                     fprintf(logfile, "%s %i pthread_create errno %i\n", __FILE__,
                             __LINE__, errno);
@@ -319,8 +335,11 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
 
                 if (pthread_create(&tid, NULL, userSchemaMgr,
                                    nodeTopology.newActor(ACTOR_USERSCHEMAMGR,
-                                                         newmbox, epollfd, globaladminpassword, actorid,
-                                                         vector<string>(), vector<string>()))==-1)
+                                                         newmbox, epollfd,
+                                                         globaladminpassword,
+                                                         actorid,
+                                                         vector<string>(),
+                                                         vector<string>()))==-1)
                 {
                     fprintf(logfile, "%s %i pthread_create errno %i\n", __FILE__,
                             __LINE__, errno);
@@ -342,7 +361,9 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
 
                 if (pthread_create(&tid, NULL, deadlockMgr,
                                    nodeTopology.newActor(ACTOR_DEADLOCKMGR,
-                                                         newmbox, epollfd, string(), actorid, vector<string>(),
+                                                         newmbox, epollfd,
+                                                         string(), actorid,
+                                                         vector<string>(),
                                                          vector<string>()))==-1)
                 {
                     fprintf(logfile, "%s %i pthread_create errno %i\n", __FILE__,
@@ -377,7 +398,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 newmbox = new class Mbox;
                 Topology::partitionAddress *paddr =
                     nodeTopology.newActor(ACTOR_TRANSACTIONAGENT,
-                                          newmbox, epollfd, string(), actorid, vector<string>(),
+                                          newmbox, epollfd, string(), actorid,
+                                          vector<string>(),
                                           vector<string>());
                 paddr->instance = instance;
 
@@ -415,7 +437,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 newmbox = new class Mbox;
                 Topology::partitionAddress *paddr =
                     nodeTopology.newActor(ACTOR_ENGINE,
-                                          newmbox, epollfd, string(), actorid, vector<string>(),
+                                          newmbox, epollfd, string(), actorid,
+                                          vector<string>(),
                                           vector<string>());
                 paddr->instance = instance;
 
@@ -453,8 +476,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 newmbox = new class Mbox;
                 Topology::partitionAddress *paddr =
                     nodeTopology.newActor(ACTOR_OBGATEWAY,
-                                          newmbox, epollfd, string(), actorid, vector<string>(),
-                                          vector<string>());
+                                          newmbox, epollfd, string(), actorid,
+                                          vector<string>(), vector<string>());
                 paddr->instance = instance;
 
                 if (pthread_create(&tid, NULL, obGateway, paddr)==-1)
@@ -503,8 +526,8 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 newmbox = new class Mbox;
                 Topology::partitionAddress *paddr =
                     nodeTopology.newActor(ACTOR_IBGATEWAY,
-                                          newmbox, epollfd, hostport, actorid, vector<string>(),
-                                          vector<string>());
+                                          newmbox, epollfd, hostport, actorid,
+                                          vector<string>(), vector<string>());
                 paddr->instance = instance;
 
                 if (pthread_create(&tid, NULL, ibGateway, paddr)==-1)

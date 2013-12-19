@@ -17,11 +17,19 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   main.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:30:10 2013
+ * 
+ * @brief  Contains main and various global function definitions.
+ */
+
 #include <sys/un.h>
 #include "version.h"
 #include "gch.h"
 #include "Topology.h"
-#line 31 "main.cc"
+#line 33 "main.cc"
 
 void *topologyMgr(void *);
 
@@ -233,27 +241,32 @@ int16_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
     {
     case INT:
         return SpookyHash::Hash64((void *) &fieldVal.value.integer,
-                                  sizeof(fieldVal.value.integer), 0) % numpartitions;
+                                  sizeof(fieldVal.value.integer), 0)
+            numpartitions;
         break;
 
     case UINT:
         return SpookyHash::Hash64((void *) &fieldVal.value.uinteger,
-                                  sizeof(fieldVal.value.uinteger), 0) % numpartitions;
+                                  sizeof(fieldVal.value.uinteger), 0) %
+            numpartitions;
         break;
 
     case BOOL:
         return SpookyHash::Hash64((void *) &fieldVal.value.boolean,
-                                  sizeof(fieldVal.value.boolean), 0) % numpartitions;
+                                  sizeof(fieldVal.value.boolean), 0) %
+            numpartitions;
         break;
 
     case FLOAT:
         return SpookyHash::Hash64((void *) &fieldVal.value.floating,
-                                  sizeof(fieldVal.value.floating), 0) % numpartitions;
+                                  sizeof(fieldVal.value.floating), 0) %
+            numpartitions;
         break;
 
     case CHAR:
         return SpookyHash::Hash64((void *) &fieldVal.value.character,
-                                  sizeof(fieldVal.value.character), 0) % numpartitions;
+                                  sizeof(fieldVal.value.character), 0) %
+            numpartitions;
         break;
 
     case CHARX:
@@ -415,17 +428,13 @@ void setprio()
     int rv=pthread_setschedparam(pthread_self(), SCHED_FIFO, &params);
     if (rv != 0)
     {
-        fprintf(logfile, "%s %i some problem setting priority %i for tid %li error %i\n",
-                __FILE__, __LINE__, RTPRIO, pthread_self(), rv);
+        fprintf(logfile, "%s %i some problem setting priority %i for tid %li error %i\n", __FILE__, __LINE__, RTPRIO, pthread_self(), rv);
     }
 }
 
-/** @mainpage Yo
- * =====================
- * This is the main page for InfiniSQL
- * ------------------------
- * with some headings and whatnot
- * ============================
- *
- * Foo baz
+/** @mainpage InfiniSQL(tm)
+ * This is the doxygen-generated documentation for InfiniSQL's C++ source code.
+ * User documentation, reference, FAQ, how to obtain the source code, contacts
+ * and other information is available at the project's main website:
+ * http://www.infinisql.org
  */

@@ -17,6 +17,22 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Listener.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:29:01 2013
+ * 
+ * @brief  On each host, this actor accepts new connections and distributes
+ * incoming network traffic from clients to Transaction Agents.
+ * 
+ * There is only one listener per host. It takes a small amount of coding
+ * effort to allow for multiple listeners per host. But no workload as yet
+ * (benchmarked on 12-core Xeon) has been shown to warrant multiple listeners.
+ * It's very possible that larger hosts may benefit from distributing
+ * incoming TCP/IP traffic across multiple listeners, and the effort to allow
+ * that won't be difficult to implement.
+ */
+
 #ifndef INFINISQLLISTENER_H
 #define INFINISQLLISTENER_H
 
@@ -25,10 +41,10 @@
 class Listener
 {
 public:
-    Listener(Topology::partitionAddress *);
+    Listener(Topology::partitionAddress *myIdentityArg);
     virtual ~Listener();
 
-    int startsocket(string &, string &);
+    int startsocket(string &node, string &service);
 
     //private:
     class Mboxes mboxes;
@@ -36,6 +52,6 @@ public:
     class Topology myTopology;
 };
 
-void *listener(void *);
+void *listener(void *identity);
 
 #endif  /* INFINISQLLISTENER_H */

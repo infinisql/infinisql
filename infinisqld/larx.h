@@ -17,6 +17,14 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   larx.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:26:16 2013
+ * 
+ * @brief  Function declarations so flex and bison can work together.
+ */
+
 #ifndef INFINISQLLARX_H
 #define INFINISQLLARX_H
 

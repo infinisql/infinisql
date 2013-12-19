@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   TransactionAgent.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 14:03:09 2013
+ * 
+ * @brief  Actor which communicates with clients and executes transactions.
+ * Coordinates of activities between several other actors.
+ */
+
 #ifndef INFINISQLTRANSACTIONAGENT_H
 #define INFINISQLTRANSACTIONAGENT_H
 
@@ -112,7 +121,7 @@ msgpack::sbuffer *makeSbuf(std::map<string, string> *);
 class TransactionAgent
 {
 public:
-    TransactionAgent(Topology::partitionAddress *);
+    TransactionAgent(Topology::partitionAddress *myIdentityArg);
     virtual ~TransactionAgent();
 
     void updateReplicas();
@@ -132,44 +141,42 @@ public:
     // needs to be all/mostly public for stored procedures
 
     // builtins
-    void ping(builtincmds_e);
-    void login(builtincmds_e);
-    void logout(builtincmds_e);
-    void changepassword(builtincmds_e);
-    void createdomain(builtincmds_e);
-    void createuser(builtincmds_e);
-    void deleteuser(builtincmds_e);
-    void deletedomain(builtincmds_e);
-    void createschema(builtincmds_e);
-    void createtable(builtincmds_e);
-    void addcolumn(builtincmds_e);
-    void deleteindex(builtincmds_e);
-    void deletetable(builtincmds_e);
-    void deleteschema(builtincmds_e);
-    void loadprocedure(builtincmds_e);
-    void compile(builtincmds_e);
-    void schemaBoilerplate(builtincmds_e, int);
+    void ping(builtincmds_e cmd);
+    void login(builtincmds_e cmd);
+    void logout(builtincmds_e cmd);
+    void changepassword(builtincmds_e cmd);
+    void createdomain(builtincmds_e cmd);
+    void createuser(builtincmds_e cmd);
+    void deleteuser(builtincmds_e cmd);
+    void deletedomain(builtincmds_e cmd);
+    void createschema(builtincmds_e cmd);
+    void createtable(builtincmds_e cmd);
+    void addcolumn(builtincmds_e cmd);
+    void deleteindex(builtincmds_e cmd);
+    void deletetable(builtincmds_e cmd);
+    void deleteschema(builtincmds_e cmd);
+    void loadprocedure(builtincmds_e cmd);
+    void compile(builtincmds_e cmd);
+    void schemaBoilerplate(builtincmds_e cmd, int builtin);
     // loop-back schema commands
-    void TAcreateschema(void);
-    void TAcreatetable(void);
-    void TAaddcolumn(void);
-    void TAdeleteindex(void);
-    void TAdeletetable(void);
-    void TAdeleteschema(void);
-    void TAloadprocedure(void);
-    void endOperation(void);
+    void TAcreateschema();
+    void TAcreatetable();
+    void TAaddcolumn();
+    void TAdeleteindex();
+    void TAdeletetable();
+    void TAdeleteschema();
+    void TAloadprocedure();
+    void endOperation();
     //private:
-    void endConnection(void);
-    int64_t readSocket(void);
-    int64_t getnexttransactionid(void);
-    int64_t getnextapplierid(void);
-    void badMessageHandler(void);
-    void newprocedure(int64_t);
+    void endConnection();
+    int64_t readSocket();
+    int64_t getnexttransactionid();
+    int64_t getnextapplierid();
+    void badMessageHandler();
+    void newprocedure(int64_t entrypoint);
     void newstatement();
 
     void handledispatch();
-    void makeApplyindex(string &, class Table &, class Table *, int64_t,
-                        MessageApply::applyindex_s &);
 
     template <typename T>
         void sendResponse(bool resending, int64_t resultCode, T response)
@@ -204,7 +211,7 @@ public:
                 sendLaterMap::iterator sendLaterIterator;
                 sendLaterIterator = waitingToSend.find(sockfd);
 
-                if (sendLaterIterator != waitingToSend.end()) //gratuitous, but whatever
+                if (sendLaterIterator != waitingToSend.end()) //gratuitous
                 {
                     printf("%s %i endConnection\n", __FILE__, __LINE__);
                     endConnection();
@@ -304,7 +311,8 @@ void replyTa(T servent, topic_e result, void *msg)
     class MessageUserSchema &msgref = *(class MessageUserSchema *)msg;
     servent->msgsnd.data = (void *)msg;
     ((class Message *)servent->msgsnd.data)->messageStruct.topic = result;
-    ((class Message *)servent->msgsnd.data)->messageStruct.payloadtype = PAYLOADUSERSCHEMA;
+    ((class Message *)servent->msgsnd.data)->messageStruct.payloadtype =
+        PAYLOADUSERSCHEMA;
     msgref.userschemaStruct.operationid = servent->operationid;
     msgref.userschemaStruct.domainid = servent->domainid;
     msgref.userschemaStruct.userid = servent->userid;

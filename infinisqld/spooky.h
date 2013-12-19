@@ -25,6 +25,14 @@
 // slower than MD5.
 //
 
+/**
+ * @file   spooky.h
+ * @author Bob Jenkins
+ * @date   Tue Dec 17 13:48:30 2013
+ * 
+ * @brief  Spooky Hash from Bob Jenkins. This is public domain.
+ */
+
 #ifndef INFINISQLSPOOKY_H
 #define INFINISQLSPOOKY_H
 

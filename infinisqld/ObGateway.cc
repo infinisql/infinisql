@@ -17,8 +17,18 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   ObGateway.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:35:13 2013
+ * 
+ * @brief  Outbound Gateway actor. Counterpart to IbGateway. Receives
+ * messages from actors on current node bound for remote nodes. Sends them
+ * over the network to IbGateway.
+ */
+
 #include "ObGateway.h"
-#line 22 "ObGateway.cc"
+#line 32 "ObGateway.cc"
 
 ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     myIdentity(*myIdentityArg), so_sndbuf(16777216), ismultinode(false)
@@ -32,8 +42,6 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     optlen=sizeof(so_sndbuf);
     int waitfor = 100;
   
-//  bool buildup=true;
-  
     // pendingMsgs[remotenodeid]=serialized messages
     char *sendstr=NULL;
     size_t sendsize=0;
@@ -46,11 +54,6 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
     cstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
     char *cstrbig=NULL;
     bool iscstrbig=false;
-
-    /*
-      uint32_t D_sends=0;
-      uint64_t D_sendbytes=0;
-    */
 
     while (1)
     {
@@ -74,29 +77,11 @@ ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
                 break;
 
             case TOPIC_SERIALIZED: // destined for remote host
-                pendingMsgs[msgrcv->messageStruct.destAddr.nodeid].push_back(
-                    ((class MessageSerialized *)msgrcv)->data);
+                pendingMsgs[msgrcv->messageStruct.destAddr.nodeid].push_back(((class MessageSerialized *)msgrcv)->data);
                 break;
           
             case TOPIC_BATCHSERIALIZED:
             {
-                /*
-                  boost::unordered_multimap<int16_t, string *> &msgsRef=
-                  ((class MessageBatchSerialized *)msgrcv)->msgs;
-                  boost::unordered_multimap<int16_t, string *>::const_iterator it;
-                */
-                /*
-                  boost::unordered_map< int16_t, vector<string *> > &msgsRef=
-                  ((class MessageBatchSerialized *)msgrcv)->msgs;
-                  boost::unordered_map< int16_t, vector<string *> >::const_iterator it;
-                  for (it=msgsRef.begin(); it != msgsRef.end(); it++)
-                  {
-//            pendingMsgs[it->first].push_back(it->second);
-vector<string *> &stringsRef=pendingMsgs[it->first];
-stringsRef.insert(stringsRef.end(), it->second.begin(),
-it->second.end());
-}
-                */
                 class MessageBatchSerialized &msgRef=
                     *(class MessageBatchSerialized *)msgrcv;
                 for (short n=0; n<msgRef.nmsgs; n++)
@@ -111,17 +96,6 @@ it->second.end());
                        msgrcv->messageStruct.topic);
             }
         }
-
-        /*
-        // simple flow control
-        if (buildup==true)
-        {
-        usleep(100);
-        buildup=false;
-        continue;
-        }
-        buildup=true;
-        */
 
         // send all pendings
         boost::unordered_map< int64_t, vector<string *> >::iterator it;
@@ -191,8 +165,7 @@ it->second.end());
 
             if (send(remoteGateways[it->first], sendstr, sendsize, 0)==-1)
             {
-                printf("%s %i send errno %i nodeid %i instance %li it->first %li socket %i\n",
-                       __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
+                printf("%s %i send errno %i nodeid %i instance %li it->first %li socket %i\n", __FILE__, __LINE__, errno, myTopology.nodeid, myIdentity.instance,
                        it->first, remoteGateways[it->first]);
             }
             pendingMsgs.erase(it->first);
@@ -205,16 +178,6 @@ it->second.end());
             {
                 delete[] cstrbig;
             }
-
-            /*
-              D_sendbytes+=sended;
-              if (!(++D_sends % 1000))
-              {
-              struct timeval tv;
-              gettimeofday(&tv, NULL);
-              fprintf(logfile, "X\t%s\t%i\t%li\t%li\t%u\t%lu\n", __FILE__, __LINE__, myIdentity.instance, tv.tv_sec*1000000+tv.tv_usec, D_sends, D_sendbytes);
-              }
-            */
         }
     }
 }
@@ -244,7 +207,8 @@ void ObGateway::updateRemoteGateways()
         {
             continue;
         }
-        if ((int64_t)myTopology.ibGateways[it->first].size() < myIdentity.instance+1)
+        if ((int64_t)myTopology.ibGateways[it->first].size() <
+            myIdentity.instance+1)
         {
             continue;
         }
@@ -286,15 +250,16 @@ void ObGateway::updateRemoteGateways()
 
             if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen))
             {
-                fprintf(logfile, "%s %i connect errno %i '%s:%s'\n", __FILE__, __LINE__,
-                        errno, node.c_str(), service.c_str());
+                fprintf(logfile, "%s %i connect errno %i '%s:%s'\n", __FILE__,
+                        __LINE__, errno, node.c_str(), service.c_str());
                 return;
             }
     
-            if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &so_sndbuf, sizeof(so_sndbuf))==-1)
+            if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &so_sndbuf,
+                           sizeof(so_sndbuf))==-1)
             {
-                fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__, __LINE__,
-                        errno);
+                fprintf(logfile, "%s %i setsockopt errno %i\n", __FILE__,
+                        __LINE__, errno);
                 continue;
             }
 

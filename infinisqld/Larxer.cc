@@ -17,10 +17,19 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Larxer.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:24:38 2013
+ * 
+ * @brief  Portmanteau of "lexer" and "parser". This class tokenizes, parses
+ * and converts SQL into executable Statement with Abstract Syntax Trees.
+ */
+
 #include "gch.h"
 #include "Larxer.h"
 #include <stdint.h>
-#line 24 "Larxer.cc"
+#line 33 "Larxer.cc"
 
 Larxer::Larxer(char *instr, class TransactionAgent *taPtr,
                class Schema *schemaPtr)
@@ -209,8 +218,8 @@ class Ast *Larxer::consumeExpression()
 
     if (item.type==TYPE_EXPRESSION)
     {
-        /* if called as search_expression, then the next object might be an expression,
-         * which is already being handled ;-)
+        /* if called as search_expression, then the next object might be an
+         * expression, which is already being handled ;-)
          */
         item = popstack();
     }

@@ -17,6 +17,18 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   gch.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:11:21 2013
+ * 
+ * @brief  Headers for all external dependencies.
+ *
+ * Originally so named because pre-compilation was applied to speed the build
+ * process (Global Precompiled Header). Stopped pre-compilation awhile back,
+ * but didn't change the filename.
+ */
+
 #ifndef INFINISQLGCH_H
 #define INFINISQLGCH_H
 

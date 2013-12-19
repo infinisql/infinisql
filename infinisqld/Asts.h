@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Asts.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:05:40 2013
+ * 
+ * @brief  Abstract Syntax Tree class and Statement class. A SQL statement
+ * turns into these in order to be executed.
+ */
+
 #ifndef INFINISQLASTS_H
 #define INFINISQLASTS_H
 
@@ -36,30 +45,32 @@ typedef void(*spclassdestroy)(ApiInterface *);
 using std::string;
 using std::vector;
 
+/** 
+ * @brief Abstract Syntax Tree
+ */
 class Ast
 {
 public:
     Ast();
-    Ast(class Ast *, operatortypes_e); // for operators
-    Ast(class Ast *, string &); // for operands
-    Ast(const Ast &);
-    Ast &operator= (const Ast &);
-    void cp(const Ast &);
+    Ast(class Ast *parentarg , operatortypes_e operatortypearg); // for operators
+    Ast(class Ast *parentarg, std::string &operandarg); // for operands
+    Ast(const Ast &orig);
+    Ast &operator= (const Ast &orig);
+    void cp(const Ast &orig);
     virtual ~Ast();
 
     /* returns complete true, incomplete false. 1st *Ast is node to evaluate,
      * 2nd is next node to evaluate (or NULL)
      */
-    bool evaluate(class Ast **, class Statement *statementPtr);
+    bool evaluate(class Ast **nextAstNode,
+                  class Statement *statementPtr statementPtr);
     /* evaluates for setassignment per row. does not get backgrounded */
-    void evaluateAssignment(vector<fieldValue_s> &,
+    void evaluateAssignment(std::vector<fieldValue_s> &,
                             class Statement *statementPtr);
-    void normalizeSetAssignmentOperand(vector<fieldValue_s> &,
+    void normalizeSetAssignmentOperand(vector<fieldValue_s> &fieldValues,
                                        class Statement *statementPtr);
-    static void toFloat(const string &, fieldValue_s &);
-    static void toFloat(const string &, string &);
-
-    //  class Statement *statementPtr;
+    static void toFloat(const string &inoperand, fieldValue_s &outField);
+    static void toFloat(const string &inoperand, string &outoperand);
 
     class Ast *parent;
     class Ast *rightchild;
@@ -103,7 +114,8 @@ public:
     {
         boost::unordered_map<uuRecord_s, returnRow_s> searchResults;
         /* each string is a field, with type embedded in 1st char */
-        boost::unordered_map< uuRecord_s, std::vector<fieldValue_s> > selectResults;
+        boost::unordered_map< uuRecord_s,
+                              std::vector<fieldValue_s> > selectResults;
         size_t initerator;
         std::vector<fieldValue_s> inValues;
         std::vector<fieldValue_s> insertValues;
@@ -111,7 +123,8 @@ public:
         uuRecord_s originalrowuur;
         int64_t newrowengineid;
         uuRecord_s newrowuur;
-        boost::unordered_map<uuRecord_s, returnRow_s>::const_iterator updateIterator;
+        boost::unordered_map<uuRecord_s,
+                             returnRow_s>::const_iterator updateIterator;
         // setFields[fieldid] = fieldValue
         boost::unordered_map<int64_t, fieldValue_s> setFields;
     };
@@ -165,45 +178,51 @@ public:
     };
 
     Statement();
-    Statement(class TransactionAgent *, class Schema *);
-    Statement(const Statement &);
-    Statement &operator= (const Statement &);
-    void cp(const Statement &);
+    Statement(class TransactionAgent *taPtrarg, class Schema *schemaPtrarg);
+    Statement(const Statement &orig);
+    Statement &operator= (const Statement &orig);
+    void cp(const Statement &orig);
     virtual ~Statement();
 
-    query_s cpquery(const query_s &);
+    query_s cpquery(const query_s &orig);
     bool resolveTableFields();
     bool resolveTableFields2();
-    bool resolveFieldNames(class Ast *);
-    int64_t getfieldid(int64_t, const string &);
-    bool stagedPredicate(operatortypes_e, int64_t, string &, string &,
-                         vector<fieldValue_s> &,
-                         const boost::unordered_map<uuRecord_s, stagedRow_s> &,
-                         boost::unordered_map<uuRecord_s, returnRow_s> &);
-    void andPredicate(operatortypes_e, int64_t, string &, string &,
-                      vector<fieldValue_s> &,
-                      const boost::unordered_map<uuRecord_s, returnRow_s> &,
-                      boost::unordered_map<uuRecord_s, returnRow_s> &);
-    void execute(class ApiInterface *, apifPtr, int64_t, void *,
-                 class Transaction *, const vector<string> &);
+    bool resolveFieldNames(class Ast *myPosition);
+    int64_t getfieldid(int64_t tableid, const string & fieldName);
+    bool stagedPredicate(operatortypes_e op, int64_t tableid,
+                         string &leftoperand, string &rightoperand,
+                         vector<fieldValue_s> &inValues,
+                         const boost::unordered_map<uuRecord_s,
+                         stagedRow_s> &stagedRows,
+                         boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    void andPredicate(operatortypes_e op, int64_t tableid,
+                      string &leftoperand, string &rightoperand,
+                      vector<fieldValue_s> &inValues,
+                      const boost::unordered_map<uuRecord_s,
+                      returnRow_s> &andResults,
+                      boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    void execute(class ApiInterface *reentryObject, apifPtr reentryfptr,
+                 int64_t reentrypoint, void *reentrydata,
+                 class Transaction *transactionPtrarg,
+                 const vector<string> &parametersarg);
     /* return if evaluation is complete (true), or incomplete (false)
      * if incomplete, caller should return as it means a background transaction
      * call is taking place if the nextastnode is NULL, or it should execute
      * the nextastnode, which is one of the children
      */
-    void searchExpression(int64_t, class Ast *);
+    void searchExpression(int64_t entrypoint, class Ast *astNode);
     void branchtotype();
-    void reenter(int64_t);
-    void continueSelect(int64_t, class Ast *);
-    void continueDelete(int64_t, class Ast *);
-    void continueInsert(int64_t, class Ast *);
-    void continueUpdate(int64_t, class Ast *);
+    void reenter(int64_t status);
+    void continueSelect(int64_t entrypoint, class Ast *ignorethis);
+    void continueDelete(int64_t entrypoint, class Ast *ignorethis);
+    void continueInsert(int64_t entrypoint, class Ast *ignorethis);
+    void continueUpdate(int64_t entrypoint, class Ast *ignorethis);
     void startQuery();
-    void subqueryScalar(class Ast *);
-    void subqueryUnique(class Ast *);
-    void subqueryExists(class Ast *);
-    void subqueryIn(class Ast *);
-    void abortQuery(int64_t);
+    void subqueryScalar(class Ast *astnode);
+    void subqueryUnique(class Ast *astnode);
+    void subqueryExists(class Ast *astnode);
+    void subqueryIn(class Ast *astnode);
+    void abortQuery(int64_t status);
 
     class TransactionAgent *taPtr;
     class Schema *schemaPtr;

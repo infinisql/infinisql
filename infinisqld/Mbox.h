@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Mbox.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:32:29 2013
+ * 
+ * @brief  Mbox* classes perform inter-actor messaging. Mbox is a lockfree
+ * multi producer, single consumer queue.
+ */
+
 #ifndef INFINISQLMBOX_H
 #define INFINISQLMBOX_H
 
@@ -32,7 +41,7 @@ public:
     Mbox();
     virtual ~Mbox();
 
-    class Message *receive(int);  //int is wait
+    class Message *receive(int timeout);  //int is wait
 
     struct pointer_s
     {
@@ -40,9 +49,9 @@ public:
         uint64_t count;
     };
 
-    static __int128 getInt128FromPointer(class Message *, uint64_t);
-    static class Message *getPtr(__int128);
-    static uint64_t getCount(__int128);
+    static __int128 getInt128FromPointer(class Message *ptr, uint64_t count);
+    static class Message *getPtr(__int128 i128);
+    static uint64_t getCount(__int128 i128);
 
     friend class MboxProducer;
 
@@ -66,9 +75,9 @@ class MboxProducer
 {
 public:
     MboxProducer();
-    MboxProducer(class Mbox *, int16_t);
+    MboxProducer(class Mbox *mboxarg, int16_t nodeidarg);
     virtual ~MboxProducer();
-    void sendMsg(class Message &);
+    void sendMsg(class Message &msgsnd);
 
     class Mbox *mbox;
     int16_t nodeid;
@@ -89,20 +98,25 @@ public:
     };
 
     Mboxes();
-    Mboxes(int64_t);
+    Mboxes(int64_t nodeidarg);
     virtual ~Mboxes();
 
-    void update(class Topology &);
-    void update(class Topology &, int64_t);
-    void toActor(const Topology::addressStruct &,
-                 const Topology::addressStruct &, class Message &);
-    void toUserSchemaMgr(const Topology::addressStruct &, class Message &);
-    void toDeadlockMgr(const Topology::addressStruct &, class Message &);
-    void toPartition(const Topology::addressStruct &, int64_t, class Message &);
-    int64_t toAllOfType(actortypes_e, const Topology::addressStruct &,
-                        class Message &);
-    int64_t toAllOfTypeThisReplica(actortypes_e, const Topology::addressStruct &,
-                                   class Message &);
+    void update(class Topology &top);
+    void update(class Topology &top, int64_t myActorid);
+    void toActor(const Topology::addressStruct &source,
+                 const Topology::addressStruct &dest, class Message &msg);
+    void toUserSchemaMgr(const Topology::addressStruct &source,
+                         class Message &msg);
+    void toDeadlockMgr(const Topology::addressStruct &source,
+                       class Message &msg);
+    void toPartition(const Topology::addressStruct &source, int64_t partitionid,
+                     class Message &msg);
+    int64_t toAllOfType(actortypes_e type,
+                        const Topology::addressStruct &source,
+                        class Message &msg);
+    int64_t toAllOfTypeThisReplica(actortypes_e type,
+                                   const Topology::addressStruct &source,
+                                   class Message &msg);
     void sendObBatch();
 
     int64_t nodeid;

@@ -17,10 +17,18 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Index.h"
-#line 22 "Index.cc"
+/**
+ * @file   Index.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:21:31 2013
+ * 
+ * @brief  Index type class (UNIQUE, NONUNIQUE, etc.)
+ */
 
-Index::Index(void) : indextype (NONE), fieldtype (NOFIELDTYPE),
+#include "Index.h"
+#line 30 "Index.cc"
+
+Index::Index() : indextype (NONE), fieldtype (NOFIELDTYPE),
                      maptype (Nomaptype), notNull (true), isunique (true),
                      indexmaptype (noindexmaptype), uniqueIntIndex (NULL),
                      nonuniqueIntIndex (NULL), unorderedIntIndex (NULL),
@@ -124,8 +132,8 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
     {
     case uniqueint:
         uniqueIntIndex = new uniqueIntMap;
-        intLockQueue = new boost::unordered_map< int64_t,
-                                                 std::queue<lockQueueIndexEntry> >;
+        intLockQueue = new boost::unordered_map<int64_t,
+                                                std::queue<lockQueueIndexEntry>>;
         intIndexShadow = new unorderedIntMap;
         break;
 
@@ -135,15 +143,15 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedint:
         unorderedIntIndex = new unorderedIntMap;
-        intLockQueue = new boost::unordered_map< int64_t,
-                                                 std::queue<lockQueueIndexEntry> >;
+        intLockQueue = new boost::unordered_map<int64_t,
+                                                 std::queue<lockQueueIndexEntry>>;
         intIndexShadow = new unorderedIntMap;
         break;
 
     case uniqueuint:
         uniqueUintIndex = new uniqueUintMap;
-        uintLockQueue = new boost::unordered_map< uint64_t,
-                                                  std::queue<lockQueueIndexEntry> >;
+        uintLockQueue = new boost::unordered_map<uint64_t,
+                                                  std::queue<lockQueueIndexEntry>>;
         uintIndexShadow = new unorderedUintMap;
         break;
 
@@ -153,8 +161,8 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unordereduint:
         unorderedUintIndex = new unorderedUintMap;
-        uintLockQueue = new boost::unordered_map< uint64_t,
-                                                  std::queue<lockQueueIndexEntry> >;
+        uintLockQueue = new boost::unordered_map<uint64_t,
+                                                  std::queue<lockQueueIndexEntry>>;
         uintIndexShadow = new unorderedUintMap;
         break;
 
@@ -171,15 +179,15 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedbool:
         unorderedBoolIndex = new unorderedBoolMap;
-        boolLockQueue = new boost::unordered_map< bool,
-                                                  std::queue<lockQueueIndexEntry> >;
+        boolLockQueue = new boost::unordered_map<bool,
+                                                  std::queue<lockQueueIndexEntry>>;
         boolIndexShadow = new unorderedBoolMap;
         break;
 
     case uniquefloat:
         uniqueFloatIndex = new uniqueFloatMap;
-        floatLockQueue = new boost::unordered_map< long double,
-                                                   std::queue<lockQueueIndexEntry> >;
+        floatLockQueue = new boost::unordered_map<long double,
+                                                   std::queue<lockQueueIndexEntry>>;
         floatIndexShadow = new unorderedFloatMap;
         break;
 
@@ -189,15 +197,15 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedfloat:
         unorderedFloatIndex = new unorderedFloatMap;
-        floatLockQueue = new boost::unordered_map< long double,
-                                                   std::queue<lockQueueIndexEntry> >;
+        floatLockQueue = new boost::unordered_map<long double,
+                                                   std::queue<lockQueueIndexEntry>>;
         floatIndexShadow = new unorderedFloatMap;
         break;
 
     case uniquechar:
         uniqueCharIndex = new uniqueCharMap;
-        charLockQueue = new boost::unordered_map< char,
-                                                  std::queue<lockQueueIndexEntry> >;
+        charLockQueue = new boost::unordered_map<char,
+                                                  std::queue<lockQueueIndexEntry>>;
         charIndexShadow = new unorderedCharMap;
         break;
 
@@ -207,15 +215,15 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedchar:
         unorderedCharIndex = new unorderedCharMap;
-        charLockQueue = new boost::unordered_map< char,
-                                                  std::queue<lockQueueIndexEntry> >;
+        charLockQueue = new boost::unordered_map<char,
+                                                  std::queue<lockQueueIndexEntry>>;
         charIndexShadow = new unorderedCharMap;
         break;
 
     case uniquecharx:
         uniqueStringIndex = new uniqueStringMap;
-        stringLockQueue = new boost::unordered_map< string,
-                                                    std::queue<lockQueueIndexEntry> >;
+        stringLockQueue = new boost::unordered_map<string,
+                                                    std::queue<lockQueueIndexEntry>>;
         stringIndexShadow = new unorderedStringMap;
         break;
 
@@ -225,15 +233,15 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedcharx:
         unorderedStringIndex = new unorderedStringMap;
-        stringLockQueue = new boost::unordered_map< string,
+        stringLockQueue = new boost::unordered_map<string,
                                                     std::queue<lockQueueIndexEntry> >;
         stringIndexShadow = new unorderedStringMap;
         break;
 
     case uniquevarchar:
         uniqueStringIndex = new uniqueStringMap;
-        stringLockQueue = new boost::unordered_map< string,
-                                                    std::queue<lockQueueIndexEntry> >;
+        stringLockQueue = new boost::unordered_map<string,
+                                                    std::queue<lockQueueIndexEntry>>;
         stringIndexShadow = new unorderedStringMap;
         break;
 
@@ -243,8 +251,8 @@ void Index::makeindex(indextype_e indextypearg, fieldtype_e fieldtypearg)
 
     case unorderedvarchar:
         unorderedStringIndex = new unorderedStringMap;
-        stringLockQueue = new boost::unordered_map< string,
-                                                    std::queue<lockQueueIndexEntry> >;
+        stringLockQueue = new boost::unordered_map<string,
+                                                    std::queue<lockQueueIndexEntry>>;
         stringIndexShadow = new unorderedStringMap;
         break;
 
@@ -302,7 +310,7 @@ locktype_e Index::checkAndLock(int64_t entry, int64_t rowid, int64_t engineid,
     case unorderedint:
         if (unorderedIntIndex->count(entry))
         {
-            if (unorderedIntIndex->at(entry).subtransactionid)   // already locked
+            if (unorderedIntIndex->at(entry).subtransactionid) // already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -330,7 +338,8 @@ locktype_e Index::checkAndLock(int64_t entry, int64_t rowid, int64_t engineid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -338,7 +347,8 @@ locktype_e Index::checkAndLock(int64_t entry, int64_t rowid, int64_t engineid,
 
 // uint
 locktype_e Index::checkAndLock(uint64_t entry, int64_t rowid, int64_t engineid,
-                               int64_t subtransactionid, int64_t pendingcmdid, int64_t tacmdentrypoint)
+                               int64_t subtransactionid, int64_t pendingcmdid,
+                               int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
@@ -347,7 +357,8 @@ locktype_e Index::checkAndLock(uint64_t entry, int64_t rowid, int64_t engineid,
         {
             if (uniqueUintIndex->at(entry).subtransactionid)   // already locked
             {
-                if (uniqueUintIndex->at(entry).subtransactionid==subtransactionid)
+                if (uniqueUintIndex->at(entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -380,7 +391,7 @@ locktype_e Index::checkAndLock(uint64_t entry, int64_t rowid, int64_t engineid,
     case unordereduint:
         if (unorderedUintIndex->count(entry))
         {
-            if (unorderedUintIndex->at(entry).subtransactionid)   // already locked
+            if (unorderedUintIndex->at(entry).subtransactionid) // already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -408,7 +419,8 @@ locktype_e Index::checkAndLock(uint64_t entry, int64_t rowid, int64_t engineid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -416,7 +428,8 @@ locktype_e Index::checkAndLock(uint64_t entry, int64_t rowid, int64_t engineid,
 
 //bool
 locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
-                               int64_t subtransactionid, int64_t pendingcmdid, int64_t tacmdentrypoint)
+                               int64_t subtransactionid, int64_t pendingcmdid,
+                               int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
@@ -425,7 +438,8 @@ locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
         {
             if (uniqueBoolIndex->at(entry).subtransactionid)   // already locked
             {
-                if (uniqueBoolIndex->at(entry).subtransactionid==subtransactionid)
+                if (uniqueBoolIndex->at(entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -458,7 +472,7 @@ locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
     case unorderedbool:
         if (unorderedBoolIndex->count(entry))
         {
-            if (unorderedBoolIndex->at(entry).subtransactionid)   // already locked
+            if (unorderedBoolIndex->at(entry).subtransactionid) // already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -486,7 +500,8 @@ locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -494,17 +509,18 @@ locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
 
 //float
 locktype_e Index::checkAndLock(long double entry, int64_t rowid,
-                               int64_t engineid, int64_t subtransactionid, int64_t pendingcmdid,
-                               int64_t tacmdentrypoint)
+                               int64_t engineid, int64_t subtransactionid,
+                               nt64_t pendingcmdid, int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
     case uniquefloat:
         if (uniqueFloatIndex->count(entry))
         {
-            if (uniqueFloatIndex->at(entry).subtransactionid)   // already locked
+            if (uniqueFloatIndex->at(entry).subtransactionid) // already locked
             {
-                if (uniqueFloatIndex->at(entry).subtransactionid==subtransactionid)
+                if (uniqueFloatIndex->at(entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -537,7 +553,7 @@ locktype_e Index::checkAndLock(long double entry, int64_t rowid,
     case unorderedfloat:
         if (unorderedFloatIndex->count(entry))
         {
-            if (unorderedFloatIndex->at(entry).subtransactionid)   // already locked
+            if (unorderedFloatIndex->at(entry).subtransactionid) //already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -565,7 +581,8 @@ locktype_e Index::checkAndLock(long double entry, int64_t rowid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -573,16 +590,18 @@ locktype_e Index::checkAndLock(long double entry, int64_t rowid,
 
 //char
 locktype_e Index::checkAndLock(char entry, int64_t rowid, int64_t engineid,
-                               int64_t subtransactionid, int64_t pendingcmdid, int64_t tacmdentrypoint)
+                               int64_t subtransactionid, int64_t pendingcmdid,
+                               int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
     case uniquechar:
         if (uniqueCharIndex->count(entry))
         {
-            if (uniqueCharIndex->at(entry).subtransactionid)   // already locked
+            if (uniqueCharIndex->at(entry).subtransactionid) // already locked
             {
-                if (uniqueCharIndex->at(entry).subtransactionid==subtransactionid)
+                if (uniqueCharIndex->at(entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -615,7 +634,7 @@ locktype_e Index::checkAndLock(char entry, int64_t rowid, int64_t engineid,
     case unorderedchar:
         if (unorderedCharIndex->count(entry))
         {
-            if (unorderedCharIndex->at(entry).subtransactionid)   // already locked
+            if (unorderedCharIndex->at(entry).subtransactionid) // already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -643,7 +662,8 @@ locktype_e Index::checkAndLock(char entry, int64_t rowid, int64_t engineid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -651,16 +671,18 @@ locktype_e Index::checkAndLock(char entry, int64_t rowid, int64_t engineid,
 
 //charx & varchar (string)
 locktype_e Index::checkAndLock(string *entry, int64_t rowid, int64_t engineid,
-                               int64_t subtransactionid, int64_t pendingcmdid, int64_t tacmdentrypoint)
+                               int64_t subtransactionid, int64_t pendingcmdid,
+                               int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
     case uniquecharx:
         if (uniqueStringIndex->count(*entry))
         {
-            if (uniqueStringIndex->at(*entry).subtransactionid)   // already locked
+            if (uniqueStringIndex->at(*entry).subtransactionid) // already locked
             {
-                if (uniqueStringIndex->at(*entry).subtransactionid==subtransactionid)
+                if (uniqueStringIndex->at(*entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -693,7 +715,7 @@ locktype_e Index::checkAndLock(string *entry, int64_t rowid, int64_t engineid,
     case unorderedcharx:
         if (unorderedStringIndex->count(*entry))
         {
-            if (unorderedStringIndex->at(*entry).subtransactionid) // already locked
+            if (unorderedStringIndex->at(*entry).subtransactionid)//already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -723,9 +745,10 @@ locktype_e Index::checkAndLock(string *entry, int64_t rowid, int64_t engineid,
     case uniquevarchar:
         if (uniqueStringIndex->count(*entry))
         {
-            if (uniqueStringIndex->at(*entry).subtransactionid)   // already locked
+            if (uniqueStringIndex->at(*entry).subtransactionid) // already locked
             {
-                if (uniqueStringIndex->at(*entry).subtransactionid==subtransactionid)
+                if (uniqueStringIndex->at(*entry).subtransactionid==
+                    subtransactionid)
                 {
                     return INDEXPENDINGLOCK;
                 }
@@ -758,7 +781,7 @@ locktype_e Index::checkAndLock(string *entry, int64_t rowid, int64_t engineid,
     case unorderedvarchar:
         if (unorderedStringIndex->count(*entry))
         {
-            if (unorderedStringIndex->at(*entry).subtransactionid) // already locked
+            if (unorderedStringIndex->at(*entry).subtransactionid) //already locked
             {
                 // do pending & return
                 lockQueueIndexEntry queueEntry = {};
@@ -786,7 +809,8 @@ locktype_e Index::checkAndLock(string *entry, int64_t rowid, int64_t engineid,
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 
     return NOLOCK;
@@ -826,7 +850,7 @@ void Index::replace(int64_t entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,__LINE__);
     }
 }
 void Index::replace(uint64_t entry, int64_t rowid, int64_t engineid)
@@ -863,7 +887,8 @@ void Index::replace(uint64_t entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replace(bool entry, int64_t rowid, int64_t engineid)
@@ -900,7 +925,7 @@ void Index::replace(bool entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,__LINE__);
     }
 }
 void Index::replace(long double entry, int64_t rowid, int64_t engineid)
@@ -937,7 +962,8 @@ void Index::replace(long double entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replace(char entry, int64_t rowid, int64_t engineid)
@@ -974,7 +1000,8 @@ void Index::replace(char entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -1043,7 +1070,8 @@ void Index::replace(string *entry, int64_t rowid, int64_t engineid)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -2170,7 +2198,8 @@ void Index::comparison(int64_t input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==input) // skip equal
             {
                 continue;
             }
@@ -2286,7 +2315,8 @@ void Index::comparison(uint64_t input, operatortypes_e op,
         if (op==OPERATOR_LTE)   // need equal, too
         {
             pair<multimap<uint64_t, nonLockingIndexEntry_s>::iterator,
-                 multimap<uint64_t, nonLockingIndexEntry_s>::iterator> iteratorRange;
+                 multimap<uint64_t,
+                          nonLockingIndexEntry_s>::iterator> iteratorRange;
             iteratorRange = nonuniqueUintIndex->equal_range(input);
 
             for (it=iteratorRange.first; it != iteratorRange.second; ++it)
@@ -2459,7 +2489,8 @@ void Index::comparison(long double input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==input) // skip equal
             {
                 continue;
             }
@@ -2492,7 +2523,8 @@ void Index::comparison(long double input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==input) // skip equal
             {
                 continue;
             }
@@ -2541,7 +2573,8 @@ void Index::comparison(char input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==input) // skip equal
             {
                 continue;
             }
@@ -2574,7 +2607,8 @@ void Index::comparison(char input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==input) // skip equal
             {
                 continue;
             }
@@ -2626,7 +2660,8 @@ void Index::comparison(string *input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==*input) // skip equal
             {
                 continue;
             }
@@ -2659,7 +2694,8 @@ void Index::comparison(string *input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==*input) // skip equal
             {
                 continue;
             }
@@ -2698,7 +2734,8 @@ void Index::comparison(string *input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==*input) // skip equal
             {
                 continue;
             }
@@ -2731,7 +2768,8 @@ void Index::comparison(string *input, operatortypes_e op,
         // upper_bound: LT
         for (it=itBegin; it != itEnd; ++it)
         {
-            if ((op==OPERATOR_GT || op==OPERATOR_LT) && it->first==*input)    // skip equal
+            if ((op==OPERATOR_GT || op==OPERATOR_LT) &&
+                it->first==*input) // skip equal
             {
                 continue;
             }
@@ -2768,7 +2806,8 @@ void Index::between(int64_t lower, int64_t upper,
         {
             if (mapRef.count(lower))
             {
-                returnEntries->push_back({mapRef[lower].rowid, mapRef[lower].engineid});
+                returnEntries->push_back({mapRef[lower].rowid,
+                            mapRef[lower].engineid});
             }
 
             return;
@@ -2789,7 +2828,8 @@ void Index::between(int64_t lower, int64_t upper,
 
         if (mapRef.count(upper))
         {
-            returnEntries->push_back({mapRef[upper].rowid, mapRef[upper].engineid});
+            returnEntries->push_back({mapRef[upper].rowid,
+                        mapRef[upper].engineid});
         }
     }
     break;
@@ -2808,7 +2848,8 @@ void Index::between(int64_t lower, int64_t upper,
         {
             if (it->first <= upper)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -2897,7 +2938,8 @@ void Index::between(long double lower, long double upper,
         {
             if (mapRef.count(lower))
             {
-                returnEntries->push_back({mapRef[lower].rowid, mapRef[lower].engineid});
+                returnEntries->push_back({mapRef[lower].rowid,
+                            mapRef[lower].engineid});
             }
 
             return;
@@ -2918,7 +2960,8 @@ void Index::between(long double lower, long double upper,
 
         if (mapRef.count(upper))
         {
-            returnEntries->push_back({mapRef[upper].rowid, mapRef[upper].engineid});
+            returnEntries->push_back({mapRef[upper].rowid,
+                        mapRef[upper].engineid});
         }
     }
     break;
@@ -2937,7 +2980,8 @@ void Index::between(long double lower, long double upper,
         {
             if (it->first <= upper)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -2960,7 +3004,8 @@ void Index::between(char lower, char upper, vector<indexEntry_s> *returnEntries)
         {
             if (mapRef.count(lower))
             {
-                returnEntries->push_back({mapRef[lower].rowid, mapRef[lower].engineid});
+                returnEntries->push_back({mapRef[lower].rowid,
+                            mapRef[lower].engineid});
             }
 
             return;
@@ -2981,7 +3026,8 @@ void Index::between(char lower, char upper, vector<indexEntry_s> *returnEntries)
 
         if (mapRef.count(upper))
         {
-            returnEntries->push_back({mapRef[upper].rowid, mapRef[upper].engineid});
+            returnEntries->push_back({mapRef[upper].rowid,
+                        mapRef[upper].engineid});
         }
     }
     break;
@@ -3000,7 +3046,8 @@ void Index::between(char lower, char upper, vector<indexEntry_s> *returnEntries)
         {
             if (it->first <= upper)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3027,7 +3074,8 @@ void Index::between(string lower, string upper,
         {
             if (mapRef.count(lower))
             {
-                returnEntries->push_back({mapRef[lower].rowid, mapRef[lower].engineid});
+                returnEntries->push_back({mapRef[lower].rowid,
+                            mapRef[lower].engineid});
             }
 
             return;
@@ -3048,7 +3096,8 @@ void Index::between(string lower, string upper,
 
         if (mapRef.count(upper))
         {
-            returnEntries->push_back({mapRef[upper].rowid, mapRef[upper].engineid});
+            returnEntries->push_back({mapRef[upper].rowid,
+                        mapRef[upper].engineid});
         }
     }
     break;
@@ -3067,7 +3116,8 @@ void Index::between(string lower, string upper,
         {
             if (it->first <= upper)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3081,7 +3131,8 @@ void Index::between(string lower, string upper,
         {
             if (mapRef.count(lower))
             {
-                returnEntries->push_back({mapRef[lower].rowid, mapRef[lower].engineid});
+                returnEntries->push_back({mapRef[lower].rowid,
+                            mapRef[lower].engineid});
             }
 
             return;
@@ -3102,7 +3153,8 @@ void Index::between(string lower, string upper,
 
         if (mapRef.count(upper))
         {
-            returnEntries->push_back({mapRef[upper].rowid, mapRef[upper].engineid});
+            returnEntries->push_back({mapRef[upper].rowid,
+                        mapRef[upper].engineid});
         }
     }
     break;
@@ -3121,14 +3173,16 @@ void Index::between(string lower, string upper,
         {
             if (it->first <= upper)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
     break;
 
     default:
-        fprintf(logfile, "anomaly %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -3167,7 +3221,8 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3221,7 +3276,8 @@ void Index::regex(string *regexStr, vector<indexEntry_s> *returnEntries)
             // regex search o yeah!
             if (re.FullMatch(it->first)==true)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3290,7 +3346,8 @@ void Index::getnotin(vector<int64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3300,7 +3357,8 @@ void Index::getnotin(vector<int64_t> &entries,
     {
         unorderedIntMap::iterator it;
 
-        for (it = unorderedIntIndex->begin(); it != unorderedIntIndex->end(); ++it)
+        for (it = unorderedIntIndex->begin(); it != unorderedIntIndex->end();
+             ++it)
         {
             bool isfound=false;
 
@@ -3315,7 +3373,8 @@ void Index::getnotin(vector<int64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3325,7 +3384,8 @@ void Index::getnotin(vector<int64_t> &entries,
     {
         nonuniqueIntMap::iterator it;
 
-        for (it = nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end(); ++it)
+        for (it = nonuniqueIntIndex->begin(); it != nonuniqueIntIndex->end();
+             ++it)
         {
             bool isfound=false;
 
@@ -3340,7 +3400,8 @@ void Index::getnotin(vector<int64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3375,7 +3436,8 @@ void Index::getnotin(vector<uint64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3401,7 +3463,8 @@ void Index::getnotin(vector<uint64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3427,7 +3490,8 @@ void Index::getnotin(vector<uint64_t> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3462,7 +3526,8 @@ void Index::getnotin(vector<bool> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3488,7 +3553,8 @@ void Index::getnotin(vector<bool> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3514,7 +3580,8 @@ void Index::getnotin(vector<bool> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3549,7 +3616,8 @@ void Index::getnotin(vector<long double> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3575,7 +3643,8 @@ void Index::getnotin(vector<long double> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3601,7 +3670,8 @@ void Index::getnotin(vector<long double> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3636,7 +3706,8 @@ void Index::getnotin(vector<char> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3662,7 +3733,8 @@ void Index::getnotin(vector<char> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3688,7 +3760,8 @@ void Index::getnotin(vector<char> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3726,7 +3799,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3752,7 +3826,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3780,7 +3855,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3808,7 +3884,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3834,7 +3911,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3860,7 +3938,8 @@ void Index::getnotin(vector<string> &entries,
 
             if (isfound==false)
             {
-                returnEntries->push_back({it->second.rowid, it->second.engineid});
+                returnEntries->push_back({it->second.rowid,
+                            it->second.engineid});
             }
         }
     }
@@ -3899,7 +3978,8 @@ void Index::commitRollback(int64_t input, int64_t subtransactionid,
                 return;
             }
 
-            if (unorderedIntIndex->at(input).subtransactionid != subtransactionid)
+            if (unorderedIntIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -3937,7 +4017,8 @@ void Index::commitRollback(int64_t input, int64_t subtransactionid,
                 return;
             }
 
-            if (unorderedIntIndex->at(input).subtransactionid != subtransactionid)
+            if (unorderedIntIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -4314,7 +4395,8 @@ void Index::commitRollback(string input, int64_t subtransactionid,
                 return;
             }
 
-            if (uniqueStringIndex->at(input).subtransactionid != subtransactionid)
+            if (uniqueStringIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -4343,7 +4425,8 @@ void Index::commitRollback(string input, int64_t subtransactionid,
                 return;
             }
 
-            if (uniqueStringIndex->at(input).subtransactionid != subtransactionid)
+            if (uniqueStringIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -4382,7 +4465,8 @@ void Index::commitRollback(string input, int64_t subtransactionid,
                 return;
             }
 
-            if (uniqueStringIndex->at(input).subtransactionid != subtransactionid)
+            if (uniqueStringIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -4410,7 +4494,8 @@ void Index::commitRollback(string input, int64_t subtransactionid,
                 return;
             }
 
-            if (uniqueStringIndex->at(input).subtransactionid != subtransactionid)
+            if (uniqueStringIndex->at(input).subtransactionid !=
+                subtransactionid)
             {
                 return;
             }
@@ -4470,7 +4555,8 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid, int64_t input)
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replaceUnique(int64_t newrowid, int64_t newengineid, uint64_t input)
@@ -4500,7 +4586,8 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid, uint64_t input)
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replaceUnique(int64_t newrowid, int64_t newengineid, bool input)
@@ -4530,7 +4617,8 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid, bool input)
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replaceUnique(int64_t newrowid, int64_t newengineid,
@@ -4561,7 +4649,8 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid,
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replaceUnique(int64_t newrowid, int64_t newengineid, char input)
@@ -4591,7 +4680,8 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid, char input)
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 void Index::replaceUnique(int64_t newrowid, int64_t newengineid, string &input)
@@ -4645,12 +4735,14 @@ void Index::replaceUnique(int64_t newrowid, int64_t newengineid, string &input)
     break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
 void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
-                             int64_t newrowid, int64_t newengineid, int64_t input)
+                             int64_t newrowid, int64_t newengineid,
+                             int64_t input)
 {
     pair<multimap<int64_t, nonLockingIndexEntry_s>::iterator,
          multimap<int64_t, nonLockingIndexEntry_s>::iterator> itRange;
@@ -4668,7 +4760,8 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 }
 
 void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
-                             int64_t newrowid, int64_t newengineid, uint64_t input)
+                             int64_t newrowid, int64_t newengineid,
+                             uint64_t input)
 {
     pair<multimap<uint64_t, nonLockingIndexEntry_s>::iterator,
          multimap<uint64_t, nonLockingIndexEntry_s>::iterator> itRange;
@@ -4704,7 +4797,8 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 }
 
 void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
-                             int64_t newrowid, int64_t newengineid, long double input)
+                             int64_t newrowid, int64_t newengineid,
+                             long double input)
 {
     pair<multimap<long double, nonLockingIndexEntry_s>::iterator,
          multimap<long double, nonLockingIndexEntry_s>::iterator> itRange;
@@ -4740,7 +4834,8 @@ void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
 }
 
 void Index::replaceNonunique(int64_t oldrowid, int64_t oldengineid,
-                             int64_t newrowid, int64_t newengineid, string &input)
+                             int64_t newrowid, int64_t newengineid,
+                             string &input)
 {
     trimspace(input);
 
@@ -4889,7 +4984,8 @@ void Index::deleteNonuniqueEntry(bool entry, int64_t rowid, int64_t engineid)
     }
 }
 
-void Index::deleteNonuniqueEntry(long double entry, int64_t rowid, int64_t engineid)
+void Index::deleteNonuniqueEntry(long double entry, int64_t rowid,
+                                 int64_t engineid)
 {
     pair<multimap<long double, nonLockingIndexEntry_s>::iterator,
          multimap<long double, nonLockingIndexEntry_s>::iterator> iteratorRange;
@@ -4983,7 +5079,8 @@ void Index::deleteUniqueEntry(int64_t entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -5000,7 +5097,8 @@ void Index::deleteUniqueEntry(uint64_t entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -5017,7 +5115,8 @@ void Index::deleteUniqueEntry(bool entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -5034,7 +5133,8 @@ void Index::deleteUniqueEntry(long double entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -5051,7 +5151,8 @@ void Index::deleteUniqueEntry(char entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 
@@ -5078,7 +5179,8 @@ void Index::deleteUniqueEntry(string *entry)
         break;
 
     default:
-        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__, __LINE__);
+        fprintf(logfile, "anomaly: %i %s %i\n", indexmaptype, __FILE__,
+                __LINE__);
     }
 }
 

@@ -17,6 +17,14 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Table.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:52:59 2013
+ * 
+ * @brief  Table class. Has Fields and Indices.
+ */
+
 #ifndef INFINISQLTABLE_H
 #define INFINISQLTABLE_H
 
@@ -52,8 +60,8 @@ typedef struct
 class Table
 {
 public:
-    Table(int64_t);
-    virtual ~Table(void)
+    Table(int64_t idarg);
+    virtual ~Table()
     {
         if (id)
         {
@@ -69,31 +77,42 @@ public:
     friend class UserSchemaMgr;
 
     //private:
-    void setname(string);
-    std::string *getname(void);
-    int64_t addfield(fieldtype_e, int64_t, std::string, indextype_e);
-    bool makerow(vector<fieldValue_s> *, std::string *);
-    bool unmakerow(std::string *, vector<fieldValue_s> *);
+    void setname(string namearg);
+    std::string *getname();
+    int64_t addfield(fieldtype_e type, int64_t length, std::string name,
+                     indextype_e indextype);
+    bool makerow(vector<fieldValue_s> *fieldVal, std::string *res);
+    bool unmakerow(std::string *rowstring,
+                   vector<fieldValue_s> *resultFields);
     // for fetch (cursor)
-    void getrows(vector<int64_t>, locktype_e, int64_t, int64_t,
-                 vector<returnRow_s> *, vector<int64_t> *, int64_t);
-    // stage. return rowid. take command (insert|update|delete), subtransactionid,
+    void getrows(vector<int64_t> rowids, locktype_e locktype,
+                 int64_t subtransactionid, int64_t pendingcmdid,
+                 vector<returnRow_s> *returnRows,
+                 vector<int64_t> *lockPendingRowids, int64_t tacmdentrypoint);
+    // stage. return rowid. take command (insert|update|delete),
+    // subtransactionid,
     // row, rowid
     //  int64_t stage(pendingprimitive_e, int64_t, string *, int64_t);
     // commit, i guess just the rowid is enough to find it
     //  void commit(int64_t, int64_t);
     // rollback
     //  void rollback(int64_t, int64_t);
-    int64_t getnextrowid(void);
-    void newrow(int64_t, int64_t, string &);
-    int64_t updaterow(int64_t, int64_t, string *);
-    int64_t deleterow(int64_t, int64_t);
-    int64_t deleterow(int64_t, int64_t, int64_t, int64_t);
+    int64_t getnextrowid();
+    void newrow(int64_t newrowid, int64_t subtransactionid, string &row);
+    int64_t updaterow(int64_t rowid, int64_t subtransactionid, string *row);
+    int64_t deleterow(int64_t rowid, int64_t subtransactionid);
+    int64_t deleterow(int64_t rowid, int64_t subtransactionid,
+                      int64_t forward_rowid, int64_t forward_engineid);
     // for select
-    void selectrows(vector<int64_t> *, locktype_e, int64_t, int64_t,
-                    vector<returnRow_s> *, int64_t);
-    locktype_e assignToLockQueue(int64_t, locktype_e, int64_t, int64_t, int64_t);
-    void commitRollbackUnlock(int64_t, int64_t, enginecmd_e);
+    void selectrows(vector<int64_t> *rowids, locktype_e locktype,
+                    int64_t subtransactionid, int64_t pendingcmdid,
+                    vector<returnRow_s> *returnRows, int64_t tacmdentrypoint);
+    locktype_e assignToLockQueue(int64_t rowid, locktype_e locktype,
+                                 int64_t subtransactionid,
+                                 int64_t pendingcmdid,
+                                 int64_t tacmdentrypoint);
+    void commitRollbackUnlock(int64_t rowid, int64_t subtransactionid,
+                              enginecmd_e cmd);
 
     //private:
     int64_t id;

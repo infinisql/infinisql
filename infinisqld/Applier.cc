@@ -17,10 +17,19 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Applier.cc
+ * @author  <infinisql@localhost.localdomain>
+ * @date   Tue Dec 17 13:02:36 2013
+ * 
+ * @brief  Applies transactional data modifications as part of synchronous
+ * replication.
+ */
+
 #include "gch.h"
 #include "Applier.h"
 #include "TransactionAgent.h"
-#line 24 "Applier.cc"
+#line 33 "Applier.cc"
 
 int64_t applierid;
 class TransactionAgent *taPtr;
@@ -28,7 +37,8 @@ Topology::addressStruct sourceAddr;
 int64_t partitioncount;
 
 Applier::Applier(class TransactionAgent *taPtrarg, int64_t domainidarg,
-                 Topology::addressStruct sourceAddrarg, int64_t partitioncountarg) :
+                 Topology::addressStruct sourceAddrarg,
+                 int64_t partitioncountarg) :
     taPtr(taPtrarg), domainid(domainidarg), sourceAddr(sourceAddrarg),
     partitioncount(partitioncountarg)
 {

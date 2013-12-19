@@ -17,18 +17,37 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Applier.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:03:48 2013
+ * 
+ * @brief  Applies transactional data modifications as part of synchronous
+ * replication.
+ */
+
 #ifndef INFINISQLAPPLIER_H
 #define INFINISQLAPPLIER_H
 
 class TransactionAgent;
 
+/** 
+ * @brief On replicas, this class replicates "applies" transactions received
+ * by TransactionAgent
+ *
+ * The receiving TransactionAgent begins the process by sending data to
+ * each Engine, and then creating an Applier object and putting it in a map.
+ * Engines apply replicated transaction data in strict order based on
+ * subtransactionid.
+ */
 class Applier
 {
 public:
-  Applier(class TransactionAgent *, int64_t, Topology::addressStruct, int64_t);
+  Applier(class TransactionAgent *taPtrarg, int64_t domainidarg,
+          Topology::addressStruct sourceAddrarg, int64_t partitionidarg);
   virtual ~Applier();
 
-  void ackedApply(class MessageAckApply &);
+  void ackedApply(class MessageAckApply &msg);
 
   int64_t applierid;
   class TransactionAgent *taPtr;
@@ -38,4 +57,3 @@ public:
 };
 
 #endif  /* INFINISQLAPPLIER_H */
-

@@ -17,14 +17,24 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubTransaction.h"
-#line 22 "SubTransaction.cc"
+/**
+ * @file   SubTransaction.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:49:38 2013
+ * 
+ * @brief  Engine's class corresponding to TransactionAgent's Transaction.
+ * Each data manipulation activity has a SubTransaction associated with the
+ * Transaction which requested the activity.
+ */
 
-//SubTransaction::SubTransaction(int64_t taidarg, int64_t transactionidarg,
-SubTransaction::SubTransaction(Topology::addressStruct &taAddrarg, int64_t transactionidarg,
-                               int64_t domainidarg, class Engine *enginePtrarg) : taAddr(taAddrarg),
-                                                                                  transactionid(transactionidarg), domainid(domainidarg),
-                                                                                  enginePtr(enginePtrarg)
+#include "SubTransaction.h"
+#line 32 "SubTransaction.cc"
+
+SubTransaction::SubTransaction(Topology::addressStruct &taAddrarg,
+                               int64_t transactionidarg, int64_t domainidarg,
+                               class Engine *enginePtrarg) :
+    taAddr(taAddrarg), transactionid(transactionidarg), domainid(domainidarg),
+    enginePtr(enginePtrarg)
 {
     subtransactionid = enginePtr->getnextsubtransactionid();
     enginePtr->SubTransactions[subtransactionid] = this;
@@ -53,50 +63,60 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
         {
         case NEWROW:
         {
-            msgref.subtransactionStruct.rowid = newrow(subtransactionCmdRef.subtransactionStruct.tableid,
-                                                       subtransactionCmdRef.row);
+            msgref.subtransactionStruct.rowid =
+                newrow(subtransactionCmdRef.subtransactionStruct.tableid,
+                       subtransactionCmdRef.row);
             msgref.subtransactionStruct.locktype = WRITELOCK;
         }
         break;
 
         case UNIQUEINDEX:
         {
-            msgref.subtransactionStruct.locktype = uniqueIndex(subtransactionCmdRef.subtransactionStruct.tableid,
-                                                               subtransactionCmdRef.subtransactionStruct.fieldid, subtransactionCmdRef.subtransactionStruct.rowid,
-                                                               subtransactionCmdRef.subtransactionStruct.engineid,
-                                                               &subtransactionCmdRef.fieldVal);
-            msgref.subtransactionStruct.tableid = subtransactionCmdRef.subtransactionStruct.tableid;
-            msgref.subtransactionStruct.fieldid = subtransactionCmdRef.subtransactionStruct.fieldid;
+            msgref.subtransactionStruct.locktype =
+                uniqueIndex(subtransactionCmdRef.subtransactionStruct.tableid,
+                            subtransactionCmdRef.subtransactionStruct.fieldid,
+                            subtransactionCmdRef.subtransactionStruct.rowid,
+                            subtransactionCmdRef.subtransactionStruct.engineid,
+                            &subtransactionCmdRef.fieldVal);
+            msgref.subtransactionStruct.tableid =
+                subtransactionCmdRef.subtransactionStruct.tableid;
+            msgref.subtransactionStruct.fieldid =
+                subtransactionCmdRef.subtransactionStruct.fieldid;
             msgref.fieldVal = subtransactionCmdRef.fieldVal;
         }
         break;
 
         case UPDATEROW:
         {
-            msgref.subtransactionStruct.status = updaterow(subtransactionCmdRef.subtransactionStruct.tableid,
-                                                           subtransactionCmdRef.subtransactionStruct.rowid, &subtransactionCmdRef.row);
+            msgref.subtransactionStruct.status =
+                updaterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                          subtransactionCmdRef.subtransactionStruct.rowid,
+                          &subtransactionCmdRef.row);
             msgref.subtransactionStruct.locktype=WRITELOCK;
         }
         break;
 
         case DELETEROW:
         {
-            msgref.subtransactionStruct.rowid = subtransactionCmdRef.subtransactionStruct.rowid;
-            msgref.subtransactionStruct.tableid = subtransactionCmdRef.subtransactionStruct.tableid;
-            msgref.subtransactionStruct.engineid = subtransactionCmdRef.subtransactionStruct.engineid;
-            msgref.subtransactionStruct.status = deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
-                                                           subtransactionCmdRef.subtransactionStruct.rowid);
-            //          printf("%s %i deleterow\n", __FILE__, __LINE__);
+            msgref.subtransactionStruct.rowid =
+                subtransactionCmdRef.subtransactionStruct.rowid;
+            msgref.subtransactionStruct.tableid =
+                subtransactionCmdRef.subtransactionStruct.tableid;
+            msgref.subtransactionStruct.engineid =
+                subtransactionCmdRef.subtransactionStruct.engineid;
+            msgref.subtransactionStruct.status =
+                deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                          subtransactionCmdRef.subtransactionStruct.rowid);
         }
         break;
 
         case REPLACEDELETEROW:
         {
-            // thingy to call deleterow() like above, then set the forwarder
-            msgref.subtransactionStruct.status = deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
-                                                           subtransactionCmdRef.subtransactionStruct.rowid,
-                                                           subtransactionCmdRef.subtransactionStruct.forward_rowid,
-                                                           subtransactionCmdRef.subtransactionStruct.forward_engineid);
+            msgref.subtransactionStruct.status =
+                deleterow(subtransactionCmdRef.subtransactionStruct.tableid,
+                          subtransactionCmdRef.subtransactionStruct.rowid,
+                          subtransactionCmdRef.subtransactionStruct.forward_rowid,
+                          subtransactionCmdRef.subtransactionStruct.forward_engineid);
             msgref.subtransactionStruct.locktype=WRITELOCK;
         }
         break;
@@ -130,7 +150,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
         default:
             fprintf(logfile, "anomaly: %i %s %i\n",
-                    subtransactionCmdRef.transactionStruct.transaction_enginecmd, __FILE__, __LINE__);
+                    subtransactionCmdRef.transactionStruct.transaction_enginecmd,
+                    __FILE__, __LINE__);
         }
 
         replyTransaction((void *)msg);
@@ -150,8 +171,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
             if (!schemaPtr->tables.count(rowFieldRef.tableid))
             {
-                printf("%s %i anomaly, barfing, tableid %i\n", __FILE__, __LINE__,
-                       rowFieldRef.tableid);
+                printf("%s %i anomaly, barfing, tableid %i\n", __FILE__,
+                       __LINE__, rowFieldRef.tableid);
                 abort();
             }
 
@@ -159,12 +180,15 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
             if (rowFieldRef.isrow==true)
             {
-                tablePtr->commitRollbackUnlock(rowFieldRef.rowid, subtransactionid,
+                tablePtr->commitRollbackUnlock(rowFieldRef.rowid,
+                                               subtransactionid,
                                                (enginecmd_e) subtransactionCmdRef.transactionStruct.transaction_enginecmd);
 
                 // drain lock queue if: sueccessful delete & commit, or insert &
-                // rollback is a non-existent row sufficient to infer? For now, yes,
-                // but later, maybe not, if there's some other flag. Figure it out at
+                // rollback is a non-existent row sufficient to infer?
+                // For now, yes,
+                // but later, maybe not, if there's some other flag. Figure it
+                // out at
                 // that point.
                 if (tablePtr->rows.count(rowFieldRef.rowid) &&
                     (enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd !=
@@ -185,8 +209,10 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 
                 if (rowFieldRef.fieldVal.isnull==true)
                 {
-                    printf("%s %i INSERTNULLENTRY unique index\n", __FILE__, __LINE__);
-                    indexPtr->insertNullEntry(rowFieldRef.rowid, rowFieldRef.engineid);
+                    printf("%s %i INSERTNULLENTRY unique index\n", __FILE__,
+                           __LINE__);
+                    indexPtr->insertNullEntry(rowFieldRef.rowid,
+                                              rowFieldRef.engineid);
                 }
                 else
                 {
@@ -236,21 +262,20 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                         break;
 
                     default:
-                        fprintf(logfile, "anomaly: %i %s %i\n", indexPtr->fieldtype,
-                                __FILE__, __LINE__);
+                        fprintf(logfile, "anomaly: %i %s %i\n",
+                                indexPtr->fieldtype, __FILE__, __LINE__);
                     }
                 }
 
-                if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd ==
-                    COMMITCMD)
+                if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd == COMMITCMD)
                 {
                     drainIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
                                         &rowFieldRef.fieldVal);
                 }
-                else if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd ==
-                         ROLLBACKCMD)
+                else if ((enginecmd_e)subtransactionCmdRef.transactionStruct.transaction_enginecmd == ROLLBACKCMD)
                 {
-                    processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                    processIndexLockQueue(rowFieldRef.tableid,
+                                          rowFieldRef.fieldid,
                                           &rowFieldRef.fieldVal);
                 }
             }
@@ -264,8 +289,10 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                 {
                     if (rowFieldRef.fieldVal.isnull==true)
                     {
-                        indexPtr->replaceNull(rowFieldRef.rowid, rowFieldRef.engineid,
-                                              rowFieldRef.newrowid, rowFieldRef.engineid);
+                        indexPtr->replaceNull(rowFieldRef.rowid,
+                                              rowFieldRef.engineid,
+                                              rowFieldRef.newrowid,
+                                              rowFieldRef.engineid);
                     }
                     else
                     {
@@ -281,7 +308,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
                                                            rowFieldRef.newengineid,
                                                            rowFieldRef.fieldVal.value.integer);
                             }
@@ -298,7 +326,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
                                                            rowFieldRef.newengineid,
                                                            rowFieldRef.fieldVal.value.uinteger);
                             }
@@ -315,8 +344,10 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
-                                                           rowFieldRef.newengineid, rowFieldRef.fieldVal.value.boolean);
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
+                                                           rowFieldRef.newengineid,
+                                                           rowFieldRef.fieldVal.value.boolean);
                             }
 
                             break;
@@ -331,7 +362,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
                                                            rowFieldRef.newengineid,
                                                            rowFieldRef.fieldVal.value.floating);
                             }
@@ -348,7 +380,8 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
                                                            rowFieldRef.newengineid,
                                                            rowFieldRef.fieldVal.value.character);
                             }
@@ -359,13 +392,16 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             if (indexPtr->isunique==true)
                             {
                                 indexPtr->replaceUnique(rowFieldRef.newrowid,
-                                                        rowFieldRef.newengineid, rowFieldRef.fieldVal.str);
+                                                        rowFieldRef.newengineid,
+                                                        rowFieldRef.fieldVal.str);
                             }
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
-                                                           rowFieldRef.newengineid, rowFieldRef.fieldVal.str);
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
+                                                           rowFieldRef.newengineid,
+                                                           rowFieldRef.fieldVal.str);
                             }
 
                             break;
@@ -374,20 +410,23 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                             if (indexPtr->isunique==true)
                             {
                                 indexPtr->replaceUnique(rowFieldRef.newrowid,
-                                                        rowFieldRef.newengineid, rowFieldRef.fieldVal.str);
+                                                        rowFieldRef.newengineid,
+                                                        rowFieldRef.fieldVal.str);
                             }
                             else
                             {
                                 indexPtr->replaceNonunique(rowFieldRef.rowid,
-                                                           rowFieldRef.engineid, rowFieldRef.newrowid,
-                                                           rowFieldRef.newengineid, rowFieldRef.fieldVal.str);
+                                                           rowFieldRef.engineid,
+                                                           rowFieldRef.newrowid,
+                                                           rowFieldRef.newengineid,
+                                                           rowFieldRef.fieldVal.str);
                             }
 
                             break;
 
                         default:
-                            fprintf(logfile, "anomaly: %i %s %i\n", indexPtr->fieldtype,
-                                    __FILE__, __LINE__);
+                            fprintf(logfile, "anomaly: %i %s %i\n",
+                                    indexPtr->fieldtype, __FILE__, __LINE__);
                         }
                     }
 
@@ -423,13 +462,11 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
-                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       integer, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.integer, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
-                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       integer, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.integer, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
 
                     break;
@@ -440,18 +477,17 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                         indexPtr->deleteUniqueEntry(rowFieldRef.fieldVal.value.
                                                     uinteger);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
-                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       uinteger, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.uinteger, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
-                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       uinteger, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.uinteger, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
 
                     break;
@@ -461,18 +497,17 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                     {
                         indexPtr->deleteUniqueEntry(rowFieldRef.fieldVal.value.boolean);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
-                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       boolean, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.boolean, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
-                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       boolean, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.boolean, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
 
                     break;
@@ -483,18 +518,17 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                         indexPtr->deleteUniqueEntry(rowFieldRef.fieldVal.value.
                                                     floating);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid,  rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
-                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       floating, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.floating, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
-                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       floating, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.floating, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
 
                     break;
@@ -502,21 +536,19 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                 case CHAR:
                     if (indexPtr->isunique==true)   // delete unique
                     {
-                        indexPtr->deleteUniqueEntry(rowFieldRef.fieldVal.value.
-                                                    character);
+                        indexPtr->deleteUniqueEntry(rowFieldRef.fieldVal.value.character);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
-                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       character, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->deleteNonuniqueEntry(rowFieldRef.fieldVal.value.character, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
-                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.
-                                                       character, rowFieldRef.rowid, rowFieldRef.engineid);
+                        indexPtr->insertNonuniqueEntry(rowFieldRef.fieldVal.value.character, rowFieldRef.rowid, rowFieldRef.engineid);
                     }
 
                     break;
@@ -526,18 +558,21 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                     {
                         indexPtr->deleteUniqueEntry(&rowFieldRef.fieldVal.str);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
                         indexPtr->deleteNonuniqueEntry(&rowFieldRef.fieldVal.str,
-                                                       rowFieldRef.rowid, rowFieldRef.engineid);
+                                                       rowFieldRef.rowid,
+                                                       rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
                         indexPtr->insertNonuniqueEntry(&rowFieldRef.fieldVal.str,
-                                                       rowFieldRef.rowid, rowFieldRef.engineid);
+                                                       rowFieldRef.rowid,
+                                                       rowFieldRef.engineid);
                     }
 
                     break;
@@ -547,18 +582,21 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
                     {
                         indexPtr->deleteUniqueEntry(&rowFieldRef.fieldVal.str);
                         // process lock queue
-                        processIndexLockQueue(rowFieldRef.tableid, rowFieldRef.fieldid,
+                        processIndexLockQueue(rowFieldRef.tableid,
+                                              rowFieldRef.fieldid,
                                               &rowFieldRef.fieldVal);
                     }
                     else if (rowFieldRef.deleteindexentry==true) // delete non-unique
                     {
                         indexPtr->deleteNonuniqueEntry(&rowFieldRef.fieldVal.str,
-                                                       rowFieldRef.rowid, rowFieldRef.engineid);
+                                                       rowFieldRef.rowid,
+                                                       rowFieldRef.engineid);
                     }
                     else     // add non-unique
                     {
                         indexPtr->insertNonuniqueEntry(&rowFieldRef.fieldVal.str,
-                                                       rowFieldRef.rowid, rowFieldRef.engineid);
+                                                       rowFieldRef.rowid,
+                                                       rowFieldRef.engineid);
                     }
 
                     break;
@@ -585,13 +623,16 @@ void SubTransaction::processTransactionMessage(class Message *msgrcvarg)
 }
 
 locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
-                                       int64_t rowid, int64_t engineid, fieldValue_s *val)
+                                       int64_t rowid, int64_t engineid,
+                                       fieldValue_s *val)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
         *((class MessageSubtransactionCmd *)msgrcv);
     lockQueueIndexEntry queueEntry = {};
-    queueEntry.pendingcmdid = subtransactionCmdRef.transactionStruct.transaction_pendingcmdid;
-    queueEntry.tacmdentrypoint = subtransactionCmdRef.transactionStruct.transaction_tacmdentrypoint;
+    queueEntry.pendingcmdid =
+        subtransactionCmdRef.transactionStruct.transaction_pendingcmdid;
+    queueEntry.tacmdentrypoint =
+        subtransactionCmdRef.transactionStruct.transaction_tacmdentrypoint;
     queueEntry.entry.engineid = engineid;
     queueEntry.entry.rowid = rowid;
     queueEntry.entry.subtransactionid = subtransactionid;
@@ -680,8 +721,7 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         if (indexRef.unorderedUintIndex->at(val->value.uinteger).subtransactionid)
         {
             // there is already a staged, locked entry, so go into the lock queue
-            indexRef.uintLockQueue->operator [](val->value.uinteger).
-                push(queueEntry);
+            indexRef.uintLockQueue->operator [](val->value.uinteger).push(queueEntry);
             return INDEXPENDINGLOCK;
         }
 
@@ -703,8 +743,7 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         if (indexRef.uniqueBoolIndex->at(val->value.boolean).subtransactionid)
         {
             // there is already a staged, locked entry, so go into the lock queue
-            indexRef.boolLockQueue->operator [](val->value.boolean).
-                push(queueEntry);
+            indexRef.boolLockQueue->operator [](val->value.boolean).push(queueEntry);
             return INDEXPENDINGLOCK;
         }
 
@@ -755,7 +794,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         }
 
         // there is an entry that is not locked: constraint violation
-        printf("%s %i NOLOCK float %Lf\n", __FILE__, __LINE__, val->value.floating);
+        printf("%s %i NOLOCK float %Lf\n", __FILE__, __LINE__,
+               val->value.floating);
         return NOLOCK;
     }
     break;
@@ -774,8 +814,7 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
             subtransactionid)
         {
             // there is already a staged, locked entry, so go into the lock queue
-            indexRef.floatLockQueue->operator [](val->value.floating).
-                push(queueEntry);
+            indexRef.floatLockQueue->operator [](val->value.floating).push(queueEntry);
             return INDEXPENDINGLOCK;
         }
 
@@ -803,7 +842,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         }
 
         // there is an entry that is not locked: constraint violation
-        printf("%s %i NOLOCK char %c\n", __FILE__, __LINE__, val->value.character);
+        printf("%s %i NOLOCK char %c\n", __FILE__, __LINE__,
+               val->value.character);
         return NOLOCK;
     }
     break;
@@ -827,7 +867,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
             return INDEXPENDINGLOCK;
         }
 
-        // there is an entry that is not locked, so that means constraint violation
+        // there is an entry that is not locked, so that means constraint
+        // violation
         return NOLOCK;
     }
     break;
@@ -852,7 +893,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         }
 
         // there is an entry that is not locked: constraint violation
-        printf("%s %i NOLOCK charx '%s'\n", __FILE__, __LINE__, val->str.c_str());
+        printf("%s %i NOLOCK charx '%s'\n", __FILE__, __LINE__,
+               val->str.c_str());
         return NOLOCK;
     }
     break;
@@ -874,7 +916,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
             return INDEXPENDINGLOCK;
         }
 
-        // there is an entry that is not locked, so that means constraint violation
+        // there is an entry that is not locked, so that means constraint
+        // violation
         return NOLOCK;
     }
     break;
@@ -899,7 +942,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
         }
 
         // there is an entry that is not locked: constraint violation
-        printf("%s %i NOLOCK varchar '%s'\n", __FILE__, __LINE__, val->str.c_str());
+        printf("%s %i NOLOCK varchar '%s'\n", __FILE__, __LINE__,
+               val->str.c_str());
         return NOLOCK;
     }
     break;
@@ -921,7 +965,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
             return INDEXPENDINGLOCK;
         }
 
-        // there is an entry that is not locked, so that means constraint violation
+        // there is an entry that is not locked, so that means constraint
+        // violation
         return NOLOCK;
     }
     break;
@@ -934,7 +979,8 @@ locktype_e SubTransaction::uniqueIndex(int64_t tableid, int64_t fieldid,
 }
 
 void SubTransaction::indexSearch(int64_t tableid, int64_t fieldid,
-                                 searchParams_s *searchParameters, vector<nonLockingIndexEntry_s> *indexHits)
+                                 searchParams_s *searchParameters,
+                                 vector<nonLockingIndexEntry_s> *indexHits)
 {
     class Index &indexRef = schemaPtr->tables[tableid]->fields[fieldid].index;
     // for the various operation types, also field types. 11 ops, 7 field types
@@ -1517,42 +1563,48 @@ void SubTransaction::indexSearch(int64_t tableid, int64_t fieldid,
         case INT:
         {
             indexRef.between(searchParameters->values[0].value.integer,
-                             searchParameters->values[1].value.integer, indexHits);
+                             searchParameters->values[1].value.integer,
+                             indexHits);
         }
         break;
 
         case UINT:
         {
             indexRef.between(searchParameters->values[0].value.uinteger,
-                             searchParameters->values[1].value.uinteger, indexHits);
+                             searchParameters->values[1].value.uinteger,
+                             indexHits);
         }
         break;
 
         case BOOL:
         {
             indexRef.between(searchParameters->values[0].value.boolean,
-                             searchParameters->values[1].value.boolean, indexHits);
+                             searchParameters->values[1].value.boolean,
+                             indexHits);
         }
         break;
 
         case FLOAT:
         {
             indexRef.between(searchParameters->values[0].value.floating,
-                             searchParameters->values[1].value.floating, indexHits);
+                             searchParameters->values[1].value.floating,
+                             indexHits);
         }
         break;
 
         case CHAR:
         {
             indexRef.between(searchParameters->values[0].value.character,
-                             searchParameters->values[1].value.character, indexHits);
+                             searchParameters->values[1].value.character,
+                             indexHits);
         }
         break;
 
         case CHARX:
         {
             indexRef.between(searchParameters->values[0].str,
-                             searchParameters->values[1].str, indexHits);
+                             searchParameters->values[1].str,
+                             indexHits);
         }
         break;
 
@@ -1578,35 +1630,40 @@ void SubTransaction::indexSearch(int64_t tableid, int64_t fieldid,
         case INT:
         {
             indexRef.notbetween(searchParameters->values[0].value.integer,
-                                searchParameters->values[1].value.integer, indexHits);
+                                searchParameters->values[1].value.integer,
+                                indexHits);
         }
         break;
 
         case UINT:
         {
             indexRef.notbetween(searchParameters->values[0].value.uinteger,
-                                searchParameters->values[1].value.uinteger, indexHits);
+                                searchParameters->values[1].value.uinteger,
+                                indexHits);
         }
         break;
 
         case BOOL:
         {
             indexRef.notbetween(searchParameters->values[0].value.boolean,
-                                searchParameters->values[1].value.boolean, indexHits);
+                                searchParameters->values[1].value.boolean,
+                                indexHits);
         }
         break;
 
         case FLOAT:
         {
             indexRef.notbetween(searchParameters->values[0].value.floating,
-                                searchParameters->values[1].value.floating, indexHits);
+                                searchParameters->values[1].value.floating,
+                                indexHits);
         }
         break;
 
         case CHAR:
         {
             indexRef.notbetween(searchParameters->values[0].value.character,
-                                searchParameters->values[1].value.character, indexHits);
+                                searchParameters->values[1].value.character,
+                                indexHits);
         }
         break;
 
@@ -1726,11 +1783,14 @@ void SubTransaction::replyTransaction(void *data)
         *(class MessageTransaction *)msgrcv;
     msgref.messageStruct.topic = TOPIC_TRANSACTION;
     msgref.messageStruct.payloadtype = msgrcvRef.messageStruct.payloadtype;
-    msgref.transactionStruct.transactionid = msgrcvRef.transactionStruct.transactionid;
+    msgref.transactionStruct.transactionid =
+        msgrcvRef.transactionStruct.transactionid;
     msgref.transactionStruct.subtransactionid = subtransactionid;
     msgref.transactionStruct.engineinstance = enginePtr->partitionid;
-    msgref.transactionStruct.transaction_tacmdentrypoint = msgrcvRef.transactionStruct.transaction_tacmdentrypoint;
-    msgref.transactionStruct.transaction_pendingcmdid = msgrcvRef.transactionStruct.transaction_pendingcmdid;
+    msgref.transactionStruct.transaction_tacmdentrypoint =
+        msgrcvRef.transactionStruct.transaction_tacmdentrypoint;
+    msgref.transactionStruct.transaction_pendingcmdid =
+        msgrcvRef.transactionStruct.transaction_pendingcmdid;
 
     enginePtr->mboxes.toActor(enginePtr->myIdentity.address, taAddr,
                               *((class Message *)data));
@@ -1740,29 +1800,23 @@ void SubTransaction::replyTransaction(void *data)
 void SubTransaction::replyTransaction(class MessageTransaction &sndRef,
                                       class MessageTransaction &rcvRef)
 {
-    /*
-      Mbox::msgstruct msgsnd = {};
-      msgsnd.data = &sndRef;
-    */
     sndRef.messageStruct.topic = TOPIC_TRANSACTION;
     sndRef.messageStruct.payloadtype = rcvRef.messageStruct.payloadtype;
     sndRef.messageStruct.payloadtype = rcvRef.messageStruct.payloadtype;
-    sndRef.transactionStruct.transactionid = rcvRef.transactionStruct.transactionid;
+    sndRef.transactionStruct.transactionid =
+        rcvRef.transactionStruct.transactionid;
     sndRef.transactionStruct.subtransactionid = subtransactionid;
     sndRef.transactionStruct.engineinstance = enginePtr->partitionid;
-    sndRef.transactionStruct.transaction_tacmdentrypoint = rcvRef.transactionStruct.transaction_tacmdentrypoint;
-    sndRef.transactionStruct.transaction_pendingcmdid = rcvRef.transactionStruct.transaction_pendingcmdid;
+    sndRef.transactionStruct.transaction_tacmdentrypoint =
+        rcvRef.transactionStruct.transaction_tacmdentrypoint;
+    sndRef.transactionStruct.transaction_pendingcmdid =
+        rcvRef.transactionStruct.transaction_pendingcmdid;
 
-    //  enginePtr->mboxes.transactionAgents[taid].send(msgsnd, false);
     enginePtr->mboxes.toActor(enginePtr->myIdentity.address, taAddr, sndRef);
-    /*
-      enginePtr->batchSendTaProducers.
-      insert(&enginePtr->mboxes.transactionAgents[taid]);
-    */
 }
 
 // to be called whenever the row is unlocked
-void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
+void SubTransaction::procesRowLockQueue(int64_t tableid, int64_t rowid)
 {
     return;
     // class Table &tableRef = *schemaPtr->tables[tableid];
@@ -1861,10 +1915,12 @@ void SubTransaction::drainRowLockQueue(int64_t tableid, int64_t rowid)
             subtransactionCmdPtr->returnRows[0].rowid = rowid;
             // ok gotta fake msgrcv for replyTransaction
             class MessageSubtransactionCmd rcv;
-            rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
+            rcv.transactionStruct.transactionid =
+                subTransactionRef.transactionid;
             rcv.transactionStruct.subtransactionid = entry.subtransactionid;
             rcv.transactionStruct.engineinstance = enginePtr->partitionid;
-            rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+            rcv.transactionStruct.transaction_tacmdentrypoint =
+                entry.tacmdentrypoint;
             rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
             rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
 
@@ -2199,7 +2255,8 @@ void SubTransaction::drainIndexLockQueue(int64_t tableid, int64_t fieldid,
             //reply
             class MessageSubtransactionCmd *subtransactionCmdPtr =
                 new MessageSubtransactionCmd();
-            subtransactionCmdPtr->subtransactionStruct.locktype = PENDINGTOINDEXNOLOCK;
+            subtransactionCmdPtr->subtransactionStruct.locktype =
+                PENDINGTOINDEXNOLOCK;
             subtransactionCmdPtr->subtransactionStruct.tableid = tableid;
             subtransactionCmdPtr->subtransactionStruct.fieldid = fieldid;
             subtransactionCmdPtr->fieldVal = *val;
@@ -2207,10 +2264,13 @@ void SubTransaction::drainIndexLockQueue(int64_t tableid, int64_t fieldid,
             // ok gotta fake msgrcv for replyTransaction
             // THIS HAS TO BE BUGGY 1/19/2013, fix when testing
             class MessageSubtransactionCmd rcv;
-            rcv.transactionStruct.transactionid = subTransactionRef.transactionid;
-            rcv.transactionStruct.subtransactionid = entry.entry.subtransactionid;
+            rcv.transactionStruct.transactionid =
+                subTransactionRef.transactionid;
+            rcv.transactionStruct.subtransactionid =
+                entry.entry.subtransactionid;
             rcv.transactionStruct.engineinstance = enginePtr->partitionid;
-            rcv.transactionStruct.transaction_tacmdentrypoint = entry.tacmdentrypoint;
+            rcv.transactionStruct.transaction_tacmdentrypoint =
+                entry.tacmdentrypoint;
             rcv.transactionStruct.transaction_pendingcmdid = entry.pendingcmdid;
             rcv.messageStruct.payloadtype = PAYLOADSUBTRANSACTION;
             subTransactionRef.replyTransaction(*subtransactionCmdPtr, rcv);
@@ -2242,7 +2302,8 @@ int64_t SubTransaction::deleterow(int64_t tableid, int64_t rowid)
 }
 
 int64_t SubTransaction::deleterow(int64_t tableid, int64_t rowid,
-                                  int64_t forward_rowid, int64_t forward_engineid)
+                                  int64_t forward_rowid,
+                                  int64_t forward_engineid)
 {
     class Table &tableRef = *schemaPtr->tables[tableid];
     return tableRef.deleterow(rowid, subtransactionid, forward_rowid,
@@ -2250,7 +2311,8 @@ int64_t SubTransaction::deleterow(int64_t tableid, int64_t rowid,
 }
 
 void SubTransaction::selectrows(int64_t tableid, vector<int64_t> *rowids,
-                                locktype_e locktype, int64_t pendingcmdid, vector<returnRow_s> *returnRows)
+                                locktype_e locktype, int64_t pendingcmdid,
+                                vector<returnRow_s> *returnRows)
 {
     int64_t tacmd = ((class MessageTransaction *)msgrcv)->transactionStruct.transaction_tacmdentrypoint;
     class Table &tableRef = *schemaPtr->tables[tableid];
@@ -2259,7 +2321,8 @@ void SubTransaction::selectrows(int64_t tableid, vector<int64_t> *rowids,
 }
 
 void SubTransaction::searchReturn1(int64_t tableid, int64_t fieldid,
-                                   locktype_e locktype, searchParams_s &searchParams,
+                                   locktype_e locktype,
+                                   searchParams_s &searchParams,
                                    vector<returnRow_s> &returnRows)
 {
     vector<nonLockingIndexEntry_s> indexHits;

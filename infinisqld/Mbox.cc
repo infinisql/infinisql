@@ -17,12 +17,22 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Mbox.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:31:24 2013
+ * 
+ * @brief  Mbox* classes perform inter-actor messaging. Mbox is a lockfree
+ * multi producer, single consumer queue.
+ */
+
 #include "gch.h"
 #include "Mbox.h"
 #include <time.h>
-#line 24 "Mbox.cc"
+#line 33 "Mbox.cc"
 
-/** lockfree producer adapted from: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html */
+/** lockfree producer adapted from:
+ * http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html */
 
 Mbox::Mbox() : counter(8888)
 {
@@ -55,7 +65,6 @@ Mbox::~Mbox()
 //size_t Mbox::receive(class Message *msg, int timeout)
 class Message *Mbox::receive(int timeout)
 {
-    // good with lockless malloc
     __int128 mynext;
 
     while (1)
@@ -83,7 +92,8 @@ class Message *Mbox::receive(int timeout)
         {
             if (getPtr(current)==getPtr(mynext))
             {
-                printf("%s %i WTF found it i guess count current %lu next %lu\n", __FILE__, __LINE__, getCount(current), getCount(mynext));
+                printf("%s %i WTF found it i guess count current %lu next %lu\n",
+                       __FILE__, __LINE__, getCount(current), getCount(mynext));
             }
 
             delete getPtr(current);
@@ -134,9 +144,8 @@ void MboxProducer::sendMsg(class Message &msgsnd)
         {
             obBatchMsg=new class MessageBatchSerialized(nodeid);
         }
-//    obBatchMsg->msgs[msgsnd.messageStruct.destAddr.nodeid].push_back(msgsnd.sermsg());
-        obBatchMsg->msgbatch[obBatchMsg->nmsgs++]={msgsnd.messageStruct.destAddr.nodeid,
-                                                   msgsnd.sermsg()};
+        obBatchMsg->msgbatch[obBatchMsg->nmsgs++]=
+            {msgsnd.messageStruct.destAddr.nodeid, msgsnd.sermsg()};
         delete &msgsnd;
         if (obBatchMsg->nmsgs==OBGWMSGBATCHSIZE)
         {
@@ -158,16 +167,14 @@ void MboxProducer::sendMsg(class Message &msgsnd)
     while (1)
     {
         mytail = __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST);
-        mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->nextmsg), __ATOMIC_SEQ_CST);
+        mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->nextmsg),
+                                 __ATOMIC_SEQ_CST);
 
         if (mytail == __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST))
         {
             if (Mbox::getPtr(mynext) == NULL)
             {
-                if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext,
-                                                Mbox::getInt128FromPointer(&msg,
-                                                                           __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)),
-                                                false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+                if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext, Mbox::getInt128FromPointer(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
                 {
                     break;
                 }
@@ -175,17 +182,12 @@ void MboxProducer::sendMsg(class Message &msgsnd)
             else
             {
                 // CAS(&Q->Tail, tail, <next.ptr, tail.count+1>)
-                __atomic_compare_exchange_n(&mbox->tail, &mytail,
-                                            Mbox::getInt128FromPointer(Mbox::getPtr(mynext),
-                                                                       __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false,
-                                            __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+                __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128FromPointer(Mbox::getPtr(mynext), __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
             }
         }
     }
 
-    __atomic_compare_exchange_n(&mbox->tail, &mytail,
-                                Mbox::getInt128FromPointer(&msg, __atomic_add_fetch(&mbox->counter, 1,
-                                                                                    __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128FromPointer(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
 
 Mboxes::Mboxes() : Mboxes(0)
@@ -205,9 +207,6 @@ Mboxes::Mboxes(int64_t nodeidarg) : nodeid(nodeidarg),
     listener.mbox = NULL;
     ibGateway.mbox = NULL;
     obGateway.mbox = NULL;
-
-//    userSchemaMgrLocation = {};
-//    deadlockMgrLocation = {};
 }
 
 Mboxes::~Mboxes()
@@ -244,8 +243,8 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
         {
             if (top.actorList[n].type != ACTOR_NONE)
             {
-                actoridToProducers[n] = new class MboxProducer(top.actorList[n].mbox,
-                                                               top.nodeid);
+                actoridToProducers[n] =
+                    new class MboxProducer(top.actorList[n].mbox,top.nodeid);
                 actoridToProducers[n]->mboxes=this;
             }
 
@@ -313,7 +312,8 @@ void Mboxes::update(class Topology &top, int64_t myActorid)
     {
         if (partitionToProducers[n].address.nodeid==0)
         {
-            partitionToProducers[n].address = top.partitionListThisReplica[n].address;
+            partitionToProducers[n].address =
+                top.partitionListThisReplica[n].address;
 
             if (top.nodeid==partitionToProducers[n].address.nodeid)
             {
@@ -387,7 +387,8 @@ void Mboxes::toPartition(const Topology::addressStruct &source,
 }
 
 int64_t Mboxes::toAllOfType(actortypes_e type,
-                            const Topology::addressStruct &source, class Message &msg)
+                            const Topology::addressStruct &source,
+                            class Message &msg)
 {
     int64_t tally = 0;
 
@@ -442,7 +443,8 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
 
                 case PAYLOADCOMMITROLLBACK:
                 {
-                    class MessageCommitRollback *nmsg = new class MessageCommitRollback;
+                    class MessageCommitRollback *nmsg =
+                        new class MessageCommitRollback;
                     *nmsg = *((class MessageCommitRollback *)&msg);
                     toActor(source, {n, m}, *nmsg);
                 }
@@ -462,7 +464,8 @@ int64_t Mboxes::toAllOfType(actortypes_e type,
 }
 
 int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
-                                       const Topology::addressStruct &source, class Message &msg)
+                                       const Topology::addressStruct &source,
+                                       class Message &msg)
 {
     int64_t tally = 0;
 
@@ -471,12 +474,14 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
     for (it = allActorsThisReplica.begin(); it != allActorsThisReplica.end();
          ++it)
     {
-        for (int16_t m=FIRSTACTORID; m < (int16_t)allActorsThisReplica[it->first].size(); m++)
+        for (int16_t m=FIRSTACTORID; m <
+                 (int16_t)allActorsThisReplica[it->first].size(); m++)
         {
             if (allActorsThisReplica[it->first][m] == (int)type)
             {
                 printf("%s %i n m %i %i allActors %i allActorsThisReplica %i\n",
-                       __FILE__, __LINE__, it->first, m, allActors[it->first][m], allActorsThisReplica[it->first][m]);
+                       __FILE__, __LINE__, it->first, m, allActors[it->first][m],
+                       allActorsThisReplica[it->first][m]);
 
                 switch (msg.messageStruct.payloadtype)
                 {
@@ -523,7 +528,8 @@ int64_t Mboxes::toAllOfTypeThisReplica(actortypes_e type,
 
                 case PAYLOADCOMMITROLLBACK:
                 {
-                    class MessageCommitRollback *nmsg = new class MessageCommitRollback;
+                    class MessageCommitRollback *nmsg =
+                        new class MessageCommitRollback;
                     *nmsg = *((class MessageCommitRollback *)&msg);
                     toActor(source, {it->first, m}, *nmsg);
                 }

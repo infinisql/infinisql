@@ -17,12 +17,22 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Topology.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:53:46 2013
+ * 
+ * @brief  Topology class has all of the actors, their types, and dynamic
+ * configuration values. Each actor maintains a Topology object which gives
+ * it a common view for the whole node and, as necessary, the whole cluster.
+ */
+
 #include "Topology.h"
 #line 22 "Topology.cc"
 
 Topology::Topology() : nodeid(0), numreplicas(1), activereplica(-1),
-                       numtransactionagents(0),
-                       numengines(0), numobgateways(0), numpartitions(0), userSchemaMgrNode(0),
+                       numtransactionagents(0), numengines(0), numobgateways(0),
+                       numpartitions(0), userSchemaMgrNode(0),
                        userSchemaMgrMbox(0), deadlockMgrNode(0), deadlockMgrMbox(0)
 {
 }

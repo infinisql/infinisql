@@ -17,12 +17,20 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Field.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:09:55 2013
+ * 
+ * @brief  Data Field class (INT, BOOL, VARCHAR, etc).
+ */
+
 #include "Field.h"
-#line 22 "Field.cc"
+#line 30 "Field.cc"
 
 Field::Field(fieldtype_e typearg, int64_t lengtharg,
-             indextype_e indextypearg, string namearg) : type(typearg),
-                                                         length(lengtharg), indextype(indextypearg), name(namearg)
+             indextype_e indextypearg, string namearg) :
+    type(typearg), length(lengtharg), indextype(indextypearg), name(namearg)
 {
     index.makeindex(indextype, type);
 }

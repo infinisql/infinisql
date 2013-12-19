@@ -17,12 +17,22 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Operation.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:36:50 2013
+ * 
+ * @brief  Class for non-transactional, user and schema-related activities,
+ * such as login, createuser, createtable, and so on.
+ */
+
 #include "Operation.h"
 #include "Pg.h"
-#line 23 "Operation.cc"
+#line 32 "Operation.cc"
 
 Operation::Operation(int typearg, class TransactionAgent *taarg, int64_t uid,
-                     int64_t did) : type(typearg), taPtr(taarg), userid(uid), domainid(did)
+                     int64_t did) : type(typearg), taPtr(taarg), userid(uid),
+                                    domainid(did)
 {
     class TransactionAgent &taRef = *taPtr;
     operationid = ++taRef.operationidcounter;
@@ -74,7 +84,8 @@ void Operation::handleOperation(class MessageUserSchema &msgrcvref)
         }
         else
         {
-            printf("%s %i anomaly Pg object not in Pgs, sockfd %i\n", __FILE__, __LINE__, sockfd);
+            printf("%s %i anomaly Pg object not in Pgs, sockfd %i\n", __FILE__,
+                   __LINE__, sockfd);
         }
     }
     break;

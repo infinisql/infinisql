@@ -17,23 +17,36 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   TopologyMgr.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:59:59 2013
+ * 
+ * @brief  Actor which receives configuration commands over 0mq and MessagePack
+ * from infinisqlmgr.py.
+ *
+ * Launches all other actors, updates Topology, and distributes configuration
+ * changes to all other actors on each node. Facilitates dynamic
+ * reconfiguration.
+ */
+
 #ifndef INFINISQLTOPOLOGYMGR_H
 #define INFINISQLTOPOLOGYMGR_H
 
 #include "gch.h"
 #include "cfgenum.h"
 
-void *topologyMgr(void *);
+void *topologyMgr(void *identity);
 
 class TopologyMgr
 {
 public:
-    TopologyMgr(Topology::partitionAddress *);
+    TopologyMgr(Topology::partitionAddress *myIdentityArg);
     TopologyMgr(const TopologyMgr &orig);
     virtual ~TopologyMgr();
 private:
-    void updateLocalConfig(msgpack::unpacker &, msgpack::unpacked &);
-    void updateGlobalConfig(msgpack::unpacker &, msgpack::unpacked &);
+    void updateLocalConfig(msgpack::unpacker &pac, msgpack::unpacked &result);
+    void updateGlobalConfig(msgpack::unpacker &pac, msgpack::unpacked &result);
     void broadcastConfig();
 
     Topology::partitionAddress myIdentity;

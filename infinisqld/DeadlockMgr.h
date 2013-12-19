@@ -17,6 +17,14 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   DeadlockMgr.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:07:24 2013
+ * 
+ * @brief  Actor which resolves deadlocks.
+ */
+
 #ifndef INFINISQLDEADLOCKMGR_H
 #define INFINISQLDEADLOCKMGR_H
 
@@ -29,24 +37,31 @@ typedef struct
     int64_t pendingcmdid;
 } taCmd;
 
+/** 
+ * @brief Deadlock manager actor.
+ *
+ */
 class DeadlockMgr
 {
 public:
-    DeadlockMgr(Topology::partitionAddress *);
+    DeadlockMgr(Topology::partitionAddress *myIdentityArg);
     virtual ~DeadlockMgr();
 
     friend class Transaction; // uses makeLockedItem
 
 private:
-    static void makeLockedItem(bool, int64_t, int64_t, int64_t, int64_t, int64_t,
-                               long double, string *, string *);
-    void algorithm(void);
-    void deadlock(int64_t);
-    bool walk(int64_t);
-    bool walk(boost::unordered_set<string>::iterator);
-    void removeTransaction(int64_t);
-    class Mbox *mymboxPtr;
+    static void makeLockedItem(bool isrow, int64_t rowid, int64_t tableid,
+                               int64_t engineid, int64_t domainid,
+                               int64_t fieldid, long double floatentry,
+                               std::string *stringentry,
+                               std::string *returnstring);
+    void algorithm();
+    void deadlock(int64_t transactionid);
+    bool walk(int64_t transactionid);
+    bool walk(boost::unordered_set<string>::iterator itemIt);
+    void removeTransaction(int64_t transactionid);
 
+    class Mbox *mymboxPtr;
     Topology::partitionAddress myIdentity;
     class Mboxes mboxes;
     class Topology myTopology;

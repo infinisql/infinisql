@@ -17,6 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   ObGateway.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:36:03 2013
+ * 
+ * @brief  Outbound Gateway actor. Counterpart to IbGateway. Receives messages
+ * from actors on current node bound for remote nodes. Sends them over the
+ * network to IbGateway.
+ */
+
 #ifndef INFINISQLOBGATEWAY_H
 #define INFINISQLOBGATEWAY_H
 
@@ -25,7 +35,7 @@
 class ObGateway
 {
 public:
-    ObGateway(Topology::partitionAddress *);
+    ObGateway(Topology::partitionAddress *myIdentityArg);
     virtual ~ObGateway();
     void updateRemoteGateways();
 
@@ -43,6 +53,6 @@ private:
     bool ismultinode;
 };
 
-void *obGateway(void *);
+void *obGateway(void *identity);
 
 #endif  /* INFINISQLOBGATEWAY_H */

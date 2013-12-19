@@ -17,8 +17,17 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Schema.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:45:59 2013
+ * 
+ * @brief  Schema class. Contains tables (fields (indices)). One schemata per
+ * domain. Corresponds to tablespace or database on other RDBMS platforms.
+ */
+
 #include "Schema.h"
-#line 22 "Schema.cc"
+#line 31 "Schema.cc"
 
 Schema::Schema(int64_t domainidarg) : domainid(domainidarg), nexttableid(0)
 {
@@ -41,7 +50,7 @@ int Schema::createTable(int64_t id)
     return BUILTIN_STATUS_OK;
 }
 
-int64_t Schema::getnexttableid(void)
+int64_t Schema::getnexttableid()
 {
     return ++nexttableid;
 }

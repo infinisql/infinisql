@@ -17,6 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Topology.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:54:28 2013
+ * 
+ * @brief  Topology class has all of the actors, their types, and dynamic
+ * configuration values. Each actor maintains a Topology object which gives
+ * it a common view for the whole node and, as necessary, the whole cluster.
+ */
+
 #ifndef INFINISQLTOPOLOGY_H
 #define INFINISQLTOPOLOGY_H
 
@@ -84,10 +94,10 @@ public:
 
     /** creates a new actor's addressing in the local node. Should be
      * followed by launching the thread */
-    partitionAddress *newActor(actortypes_e, class Mbox *, int,
-                               const string &, int64_t,
-                               const vector<string> &,
-                               const vector<string> &);
+    partitionAddress *newActor(actortypes_e type, class Mbox *mbox, int epollfd,
+                               const string &argstring, int64_t actorid,
+                               const vector<string> &nodes,
+                               const vector<string> &services);
 
     int16_t nodeid; /**< this gets propagated to all addresses created by this
                      * class instance */

@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   UserSchemaMgr.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 14:07:10 2013
+ * 
+ * @brief  Actor which maintains user and domain authentication information
+ * and schema definitions. There is only 1 active UserSchemaMgr per cluster.
+ */
+
 #ifndef INFINISQLUSERSCHEMAMGR_H
 #define INFINISQLUSERSCHEMAMGR_H
 
@@ -44,7 +53,7 @@ typedef boost::unordered_map<int64_t, int64_t> domainIdToNextUserIdMap;
 class UserSchemaMgr
 {
 public:
-    UserSchemaMgr(Topology::partitionAddress *);
+    UserSchemaMgr(Topology::partitionAddress *myIdentityArg);
     virtual ~UserSchemaMgr();
 
     // pubic for replyTa:
@@ -63,23 +72,24 @@ public:
 
 private:
     class Topology myTopology;
-    int64_t getnextdomainid(void);
-    int64_t getnextuserid(int64_t);
-    void operationHandler(class MessageUserSchema &);
-    int64_t operationLogin(string &, string &, string &, int64_t *, int64_t *);
+    int64_t getnextdomainid();
+    int64_t getnextuserid(int64_t argdomainid);
+    void operationHandler(class MessageUserSchema &msgrcvref);
+    int64_t operationLogin(string &username, string &domainname,
+                           string &password, int64_t *uid, int64_t *did);
 
-    void login(void);
-    void changepassword(void);
-    void createdomain(void);
-    void createuser(void);
-    void deleteuser(void);
-    void deletedomain(void);
-    void createschema(builtincmds_e);
-    void createtable(builtincmds_e);
-    void addcolumn(builtincmds_e);
-    void deleteindex(builtincmds_e);
-    void deletetable(builtincmds_e);
-    void deleteschema(builtincmds_e);
+    void login();
+    void changepassword();
+    void createdomain();
+    void createuser();
+    void deleteuser();
+    void deletedomain();
+    void createschema(builtincmds_e cmd);
+    void createtable(builtincmds_e cmd);
+    void addcolumn(builtincmds_e cmd);
+    void deleteindex(builtincmds_e cmd);
+    void deletetable(builtincmds_e cmd);
+    void deleteschema(builtincmds_e cmd);
 
     //private:
     int64_t argsize;
@@ -106,6 +116,6 @@ private:
     boost::unordered_map <std::string, indextype_e> indexTypeMap;
 };
 
-void *userSchemaMgr(void *);
+void *userSchemaMgr(void *identity);
 
 #endif  /* INFINISQLUSERSCHEMAMGR_H */

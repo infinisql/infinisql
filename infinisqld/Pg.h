@@ -17,6 +17,16 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Pg.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:43:16 2013
+ * 
+ * @brief  Objects created for every SQL login and associated with a specific
+ * TransactionAgent. Takes incoming requests, has them processed and
+ * responds to client.
+ */
+
 #ifndef INFINISQLPG_H
 #define INFINISQLPG_H
 
@@ -36,11 +46,11 @@ public:
         STATE_EXITING
     };
 
-    Pg(class TransactionAgent *, int);
+    Pg(class TransactionAgent *entrypoint, int statePtr);
     virtual ~Pg();
 
     /* for the ApiInterface base class */
-    void doit(void)
+    void doit()
     {
         ;
     }
@@ -52,48 +62,48 @@ public:
     {
         ;
     }
-    void continuePgFunc(int64_t, void *);
-    void continuePgCommitimplicit(int64_t, void *);
-    void continuePgCommitexplicit(int64_t, void *);
-    void continuePgRollbackimplicit(int64_t, void *);
-    void continuePgRollbackexplicit(int64_t, void *);
+    void continuePgFunc(int64_t entrypoint, void *statePtr);
+    void continuePgCommitimplicit(int64_t entrypoint, void *statePtr);
+    void continuePgCommitexplicit(int64_t entrypoint, void *statePtr);
+    void continuePgRollbackimplicit(int64_t entrypoint, void *statePtr);
+    void continuePgRollbackexplicit(int64_t entrypoint, void *statePtr);
     /* end ApiInterface base class functions */
 
-    bool readsocket(string &);
-    void closesocket(class TransactionAgent &);
-    static void pgclosesocket(class TransactionAgent &, int);
+    bool readsocket(string &buf);
+    void closesocket(class TransactionAgent &taRef);
+    static void pgclosesocket(class TransactionAgent &taRef, int socketfd);
     void cont();
-    short initcmd(string &);
+    short initcmd(string &newdata);
     void replymsg();
     short writesocket();
     short rewritesocket();
 
-    bool get(int16_t *);
-    bool get(int32_t *);
-    bool get(int64_t *);
-    bool get(vector<int16_t> &, size_t);
-    bool get(vector<int32_t> &, size_t);
-    bool get(vector<int64_t> &, size_t);
-    bool get(char *);
-    bool get(string &, size_t);
-    bool get(string &);
-    void put(int16_t);
-    void put(int32_t);
-    void put(int64_t);
-    void put(vector<int16_t> &);
-    void put(vector<int32_t> &);
-    void put(vector<int64_t> &);
-    void put(char);
-    void put(char *, size_t);
-    void put(string &);
-    void put(char *); // string literal
-    void putCommandComplete(char *);
-    void putErrorResponse(char *, char *, char *);
-    void putNoticeResponse(char *, char *, char *);
+    bool get(int16_t *val);
+    bool get(int32_t *val);
+    bool get(int64_t *val);
+    bool get(vector<int16_t> &val, size_t nelem);
+    bool get(vector<int32_t> &val, size_t nelem);
+    bool get(vector<int64_t> &val, size_t nelem);
+    bool get(char *val);
+    bool get(string &val, size_t nelem);
+    bool get(string &val);
+    void put(int16_t val);
+    void put(int32_t val);
+    void put(int64_t val);
+    void put(vector<int16_t> &val);
+    void put(vector<int32_t> &val);
+    void put(vector<int64_t> &val);
+    void put(char val);
+    void put(char *val, size_t nelem);
+    void put(string &val);
+    void put(char *val); // string literal
+    void putCommandComplete(char *tag);
+    void putErrorResponse(char *severity, char *code, char *message);
+    void putNoticeResponse(char *severity, char *code, char *message);
     void putRowDescription();
     void putDataRows();
     void putAuthenticationOk();
-    void putParameterStatus(char *, char *);
+    void putParameterStatus(char *name, char *value);
 
     void sqlcommitimplicit();
     void sqlcommitexplicit();
@@ -101,9 +111,9 @@ public:
     void sqlrollbackexplicit();
     bool sqlbegin();
 
-    void continueLogin(int, class MessageUserSchema &);
-    void executeStatement(string &);
-    void errorStatus(int64_t);
+    void continueLogin(int cmdstate, class MessageUserSchema &msgrcvref);
+    void executeStatement(string &stmtstr);
+    void errorStatus(int64_t status);
 
     //private:
 
@@ -119,9 +129,7 @@ public:
     std::string outbuf;
 
     int64_t userid;
-    //  int64_t domainid;
     class Schema *schemaPtr;
-    //  class Statement *statementPtr;
 
     // startupArgs["user"] and "database" are username & dbname
     boost::unordered_map<std::string, std::string> startupArgs;

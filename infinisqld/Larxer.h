@@ -17,6 +17,15 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file   Larxer.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:25:37 2013
+ * 
+ * @brief  Portmanteau of "lexer" and "parser". This class tokenizes, parses
+ * and converts SQL into executable Statement with Abstract Syntax Trees.
+ */
+
 #ifndef INFINISQLLARXER_H
 #define INFINISQLLARXER_H
 
@@ -108,26 +117,26 @@ public:
         std::string val;
     };
 
-    Larxer(char *, class TransactionAgent *, class Schema *);
+    Larxer(char *instr, class TransactionAgent *taPtr, class Schema *schemaPtr);
     virtual ~Larxer();
 
-    void pushstack(stacktypes_e);
-    void pushstack(stacktypes_e, int64_t);
-    void pushstack(stacktypes_e, long double);
-    void pushstack(stacktypes_e, const char *);
-    void pushstack(stacktypes_e, string &);
-    void pushoperand(char);
-    void pushoperand(char, int64_t);
-    void pushoperand(char, long double);
-    void pushoperand(char, const char *);
-    void pushaggregate(char, const char *);
+    void pushstack(stacktypes_e type);
+    void pushstack(stacktypes_e type, int64_t val);
+    void pushstack(stacktypes_e type, long double val);
+    void pushstack(stacktypes_e type, const char *val);
+    void pushstack(stacktypes_e type, string &val);
+    void pushoperand(char operandtype);
+    void pushoperand(char operandtype, int64_t val);
+    void pushoperand(char operandtype, long double val);
+    void pushoperand(char operandtype, const char *val);
+    void pushaggregate(char aggregatetype, const char *val);
     stackmember_s popstack();
-    int64_t getintval(string &);
-    long double getfloatval(string &);
-    void eatstack(class TransactionAgent *, class Schema *);
+    int64_t getintval(string &val);
+    long double getfloatval(string &val);
+    void eatstack(class TransactionAgent *taPtr, class Schema *schemaPtr);
     void printstack();
 
-    void consumeSelect(string &);
+    void consumeSelect(string &columns);
     void consumeInsert();
     void consumeUpdate();
     void consumeDelete();
@@ -135,7 +144,7 @@ public:
     class Ast *consumeExpression();
     int64_t consumeSubquery();
     void consumeInobject();
-    void consumeColumns(int64_t);
+    void consumeColumns(int64_t numcolumns);
     void consumeFrom();
     void consumeWhere();
     void consumeGroupby();
@@ -143,7 +152,6 @@ public:
     void consumeOrderby();
 
     std::stack<stackmember_s> parsedStack;
-
     class Statement::query_s *currentQuery;
     class Statement *statementPtr;
 };
