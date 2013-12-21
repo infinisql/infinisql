@@ -9,6 +9,7 @@ import struct
 import time
 
 import msgpack
+import psutil
 import tornado.ioloop
 import tornado.web
 import zmq
@@ -114,26 +115,6 @@ class Controller(object):
                 continue
             self._register_handler(getattr(msg, item), getattr(self, handler_name))
 
-
-    def _get_ip(self, interface="eth0"):
-        """
-        :param interface: The interface to get an ip address for.
-        :return: A string containing the ip address.
-        """
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sockfd = sock.fileno()
-        SIOCGIFADDR = 0x8915
-        ifreq = struct.pack('16sH14s', bytes(interface, "ascii"), socket.AF_INET, b'\x00' * 14)
-        try:
-            res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
-        except:
-            return None
-        finally:
-            sock.close()
-
-        ip = struct.unpack('16sH2x4s8x', res)[2]
-        return socket.inet_ntoa(ip)
-
     def _register_handler(self, msg_id, handler):
         """
         Register a message handler.
@@ -175,8 +156,10 @@ class Controller(object):
         :return: None
         """
         data = self.presence_socket.recv(4096)
-        cluster_name, remote_ip, remote_port = msgpack.unpackb(data, encoding="utf8")
-        self.add_node(cluster_name, remote_ip, remote_port)
+        cluster_name, ips = msgpack.unpackb(data, encoding="utf8")
+        # Figure out which of the available IP addresses is reachable from our system.
+
+        self.add_node(cluster_name, ips)
 
     def _stop_signal_handler(self, signum, frame):
         """
@@ -412,10 +395,13 @@ class Controller(object):
         if (now - self.last_presence_announcement < self.presence_announcement_period) and force == False:
             return
 
+        interfaces = psutil.network_io_counters(pernic=True).keys()
+        ips = {interface : (self.config.ip(interface=interface), self.cmd_port) for interface in interfaces}
+
         self.last_presence_announcement = now
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 8)
-        sock.sendto(msgpack.packb([self.cluster_name, self._get_ip(), self.cmd_port]),
+        sock.sendto(msgpack.packb([self.cluster_name, ips]),
                     (self.mcast_group, self.mcast_port))
         sock.close()
 

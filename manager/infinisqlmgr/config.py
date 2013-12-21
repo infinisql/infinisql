@@ -7,6 +7,7 @@ import socket
 import struct
 import os
 
+import infinisqlmgr.getifaddrs
 
 class Configuration(object):
     def __init__(self, args):
@@ -188,17 +189,7 @@ class Configuration(object):
         :param interface: The interface to get an ip address for.
         :return: A string containing the ip address.
         """
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        fd = sock.fileno()
-        SIOCGIFADDR = 0x8915
-        if_req = struct.pack('16sH14s', bytes(interface, "ascii"), socket.AF_INET, b'\x00' * 14)
-        try:
-            res = fcntl.ioctl(fd, SIOCGIFADDR, if_req)
-        except:
-            return None
-        finally:
-            sock.close()
 
-        ip = struct.unpack('16sH2x4s8x', res)[2]
-        return socket.inet_ntoa(ip)
+        interfaces = infinisqlmgr.getifaddrs.getifaddrs()
+         
 
