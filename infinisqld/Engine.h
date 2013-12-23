@@ -49,11 +49,34 @@ public:
         std::vector<MessageApply::applyindex_s> indices;
     };
 
+    /** 
+     * @brief execute Engine actor
+     *
+     * @param myIdentityArg how to indentify this
+     */
     Engine(Topology::partitionAddress *myIdentityArg);
     virtual ~Engine();
 
+    /** 
+     * @brief apply record on replica
+     *
+     * @param subtransactionid subtransactionid
+     * @param schemaRef  Schema
+     * @param record row to apply
+     *
+     * @return success or failure
+     */
     bool applyItem(int64_t subtransactionid, class Schema &schemaRef,
                    MessageDispatch::record_s &record);
+    /** 
+     * @brief apply record on replica
+     *
+     * @param subtransactionid subtransactionid
+     * @param schemaRef Schema
+     * @param indexinfo index entry to apply
+     *
+     * @return success or failure
+     */
     bool applyItem(int64_t subtransactionid, class Schema &schemaRef,
                    MessageApply::applyindex_s &indexinfo);
 
@@ -75,16 +98,74 @@ public:
     int64_t partitionid;
 
 private:
+    /** 
+     * @brief generate unique, increasing (per actor) subtransactionid
+     *
+     *
+     * @return next subtransactionid 
+     */
     int64_t getnextsubtransactionid();
+    /** 
+     * @brief create Schema 
+     *
+     */
     void createschema();
+    /** 
+     * @brief CREATE TABLE
+     *
+     */
     void createtable();
+    /** 
+     * @brief ADD COLUMN with optional index
+     *
+     */
     void addcolumn();
+    /** 
+     * @brief DELETE INDEX
+     *
+     */
     void deleteindex();
+    /** 
+     * @brief DROP TABLE
+     *
+     */
     void deletetable();
+    /** 
+     * @brief delete schema
+     *
+     */
     void deleteschema();
+    /** 
+     * @brief learn global partitionid based on position in replica
+     *
+     */
     void getMyPartitionid();
+    /** 
+     * @brief replicate set of row or index items to data partition
+     *
+     */
     void apply();
+    /** 
+     * @brief background item with subtransactionid
+     *
+     * items need to be applied in order of subtransactionid. placed in
+     * background, need to be applied once previous items have
+     * been replicated
+     *
+     * @param inmsg MessageApply received
+     * @param item row
+     */
     void background(class MessageApply &inmsg, MessageDispatch::record_s &item);
+    /** 
+     * @brief background item with subtransactionid
+     *
+     * items need to be applied in order of subtransactionid. placed in
+     * background, need to be applied once previous items have
+     * been replicated
+     *
+     * @param inmsg MessageApply received
+     * @param item index entry
+     */
     void background(class MessageApply &inmsg, MessageApply::applyindex_s &item);
 
     class Topology myTopology;

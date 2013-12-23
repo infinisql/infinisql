@@ -57,6 +57,11 @@ typedef struct
     locktype_e locktype;
 } lockQueueRowEntry;
 
+/** 
+ * @brief create new Table object
+ *
+ * @param idarg tableid
+ */
 class Table
 {
 public:
@@ -77,14 +82,62 @@ public:
     friend class UserSchemaMgr;
 
     //private:
+    /** 
+     * @brief set name
+     *
+     * @param namearg name
+     */
     void setname(string namearg);
+    /** 
+     * @brief get name
+     *
+     *
+     * @return name
+     */
     std::string *getname();
+    /** 
+     * @brief add field/column
+     *
+     * @param type field type
+     * @param length length (for CHARX)
+     * @param name field name
+     * @param indextype index type
+     *
+     * @return fieldid
+     */
     int64_t addfield(fieldtype_e type, int64_t length, std::string name,
                      indextype_e indextype);
+    /** 
+     * @brief assemble row string from fields
+     *
+     * @param fieldVal fields
+     * @param res resulting string
+     *
+     * @return success or failure
+     */
     bool makerow(vector<fieldValue_s> *fieldVal, std::string *res);
+    /** 
+     * @brief extract fields from row string
+     *
+     * @param rowstring input row
+     * @param resultFields resulting fields
+     *
+     * @return success or failure
+     */
     bool unmakerow(std::string *rowstring,
                    vector<fieldValue_s> *resultFields);
     // for fetch (cursor)
+    /** 
+     * @brief orphan?
+     *
+     * @param rowids 
+     * @param locktype 
+     * @param subtransactionid 
+     * @param pendingcmdid 
+     * @param returnRows 
+     * @param lockPendingRowids 
+     * @param tacmdentrypoint 
+     */
     void getrows(vector<int64_t> rowids, locktype_e locktype,
                  int64_t subtransactionid, int64_t pendingcmdid,
                  vector<returnRow_s> *returnRows,
@@ -97,16 +150,76 @@ public:
     //  void commit(int64_t, int64_t);
     // rollback
     //  void rollback(int64_t, int64_t);
+    /** 
+     * @brief generate unique, ever-increasing row identifier
+     *
+     *
+     * @return next rowid
+     */
     int64_t getnextrowid();
+    /** 
+     * @brief create new row
+     *
+     * @param newrowid rowid
+     * @param subtransactionid subtransactionid
+     * @param row row
+     */
     void newrow(int64_t newrowid, int64_t subtransactionid, string &row);
+    /** 
+     * @brief modify row
+     *
+     * @param rowid rowid
+     * @param subtransactionid subtransactionid
+     * @param row new row
+     *
+     * @return status
+     */
     int64_t updaterow(int64_t rowid, int64_t subtransactionid, string *row);
+    /** 
+     * @brief delete row
+     *
+     * @param rowid rowid
+     * @param subtransactionid subtransactionid
+     *
+     * @return 
+     */
     int64_t deleterow(int64_t rowid, int64_t subtransactionid);
+    /** 
+     * @brief delete row part of replacement
+     *
+     * @param rowid rowid
+     * @param subtransactionid subtransactionid
+     * @param forward_rowid rowid to forward index hits to
+     * @param forward_engineid engineid to forward index hits to
+     *
+     * @return 
+     */
     int64_t deleterow(int64_t rowid, int64_t subtransactionid,
                       int64_t forward_rowid, int64_t forward_engineid);
-    // for select
+    /** 
+     * @brief return rows for select based on index hits
+     *
+     * @param rowids list of rowids
+     * @param locktype lock type
+     * @param subtransactionid subtransactionid
+     * @param pendingcmdid pending command by calling Transaction
+     * @param returnRows return rows
+     * @param tacmdentrypoint entry point back to pending Transaction command
+     */
     void selectrows(vector<int64_t> *rowids, locktype_e locktype,
                     int64_t subtransactionid, int64_t pendingcmdid,
                     vector<returnRow_s> *returnRows, int64_t tacmdentrypoint);
+    /** 
+     * @brief add subtransactionid to queue waiting to acquire lock on row
+     *
+     * @param rowid rowid
+     * @param locktype lock type
+     * @param subtransactionid subtransactionid
+     * @param pendingcmdid pending command by calling Transaction
+     * @param tacmdentrypoint entry point back to pending Transaction command
+     *
+     * @return 
+     */
     locktype_e assignToLockQueue(int64_t rowid, locktype_e locktype,
                                  int64_t subtransactionid,
                                  int64_t pendingcmdid,

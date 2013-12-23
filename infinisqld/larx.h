@@ -35,16 +35,42 @@
 
 class Larxer;
 
+/** 
+ * @brief function for flex and bison to cooperate
+ *
+ *
+ * @return 
+ */
 struct perlarxer
 {
     void *scaninfo;
     class Larxer *larxerPtr;
 };
 
+/** 
+ * @brief parser function declaration
+ *
+ *
+ * @return some bison result
+ */
 int yyparse(struct perlarxer *);
 
+/** 
+ * @brief probably initializes state object for reentrent tokenizer
+ *
+ */
 void flexinit(struct perlarxer *);
+/** 
+ * @brief or this could intialize state object for reentrant tokenizer
+ *
+ * does anybody actually know what flex and bison do?
+ *
+ */
 void flexbuffer(char *, size_t, void *);
+/** 
+ * @brief destroy state object for reentrant tokenizer
+ *
+ */
 void flexdestroy(void *);
 
 #endif /* INFINISQLLARX_H */

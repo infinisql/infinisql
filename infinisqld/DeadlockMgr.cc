@@ -266,10 +266,8 @@ void DeadlockMgr::deadlock(int64_t transactionid)
         return;
     }
 
-    //  Mbox::msgstruct msgsnd = {};
     class MessageDeadlock *msg = new class MessageDeadlock;
     class MessageDeadlock &msgref = *msg;
-    //  msgsnd.data = msg;
     msgref.messageStruct.topic = TOPIC_DEADLOCKABORT;
     msgref.deadlockStruct.transactionid = transactionid;
     msgref.deadlockStruct.transaction_pendingcmdid =

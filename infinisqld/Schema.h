@@ -32,10 +32,17 @@
 #include "gch.h"
 #include "Table.h"
 
+/** 
+ * @brief Schema object
+ *
+ * 1 schema per domain. holds tables and indices
+ *
+ * @param int64_t domainid
+ */
 class Schema
 {
 public:
-    Schema(int64_t);
+    Schema(int64_t domainidarg);
     virtual ~Schema();
 
     friend class ApiInterface;
@@ -46,7 +53,20 @@ public:
     friend class UserSchemaMgr;
 
     //private:
+    /** 
+     * @brief acquire ever-increasing and unique table identifiers
+     *
+     *
+     * @return next tableid
+     */
     int64_t getnexttableid();
+    /** 
+     * @brief CREATE TABLE
+     *
+     * @param id tableid
+     *
+     * @return 
+     */
     int createTable(int64_t id);
 
     int64_t domainid;
@@ -58,6 +78,11 @@ public:
         fieldNameToId;
 };
 
+/** 
+ * @brief creates Schema object, in lieu of constructor
+ *
+ * @param servent 
+ */
 template < typename T >
 void createSchema(T servent)
 {

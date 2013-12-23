@@ -45,8 +45,6 @@ Pg::Pg(class TransactionAgent *taPtrarg, int sockfdarg) :
     transactionPtr=NULL;
 
     taPtr->Pgs[sockfd]=this;
-
-//  cont();
 }
 
 Pg::~Pg()
@@ -292,7 +290,6 @@ void Pg::cont()
             get(query);
             inbuf.clear();
             size=0;
-            // executeStatement(query);
 
             class Larxer lx((char *)query.c_str(), taPtr, schemaPtr);
 
@@ -987,11 +984,6 @@ void Pg::continuePgFunc(int64_t entrypoint, void *statePtr)
         if (isintransactionblock==false && (session_isautocommit==true ||
                                             command_autocommit==true))
         {
-            /*
-              sqlrollbackimplicit();
-              errorStatus(STATUS_NOTOK);
-              return;
-            */
             sqlcommitimplicit();
         }
         else

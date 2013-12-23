@@ -34,7 +34,7 @@ class TransactionAgent;
 /** 
  * @brief On replicas, this class replicates "applies" transactions received
  * by TransactionAgent
- *
+ * 
  * The receiving TransactionAgent begins the process by sending data to
  * each Engine, and then creating an Applier object and putting it in a map.
  * Engines apply replicated transaction data in strict order based on
@@ -43,17 +43,35 @@ class TransactionAgent;
 class Applier
 {
 public:
-  Applier(class TransactionAgent *taPtrarg, int64_t domainidarg,
-          Topology::addressStruct sourceAddrarg, int64_t partitionidarg);
-  virtual ~Applier();
+    /** 
+     * Creates Applier Object.
+     * This is created to keep state of a transaction being replicated.
+     * 
+     *
+     * @param taPtrarg pointer to calling TransactionAgent
+     * @param domainidarg domainid
+     * @param sourceAddrarg address of master TransactionAgent
+     * @param partitionidarg partitionid
+     */
+    Applier(class TransactionAgent *taPtrarg, int64_t domainidarg,
+            Topology::addressStruct sourceAddrarg, int64_t partitionidarg);
+    virtual ~Applier();
 
-  void ackedApply(class MessageAckApply &msg);
+    /** 
+     * handles replies from Engines that have applied transaction
+     * replication.
+     * Counts down and deletes Applier object when all replies have been
+     * received
+     *
+     * @param msg 
+     */
+    void ackedApply(class MessageAckApply &msg);
 
-  int64_t applierid;
-  class TransactionAgent *taPtr;
-  int64_t domainid;
-  Topology::addressStruct sourceAddr;
-  int64_t partitioncount;
+    int64_t applierid;
+    class TransactionAgent *taPtr;
+    int64_t domainid;
+    Topology::addressStruct sourceAddr;
+    int64_t partitioncount;
 };
 
 #endif  /* INFINISQLAPPLIER_H */

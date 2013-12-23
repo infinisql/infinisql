@@ -76,6 +76,12 @@
  finish 28 + fieldVal(25)
 */
 
+/** 
+ * @brief create Message object
+ *
+ *
+ * @return 
+ */
 class Message
 {
 public:
@@ -89,13 +95,58 @@ public:
   
     Message();
     virtual ~Message();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     std::string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
+    /** 
+     * @brief deserialize entire message
+     *
+     * @param serstr string of serialized message
+     *
+     * @return deserialized message
+     */
     static class Message *des(string *serstr);
+    /** 
+     * @brief return serialized Message variant string
+     *
+     *
+     * @return serialized Message variant string
+     */
     string *sermsg();
+    /** 
+     * @brief put addresses in Message variant envelope
+     *
+     * @param source source address
+     * @param dest destination address
+     * @param msg Message
+     */
     void setEnvelope(const Topology::addressStruct &source,
                      const Topology::addressStruct &dest, class Message &msg);
 
@@ -103,6 +154,11 @@ public:
     message_s messageStruct;
 };
 
+/** 
+ * @brief Message variant for communicating socket events
+ *
+ * @return 
+ */
 class MessageSocket : public Message
 {
 public:
@@ -113,19 +169,59 @@ public:
         listenertype_e listenertype;
     };
     MessageSocket();
+    /** 
+     * @brief Message variant for communicating socket events
+     *
+     * @param socketarg socket discriptor
+     * @param eventsarg epoll events
+     * @param listenertype type of listener
+     * @param nodeidarg nodeid
+     * @param topicarg topic
+     */
     MessageSocket(int socketarg, uint32_t eventsarg,
                   listenertype_e listenertype, int64_t nodeidarg,
                   topic_e topicarg);
     virtual ~MessageSocket();
+    
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     socket_s socketStruct;
 };
 
+/** 
+ * @brief Message variant for UserSchemaMgr activities
+ *
+ * @return 
+ */
 class MessageUserSchema : public Message
 {
 public:
@@ -153,12 +249,44 @@ public:
         fieldtype_e fieldtype;
     };
     MessageUserSchema();
+    /** 
+     * @brief Message variant for UserSchemaMgr activities
+     *
+     * @param topicarg topic
+     *
+     * @return 
+     */
     MessageUserSchema(topic_e topicarg);
     virtual ~MessageUserSchema();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     userschema_s userschemaStruct;
@@ -171,6 +299,12 @@ public:
     std::string password;
 };
 
+/** 
+ * @brief Message variant for DeadlockMgr activities
+ *
+ *
+ * @return 
+ */
 class MessageDeadlock : public Message
 {
 public:
@@ -183,10 +317,35 @@ public:
     };
     MessageDeadlock();
     virtual ~MessageDeadlock();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     deadlock_s deadlockStruct;
@@ -194,6 +353,12 @@ public:
     newDeadLockLists_s nodes;
 };
 
+/** 
+ * @brief Message variant for transaction processing
+ *
+ *
+ * @return 
+ */
 class MessageTransaction : public Message
 {
 public:
@@ -211,15 +376,46 @@ public:
     };
     MessageTransaction();
     virtual ~MessageTransaction();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     transaction_s transactionStruct;
 };
 
+/** 
+ * @brief Message variant for subtransactions
+ *
+ *
+ * @return 
+ */
 class MessageSubtransactionCmd : public MessageTransaction
 {
 public:
@@ -237,10 +433,35 @@ public:
     };
     MessageSubtransactionCmd();
     virtual ~MessageSubtransactionCmd();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     subtransaction_s subtransactionStruct;
@@ -253,20 +474,57 @@ public:
     std::vector<returnRow_s> returnRows;
 };
 
+/** 
+ * @brief Message variant for committing and rolling back transactions
+ *
+ *
+ * @return 
+ */
 class MessageCommitRollback : public MessageTransaction
 {
 public:
     MessageCommitRollback();
     virtual ~MessageCommitRollback();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     std::vector<rowOrField_s> rofs;
 };
 
+/** 
+ * @brief Message variant for synchronous replication
+ *
+ *
+ * @return 
+ */
 class MessageDispatch : public Message
 {
 public:
@@ -288,10 +546,35 @@ public:
 
     MessageDispatch();
     virtual ~MessageDispatch();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     dispatch_s dispatchStruct;
@@ -302,6 +585,12 @@ public:
     boost::unordered_map< int64_t, std::vector<record_s> > records;
 };
 
+/** 
+ * @brief Message variant for acknowledgement of synchronous replication
+ *
+ *
+ * @return 
+ */
 class MessageAckDispatch : public Message
 {
 public:
@@ -312,12 +601,45 @@ public:
     };
   
     MessageAckDispatch();
+    /** 
+     * Message variant for acknowledgement of synchronous replication
+     *
+     * @param transactionidarg transactionid
+     * @param statusarg replication status
+     *
+     * @return 
+     */
     MessageAckDispatch(int64_t transactionidarg, int statusarg);
     virtual ~MessageAckDispatch();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     ackdispatch_s ackdispatchStruct;
@@ -325,6 +647,12 @@ public:
 
 #define ADDFLAG 0
 
+/** 
+ * @brief Message variant for Applier activities
+ *
+ *
+ * @return 
+ */
 class MessageApply : public Message
 {
 public:
@@ -344,17 +672,66 @@ public:
     };
 
     MessageApply();
+    /** 
+     * @brief Message variant for Applier activities
+     *
+     * @param subtransactionidarg subtransactionid
+     * @param applieridarg applierid
+     * @param domainidarg domainid
+     *
+     * @return 
+     */
     MessageApply(int64_t subtransactionidarg, int64_t applieridarg,
                  int64_t domainidarg);
     virtual ~MessageApply();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
+    /** 
+     * @brief set flag for new index entry
+     *
+     * @param c flags
+     */
     static void setisaddflag(char *c);
+    /** 
+     * @brief get flag for new index entry
+     *
+     * @param c flags
+     */
     static char getisaddflag(char c);
+    /** 
+     * @brief clear flag for new index entry
+     *
+     * @param c flags
+     */
     static void cleariaddflag(char *c);
 
     apply_s applyStruct;
@@ -363,6 +740,12 @@ public:
     std::vector<applyindex_s> indices;
 };
 
+/** 
+ * @brief Message variant for acknowledging Applier activities
+ *
+ *
+ * @return 
+ */
 class MessageAckApply : public Message
 {
 public:
@@ -374,19 +757,56 @@ public:
         int status;
     };
     MessageAckApply();
+    /** 
+     * @brief Message variant for acknowledging Applier activities
+     *
+     * @param subtransactionidarg subtransactionid
+     * @param applieridarg  applierid
+     * @param partitionidarg partitionid
+     * @param statusarg status
+     *
+     * @return 
+     */
     MessageAckApply(int64_t subtransactionidarg, int64_t applieridarg,
                     int64_t partitionidarg, int statusarg);
     virtual ~MessageAckApply();
+    /** 
+     * @brief get Message size
+     *
+     * @return size in bytes
+     */
     size_t size();
+    /** 
+     * @brief create string with serialized message
+     *
+     *
+     * @return serialized message string
+     */
     string *ser();
+    /** 
+     * @brief serialize this
+     *
+     * @param serobj SerializedMessage
+     */
     void package(class SerializedMessage &serobj);
+    /** 
+     * @brief deserialize into this
+     *
+     * @param serobj SerializedMessage
+     */
     void unpack(SerializedMessage &serobj);
+    /** 
+     * @brief clear contents of this
+     *
+     */
     void clear();
 
     ackapply_s ackapplyStruct;
 };
 
-/* SERIALIZATION
+/** 
+ * @brief object carrying a serialized Message variant
+ *
  * 1) sender to obgw: SerializedMessage on stack
  * 2) copy pointer SerializedMessage.data to new MessageSerialized.data
  * 3) send MessageSerialized to obgw
@@ -399,15 +819,25 @@ public:
  * 7) destination copies MessageSerialized.data ptr to SerializedMessage.data
  * 8) destination deserializes into original Message*
  * 9) destination deletes SerializedMessage.data
+ *
+ * source actor is the sender of this
+ *
+ * @param sizearg size of serialized message
+ *
+ * @return 
  */
-
-// this is a serialized Message*
 class SerializedMessage
 {
 public:
     // source sender
     SerializedMessage(size_t sizearg);
-    // ibgw sender
+    /** 
+     * @brief object carrying a serialized Message variant
+     *
+     * IbGateway is the sender 
+     * 
+     * @param dataarg serialized message to populate with
+     */
     SerializedMessage(string *dataarg);
     virtual ~SerializedMessage();
   
@@ -532,7 +962,13 @@ public:
              vector<MessageDispatch::record_s> > &d);
 };
 
-// this is a Message* which contains a serialized Message* as payload
+/** 
+ * @brief Message variant carrying serialized Message variant as payload
+ *
+ * @param dataarg serialized Message variant
+ *
+ * @return 
+ */
 class MessageSerialized : public Message
 {
 public:
@@ -542,6 +978,13 @@ public:
     std::string *data;
 };
 
+/** 
+ * @brief Message variant containing multiple serialized Message variants
+ *
+ * @param nodeidarg nodeid
+ *
+ * @return 
+ */
 class MessageBatchSerialized : public Message
 {
 public:

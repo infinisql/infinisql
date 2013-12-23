@@ -94,6 +94,21 @@ public:
 
     /** creates a new actor's addressing in the local node. Should be
      * followed by launching the thread */
+    /** 
+     * @brief creates a new actor's addressing in the local node
+     *
+     * should be followed by launching the thread
+     *
+     * @param type actor type
+     * @param mbox Mbox
+     * @param epollfd epoll descriptor
+     * @param argstring argument field for some actors to use
+     * @param actorid actorid
+     * @param nodes 
+     * @param services 
+     *
+     * @return 
+     */
     partitionAddress *newActor(actortypes_e type, class Mbox *mbox, int epollfd,
                                const string &argstring, int64_t actorid,
                                const vector<string> &nodes,

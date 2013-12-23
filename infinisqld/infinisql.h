@@ -192,7 +192,7 @@ typedef void(ApiInterface::*apifPtr)(int64_t, void *);
 /** 
  * @brief Stored procedure API
  *
- * Stored procedure programming is described in detail in
+ * Stored procedure programming is described in
  * http://www.infinisql.org/docs/reference/
  */
 class ApiInterface
@@ -219,133 +219,460 @@ public:
     }
 
     virtual void doit() = 0;
+    /** 
+     * @brief user-defined continuation function
+     *
+     * @param entrypoint entrypoint for continuation
+     * @param statePtr state data
+     */
     virtual void continueFunc1(int64_t entrypoint, void *statePtr) = 0;
+    /** 
+     * @brief second user-defined continuation function
+     *
+     * @param entrypoint entrypoint for continuation
+     * @param statePtr state data
+     */
     virtual void continueFunc2(int64_t entrypoint, void *statePtr) = 0;
+
+    /** 
+     * @brief after SQL activity is performed
+     * 
+     * based on the statement type and transaction state, a variety of things
+     * if session_isautocommit==true, and is SELECT, INSERT, UPDATE, DELETE,
+     * then output
+     * If autocommit==false, and SELECT, INSERT, UPDATE, DELETE, then prepare
+     * output but don't output
+     * if COMMIT (END), then commit open transaction and output results already
+     * prepared
+     * if ROLLBACK, then rollback open transaction and output results
+     * CommandComplete at the end of everything returned
+     * If set, then set whatever
+     *
+     * @param entrypoint entry point to contiue
+     * @param statePtr state data to continue with
+     */
     virtual void continuePgFunc(int64_t entrypoint, void *statePtr) = 0;
+    /** 
+     * @brief continuation function after implicit commit
+     *
+     * implicit commit done after a single statement is entered, not
+     * in a transaction already, and session_isautocommit is true
+     *
+     * @param entrypoint entry point to continue
+     * @param statePtr state data to continue with
+     */
     virtual void continuePgCommitimplicit(int64_t entrypoint,
                                           void *statePtr) = 0;
+    /** 
+     * @brief continuation function after explicit commit
+     *
+     * explicit commit is sent as COMMIT or END at end of
+     * transaction
+     *
+     * @param entrypoint entry point to continue
+     * @param statePtr state data to continue with
+     */
     virtual void continuePgCommitexplicit(int64_t entrypoint,
                                           void *statePtr) = 0;
+    /** 
+     * @brief continuation function after implicit rollback
+     *
+     * implicit rollback done generally after a failure of some kind
+     * which forces a rollback
+     *
+     * @param entrypoint entry point to continue
+     * @param statePtr state data to continue with
+     */
     virtual void continuePgRollbackimplicit(int64_t entrypoint,
                                             void *statePtr) = 0;
+    /** 
+     * @brief continuation function after explicit rollback
+     *
+     * explicit commit is sent as ROLLBACK statement within transaction
+     *
+     * @param entrypoint entry point to continue
+     * @param statePtr state data to continue with
+     */
     virtual void continuePgRollbackexplicit(int64_t entrypoint,
                                             void *statePtr) = 0;
+    /** 
+     * @brief orphan
+     *
+     */
     void deserialize2Vector();
+    /** 
+     * @brief start Transaction
+     *
+     */
     void beginTransaction();
+    /** 
+     * @brief orphan
+     *
+     */
     void destruct();
+    /** 
+     * @brief orphan
+     *
+     */
     void bouncebackproxy();
+    /** 
+     * @brief deprecated
+     *
+     * @param re 
+     * @param recmd 
+     * @param reptr 
+     * @param tableid 
+     */
     void insertRow(apifPtr re, int64_t recmd, void *reptr, int64_t tableid);
+    /** 
+     * @brief deprecated
+     *
+     * @param re 
+     * @param recmd 
+     * @param reptr 
+     * @param uur 
+     */
     void deleteRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
+    /** 
+     * @brief deprecated
+     *
+     * @param re 
+     * @param recmd 
+     * @param reptr 
+     */
     void replaceRow(apifPtr re, int64_t recmd, void *reptr);
     // isnull,isnotnull
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op);
     // eq,neq,gt,lt,gte,lte,regex
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     t_int64 input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     uint64_t input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     bool input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     long double input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     char input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     string *input);
     // in
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     vector<int64_t> *input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     vector<uint64_t> *input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     vector<bool> *input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     vector<long double> *input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid,
                     locktype_e locktype, operatortypes_e op,
                     vector<char> *input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     vector<string> *input);
     // between
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     int64_t lower, int64_t upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     uint64_t lower, uint64_t upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     bool lower, bool upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     long double lower, long double upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     char lower, char upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
                     string *lower, string *upper);
+    /** 
+     * @brief deprecated
+     *
+     */
     void fetchRows(apifPtr re, int64_t recmd, void *reptr);
+    /** 
+     * @brief unlock row
+     *
+     */
     void unlock(apifPtr re, int64_t recmd, void *reptr, int64_t rowid,
                 int64_t tableid, int64_t engineid);
+    /** 
+     * @brief rollback transaction
+     *
+     */
     void rollback(apifPtr re, int64_t recmd, void *reptr);
+    /** 
+     * @brief rollback transaction
+     *
+     */
     void rollback(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
+    /** 
+     * @brief commit transaction
+     *
+     */
     void commit(apifPtr re, int64_t recmd, void *reptr);
+    /** 
+     * @brief deprecated
+     *
+     */
     void revert(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
     // calls a map of fields:
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void  reptr*, uuRecord_s &uur);
     // sets the field to null:
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRowNullField(apifPtr re, int64_t recmd, void *reptr,
                             uuRecord_s &uur, int64_t fieldid);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_t fieldid, int64_t input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_t fieldid, uint64_t input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_tfieldid, bool input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_t fieldid, long double input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_t fieldid, char input);
+    /** 
+     * @brief deprecated
+     *
+     */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
                    int64_t fieldid, string input);
+    /** 
+     * @brief deprecated
+     *
+     */
     bool unmakerow(int64_t tableid, string *rowstring,
                    vector<fieldValue_s> *resultFields);
+    /** 
+     * @brief deprecated
+     *
+     */
     void prepareResponseVector(int64_t resultCode);
 
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow();
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(int64_t val);
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(uint64_t val);
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(bool val);
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(long double val);
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(char val);
+    /** 
+     * @brief deprecated
+     *
+     */
     void addFieldToRow(string &val);
 
+    /** 
+     * @brief set continuation target back to ApiInterface object
+     *
+     * @param re this
+     * @param recmd entry point
+     * @param reptr state data
+     */
     void setReEntry(apifPtr re, int64_t recmd, void *reptr);
+    /** 
+     * @brief deprecated
+     *
+     * @param resultCode 
+     * @param v 
+     */
     void sendResponse(int64_t resultCode, vector<std::string> *v);
 
-    class Statement *newStatement(char *);
+    /** 
+     * @brief execute SQL statement
+     *
+     * @param stmtname statement name
+     * @param stmtPtr Statement
+     * @param reentryfunction function to reenter to
+     * @param reentrypoint continuation entry point
+     * @param reentrydata continuation state
+     *
+     * @return success or failure to execute statement
+     */
     bool execStatement(const char *stmtname, Statement *stmtPtr,
                        apifPtr reentryfunction, int64_t reentrypoint,
                        void *reentrydata);
-    bool execStatement(const char *, vector<std::string> &, apifPtr, int64_t,
-                       void *);
+    /** 
+     * @brief execute SQL statement
+     *
+     * @param stmtname statement name
+     * @param args statement parameters
+     * @param reentryfunction function to reenter to
+     * @param reentrypoint continuation entry point
+     * @param reentrydata continuation state
+     *
+     * @return success or failure to execute statement
+     */
+    bool execStatement(const char *stmtname, vector<std::string> &args,
+                       apifPtr reentryfunction, int64_t reentrypoint,
+                       void *reentrydata);
+    /** 
+     * @brief get resultCode from most recent transactional activity
+     *
+     *
+     * @return resultCode
+     */
     int64_t getResultCode();
+    /** 
+     * @brief delete Transaction
+     *
+     */
     void deleteTransaction();
+    /** 
+     * @brief delete Statement
+     *
+     */
     void deleteStatement();
+    /** 
+     * @brief put args from stored procedure Statement into vector of strings
+     *
+     * @param stmtPtr Statement
+     * @param argsRef resulting arguments
+     */
     void getStoredProcedureArgs(Statement *stmtPtr,
                                 std::vector<std::string> &argsRef);
 

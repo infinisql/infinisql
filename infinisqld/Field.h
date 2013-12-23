@@ -42,6 +42,16 @@
 class Field
 {
 public:
+    /** 
+     * @ create field
+     *
+     * also create index object associated with field
+     *
+     * @param typearg field type
+     * @param lengtharg length (for CHARX)
+     * @param indextypearg index type
+     * @param namearg field name
+     */
     Field(fieldtype_e typearg, int64_t lengtharg, indextype_e indextypearg,
           std::string namearg);
     virtual ~Field();

@@ -82,14 +82,6 @@ typedef vector<idl> cmds;
 #include "Transaction.h"
 #include "Applier.h"
 
-/*
-  typedef struct
-  {
-  int64_t resultCode;
-  msgpack::sbuffer *sbuf;
-  } procedureResponse;
-*/
-
 typedef boost::unordered_map<std::string, procedures_s> domainProceduresMap;
 
 typedef struct
@@ -118,12 +110,21 @@ msgpack::sbuffer *makeSbuf(msgpack::sbuffer *);
 msgpack::sbuffer *makeSbuf(vector<string> *);
 msgpack::sbuffer *makeSbuf(std::map<string, string> *);
 
+/** 
+ * @brief execute Transaction Agent actor
+ *
+ * @param myIdentityArg how to identify this
+ */
 class TransactionAgent
 {
 public:
     TransactionAgent(Topology::partitionAddress *myIdentityArg);
     virtual ~TransactionAgent();
 
+    /** 
+     * @brief update Topology of replicas
+     *
+     */
     void updateReplicas();
 
     // pubic for replyTa:
@@ -141,43 +142,213 @@ public:
     // needs to be all/mostly public for stored procedures
 
     // builtins
+    /** 
+     * @brief ping operation
+     *
+     * sends an empty response--used for testing functionality
+     *
+     * @param cmd not used
+     */
     void ping(builtincmds_e cmd);
+    /** 
+     * @brief login
+     *
+     * @param cmd continuation entry point
+     */
     void login(builtincmds_e cmd);
+    /** 
+     * @brief logout
+     *
+     * @param cmd continuation entry point
+     */
     void logout(builtincmds_e cmd);
+    /** 
+     * @brief change password
+     *
+     * @param cmd continuation entry point
+     */
     void changepassword(builtincmds_e cmd);
+    /** 
+     * @brief create domain
+     *
+     * @param cmd continuation entry point
+     */
     void createdomain(builtincmds_e cmd);
+    /** 
+     * @brief create user
+     *
+     * @param cmd continuation entry point
+     */
     void createuser(builtincmds_e cmd);
+    /** 
+     * @brief delete user
+     *
+     * @param cmd continuation entry point
+     */
     void deleteuser(builtincmds_e cmd);
+    /** 
+     * @brief delete domain
+     *
+     * @param cmd continuation entry point
+     */
     void deletedomain(builtincmds_e cmd);
+    /** 
+     * @brief create schema
+     *
+     * @param cmd continuation entry point
+     */
     void createschema(builtincmds_e cmd);
+    /** 
+     * @brief create table
+     *
+     * @param cmd continuation entry point
+     */
     void createtable(builtincmds_e cmd);
+    /** 
+     * @brief add column
+     *
+     * @param cmd continuation entry point
+     */
     void addcolumn(builtincmds_e cmd);
+    /** 
+     * @brief delete index
+     *
+     * @param cmd continuation entry point
+     */
     void deleteindex(builtincmds_e cmd);
+    /** 
+     * @brief delete table
+     *
+     * @param cmd continuation entry point
+     */
     void deletetable(builtincmds_e cmd);
+    /** 
+     * @brief delete schema
+     *
+     * @param cmd continuation entry point
+     */
     void deleteschema(builtincmds_e cmd);
+    /** 
+     * @brief load stored procedure
+     *
+     * @param cmd continuation entry point
+     */
     void loadprocedure(builtincmds_e cmd);
+    /** 
+     * @brief compile SQL statement
+     *
+     * @param cmd continuation entry point
+     */
     void compile(builtincmds_e cmd);
+    /** 
+     * @brief common code for many operations, such as login, create table, etc
+     *
+     * @param cmd continuation entry point
+     * @param builtin command to work on
+     */
     void schemaBoilerplate(builtincmds_e cmd, int builtin);
     // loop-back schema commands
+    /** 
+     * @brief continuation function for createschema
+     *
+     */
     void TAcreateschema();
+    /** 
+     * @brief continuation for createtable
+     *
+     */
     void TAcreatetable();
+    /** 
+     * @brief continuation for addcolumn
+     *
+     */
     void TAaddcolumn();
+    /** 
+     * @brief continuation for deleteindex
+     *
+     */
     void TAdeleteindex();
+    /** 
+     * @brief continuation for deletetable
+     *
+     */
     void TAdeletetable();
+    /** 
+     * @brief continuation for deleteschema
+     *
+     */
     void TAdeleteschema();
+    /** 
+     * @brief continuation for loadprocedure
+     *
+     */
     void TAloadprocedure();
+    /** 
+     * @brief delete Operation, remove from pendingOperations
+     *
+     */
     void endOperation();
     //private:
+    /** 
+     * @brief finish TCP connection on raw interface (not SQL interface)
+     *
+     */
     void endConnection();
+    /** 
+     * @brief read socket on raw interface
+     *
+     *
+     * @return 
+     */
     int64_t readSocket();
+    /** 
+     * @brief generate unique, constantly increasing Transaction identifier
+     *
+     *
+     * @return next transactionid
+     */
     int64_t getnexttransactionid();
+    /** 
+     * @brief generate unique, constantly increasing Applier identifier
+     *
+     *
+     * @return next applierid
+     */
     int64_t getnextapplierid();
+    /** 
+     * @brief stub for Message variants that can't be handled otherwise
+     *
+     */
     void badMessageHandler();
+    /** 
+     * @brief called by loadprocedure
+     *
+     * communicates back and forth with UserSchemaMgr and all TransactionAgents
+     * to load stored procedure
+     *
+     * @param entrypoint entry point
+     */
     void newprocedure(int64_t entrypoint);
+    /** 
+     * @brief called by compile to compile SQL statement
+     *
+     */
     void newstatement();
 
+    /** 
+     * @brief for replica to apply transaction changes synchronously
+     *
+     */
     void handledispatch();
 
+    /** 
+     * @brief send raw protocol TCP responses to builtins, ping, login, logout,
+     * etc.
+     *
+     * @param resending 
+     * @param resultCode 
+     * @param response 
+     */
     template <typename T>
         void sendResponse(bool resending, int64_t resultCode, T response)
     {
@@ -246,6 +417,15 @@ public:
         }
     }
 
+    /** 
+     * @brief reply MessageUserSchema to UserSchemaMgr
+     *
+     * for builtin functions, ping, login, createindex, and so on
+     *
+     * @param actor sending actor
+     * @param dest UserSchemaMgr address
+     * @param msg MessageUserSchema
+     */
     template < typename T >
         static void usmReply(T actor, Topology::addressStruct &dest,
                              class MessageUserSchema &msg)
@@ -305,6 +485,13 @@ typedef ApiInterface *(*spclasscreate)(class TransactionAgent *,
                                        class ApiInterface *, void *);
 typedef void(*spclassdestroy)(ApiInterface *);
 
+/** 
+ * @brief orphan
+ *
+ * @param servent 
+ * @param result 
+ * @param msg 
+ */
 template < typename T >
 void replyTa(T servent, topic_e result, void *msg)
 {
@@ -319,6 +506,13 @@ void replyTa(T servent, topic_e result, void *msg)
     msgref.userschemaStruct.status = servent->status;
 }
 
-void *transactionAgent(void *);
+/** 
+ * @brief launch Transaction Agent actor
+ *
+ * @param identity how to identify actor instance
+ *
+ * @return 
+ */
+void *transactionAgent(void *identity);
 
 #endif  /* INFINISQLTRANSACTIONAGENT_H */

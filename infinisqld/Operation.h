@@ -41,6 +41,14 @@ typedef struct
     int64_t msgwaits;
 } schemastruct;
 
+/** 
+ * @brief non-transactional user and schema-related activity
+ *
+ * @param typearg type of operation
+ * @param taarg TransactionAgent
+ * @param uid userid
+ * @param did domainid
+ */
 class Operation
 {
 public:
@@ -51,9 +59,30 @@ public:
     friend class TransactionAgent;
 
     //private:
+    /** 
+     * @brief "builtin" is the operation function to perform
+     *
+     * @param cmd command, one of BUILTIN* macros defined in defs.h
+     */
     void setbuiltincmd(int cmd);
+    /** 
+     * @brief set domain name
+     *
+     * @param name domain name
+     */
     void setDomainName(string name);
+    /** 
+     * @brief get operation identifier
+     *
+     *
+     * @return operation identifier
+     */
     int64_t getid();
+    /** 
+     * @brief perform operation (only for SQL logins)
+     *
+     * @param msgrcvref received MessageUserSchema
+     */
     void handleOperation(class MessageUserSchema &msgrcvref);
 
     int type;

@@ -36,8 +36,20 @@
 #include "gch.h"
 #include "cfgenum.h"
 
+/** 
+ * @brief launch Topology Manager actor
+ *
+ * @param identity how to identify actor instance
+ *
+ * @return 
+ */
 void *topologyMgr(void *identity);
 
+/** 
+ * @brief execute Topology Manager actor
+ *
+ * @param myIdentityArg how to identify this 
+ */
 class TopologyMgr
 {
 public:
@@ -45,8 +57,28 @@ public:
     TopologyMgr(const TopologyMgr &orig);
     virtual ~TopologyMgr();
 private:
+    /** 
+     * @brief local (node-specific) Topology update
+     *
+     * transmitted by manager process over 0mq serialized by msgpack
+     *
+     * @param pac msgpack unpacker object
+     * @param result result of unpacking
+     */
     void updateLocalConfig(msgpack::unpacker &pac, msgpack::unpacked &result);
+    /** 
+     * @brief global (cluster wide) Topology update
+     *
+     * transmitted by manager process over 0mq serialized by msgpack
+     *
+     * @param pac msgpack unpacker object
+     * @param result result of unpacking
+     */
     void updateGlobalConfig(msgpack::unpacker &pac, msgpack::unpacked &result);
+    /** 
+     * @brief tell all local actors to update their versions of Topology
+     *
+     */
     void broadcastConfig();
 
     Topology::partitionAddress myIdentity;
@@ -55,4 +87,3 @@ private:
 };
 
 #endif  /* INFINISQLTOPOLOGYMGR_H */
-

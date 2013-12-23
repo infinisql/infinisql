@@ -433,30 +433,163 @@ extern pthread_mutex_t connectionsMutex;
 extern std::vector<class MboxProducer *> socketAffinity;
 extern std::vector<listenertype_e> listenerTypes;
 
+/** 
+ * @brief convert msgpack to a vector of strings
+ *
+ * @param resultvector output
+ * @param payload msgpack data
+ * @param length msgpack length
+ */
 void msgpack2Vector(vector<string> *resultvector, char *payload,
                     int64_t length);
+/** 
+ * @brief for delete operations on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char setdeleteflag(char *c);
+/** 
+ * @brief check if row operation is delete
+ *
+ * @param c rowdata_s flags
+ *
+ * @return is or is not set
+ */
 bool getdeleteflag(char c);
+/** 
+ * @brief clear delete operation on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char cleardeleteflag(char *c);
+/** 
+ * @brief for insert operations on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char setinsertflag(char *c);
+/** 
+ * @brief check if row operation is insert
+ *
+ * @param c rowdata_s flags
+ *
+ * @return is or is not set
+ */
 bool getinsertflag(char c);
+/** 
+ * @brief clear insert operation on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char clearinsertflag(char *c);
+/** 
+ * @brief clear locked flag on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char clearlockedflag(char *c);
+/** 
+ * @brief check if row is locked and type
+ *
+ * @param c rowdata_s flags
+ *
+ * @return NOLOCK|READLOCK|WRITELOCK
+ */
 locktype_e getlocktype(char c);
-// return false if a problem
+/** 
+ * @brief set write lock on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return success or failure
+ */
 bool setwritelock(char *c);
+/** 
+ * @brief set read lock on row
+ *
+ * @param c rowdata_s flags
+ *
+ * @return success or failure
+ */
 bool setreadlock(char *c);
+/** 
+ * @brief set delete as part of replace row flag
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char setreplacedeleteflag(char c*);
+/** 
+ * @brief get whether or not row is deleted as part of row replacement
+ *
+ * @param c rowdata_s flags
+ *
+ * @return is or is not
+ */
 bool getreplacedeleteflag(char c);
+/** 
+ * @brief clear row as deleted as part of row replacement
+ *
+ * @param c rowdata_s flags
+ *
+ * @return rowdata_s flags
+ */
 char clearreplacedeleteflag(char *c);
 // end of flags stuff
 
+/** 
+ * @brief hash of field value for partition id
+ *
+ * @param fieldVal field value
+ * @param type field type
+ * @param numpartitions number of partitions
+ *
+ * @return 
+ */
 int16_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
                        int16_t numpartitions);
+/** 
+ * @brief might be orpha, but convert LIKE operand to regex
+ *
+ * @param likeStr LIKE operand
+ */
 void like2Regex(string &likeStr);
+/** 
+ * @brief compare field values for equality
+ *
+ * @param type field type
+ * @param val1 operand 1
+ * @param val2 operand 2
+ *
+ * @return true (equal), false (unequal)
+ */
 bool compareFields(fieldtype_e type, const fieldValue_s &val1,
                    const fieldValue_s &val2);
+/** 
+ * @brief convert stagedRow_s to returnRow_s
+ *
+ * @param stagedRow input stagedRow_s
+ * @param returnRow output returnRow_s
+ */
 void stagedRow2ReturnRow(const stagedRow_s &stagedRow, returnRow_s &returnRow);
+/** 
+ * @brief set real-time priority
+ *
+ * for IbGateway and ObGateway to maximize throughput. Needs to be configured
+ * at OS level
+ *
+ */
 void setprio();
 
 #endif // INFINISQLDEFS_H

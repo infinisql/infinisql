@@ -52,24 +52,76 @@ class Ast
 {
 public:
     Ast();
+    /** 
+     * @brief create abstract syntax tree object
+     *
+     * @param parentarg parent Ast (NULL if root)
+     * @param operatortypearg operator type
+     */
     Ast(class Ast *parentarg , operatortypes_e operatortypearg); // for operators
+    /** 
+     * @brief create abstract syntax tree object
+     *
+     * @param parentarg parent Ast (NULL if root)
+     * @param operandarg operand
+     */
     Ast(class Ast *parentarg, std::string &operandarg); // for operands
     Ast(const Ast &orig);
     Ast &operator= (const Ast &orig);
+    /** 
+     * @brief deep copy of Ast
+     *
+     * @param orig source Ast
+     */
     void cp(const Ast &orig);
     virtual ~Ast();
 
-    /* returns complete true, incomplete false. 1st *Ast is node to evaluate,
-     * 2nd is next node to evaluate (or NULL)
+    /** 
+     *
+     * evaluate Ast as part of continuation.
+     * returns the next Ast node to evaluate in 1st param, or NULL if
+     * finished.
+     * if both children (left only for unary operator) are not operators
+     * then return false so caller resolves it. Evaluate each child, convert
+     * self to resulting operand, return true
+     *
+     * @param nextAstNode next Ast node to evaluate by subsequent call
+     * @param statementPtr current Ast node to evaluate
+     *
+     * @return 
      */
     bool evaluate(class Ast **nextAstNode,
                   class Statement *statementPtr statementPtr);
     /* evaluates for setassignment per row. does not get backgrounded */
-    void evaluateAssignment(std::vector<fieldValue_s> &,
+    /** 
+     *  evaluate assignments in UPDATE queries
+     *
+     * @param fieldValues list of values to set each row to
+     * @param statementPtr associated statement
+     */
+    void evaluateAssignment(std::vector<fieldValue_s> &fieldValues,
                             class Statement *statementPtr);
-    void normalizeSetAssignmentOperand(vector<fieldValue_s> &fieldValues,
-                                       class Statement *statementPtr);
+    /** 
+     *  converts INTEGER to FLOAT (or leaves float alone).
+     * Supports arithmetic between numbers. Parser doesn't determine type
+     * based on context, but on content. So, "35+15.7" is parsed as
+     * INTEGER + FLOAT. While "35.0+15.7" is parsed as FLOAT + FLOAT.
+     * This function casts INTEGER to FLOAT so math can be performed.
+     *
+     * @param inoperand operand to convert
+     * @param outField converted to fieldValue_s type
+     */
     static void toFloat(const string &inoperand, fieldValue_s &outField);
+    /** 
+     * converts INTEGER to FLOAT (or leaves float alone).
+     * Supports arithmetic between numbers. Parser doesn't determine type
+     * based on context, but on content. So, "35+15.7" is parsed as
+     * INTEGER + FLOAT. While "35.0+15.7" is parsed as FLOAT + FLOAT.
+     * This function casts INTEGER to FLOAT so math can be performed.
+     * 
+     * @param inoperand operand to convert
+     * @param outoperand output operand
+     */
     static void toFloat(const string &inoperand, string &outoperand);
 
     class Ast *parent;
@@ -86,6 +138,10 @@ public:
 class Statement;
 typedef void(Statement::*statementfPtr)(int64_t, void *);
 
+/** 
+ * @brief contains all necessary information to execute a SQL statement
+ *
+ */
 class Statement
 {
 public:
@@ -178,50 +234,193 @@ public:
     };
 
     Statement();
+    /** 
+     * @brief create Statement object
+     *
+     * @param taPtrarg associated TransactionAgent
+     * @param schemaPtrarg associated Schema
+     */
     Statement(class TransactionAgent *taPtrarg, class Schema *schemaPtrarg);
     Statement(const Statement &orig);
     Statement &operator= (const Statement &orig);
+    /** 
+     * @brief deep copy of Statement
+     *
+     * @param orig source Statement
+     */
     void cp(const Statement &orig);
     virtual ~Statement();
 
+    /** 
+     * @brief deep copy of query_s instance
+     *
+     * @param orig source query_s
+     *
+     * @return new query_s 
+     */
     query_s cpquery(const query_s &orig);
+    /** 
+     * @brief resolves table and field names to integers
+     *
+     *
+     * @return success (true) or failure (false)
+     */
     bool resolveTableFields();
+    /** 
+     * called by resolveTableFields recursively on each
+     * query then subquery to resolve table and field names to integers
+     *
+     *
+     * @return success (true) or failure (false)
+     */
     bool resolveTableFields2();
+    /** 
+     * @brife field name resolution for resolveTableFields
+     *
+     * @param myPosition Ast with field name as operand
+     *
+     * @return success (true) or failure (false)
+     */
     bool resolveFieldNames(class Ast *myPosition);
-    int64_t getfieldid(int64_t tableid, const string & fieldName);
+    /** 
+     * @brief returns fieldid
+     *
+     * @param tableid tableid
+     * @param fieldName name of field
+     *
+     * @return fieldid
+     */
+    int64_t getfieldid(int64_t tableid, const string &fieldName);
+    /** 
+     * perform search predicate query on results already gathered by this
+     * transaction. saves from having to do unnecessary message traffic
+     * with engines
+     *
+     * @param op operation
+     * @param tableid tbaleid
+     * @param leftoperand left operand of Ast
+     * @param rightoperand right operand of Ast
+     * @param inValues for IN (or NOT IN) predicate, these are the values
+     * @param stagedRows rows already gathered
+     * @param results rows matched by predicate
+     *
+     * @return true if rows matched, false if none
+     */
     bool stagedPredicate(operatortypes_e op, int64_t tableid,
                          string &leftoperand, string &rightoperand,
                          vector<fieldValue_s> &inValues,
                          const boost::unordered_map<uuRecord_s,
                          stagedRow_s> &stagedRows,
                          boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    /**
+     * not yet functional, possibly gratuitous, redundant to stagedPredicate
+     */
     void andPredicate(operatortypes_e op, int64_t tableid,
                       string &leftoperand, string &rightoperand,
                       vector<fieldValue_s> &inValues,
                       const boost::unordered_map<uuRecord_s,
                       returnRow_s> &andResults,
                       boost::unordered_map<uuRecord_s, returnRow_s> &results);
+    /** 
+     * @brief execute SQL statement
+     *
+     * @param reentryObject object to continue to after execution
+     * @param reentryfptr function pointer to continue to
+     * @param reentrypoint entry point to continue to
+     * @param reentrydata arbitrary data to pass to continuation
+     * @param transactionPtrarg associated Transaction (NULL if none)
+     * @param parametersarg parameters to SQL statement
+     */
     void execute(class ApiInterface *reentryObject, apifPtr reentryfptr,
                  int64_t reentrypoint, void *reentrydata,
                  class Transaction *transactionPtrarg,
                  const vector<string> &parametersarg);
-    /* return if evaluation is complete (true), or incomplete (false)
+     */
+    /** 
+     * @brief perform search expression
+     *
+     * return if evaluation is complete (true), or incomplete (false)
      * if incomplete, caller should return as it means a background transaction
      * call is taking place if the nextastnode is NULL, or it should execute
      * the nextastnode, which is one of the children
+     * 
+     * @param entrypoint entrypoint in calling function to return to
+     * @param astNode Ast to evaluate
      */
     void searchExpression(int64_t entrypoint, class Ast *astNode);
+    /** 
+     * @brief SELECT, INSERT, UPDATE, DELETE, stored proc branch to
+     *
+     */
     void branchtotype();
+    /** 
+     * @brief return to calling function (Statement execution complete)
+     *
+     * @param status 
+     */
     void reenter(int64_t status);
+    /** 
+     * @brief continuation for SELECT statement
+     *
+     * @param entrypoint 
+     * @param ignorethis 
+     */
     void continueSelect(int64_t entrypoint, class Ast *ignorethis);
+    /** 
+     * @brief continuation for DELETE statement
+     *
+     * @param entrypoint 
+     * @param ignorethis 
+     */
     void continueDelete(int64_t entrypoint, class Ast *ignorethis);
+    /** 
+     * @brief continuation for INSERT statement
+     *
+     * @param entrypoint 
+     * @param ignorethis 
+     */
     void continueInsert(int64_t entrypoint, class Ast *ignorethis);
+    /** 
+     * @brief continuation for UPDATE statement
+     *
+     * @param entrypoint 
+     * @param ignorethis 
+     */
     void continueUpdate(int64_t entrypoint, class Ast *ignorethis);
+    /** 
+     * @brief begin query execution
+     *
+     */
     void startQuery();
+    /** 
+     * @brief subquery that returns a scalar
+     *
+     * @param astnode 
+     */
     void subqueryScalar(class Ast *astnode);
+    /** 
+     * @brief UNIQUE type of subquery
+     *
+     * @param astnode 
+     */
     void subqueryUnique(class Ast *astnode);
+    /** 
+     * @brief EXISTS subquery
+     *
+     * @param astnode 
+     */
     void subqueryExists(class Ast *astnode);
+    /** 
+     * @brief subquery returns list of values for IN predicate
+     *
+     * @param astnode 
+     */
     void subqueryIn(class Ast *astnode);
+    /** 
+     * @brief g-bye
+     *
+     * @param status status code returned to caller
+     */
     void abortQuery(int64_t status);
 
     class TransactionAgent *taPtr;

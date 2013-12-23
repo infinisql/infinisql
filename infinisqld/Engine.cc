@@ -263,10 +263,7 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
         }
 
         rowdata_s *row = new rowdata_s();
-        //      row->writelockHolder = 0;
         row->previoussubtransactionid = subtransactionid;
-        //      row->flags = 0;
-        //      row->readlockHolders = NULL;
         row->row = record.row;
         tableRef.rows[record.rowid] = row;
     }
@@ -288,10 +285,7 @@ bool Engine::applyItem(int64_t subtransactionid, class Schema &schemaRef,
         }
 
         rowdata_s *row = new rowdata_s();
-        //      row.writelockHolder = 0;
         row->previoussubtransactionid = subtransactionid;
-        //      row.flags = 0;
-        //      row->readlockHolders = NULL;
         row->row = record.row;
         tableRef.rows[record.rowid] = row;
     }
@@ -705,7 +699,7 @@ void Engine::apply()
             background(inmsg, inmsg.rows[n]);
         }
     }
-
+    
     for (size_t n=0; n < inmsg.indices.size(); n++)
     {
         if (applyItem(inmsg.applyStruct.subtransactionid, schemaRef,

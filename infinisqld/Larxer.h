@@ -34,6 +34,18 @@
 #include "gch.h"
 #include "defs.h"
 
+/** 
+ * @brief create object to tokenize, parse, and compile SQL statement
+ *
+ * many of these functions are called by the lexer.ll and parser.yy
+ * generated code
+ *
+ * @param instr SQL query
+ * @param taPtr TransactionAgent
+ * @param schemaPtr Schema
+ *
+ * @return 
+ */
 class Larxer
 {
 public:
@@ -117,38 +129,208 @@ public:
         std::string val;
     };
 
+
+    /** 
+     * @brief tokenize, parse, and compile SQL statement
+     *
+     * many of these functions are called by the lexer.ll and parser.yy
+     * generated code
+     * 
+     * @param instr SQL statement
+     * @param taPtr TransactionAgent
+     * @param schemaPtr Schema
+     */
     Larxer(char *instr, class TransactionAgent *taPtr, class Schema *schemaPtr);
     virtual ~Larxer();
 
+    /** 
+     * @brief put item on stack
+     *
+     * stack is intermediary between parsing and Statement object
+     *
+     * @param type stack entry
+     */
     void pushstack(stacktypes_e type);
+    /** 
+     * @brief put item on stack
+     *
+     * stack is intermediary between parsing and Statement object
+     *
+     * @param type stack entry
+     * @param val value associated with entry
+     */
     void pushstack(stacktypes_e type, int64_t val);
+    /** 
+     * @brief put item on stack
+     *
+     * stack is intermediary between parsing and Statement object
+     *
+     * @param type stack entry
+     * @param val value associated with entry
+     */
     void pushstack(stacktypes_e type, long double val);
+    /** 
+     * @brief put item on stack
+     *
+     * stack is intermediary between parsing and Statement object
+     *
+     * @param type stack entry
+     * @param val value associated with entry
+     */
     void pushstack(stacktypes_e type, const char *val);
+    /** 
+     * @brief put item on stack
+     *
+     * stack is intermediary between parsing and Statement object
+     *
+     * @param type stack entry
+     * @param val value associated with entry
+     */
     void pushstack(stacktypes_e type, string &val);
+    /** 
+     * @brief push operand onto stack
+     *
+     * @param operandtype type of operand
+     */
     void pushoperand(char operandtype);
+    /** 
+     * @brief push operand onto stack
+     *
+     * @param operandtype type of operand
+     * @param val associated value
+     */
     void pushoperand(char operandtype, int64_t val);
+    /** 
+     * @brief push operand onto stack
+     *
+     * @param operandtype type of operand
+     * @param val associated value
+     */
     void pushoperand(char operandtype, long double val);
+    /** 
+     * @brief push operand onto stack
+     *
+     * @param operandtype type of operand
+     * @param val associated value
+     */
     void pushoperand(char operandtype, const char *val);
+    /** 
+     * @brief push aggregate and associated field onto stack
+     *
+     * @param aggregatetype type of aggregate
+     * @param val associated field
+     */
     void pushaggregate(char aggregatetype, const char *val);
+    /** 
+     * @brief take item off stack
+     *
+     * @return item
+     */
     stackmember_s popstack();
+    /** 
+     * @brief convert string to integer
+     *
+     * @param val string input
+     *
+     * @return integer value
+     */
     int64_t getintval(string &val);
+    /** 
+     * @brief convert string to float
+     *
+     * @param val string input
+     *
+     * @return float value
+     */
     long double getfloatval(string &val);
+    /** 
+     * @brief consume entire stack
+     *
+     * @param taPtr TransactionAgent
+     * @param schemaPtr Schema
+     */
     void eatstack(class TransactionAgent *taPtr, class Schema *schemaPtr);
+    /** 
+     * @brief show stack entries, for debugging
+     *
+     */
     void printstack();
 
+    /** 
+     * @brief extract SELECT query from stack
+     *
+     * @param columns quantity of columns
+     */
     void consumeSelect(string &columns);
+    /** 
+     * @brief extract INSERT query from stack
+     *
+     */
     void consumeInsert();
+    /** 
+     * @brief extract UPDATE query from stack
+     *
+     */
     void consumeUpdate();
+    /** 
+     * @brief extract DELETE query from stack
+     *
+     */
     void consumeDelete();
+    /** 
+     * @brief extract stored procedure call query from stack
+     *
+     */
     void consumeStoredProcedure();
+    /** 
+     * @brief extract expression from stack
+     *
+     *
+     * @return Ast object
+     */
     class Ast *consumeExpression();
+    /** 
+     * @brief extract subquery from stack
+     *
+     *
+     * @return index of vector of queries
+     */
     int64_t consumeSubquery();
+    /** 
+     * @brief extract list of IN values from stack
+     *
+     */
     void consumeInobject();
+    /** 
+     * @brief extract columns from stack
+     *
+     * @param numcolumns number of columns
+     */
     void consumeColumns(int64_t numcolumns);
+    /** 
+     * @brief extract FROM clause from stack
+     *
+     */
     void consumeFrom();
+    /** 
+     * @brief extract WHERE clause from stack
+     *
+     */
     void consumeWhere();
+    /** 
+     * @brief extract GROUP BY clause from stack
+     *
+     */
     void consumeGroupby();
+    /** 
+     * @brief extract HAVING clause from stack
+     *
+     */
     void consumeHaving();
+    /** 
+     * @brief extract ORDER BY clause from stack
+     *
+     */
     void consumeOrderby();
 
     std::stack<stackmember_s> parsedStack;

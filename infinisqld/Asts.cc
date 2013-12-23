@@ -649,7 +649,6 @@ bool Ast::evaluate(class Ast **nextAstNode, class Statement *statementPtr)
             delete rightchild;
             rightchild=NULL;
         }
-
         break;
 
     case OPERATOR_NE:
@@ -1849,96 +1848,6 @@ void Ast::evaluateAssignment(vector<fieldValue_s> &fieldValues,
     }
 }
 
-void Ast::normalizeSetAssignmentOperand(vector<fieldValue_s> &fieldValues,
-                                        class Statement *statementPtr)
-{
-    switch (operand[0])
-    {
-    case OPERAND_FIELDID:
-    {
-        int64_t fieldid;
-        memcpy(&fieldid, &operand[1], sizeof(fieldid));
-
-        switch (statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type)
-        {
-        case INT:
-            operand.resize(1+sizeof(int64_t), (char)0);
-            operand[0] = OPERAND_INTEGER;
-            memcpy(&operand[1], &fieldValues[fieldid].value.integer,
-                   sizeof(int64_t));
-            break;
-
-        case UINT:
-            operand.resize(1+sizeof(int64_t), (char)0);
-            operand[0] = OPERAND_INTEGER;
-            memcpy(&operand[1], &fieldValues[fieldid].value.uinteger,
-                   sizeof(int64_t));
-            break;
-
-        case BOOL:
-            operand.resize(1+sizeof(int64_t), (char)0);
-            operand[0] = OPERAND_INTEGER;
-            int64_t val;
-
-            if (fieldValues[fieldid].value.boolean==true)
-            {
-                val=1;
-            }
-            else
-            {
-                val=0;
-            }
-
-            memcpy(&operand[1], &val, sizeof(int64_t));
-            break;
-
-        case FLOAT:
-            operand.resize(1+sizeof(long double), (char)0);
-            operand[0] = OPERAND_FLOAT;
-            memcpy(&operand[1], &fieldValues[fieldid].value.floating,
-                   sizeof(int64_t));
-            break;
-
-        case CHAR:
-            operand.resize(1+sizeof(char), (char)0);
-            operand[0] = OPERAND_STRING;
-            operand[1] = fieldValues[fieldid].value.character;
-            break;
-
-        case CHARX:
-            operand.assign(1, OPERAND_STRING);
-            operand.append(fieldValues[fieldid].str);
-            break;
-
-        case VARCHAR:
-            operand.assign(1, OPERAND_STRING);
-            operand.append(fieldValues[fieldid].str);
-            break;
-
-        default:
-            printf("%s %i anomaly %i\n", __FILE__, __LINE__,
-                   statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type);
-        }
-    }
-    break;
-
-    case OPERAND_SUBQUERY:
-        statementPtr->subqueryScalar(this);
-        break;
-
-    case OPERAND_PARAMETER:
-    {
-        int64_t paramnum;
-        memcpy(&paramnum, &operand[1], sizeof(paramnum));
-        operand = statementPtr->parameters[paramnum];
-    }
-    break;
-
-    default:
-        return;
-    }
-}
-
 void Ast::toFloat(const string &inoperand, fieldValue_s &outField)
 {
     switch (inoperand[0])
@@ -2396,10 +2305,8 @@ int64_t Statement::getfieldid(int64_t tableid, const string &fieldName)
 bool Statement::stagedPredicate(operatortypes_e op, int64_t tableid,
                                 string &leftoperand, string &rightoperand,
                                 vector<fieldValue_s> &inValues,
-                                const boost::unordered_map<uuRecord_s,
-                                stagedRow_s> &stagedRows,
-                                boost::unordered_map<uuRecord_s,
-                                returnRow_s> &results)
+                                const boost::unordered_map<uuRecord_s, stagedRow_s> &stagedRows,
+                                boost::unordered_map<uuRecord_s, returnRow_s> &results)
 {
     bool equalhit=false;
 
@@ -5528,7 +5435,6 @@ void Statement::startQuery()
     {
         currentQuery = &queries[queryindex--];
 
-        //    if (currentQuery->searchCondition != NULL)
         if (currentQuery->haswhere==true)
         {
             searchExpression(1, currentQuery->searchCondition);

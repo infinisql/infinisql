@@ -32,6 +32,11 @@
 
 #include "gch.h"
 
+/** 
+ * @brief execute Outbound Gateway actor
+ *
+ * @param myIdentityArg how to identify this
+ */
 class ObGateway
 {
 public:
@@ -53,6 +58,13 @@ private:
     bool ismultinode;
 };
 
+/** 
+ * @brief launch ObGateway actor
+ *
+ * @param identity how to identify actor instance
+ *
+ * @return 
+ */
 void *obGateway(void *identity);
 
 #endif  /* INFINISQLOBGATEWAY_H */

@@ -32,9 +32,20 @@
 
 #include "gch.h"
 
+/** 
+ * @brief Inbound Gateway Actor
+ */
 class IbGateway
 {
 public:
+    /** 
+     * @brief execute Inbound Gateway
+     *
+     * receives Message batches from other nodes, decompresses and
+     * distributes to local actors.
+     *
+     * @param myIdentityArg how to identify this
+     */
     IbGateway(Topology::partitionAddress *myIdentityArg);
     virtual ~IbGateway();
 
@@ -43,8 +54,23 @@ public:
     class Topology myTopology;
 
 private:
+    /** 
+     * @brief process compressed batch of incoming messages
+     *
+     * @param buf incoming message buffer
+     * @param bufsize buffer size
+     */
     void inbufhandler(const char *buf, size_t bufsize);
+    /** 
+     * @brief add file descriptor to remote ObGateway to poll structure
+     *
+     * @param newfd socket descriptor
+     */
     void addtofds(int newfd);
+    /** 
+     * @brief remove file descriptors from poll struct
+     *
+     */
     void removefds();
 
     boost::unordered_map<int, std::string> pendingReads;
@@ -56,6 +82,13 @@ private:
     bool ismultinode;
 };
 
+/** 
+ * @brief launch IbGateway actor
+ *
+ * @param identity how to identify actor instance
+ *
+ * @return 
+ */
 void *ibGateway(void *identity);
 
 #endif  /* INFINISQLIBGATEWAY_H */

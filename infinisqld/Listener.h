@@ -38,12 +38,25 @@
 
 #include "gch.h"
 
+/** 
+ * @brief execute Listener actor
+ *
+ * @param myIdentityArg how to identify this
+ */
 class Listener
 {
 public:
     Listener(Topology::partitionAddress *myIdentityArg);
     virtual ~Listener();
 
+    /** 
+     * @brief create listening socket
+     *
+     * @param node hostname or ipv4 address
+     * @param service TCP port or service name
+     *
+     * @return 
+     */
     int startsocket(string &node, string &service);
 
     //private:
@@ -52,6 +65,13 @@ public:
     class Topology myTopology;
 };
 
+/** 
+ * @brief launch Listener actor
+ *
+ * @param identity how to identify Listener instance
+ *
+ * @return 
+ */
 void *listener(void *identity);
 
 #endif  /* INFINISQLLISTENER_H */
