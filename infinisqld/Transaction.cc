@@ -1438,7 +1438,7 @@ void Transaction::continueUpdateRow(int64_t entrypoint)
     }
 }
 
-void Transaction::continueRe:placeRow(int64_t entrypoint)
+void Transaction::continueReplaceRow(int64_t entrypoint)
 {
     class MessageSubtransactionCmd &subtransactionCmdRef =
         *(static_cast<MessageSubtransactionCmd *>(msgrcv));

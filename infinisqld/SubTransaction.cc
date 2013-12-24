@@ -1816,7 +1816,7 @@ void SubTransaction::replyTransaction(class MessageTransaction &sndRef,
 }
 
 // to be called whenever the row is unlocked
-void SubTransaction::procesRowLockQueue(int64_t tableid, int64_t rowid)
+void SubTransaction::processRowLockQueue(int64_t tableid, int64_t rowid)
 {
     return;
     // class Table &tableRef = *schemaPtr->tables[tableid];

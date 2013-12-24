@@ -662,7 +662,6 @@ public:
      * @param engineid engineid
      */
     void insertNonuniqueEntry(int64_t entry, int64_t rowid, int64_t engineid);
-    void getnulls(vector<indexEntry_s> *returnEntries);
     /** 
      * @brief insert entry into non-unique index
      *
@@ -671,7 +670,6 @@ public:
      * @param engineid engineid
      */
     void insertNonuniqueEntry(uint64_t entry, int64_t rowid, int64_t engineid);
-    void getnulls(vector<indexEntry_s> *returnEntries);
     /** 
      * @brief insert entry into non-unique index
      *
@@ -680,7 +678,6 @@ public:
      * @param engineid engineid
      */
     void insertNonuniqueEntry(bool entry, int64_t rowid, int64_t engineid);
-    void getnulls(vector<indexEntry_s> *returnEntries);
     /** 
      * @brief insert entry into non-unique index
      *
@@ -690,7 +687,6 @@ public:
      */
     void insertNonuniqueEntry(long double entry, int64_t rowid,
                               int64_t engineid);
-    void getnulls(vector<indexEntry_s> *returnEntries);
     /** 
      * @brief insert entry into non-unique index
      *
@@ -699,7 +695,6 @@ public:
      * @param engineid engineid
      */
     void insertNonuniqueEntry(char entry, int64_t rowid, int64_t engineid);
-    void getnulls(vector<indexEntry_s> *returnEntries);
     /** 
      * @brief insert entry into non-unique index
      *
@@ -1087,7 +1082,7 @@ public:
      *
      * @return match or no match
      */
-    bool checkifmatch(char val, int64_t rowid, int64_t rowid);
+    bool checkifmatch(char val, int64_t rowid, int64_t engineid);
     /** 
      * @brief check if entry matches row as part of synchronous replication
      *

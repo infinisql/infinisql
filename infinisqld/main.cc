@@ -241,8 +241,8 @@ int16_t getPartitionid(fieldValue_s &fieldVal, fieldtype_e type,
     {
     case INT:
         return SpookyHash::Hash64((void *) &fieldVal.value.integer,
-                                  sizeof(fieldVal.value.integer), 0)
-            numpartitions;
+                                  sizeof(fieldVal.value.integer), 0) %
+                                  numpartitions;
         break;
 
     case UINT:

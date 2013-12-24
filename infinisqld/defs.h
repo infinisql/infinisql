@@ -626,7 +626,7 @@ bool setreadlock(char *c);
  *
  * @return rowdata_s flags
  */
-char setreplacedeleteflag(char c*);
+char setreplacedeleteflag(char *c);
 /** 
  * @brief get whether or not row is deleted as part of row replacement
  *

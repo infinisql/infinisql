@@ -91,7 +91,7 @@ public:
      * @return 
      */
     bool evaluate(class Ast **nextAstNode,
-                  class Statement *statementPtr statementPtr);
+                  class Statement *statementPtr);
     /* evaluates for setassignment per row. does not get backgrounded */
     /** 
      *  evaluate assignments in UPDATE queries
@@ -101,6 +101,17 @@ public:
      */
     void evaluateAssignment(std::vector<fieldValue_s> &fieldValues,
                             class Statement *statementPtr);
+
+
+    /** 
+     * @brief convert 
+     *
+     * @param fieldValues 
+     * @param statementPtr 
+     */
+    void normalizeSetAssignmentOperand(vector<fieldValue_s> &fieldValues,
+                                       class Statement *statementPtr);
+
     /** 
      *  converts INTEGER to FLOAT (or leaves float alone).
      * Supports arithmetic between numbers. Parser doesn't determine type
@@ -363,7 +374,6 @@ public:
                  int64_t reentrypoint, void *reentrydata,
                  class Transaction *transactionPtrarg,
                  const vector<string> &parametersarg);
-     */
     /** 
      * @brief perform search expression
      *

@@ -39,6 +39,8 @@
 using std::string;
 using std::vector;
 
+class Statement;
+
 // statuses to client
 #define STATUS_OK 0
 #define STATUS_NOTOK 1
@@ -402,7 +404,7 @@ public:
      */
     void selectRows(apifPtr re, int64_t recmd, void *reptr, int64_t tableid,
                     int64_t fieldid, locktype_e locktype, operatortypes_e op,
-                    t_int64 input);
+                    int64_t input);
     /** 
      * @brief deprecated
      *
@@ -561,7 +563,7 @@ public:
      * @brief deprecated
      *
      */
-    void updateRow(apifPtr re, int64_t recmd, void  reptr*, uuRecord_s &uur);
+    void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur);
     // sets the field to null:
     /** 
      * @brief deprecated
@@ -586,7 +588,7 @@ public:
      *
      */
     void updateRow(apifPtr re, int64_t recmd, void *reptr, uuRecord_s &uur,
-                   int64_tfieldid, bool input);
+                   int64_t fieldid, bool input);
     /** 
      * @brief deprecated
      *

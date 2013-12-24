@@ -1523,7 +1523,7 @@ void Ast::evaluateAssignment(vector<fieldValue_s> &fieldValues,
 {
     if (isoperator==false)
     {
-        normalizeAssignmentOperand(fieldValues, statementPtr);
+        normalizeSetAssignmentOperand(fieldValues, statementPtr);
         return;
     }
 
@@ -1845,6 +1845,96 @@ void Ast::evaluateAssignment(vector<fieldValue_s> &fieldValues,
     default:
         printf("%s %i can't evaluate %i in set assignment\n", __FILE__, __LINE__,
                operatortype);
+    }
+}
+
+void Ast::normalizeSetAssignmentOperand(vector<fieldValue_s> &fieldValues,
+                                        class Statement *statementPtr)
+{
+    switch (operand[0])
+    {
+    case OPERAND_FIELDID:
+    {
+        int64_t fieldid;
+        memcpy(&fieldid, &operand[1], sizeof(fieldid));
+
+        switch (statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type)
+        {
+        case INT:
+            operand.resize(1+sizeof(int64_t), (char)0);
+            operand[0] = OPERAND_INTEGER;
+            memcpy(&operand[1], &fieldValues[fieldid].value.integer,
+                   sizeof(int64_t));
+            break;
+
+        case UINT:
+            operand.resize(1+sizeof(int64_t), (char)0);
+            operand[0] = OPERAND_INTEGER;
+            memcpy(&operand[1], &fieldValues[fieldid].value.uinteger,
+                   sizeof(int64_t));
+            break;
+
+        case BOOL:
+            operand.resize(1+sizeof(int64_t), (char)0);
+            operand[0] = OPERAND_INTEGER;
+            int64_t val;
+
+            if (fieldValues[fieldid].value.boolean==true)
+            {
+                val=1;
+            }
+            else
+            {
+                val=0;
+            }
+
+            memcpy(&operand[1], &val, sizeof(int64_t));
+            break;
+
+        case FLOAT:
+            operand.resize(1+sizeof(long double), (char)0);
+            operand[0] = OPERAND_FLOAT;
+            memcpy(&operand[1], &fieldValues[fieldid].value.floating,
+                   sizeof(int64_t));
+            break;
+
+        case CHAR:
+            operand.resize(1+sizeof(char), (char)0);
+            operand[0] = OPERAND_STRING;
+            operand[1] = fieldValues[fieldid].value.character;
+            break;
+
+        case CHARX:
+            operand.assign(1, OPERAND_STRING);
+            operand.append(fieldValues[fieldid].str);
+            break;
+
+        case VARCHAR:
+            operand.assign(1, OPERAND_STRING);
+            operand.append(fieldValues[fieldid].str);
+            break;
+
+        default:
+            printf("%s %i anomaly %i\n", __FILE__, __LINE__,
+                   statementPtr->schemaPtr->tables[statementPtr->currentQuery->tableid]->fields[fieldid].type);
+        }
+    }
+    break;
+
+    case OPERAND_SUBQUERY:
+        statementPtr->subqueryScalar(this);
+        break;
+
+    case OPERAND_PARAMETER:
+    {
+        int64_t paramnum;
+        memcpy(&paramnum, &operand[1], sizeof(paramnum));
+        operand = statementPtr->parameters[paramnum];
+    }
+    break;
+
+    default:
+        return;
     }
 }
 

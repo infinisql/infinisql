@@ -489,7 +489,7 @@ public:
      * @param rof entry to add
      * @param msgs MessageCommitRollback to add entry to
      */
-    void addRof(int64_t engineid, rowOrField_s rof&,
+    void addRof(int64_t engineid, rowOrField_s &rof,
                 boost::unordered_map< int64_t,
                 class MessageCommitRollback *> &msgs);
     /** 

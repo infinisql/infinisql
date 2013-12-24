@@ -510,7 +510,7 @@ locktype_e Index::checkAndLock(bool entry, int64_t rowid, int64_t engineid,
 //float
 locktype_e Index::checkAndLock(long double entry, int64_t rowid,
                                int64_t engineid, int64_t subtransactionid,
-                               nt64_t pendingcmdid, int64_t tacmdentrypoint)
+                               int64_t pendingcmdid, int64_t tacmdentrypoint)
 {
     switch (indexmaptype)
     {
