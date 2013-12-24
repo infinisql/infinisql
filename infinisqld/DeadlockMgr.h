@@ -30,9 +30,13 @@
 
 #include "gch.h"
 
+/** 
+ * @brief calling TransactionAgent and pending command
+ *
+ * @param myIdentityArg 
+ */
 typedef struct
 {
-    //  int64_t taid;
     Topology::addressStruct addr;
     int64_t pendingcmdid;
 } taCmd;

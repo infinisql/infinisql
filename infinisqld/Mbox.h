@@ -58,12 +58,6 @@ public:
      */
     class Message *receive(int timeout);
 
-    struct pointer_s
-    {
-        class Message *ptr;
-        uint64_t count;
-    };
-
     /** 
      * @brief create 128bit integer from Message object
      *
@@ -145,6 +139,10 @@ public:
 class Mboxes
 {
 public:
+    /** 
+     * @brief address and MboxProducer for an actor
+     *
+     */
     struct location_s
     {
         Topology::addressStruct address;

@@ -36,10 +36,8 @@
 class Larxer;
 
 /** 
- * @brief function for flex and bison to cooperate
+ * @brief data for flex and bison to cooperate
  *
- *
- * @return 
  */
 struct perlarxer
 {

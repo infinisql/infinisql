@@ -30,6 +30,10 @@
 
 #include "gch.h"
 
+/** 
+ * @brief value for UNIQUE (potentially locking) indices
+ *
+ */
 typedef struct
 {
     int64_t rowid;
@@ -38,6 +42,10 @@ typedef struct
     int64_t previoussubtransactionid;
 } lockingIndexEntry;
 
+/** 
+ * @brief data for UNIQUE index lock queue entries
+ *
+ */
 typedef struct
 {
     int64_t pendingcmdid;
@@ -67,13 +75,12 @@ typedef std::multimap<std::string, nonLockingIndexEntry_s>
 typedef boost::unordered_map<std::string, lockingIndexEntry>
     unorderedStringMap;
 
-// well, upon creation, the following should always be knowable:
-// type,tableid,simple
 /** 
  * @brief create INDEX object
  *
  * Each field has optionally 1 index associated
- *
+ * well, upon creation, the following should always be knowable:
+ * type,tableid,simple
  */
 class Index
 {
@@ -87,7 +94,6 @@ public:
 
     //private:
 
-    // in lieu of constructor, call this in field creation
     /** 
      * @brief in lieu of constructor, creates Index object
      *

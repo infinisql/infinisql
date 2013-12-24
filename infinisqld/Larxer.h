@@ -49,6 +49,10 @@
 class Larxer
 {
 public:
+    /** 
+     * @brief SQL tokens for pre- Ast stack
+     *
+     */
     enum stacktypes_e
     {
         TYPE_NONE = 0,
@@ -123,6 +127,10 @@ public:
         TYPE_NOLOCK = 70
     };
 
+    /** 
+     * @brief data populatng pre- Ast stack. SQL token and associated value.
+     *
+     */
     struct stackmember_s
     {
         stacktypes_e type;

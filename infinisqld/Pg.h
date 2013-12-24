@@ -47,6 +47,10 @@
 class Pg : public ApiInterface
 {
 public:
+    /** 
+     * @brief states for an SQL connection
+     *
+     */
     enum states_e
     {
         STATE_NONE = 0,

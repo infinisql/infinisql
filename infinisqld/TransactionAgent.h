@@ -35,6 +35,12 @@
 #include "Schema.h"
 #include "Larxer.h"
 
+/** 
+ * @brief type of MessageTransaction variant. likely an orphan
+ *
+ *
+ * @return 
+ */
 enum transactionpayload_e
 {
     NOPAYLOAD = 0,
@@ -42,6 +48,10 @@ enum transactionpayload_e
     COMMITROLLBACKPAYLOAD
 };
 
+/** 
+ * @brief likely an orphan
+ *
+ */
 enum idlcmd_e
 {
     IDLNOCMD = 0,
@@ -60,6 +70,10 @@ enum idlcmd_e
 };
 
 // deletethis this
+/** 
+ * @brief orphan
+ *
+ */
 typedef struct
 {
     idlcmd_e cmd;
@@ -84,6 +98,10 @@ typedef vector<idl> cmds;
 
 typedef boost::unordered_map<std::string, procedures_s> domainProceduresMap;
 
+/** 
+ * @brief for storing network responses held up by EAGAIN on raw interface
+ *
+ */
 typedef struct
 {
     int64_t resultCode;
@@ -91,6 +109,10 @@ typedef struct
     std::vector<std::string> *responseVector;
 } responseData;
 
+/** 
+ * @brief authentication information, uniquely identifying a user
+ *
+ */
 typedef struct
 {
     int64_t domainid;

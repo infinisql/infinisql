@@ -33,6 +33,10 @@
 #include "Table.h"
 #include "TransactionAgent.h"
 
+/** 
+ * @brief user password
+ *
+ */
 typedef struct
 {
     std::string clearpassword;

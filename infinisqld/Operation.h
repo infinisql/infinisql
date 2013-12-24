@@ -33,7 +33,15 @@
 #include "TransactionAgent.h"
 
 // usm: waiting for usm to reply, tasengines: waiting for replies
+/** 
+ * @brief likely not used
+ */
 enum state_schema_e { usm, tasengines };
+/** 
+ * @brief state information for Operations between TransactionAgent and
+ * UserSchemaMgr
+ *
+ */
 typedef struct
 {
     int builtincmd;

@@ -40,6 +40,10 @@ typedef void(ApiInterface::*apifPtr)(int64_t, void *);
 
 typedef void(Statement::*statementfPtr)(int64_t, void *);
 
+/** 
+ * @brief characteristics for activities performed on index entries
+ *
+ */
 typedef struct
 {
     bool isaddunique; // tells commit & rollback whether this was pre-staged by
@@ -60,6 +64,10 @@ typedef struct
 class Transaction
 {
 public:
+    /** 
+     * @brief state for pending SQL commands
+     *
+     */
     struct sqlcmdstate_s
     {
         class Statement *statement;
@@ -72,6 +80,12 @@ public:
         bool ispossibledeadlock;
     };
 
+    /** 
+     * @brief state for pending transactional activities
+     *
+     * this really needs to be refactored
+     *
+     */
     typedef struct
     {
         int64_t tableid;
@@ -106,6 +120,10 @@ public:
         int64_t uniqueindices;
     } cmdState_s;
 
+    /** 
+     * @brief state of Transaction, possibly an orphan
+     *
+     */
     enum transactionstate_e
     {
         EXPANDING,

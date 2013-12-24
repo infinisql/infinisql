@@ -40,6 +40,14 @@
 class Engine
 {
 public:
+    /** 
+     * @brief for replication of out-of-order subtransactions
+     *
+     * subtransactions are held in a map of these if they are encountered
+     * out of order, and applied once prior subtransactions have been
+     * processed
+     *
+     */
     struct background_s
     {
         int64_t applierid;

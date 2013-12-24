@@ -81,6 +81,10 @@ public:
         std::vector<std::string> services;
     };
 
+    /** 
+     * @brief characteristics for each actor
+     *
+     */
     struct actor_s
     {
         actortypes_e type;

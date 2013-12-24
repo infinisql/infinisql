@@ -31,15 +31,22 @@
 #include "gch.h"
 #include "Field.h"
 
+/** 
+ * @brief for replaced rows, how to find the new row
+ */
 typedef struct
 {
     int64_t rowid;
     int64_t engineid;
 } forwarderEntry;
 
-// this per-row to say which transactionid created/updated transaction last,
-// for replication so that the corresponding engine(s) will know the order
-// to apply changes. also says whether the row is locked by somebody
+/**
+ * @brief row and its meta-data
+ *
+ * this per-row to say which transactionid created/updated transaction last,
+ * for replication so that the corresponding engine(s) will know the order
+ * to apply changes. also says whether the row is locked by somebody
+ */
 typedef struct
 {
     int64_t writelockHolder; // this is also the subtransactionid
@@ -49,6 +56,9 @@ typedef struct
     string row;
 } rowdata_s;
 
+/** 
+ * @brief data for transactions waiting to lock a row
+ */
 typedef struct
 {
     int64_t pendingcmdid;

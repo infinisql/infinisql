@@ -85,6 +85,10 @@
 class Message
 {
 public:
+    /** 
+     * @brief Message POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) message_s
     {
         payloadtype_e payloadtype;
@@ -162,6 +166,10 @@ public:
 class MessageSocket : public Message
 {
 public:
+    /** 
+     * @brief MessageSocket POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) socket_s
     {
         int socket;
@@ -225,6 +233,10 @@ public:
 class MessageUserSchema : public Message
 {
 public:
+    /** 
+     * @brief MessageUserSchema POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) userschema_s
     {
         operationtype_e operationtype;
@@ -308,6 +320,10 @@ public:
 class MessageDeadlock : public Message
 {
 public:
+    /** 
+     * @brief MessageDeadlock POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) deadlock_s
     {
         int64_t transactionid;
@@ -362,6 +378,10 @@ public:
 class MessageTransaction : public Message
 {
 public:
+    /** 
+     * @brief MessageTransaction POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) transaction_s
     {
         int64_t transactionid;
@@ -419,6 +439,10 @@ public:
 class MessageSubtransactionCmd : public MessageTransaction
 {
 public:
+    /** 
+     * @brief MessageSubtransactionCmd POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) subtransaction_s
     {
         int8_t status;
@@ -528,6 +552,10 @@ public:
 class MessageDispatch : public Message
 {
 public:
+    /** 
+     * @brief MessageDispatch POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) dispatch_s
     {
         int64_t transactionid;
@@ -594,6 +622,10 @@ public:
 class MessageAckDispatch : public Message
 {
 public:
+    /** 
+     * @brief MessageAckDispatch POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) ackdispatch_s
     {
         int64_t transactionid;
@@ -656,6 +688,10 @@ public:
 class MessageApply : public Message
 {
 public:
+    /** 
+     * @brief MessageApply POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) apply_s
     {
         int64_t subtransactionid;
@@ -749,6 +785,10 @@ public:
 class MessageAckApply : public Message
 {
 public:
+    /** 
+     * @brief MessageAckApply POD (serializable by memcpy) data members
+     *
+     */
     struct __attribute__ ((__packed__)) ackapply_s
     {
         int64_t subtransactionid;
@@ -988,6 +1028,10 @@ public:
 class MessageBatchSerialized : public Message
 {
 public:
+    /** 
+     * @brief structure of serialized messages and destination node
+     *
+     */
     struct msgbatch_s
     {
         int16_t nodeid;

@@ -45,14 +45,22 @@
 
 #include "infinisql.h"
 
+/** 
+ * @brief type of network listener
+ *
+ */
 enum __attribute__ ((__packed__)) listenertype_e
 {
     LISTENER_NONE = 0,
-        LISTENER_RAW,
-        LISTENER_PG
+        LISTENER_RAW,           /**< for create table, etc. */
+        LISTENER_PG             /**< for SQL */
         };
 
 // to builtins
+/** 
+ * @brief state of DDL operation on raw interface for create table, index, etc.
+ *
+ */
 enum builtincmds_e
 {
     NOCMD = 0,
@@ -64,6 +72,10 @@ enum builtincmds_e
     ABORTCMD
 };
 
+/** 
+ * @brief index types with or without NULL constraint
+ *
+ */
 enum __attribute__ ((__packed__)) indextype_e
 {
     NONE = 0,
@@ -75,6 +87,10 @@ enum __attribute__ ((__packed__)) indextype_e
         UNORDEREDNOTNULL = 6
         };
 
+/** 
+ * @brief types of maps for various indices
+ *
+ */
 enum indexmaptype_e
 {
     noindexmaptype = -1,
@@ -101,6 +117,10 @@ enum indexmaptype_e
     unorderedvarchar = 20
 };
 
+/** 
+ * @brief map types
+ *
+ */
 enum maptype_e
 {
     Nomaptype = -1,
@@ -109,6 +129,10 @@ enum maptype_e
     Unordered = 2
 };
 
+/** 
+ * @brief Message variant topics
+ *
+ */
 enum __attribute__ ((__packed__)) topic_e
 {
     TOPIC_NONE = 0,
@@ -158,6 +182,12 @@ enum __attribute__ ((__packed__)) topic_e
         TOPIC_SOCKETCONNECTED = 47
         };
 
+/** 
+ * @brief Message variant payloads
+ *
+ * tend to correspond with specific Message variant
+ *
+ */
 enum __attribute__ ((__packed__)) payloadtype_e
 {
     PAYLOADNONE = 0,
@@ -175,12 +205,17 @@ enum __attribute__ ((__packed__)) payloadtype_e
         PAYLOADBATCHSERIALIZED
         };
 
+/** 
+ * @brief type of Operation (only currently used for SQL login)
+ *
+ */
 enum __attribute__ ((__packed__)) operationtype_e
 {
     OPERATION_NONE = 0,
         OPERATION_LOGIN
         };
 
+/* these should probably be in enums */
 #define OPERAND_STRING  'a'
 #define OPERAND_IDENTIFIER  'b'
 #define OPERAND_PARAMETER   'c'
@@ -235,6 +270,10 @@ enum enginecmds_e
     enginecmdnewrow
 };
 
+/** 
+ * @brief pending transactional activity
+ *
+ */
 enum __attribute__ ((__packed__)) pendingprimitive_e
 {
     NOCOMMAND = 0,
@@ -257,6 +296,10 @@ enum __attribute__ ((__packed__)) pendingprimitive_e
         PRIMITIVE_SQLREPLACE
         };
 
+/** 
+ * @brief command for Engine / Subtransaction to perform
+ *
+ */
 enum enginecmd_e
 {
     NOENGINECMD = 0,
@@ -276,6 +319,10 @@ enum enginecmd_e
 
 /** Global configs */
 #define SERIALIZEDMAXSIZE   1048576
+/** 
+ * @brief global config parameters
+ *
+ */
 typedef struct
 {
     int anonymousping;
@@ -289,6 +336,10 @@ extern std::string zmqsocket;
 extern void *zmqcontext;
 extern std::string storedprocprefix;
 
+/** 
+ * @brief orphan
+ *
+ */
 typedef struct
 {
     uint64_t instance;
@@ -296,18 +347,30 @@ typedef struct
     int epollfd;
 } serventIdentity_s;
 
+/** 
+ * @brief stored procedure creator and destructor function pointers
+ *
+ */
 typedef struct __attribute__ ((__packed__))
 {
     void *procedurecreator; //typedef ApiInterface*(*spclasscreate)();
     void *proceduredestroyer; //typedef void(*spclassdestroy)(ApiInterface*);
 } procedures_s;
 
+/** 
+ * @brief items to add to wait-for graph
+ *
+ */
 typedef struct
 {
     boost::unordered_set<std::string> locked;
     boost::unordered_set<std::string> waiting;
 } newDeadLockLists_s;
 
+/** 
+ * @brief data items describing manipulation request
+ *
+ */
 typedef struct
 {
     bool isrow;
@@ -325,6 +388,10 @@ typedef struct
     fieldValue_s fieldVal;
 } rowOrField_s;
 
+/** 
+ * @brief describes how to perform an SQL search expression predicate
+ *
+ */
 typedef struct
 {
     operatortypes_e op;
@@ -332,6 +399,10 @@ typedef struct
     std::string regexString;
 } searchParams_s;
 
+/** 
+ * @brief index map value for non-unique indices
+ *
+ */
 typedef struct __attribute__ ((__packed__)) 
 {
     int64_t rowid;
@@ -340,6 +411,10 @@ typedef struct __attribute__ ((__packed__))
 
 typedef nonLockingIndexEntry_s indexEntry_s;
 
+/** 
+ * @brief command contents between Transaction and Subtransaction
+ *
+ */
 typedef struct
 {
     int64_t status;
@@ -360,6 +435,10 @@ typedef struct
     std::vector<returnRow_s> returnRows;
 } subtransactionCmd_s;
 
+/** 
+ * @brief used by Listner to know what to listen to
+ *
+ */
 typedef struct
 {
     std::string node;
@@ -367,6 +446,10 @@ typedef struct
     int epollfd;
 } listenerStruct_s;
 
+/** 
+ * @brief orphan?
+ *
+ */
 typedef struct
 {
     locktype_e locktype;
@@ -381,6 +464,10 @@ typedef struct
     fieldValue_s fieldVal;
 } locked_s;
 
+/** 
+ * @brief for tracking lock types for transactions with unique index entries
+ *
+ */
 typedef struct
 {
     locktype_e locktype;
@@ -388,6 +475,12 @@ typedef struct
     fieldValue_s fieldVal;
 } lockFieldValue_s;
 
+/** 
+ * @brief rows and unique index entries worked on by Transaction
+ *
+ * each entry has been loced unless NO LOCK clause of SELECT
+ *
+ */
 typedef struct
 {
     pendingprimitive_e cmd;
@@ -417,6 +510,10 @@ void trimspace(string &);
 #define LOCKTYPEFLAG 3 // 0 is READLOCK 1 is WRITELOCK
 #define REPLACEDELETEFLAG 4
 
+/** 
+ * @brief type of change for DeadlockMgr wait-for graph
+ *
+ */
 enum deadlockchange_e
 {
     ADDLOCKEDENTRY = 1,

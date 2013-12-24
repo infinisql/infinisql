@@ -54,6 +54,10 @@ using std::vector;
 #define APISTATUS_DEADLOCK 8
 #define APISTATUS_LOCK 9
 
+/** 
+ * @brief type of SQL command
+ *
+ */
 enum cmd_e
 {
     CMD_NONE = 0,
@@ -68,6 +72,12 @@ enum cmd_e
     CMD_STOREDPROCEDURE
 };
 
+/** 
+ * @brief universally unique Record
+ *
+ * identifies each row uniquely across entire cluster
+ *
+ */
 typedef struct
 {
     int64_t rowid;
@@ -75,6 +85,10 @@ typedef struct
     int64_t engineid;
 } uuRecord_s;
 
+/** 
+ * @brief possible lock states
+ *
+ */
 enum __attribute__ ((__packed__)) locktype_e
 {
     NOTFOUNDLOCK = -1,
@@ -91,6 +105,10 @@ enum __attribute__ ((__packed__)) locktype_e
         PENDINGTOINDEXNOLOCK
         };
 
+/** 
+ * @brief types of SQL operators
+ *
+ */
 enum __attribute__ ((__packed__)) operatortypes_e
 {
     OPERATOR_NONE = 0,
@@ -128,6 +146,11 @@ enum __attribute__ ((__packed__)) operatortypes_e
         OPERATOR_NULL = 33
         };
 
+/** 
+ * @brief row and metadata for being returned to client from SELECT or stored
+ * proc
+ *
+ */
 typedef struct
 {
     int64_t rowid;
@@ -154,12 +177,22 @@ enum __attribute__ ((__packed__)) fieldtype_e
     VARCHAR = 6
 };
 
+/** 
+ * @brief name and type of field
+ *
+ */
 typedef struct
 {
     fieldtype_e type;
     std::string name;
 } fieldtypename_s;
 
+/** 
+ * @brief contents of a field (other than CHARX or VARCHAR)
+ *
+ *
+ * @return 
+ */
 typedef union __attribute__ ((__packed__)) fieldInput_u
 {
     int64_t integer;
@@ -169,6 +202,10 @@ typedef union __attribute__ ((__packed__)) fieldInput_u
     char character;
 } fieldInput_s;
 
+/** 
+ * @brief field contents
+ *
+ */
 typedef struct
 {
     fieldInput_s value;
@@ -176,6 +213,12 @@ typedef struct
     bool isnull;
 } fieldValue_s;
 
+/** 
+ * @brief orphan?
+ *
+ *
+ * @return 
+ */
 typedef struct
 {
     int64_t resultCode;
@@ -198,6 +241,10 @@ typedef void(ApiInterface::*apifPtr)(int64_t, void *);
 class ApiInterface
 {
 public:
+    /** 
+     * @brief results from SQL query
+     *
+     */
     struct results_s
     {
         cmd_e cmdtype;

@@ -145,27 +145,43 @@ typedef void(Statement::*statementfPtr)(int64_t, void *);
 class Statement
 {
 public:
+    /** 
+     * @brief ORDER BY fields and order
+     *
+     */
     struct orderbyitem_s
     {
-        bool isasc; // false is descending
-        std::string operandstr;
+        bool isasc;             /**< true ASCENDING, false DESCENDING */
+        std::string operandstr; /**< field operand */
     };
 
+    /** 
+     * @brief IN (or NOT IN) row values
+     *
+     */
     struct inobject_s
     {
-        bool issubquery; // false is expressionlist
-        int64_t subquery; // index value of subquery in subqueries
-        std::vector<class Ast *> expressionlist;
+        bool issubquery; /**< true subquery, false expression */
+        int64_t subquery; /**< if subquery, index value to Statement::queries */
+        std::vector<class Ast *> expressionlist; /**< predicate value */
     };
 
+    /** 
+     * @brief FROM clause column
+     *
+     */
     struct column_s
     {
-        char aggregatetype;
-        int64_t fieldid;
-        std::string name;
+        char aggregatetype;     /**< if AGGREGATE, type */
+        int64_t fieldid;        /**< fieldid */
+        std::string name;       /**< field name */
     };
 
-    /* results of evaulations during query execution, including final results */
+    /** 
+     * @brief results of evaulations during query execution, including final
+     * results
+     *
+     */
     struct results_s
     {
         boost::unordered_map<uuRecord_s, returnRow_s> searchResults;
@@ -185,6 +201,10 @@ public:
         boost::unordered_map<int64_t, fieldValue_s> setFields;
     };
 
+    /** 
+     * @brief all elements for a main or sub-query
+     *
+     */
     struct query_s
     {
         ssize_t instance;
@@ -218,6 +238,10 @@ public:
         results_s results;
     };
 
+    /** 
+     * @brief Ast walking direction
+     *
+     */
     enum direction_e
     {
         FROM_ABOVE = 1,
@@ -225,6 +249,10 @@ public:
         FROM_RIGHT = 3
     };
 
+    /** 
+     * @brief continuation destination
+     *
+     */
     struct reentry_s
     {
         class ApiInterface *reentryObject;
