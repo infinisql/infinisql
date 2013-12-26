@@ -2,12 +2,11 @@ __author__ = 'Christopher Nelson'
 
 import configparser
 import getpass
-import fcntl
-import socket
-import struct
 import os
 
 import infinisqlmgr.getifaddrs
+import ipaddress
+
 
 class Configuration(object):
     def __init__(self, args):
@@ -122,6 +121,17 @@ class Configuration(object):
             return self.config.get(section, name, default)
         return default
 
+    def _get_net_size(self, netmask):
+        """
+        The netmask to get the size of. Used to convert to CIDR interface notation.
+        :param netmask: The netmask, like 255.255.255.0
+        :return: The size in bits of then netmask.
+        """
+        binary_str = ''
+        for octet in netmask.split("."):
+            binary_str += bin(int(octet))[2:].zfill(8)
+        return len(binary_str.rstrip('0'))
+
     def get(self, section, name):
         """
         Forward to the configuration object.
@@ -187,9 +197,31 @@ class Configuration(object):
     def ip(self, interface="eth0"):
         """
         :param interface: The interface to get an ip address for.
-        :return: A string containing the ip address.
+        :return: A list containing all of the available ip addresses.
         """
 
         interfaces = infinisqlmgr.getifaddrs.getifaddrs()
-         
+        return [ipaddress.ip_interface("%s/%d" % (the_interface.addr[0],
+                                                  self._get_net_size(the_interface.netmask[1])))
+                for the_interface in interfaces if the_interface.name == interface]
+
+
+    def interfaces(self):
+        """
+        Provides a dictionary of interfaces. Each interface may have multiple addresses.
+        :return: A dictionary whose keys are local interface names, and values are lists of ip_interface objects.
+        """
+        from socket import AF_INET
+        local_interfaces = infinisqlmgr.getifaddrs.getifaddrs()
+        interface_d = {}
+        for interface in local_interfaces:
+            if interface.addr is None or interface.family != AF_INET:
+                continue
+
+            addresses = interface_d.setdefault(interface.name, [])
+            addresses.append(ipaddress.ip_interface("%s/%d" %\
+                                (interface.addr[0], self._get_net_size(interface.netmask[1]))))
+
+        return interface_d
+
 

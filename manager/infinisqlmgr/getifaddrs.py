@@ -123,6 +123,21 @@ def pythonize_sockaddr(sa):
         addr = None
     return family, addr
 
+def pythonize_sockaddr_for_netmask(sa):
+    '''Convert ctypes Structure of sockaddr into the Python tuple used in the socket module'''
+    from socket import AF_INET, AF_INET6, ntohs, ntohl, inet_ntop
+    family = sa.sa_family
+    if family == AF_INET:
+        sa = cast(pointer(sa), POINTER(struct_sockaddr_in)).contents
+        addr = inet_ntop(family, sa.sin_addr)
+    elif family == AF_INET6:
+        sa = cast(pointer(sa), POINTER(struct_sockaddr_in6)).contents
+        addr = inet_ntop(family, sa.sin6_addr)
+    else:
+        addr = None
+    return family, addr
+
+
 def getifaddrs():
     '''Wraps the C getifaddrs call, returns a list of pythonic ifaddrs'''
     ifap = POINTER(struct_ifaddrs)()
@@ -143,7 +158,7 @@ def getifaddrs():
                 family=family,
                 flags=ifa.ifa_flags,
                 addr=addr,
-                netmask=ifa.ifa_netmask,))
+                netmask=pythonize_sockaddr_for_netmask(ifa.ifa_netmask.contents) if ifa.ifa_netmask else None,))
         return retval
     finally:
         _freeifaddrs(ifap)

@@ -1,6 +1,6 @@
 __author__ = 'Christopher Nelson'
 
-import fcntl
+import ipaddress
 import logging
 import select
 import signal
@@ -9,7 +9,6 @@ import struct
 import time
 
 import msgpack
-import psutil
 import tornado.ioloop
 import tornado.web
 import zmq
@@ -156,10 +155,23 @@ class Controller(object):
         :return: None
         """
         data = self.presence_socket.recv(4096)
-        cluster_name, ips = msgpack.unpackb(data, encoding="utf8")
-        # Figure out which of the available IP addresses is reachable from our system.
+        cluster_name, remote_port, remote_interfaces = msgpack.unpackb(data, encoding="utf8")
 
-        self.add_node(cluster_name, ips)
+        logging.debug("announcement received: %s", str(remote_interfaces))
+        # Figure out which of the available IP addresses is reachable from our system.
+        remote_interfaces = {ipaddress.ip_interface(interface) for interface in remote_interfaces}
+        local_interfaces = {interface[0] for interface in self.config.interfaces().values()}
+
+        if remote_interfaces == local_interfaces and remote_port == self.cmd_port:
+            logging.debug("ignoring presence announcement because it is our own")
+            return
+
+        for local_interface in local_interfaces:
+            for remote_interface in remote_interfaces:
+                li = local_interface
+                ri = remote_interface
+                if li.network.compare_networks(ri.network) == 0:
+                    self.add_node(cluster_name, ri.ip.compressed, remote_port)
 
     def _stop_signal_handler(self, signum, frame):
         """
@@ -314,12 +326,6 @@ class Controller(object):
                           self.cluster_name, cluster_name)
             return
 
-        # Drop the announcement if we are receiving our own broadcast
-        if remote_ip == self._get_ip() and \
-                remote_port == self.cmd_port:
-            logging.debug("dropping add_node because I have caught my own announcement")
-            return
-
         node_id = (remote_ip, remote_port)
         if node_id in self.nodes:
             logging.debug("dropping add_node because we already know this node")
@@ -395,13 +401,13 @@ class Controller(object):
         if (now - self.last_presence_announcement < self.presence_announcement_period) and force == False:
             return
 
-        interfaces = psutil.network_io_counters(pernic=True).keys()
-        ips = {interface : (self.config.ip(interface=interface), self.cmd_port) for interface in interfaces}
+        interfaces = self.config.interfaces()
+        ips = sorted([interface[0].with_prefixlen for interface in interfaces.values()])
 
         self.last_presence_announcement = now
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 8)
-        sock.sendto(msgpack.packb([self.cluster_name, ips]),
+        sock.sendto(msgpack.packb([self.cluster_name, self.cmd_port, ips]),
                     (self.mcast_group, self.mcast_port))
         sock.close()
 

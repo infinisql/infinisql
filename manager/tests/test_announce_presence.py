@@ -1,12 +1,25 @@
 __author__ = 'Christopher Nelson'
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 import unittest
-from infinisqlmgr import management
+from infinisqlmgr import management, config
+
+class SimpleConfig(object):
+    def __init__(self):
+        self.dist_dir = "/tmp/announce"
 
 class TestAnnouncePresence(unittest.TestCase):
     def setUp(self):
-        self.c1 = management.Controller("default_cluster", cmd_port=11000)
-        self.c2 = management.Controller("default_cluster", cmd_port=12000)
+        self.cfg1 = config.Configuration(SimpleConfig())
+        self.cfg2 = config.Configuration(SimpleConfig())
+
+        self.cfg1.config.set("management", "management_port", "21000")
+        self.cfg1.config.set("management", "management_port", "22000")
+
+        self.c1 = management.Controller(self.cfg1)
+        self.c2 = management.Controller(self.cfg2)
 
     def tearDown(self):
         self.c1.shutdown()
@@ -21,7 +34,7 @@ class TestAnnouncePresence(unittest.TestCase):
         self.assertEqual(2, len(self.c2.get_nodes()))
 
     def test_mutual_announce(self):
-        ip = self.c1._get_ip()
+        ip = self.cfg1.interfaces()
 
         self.c1.announce_presence()
         self.c2.announce_presence()
