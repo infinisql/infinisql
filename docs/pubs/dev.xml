@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<book xmlns="http://docbook.org/ns/docbook"
+xmlns:xi="http://www.w3.org/2001/XInclude"
+xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+
+<title><trademark>InfiniSQL</trademark> Developer Manual</title>
+<info><pubdate><?dbtimestamp format="Y-m-d H:M:S"?></pubdate>
+<productname>InfiniSQL</productname><productnumber>0.1.2-alpha</productnumber></info>
+<preface>
+<title>Preface</title>
+<para>
+This is the developer manual for InfiniSQL. This guide is intended for people
+who wish to get involved with developing InfiniSQL itself. For information about
+how to use InfiniSQL as a database system with a project that you are developing,
+please start with the <link xl:href="http://www.infinisql.org/docs/guide/">InfiniSQL Guide.</link>
+</para>
+<para>
+InfiniSQL is being created entirely from the ground up from the work of
+non-paid volunteers. It is not sponsored by, funded, created, or in any other
+way springing from some large institution. Your desire to help create InfiniSQL
+is greatly appreciated, and a necessary element to our success. This guide
+is created with the spirit of heartily encouraging your pariticpation in
+InfiniSQL.
+</para>
+</preface>
+
+<chapter>
+  <title>Software License</title>
+<para>
+  InfiniSQL free software and is licensed under the <link xl:href="http://www.gnu.org/licenses/gpl.html">GNU General Public License, version 3.</link> A
+few source files are exceptions to this, and they are noted accordingly in 
+the files themselves.
+</para>
+<para>
+Please read an understand the GPLv3 license yourself. Those license terms
+guide the contribution goals of the InfiniSQL project, namely:
+
+<itemizedlist>
+  <listitem><para>Any original work that you create for the project will also
+fall under the terms of the GPLv3 license.</para></listitem>
+<listitem><para>Any work that you integrate from a 3rd party will fall under
+the license terms of that 3rd party. However, it must be compatible with the
+GPLv3. The only additional restriction acceptable is an atribution clause,
+such as required by some types of BSD-oriented licenses.</para></listitem>
+<listitem><para>While you are encouraged to make your changes freely available,
+you are only required to do so if you distribute a modified copy of the
+software to somebody else. If you create your own version of InfiniSQL, then
+you can only distribute that version if you share your source code modifications.
+</para></listitem>
+</itemizedlist>
+</para>
+</chapter>
+
+<chapter>
+  <title>InfiniSQL Goals</title>
+<para>
+  The main goal of the InfiniSQL project is to create the highest performing
+relational database management system (RDBMS), with particular emphasis on
+horizontal scalability and distributed transaction processing. Distributed
+transactions are those which involve records on multiple nodes. In support of
+this, the project has the following high-level goals:
+</para>
+<itemizedlist>
+  <listitem><para>SQL compliance equivalent or superior to long
+established RDBMS systems, including (but not limited to):
+<itemizedlist>
+  <listitem><para>Joins</para></listitem>
+<listitem><para>Subqueries</para></listitem>
+<listitem><para>ORDER BY, GROUP BY, HAVING clauses</para></listitem>
+<listitem><para>CREATE TABLE, CREATE COLUMN, etc.: all data definition, to deprecate the commands in the raw interface, such as createtable, addcolumn, and the like.</para></listitem>
+<listitem><para>Deadlock management <emphasis>or</emphasis> a deadlock-free concurrency alogorithm</para></listitem>
+</itemizedlist>
+</para></listitem>
+<listitem><para>Data integrity as appropriate for mission critical
+transaction processing workloads, such as required for financial operations.
+</para></listitem>
+<listitem><para>High Availability</para></listitem>
+<listitem><para>To refer to the CAP protocol, InfiniSQL's primary goal is
+to support CP. And to maximize availability, InfiniSQL is likely not
+appropriate for infrastructure hosted in environments where power systems are not
+stable, network connectivity is spotty, hypervisor overhead is
+cumbersome, and resource allocation tends to be random. To maximize
+availability, InfiniSQL will rely upon visibility into and some
+control over the underlying infrastructure. And to maximize performance,
+InfiniSQL needs hosting upon a high performance platform.
+</para></listitem>
+<listitem><para>Dynamic scalability, automated failover, and all
+maintenance activities to be performed on a running cluster. There
+should be no reason aside from catastrophic site damage to cause an InfiniSQL
+cluster shutdown.</para></listitem>
+<listitem><para>Mixture of database activities, such as relational,
+messaging, and caching operations, performed within a single transaction.
+</para></listitem>
+<listitem><para>Ease of use and deployment for the simplest of workloads and
+scaling to the most high volume and complex.</para></listitem>
+<listitem><para>In-memory performance with non-volatile durability</para></listitem>
+<listitem><para>Automated continuous integration and testing.</para></listitem>
+<listitem><para>Cross-platform support</para></listitem>
+<listitem><para>High speed cluster interconection, such as using
+Infiniband RDMA.</para></listitem>
+<listitem><para>Extensive documentation.</para></listitem>
+<listitem><para>User support.</para></listitem>
+<listitem><para>Publicity</para></listitem>
+<listitem><para>Feature gap analysis for desirable use cases.</para></listitem>
+</itemizedlist>
+
+<para>
+  Implicit in InfiniSQL's goals and capabilities is the support for
+simpler workloads. For example, since InfiniSQL can perform distributed
+transactions at very high throughput, it can also support simple operations,
+such as keystore activities, at very high throughput. Just like an automobile
+that goes fast uphill is also fast at going downhill (but not necessarily
+vice versa).
+</para>
+
+<para>
+Hopefully, your own goals for InfiniSQL conform in some way to those stated
+above. And if they don't match entirely, there's always room for discussion.
+In particular, there are a rather wide variety of non-relational data
+storage formats, such as column, graph and document-based stores. The core
+InfiniSQL architecture can very likely work very well with those kinds of
+formats, and contributions to that effect are welcomed. Essentially, if
+it adds functionality and doesn't break anything, it's probably welcome.
+</para>
+</chapter>
+
+<chapter>
+  <title>Documentation, Roadmap and TODO Items</title>
+<para>
+The bulk of InfiniSQL source code is documented via doxygen and
+available at <link xl:href="http://infinisql.github.io/doxygen/">http://infinisql.github.io/doxygen/</link>.
+</para>
+<para>In lieu of a centralized roadmap (the creation of which is a TODO),
+there are a variety of different sources of information from which to start.
+The main <link xl:href="http://www.infinisql.org/docs/index/">project
+documentation</link> contains over one hundred printed pages of information
+about InfiniSQL's capabilities, how to use it, FAQ, and features that
+are not yet fully implemented. The source code is available on Github at
+<link xl:href="https://github.com/infinisql/infinisql.git">https://github.com/infinisql/infinisql.git</link>.
+InfiniSQL uses project-related <link xl:href="https://github.com/infinisql/infinisql/issues?state=open">issues</link> to
+describe bugs as well as requested items. Google Groups for InfiniSQL is
+at <link xl:href="https://groups.google.com/forum/#!forum/infinisql">https://groups.google.com/forum/#!forum/infinisql</link>. There is also a
+<link xl:href="https://github.com/infinisql/infinisql/wiki">wiki</link>
+associated with the project. Also, the main www site has many links to
+<link xl:href="http://www.infinisql.org/news/">external media sources discussing InfiniSQL</link>. There's also a
+<link xl:href="http://www.infinisql.org/blog/">blog</link>.
+</para>
+<para>
+  So, please learn about InfiniSQL's current state, what we still need to do,
+and then think about how your skills and interests can match up!
+</para>
+</chapter>
+
+<chapter>
+  <title>Process</title>
+<para>
+If your change is relatively minor, and especially if it's
+in response to an open ticket, then do a GitHub pull request after you've completed
+your changes. Otherwise, open up communication about your proposed change.
+Any of the communication methods described on the
+<link xl:href="http://www.infinisql.org/community/">community</link> page
+are acceptable. You will probably get a response within 24 hours, and most
+likely much sooner.
+</para>
+<para>
+  InfiniSQL has a single committer, Mark Travis, who is also the founder
+of the project. Pull requests made via GitHub are handled by Mark. This
+situation may change over time as the project grows. All modes of
+communicating with InfiniSQL available on the
+<link xl:href="http://www.infinisql.org/community/">web site,</link> or on
+the <link xl:href="https://github.com/infinisql/infinisql.git">GitHub
+repository</link>, are monitored by Mark. To contact Mark, contact InfiniSQL.
+ This arrangement will likely change over time as the
+project grows and the organization needs to scale.</para>
+<para>
+Here are some general tips about coding with the InfiniSQL project. Coding standards
+are BSD-style, with indentation to 4 spaces. This means open braces on the
+column directly underneath the first column of the previous line. If possible,
+please try to comply with cppcheck. Obviously, don't let cppcheck's complaints
+result in broken code. But, generally, cppcheck seems to have good advice
+about coding quality.
+</para>
+<para>
+  Before adding files to a commit, execute the <command>gitditchleavings.sh</command> script in the root of the source tree. That keeps files that are modified by autotools from getting into the source tree. There is doubtless a better
+way of configuring autotools (or, perhaps, using another toolset, such as
+cmake or scons). Volunteers are welcome to help shore up that effort.
+</para>
+<para>
+  Regarding documentation, please use Doxygen commenting style to document
+classes, functions, structs, unions and enums that you create. Examples within
+the source tree abound. The main documentation is in Docbook 5 format in the
+<command>docs/pubs</command> directory. Docbook 5 is pretty easy to work with
+if you're used to structured markup formats, such as XML and HTML. But
+don't feel as though you need to patch these files to document your
+contributions--it is also acceptible to provide simple text documentation
+along with your patches, such as in the commend section for an open ticket.
+</para>
+<para>
+  Please test your changes before submitting them. Minimally, the
+regression test described in the <link xl:href="http://www.infinisql.org/docs/guide/">user guide</link> should be successful. Further, any new functionality
+added should also be tested, and the test mechanism provided as part of the
+patch submittal.
+</para>
+</chapter>
+
+<chapter>
+  <title>Summary</title>
+<para>
+  The development process for InfiniSQL is intended to make it as easy as
+possible to get involved and to help build this very ambitious project. Your
+involvement is crucial to its success.
+</para>
+</chapter>
+
+</book>
