@@ -27,7 +27,7 @@ InfiniSQL.
 <chapter>
   <title>Software License</title>
 <para>
-  InfiniSQL free software and is licensed under the <link xl:href="http://www.gnu.org/licenses/gpl.html">GNU General Public License, version 3.</link> A
+  InfiniSQL is free software and is licensed under the <link xl:href="http://www.gnu.org/licenses/gpl.html">GNU General Public License, version 3.</link> A
 few source files are exceptions to this, and they are noted accordingly in 
 the files themselves.
 </para>
