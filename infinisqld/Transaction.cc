@@ -1008,18 +1008,10 @@ void Transaction::checkLock(deadlockchange_e changetype, bool isrow,
              it != currentCmdState.pendingStagedRows.end(); it++)
         {
             stagedRow_s &sRowRef = it->second;
-            int64_t this_rowid = it->first.rowid;
-            int64_t this_tableid = it->first.tableid;
-            int64_t this_engineid = it->first.engineid;
             string deadlockNode;
             // free this if there's no message to send (no contents in its sets)
 
             // row first
-            DeadlockMgr::makeLockedItem(true, this_rowid, this_tableid,
-                                        this_engineid, domainid, 0,
-                                        (long double)0, (string *)NULL,
-                                        &deadlockNode);
-
             if (sRowRef.locktype==WRITELOCK || sRowRef.locktype==READLOCK)
             {
                 nodesRef.locked.insert(deadlockNode);
@@ -1043,11 +1035,6 @@ void Transaction::checkLock(deadlockchange_e changetype, bool isrow,
                     long double fieldinput;
                     memcpy(&fieldinput, &lockFieldValueRef.fieldVal.value,
                            sizeof(fieldinput));
-                    DeadlockMgr::makeLockedItem(false, 0, this_tableid,
-                                                this_engineid, domainid,
-                                                it->first, fieldinput,
-                                                &lockFieldValueRef.fieldVal.str,
-                                                &deadlockNode);
                     nodesRef.locked.insert(deadlockNode);
                 }
                 else if (lockFieldValueRef.locktype==INDEXPENDINGLOCK)
@@ -1056,11 +1043,6 @@ void Transaction::checkLock(deadlockchange_e changetype, bool isrow,
                     long double fieldinput;
                     memcpy(&fieldinput, &lockFieldValueRef.fieldVal.value,
                            sizeof(fieldinput));
-                    DeadlockMgr::makeLockedItem(false, 0, this_tableid,
-                                                this_engineid, domainid,
-                                                it->first, fieldinput,
-                                                &lockFieldValueRef.fieldVal.str,
-                                                &deadlockNode);
                     nodesRef.waiting.insert(deadlockNode);
                 }
             }
@@ -1094,17 +1076,12 @@ void Transaction::checkLock(deadlockchange_e changetype, bool isrow,
         // prepare string(s) for submittal
         if (isrow==true)
         {
-            DeadlockMgr::makeLockedItem(true, rowid, tableid, engineid, domainid,
-                                        fieldid, (long double)0, (string *)NULL,
-                                        &msgref.deadlockNode);
+            ;
         }
         else
         {
             long double fieldinput;
             memcpy(&fieldinput, &fieldVal->value, sizeof(fieldinput));
-            DeadlockMgr::makeLockedItem(false, rowid, tableid, engineid,
-                                        domainid, fieldid, fieldinput,
-                                        &fieldVal->str, &msgref.deadlockNode);
         }
 
         // send message to dmgr
@@ -3473,18 +3450,10 @@ void Transaction::checkSqlLock(deadlockchange_e changetype, bool isrow,
              it != currentCmdState.pendingStagedRows.end(); it++)
         {
             stagedRow_s &sRowRef = it->second;
-            int64_t this_rowid = it->first.rowid;
-            int64_t this_tableid = it->first.tableid;
-            int64_t this_engineid = it->first.engineid;
             string deadlockNode;
             // free this if there's no message to send (no contents in its sets)
 
             // row first
-            DeadlockMgr::makeLockedItem(true, this_rowid, this_tableid,
-                                        this_engineid, domainid, 0,
-                                        (long double)0, (string *)NULL,
-                                        &deadlockNode);
-
             if (sRowRef.locktype==WRITELOCK || sRowRef.locktype==READLOCK)
             {
                 nodesRef.locked.insert(deadlockNode);
@@ -3508,11 +3477,6 @@ void Transaction::checkSqlLock(deadlockchange_e changetype, bool isrow,
                     long double fieldinput;
                     memcpy(&fieldinput, &lockFieldValueRef.fieldVal.value,
                            sizeof(fieldinput));
-                    DeadlockMgr::makeLockedItem(false, 0, this_tableid,
-                                                this_engineid, domainid,
-                                                it->first, fieldinput,
-                                                &lockFieldValueRef.fieldVal.str,
-                                                &deadlockNode);
                     nodesRef.locked.insert(deadlockNode);
                 }
                 else if (lockFieldValueRef.locktype==INDEXPENDINGLOCK)
@@ -3521,11 +3485,6 @@ void Transaction::checkSqlLock(deadlockchange_e changetype, bool isrow,
                     long double fieldinput;
                     memcpy(&fieldinput, &lockFieldValueRef.fieldVal.value,
                            sizeof(fieldinput));
-                    DeadlockMgr::makeLockedItem(false, 0, this_tableid,
-                                                this_engineid, domainid,
-                                                it->first, fieldinput,
-                                                &lockFieldValueRef.fieldVal.str,
-                                                &deadlockNode);
                     nodesRef.waiting.insert(deadlockNode);
                 }
             }
@@ -3558,17 +3517,12 @@ void Transaction::checkSqlLock(deadlockchange_e changetype, bool isrow,
         // prepare string(s) for submittal
         if (isrow==true)
         {
-            DeadlockMgr::makeLockedItem(true, rowid, tableid, engineid, domainid,
-                                        fieldid, (long double)0, (string *)NULL,
-                                        &msgref.deadlockNode);
+            ;
         }
         else
         {
             long double fieldinput;
             memcpy(&fieldinput, &fieldVal->value, sizeof(fieldinput));
-            DeadlockMgr::makeLockedItem(false, rowid, tableid, engineid,
-                                        domainid, fieldid, fieldinput,
-                                        &fieldVal->str, &msgref.deadlockNode);
         }
 
         // send message to dmgr

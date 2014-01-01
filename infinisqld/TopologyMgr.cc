@@ -356,31 +356,6 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
             }
             break;
 
-            case CMDDEADLOCKMGR:
-                newmbox = new class Mbox;
-
-                if (pthread_create(&tid, NULL, deadlockMgr,
-                                   nodeTopology.newActor(ACTOR_DEADLOCKMGR,
-                                                         newmbox, epollfd,
-                                                         string(), actorid,
-                                                         vector<string>(),
-                                                         vector<string>()))==-1)
-                {
-                    fprintf(logfile, "%s %i pthread_create errno %i\n", __FILE__,
-                            __LINE__, errno);
-                    replypk.pack_int(CMDNOTOK);
-                    replyToManager(zmqresponder, replysbuf);
-                    zmq_msg_close(&zmqrecvmsg);
-                    goto HECK;
-                }
-                else
-                {
-                    replypk.pack_int(CMDOK);
-                    replypk.pack_int64((int64_t)newmbox);
-                }
-
-                break;
-
             case CMDTRANSACTIONAGENT:
             {
                 if (pac.next(&result)==false)

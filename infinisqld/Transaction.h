@@ -31,7 +31,6 @@
 
 #include "gch.h"
 #include "TransactionAgent.h"
-#include "DeadlockMgr.h"
 
 class TransactionAgent;
 
