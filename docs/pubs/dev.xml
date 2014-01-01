@@ -201,6 +201,14 @@ regression test described in the <link xl:href="http://www.infinisql.org/docs/gu
 added should also be tested, and the test mechanism provided as part of the
 patch submittal.
 </para>
+<para>
+  Stay in touch with InfiniSQL! Development communication
+takes place in our <link xl:href="https://groups.google.com/forum/#!forum/infinisql">Google Groups forum</link> and on irc at <link xl:href="irc://irc.freenode.net/infinisql">irc://irc.freenode.net/infinisql</link>. Please subscribe to email messages
+from the Google Groups site--it's currently (12/2013) a very low volume
+group. Please
+also follow and star on Github, hang out with us on IRC, and follow on
+twitter.
+</para>
 </chapter>
 
 <chapter>
