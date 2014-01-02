@@ -31,22 +31,25 @@
 #define INFINISQLOBGATEWAY_H
 
 #include "gch.h"
+#include "Actor.h"
 
 /** 
  * @brief execute Outbound Gateway actor
  *
  * @param myIdentityArg how to identify this
  */
-class ObGateway
+class ObGateway : public Actor
 {
 public:
-    ObGateway(Topology::partitionAddress *myIdentityArg);
+    ObGateway(Topology::actorIdentity *myIdentityArg);
     virtual ~ObGateway();
     void updateRemoteGateways();
 
-    Topology::partitionAddress myIdentity;
+    /*
+    Topology::actorIdentity myIdentity;
     class Mboxes mboxes;
     class Topology myTopology;
+    */
 
 private:
     // remoteGateways[nodeid]=socket for corresponding ibgw's

@@ -28,7 +28,7 @@
  */
 
 #include "Topology.h"
-#line 22 "Topology.cc"
+#line 32 "Topology.cc"
 
 Topology::Topology() : nodeid(0), numreplicas(1), activereplica(-1),
                        numtransactionagents(0), numengines(0), numobgateways(0),
@@ -54,20 +54,20 @@ Topology::~Topology()
 {
 }
 
-Topology::partitionAddress *Topology::newActor(actortypes_e type,
+Topology::actorIdentity *Topology::newActor(actortypes_e type,
                                                class Mbox *mbox, int epollfd,
                                                const string &argstring,
                                                int64_t actorid,
                                                const vector<string> &nodes,
                                                const vector<string> &services)
 {
-    partitionAddress *addr = new partitionAddress();
+    actorIdentity *addr = new actorIdentity();
     if (addr==NULL)
     {
         fprintf(logfile, "%s %i can't create addr\n", __FILE__, __LINE__);
         exit(1);
     }
-    partitionAddress &addrRef = *addr;
+    actorIdentity &addrRef = *addr;
     addrRef.type = type;
     addrRef.mbox = mbox;
     addrRef.address.nodeid = nodeid;

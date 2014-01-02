@@ -38,12 +38,14 @@
 
 #define EPOLLEVENTS 1024
 
-Listener::Listener(Topology::partitionAddress *myIdentityArg)
-    : myIdentity(*myIdentityArg)
+Listener::Listener(Topology::actorIdentity *myIdentityArg)
 {
+    init(myIdentityArg);
+    /*
     delete myIdentityArg;
     mboxes.nodeid = myIdentity.address.nodeid;
     mboxes.update(myTopology);
+    */
 
     int listenersockfd = startsocket(myIdentity.nodes[0], myIdentity.services[0]);
     int pglistenersockfd = startsocket(myIdentity.nodes[1],
@@ -200,7 +202,7 @@ Listener::~Listener()
 
 void *listener(void *identity)
 {
-    new Listener((Topology::partitionAddress *)identity);
+    new Listener((Topology::actorIdentity *)identity);
     while (1)
     {
         sleep(250000);

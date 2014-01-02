@@ -37,16 +37,17 @@
 #define INFINISQLLISTENER_H
 
 #include "gch.h"
+#include "Actor.h"
 
 /** 
  * @brief execute Listener actor
  *
  * @param myIdentityArg how to identify this
  */
-class Listener
+class Listener : public Actor
 {
 public:
-    Listener(Topology::partitionAddress *myIdentityArg);
+    Listener(Topology::actorIdentity *myIdentityArg);
     virtual ~Listener();
 
     /** 
@@ -60,9 +61,11 @@ public:
     int startsocket(string &node, string &service);
 
     //private:
+    /*
     class Mboxes mboxes;
-    Topology::partitionAddress myIdentity;
+    Topology::actorIdentity myIdentity;
     class Topology myTopology;
+    */
 };
 
 /** 

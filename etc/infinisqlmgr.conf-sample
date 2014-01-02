@@ -38,7 +38,6 @@ badloginmessages: 1
 
 [global]
 userschemamgrnode: 1
-deadlockmgrnode: 1
 activereplica: 0
 
 [node_1]

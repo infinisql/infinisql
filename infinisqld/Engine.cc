@@ -29,14 +29,16 @@
 #include "Engine.h"
 #line 31 "Engine.cc"
 
-Engine::Engine(Topology::partitionAddress *myIdentityArg) :
-    myIdentity(*myIdentityArg)
+Engine::Engine(Topology::actorIdentity *myIdentityArg)
 {
-    delete myIdentityArg;
+//    delete myIdentityArg;
+    init(myIdentityArg);
     instance = myIdentity.instance;
 
+    /*
     mboxes.nodeid = myIdentity.address.nodeid;
     mboxes.update(myTopology, instance);
+    */
     getMyPartitionid();
 
     int64_t builtincmd = 0;
@@ -48,7 +50,8 @@ Engine::Engine(Topology::partitionAddress *myIdentityArg) :
         mboxes.sendObBatch();
         for (size_t inmsg=0; inmsg < MSGRECEIVEBATCHSIZE; inmsg++)
         {
-            GETMSG(msgrcv, myIdentity.mbox, waitfor)
+//            GETMSG(msgrcv, myIdentity.mbox, waitfor)
+            getmsg(waitfor);
 
                 if (msgrcv==NULL)
                 {
@@ -166,7 +169,7 @@ Engine::~Engine()
 // launcher, regular function
 void *engine(void *identity)
 {
-    Engine((Topology::partitionAddress *)identity);
+    Engine((Topology::actorIdentity *)identity);
     return NULL;
 }
 

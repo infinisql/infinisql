@@ -30,12 +30,9 @@
 #line 31 "UserSchemaMgr.cc"
 
 //UserSchemaMgr::UserSchemaMgr(mboxid_t idarg) : id (idarg) {
-UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
-    myIdentity(*myIdentityArg)
+UserSchemaMgr::UserSchemaMgr(Topology::actorIdentity *myIdentityArg)
 {
-    delete myIdentityArg;
-    mboxes.nodeid = myIdentity.address.nodeid;
-    mboxes.update(myTopology);
+    init(myIdentityArg);
 
     // these are incremented before being given out. domainid 1 is _global
     nextdomainid = 1;
@@ -78,7 +75,8 @@ UserSchemaMgr::UserSchemaMgr(Topology::partitionAddress *myIdentityArg) :
         mboxes.sendObBatch();
         do
         {
-            GETMSG(msgrcv, myIdentity.mbox, 1000)
+            getmsg(1000);
+//            GETMSG(msgrcv, myIdentity.mbox, 1000)
                 }
         while (msgrcv==NULL);
 
@@ -190,7 +188,7 @@ UserSchemaMgr::~UserSchemaMgr()
 // launcher
 void *userSchemaMgr(void *identity)
 {
-    UserSchemaMgr((Topology::partitionAddress *)identity);
+    UserSchemaMgr((Topology::actorIdentity *)identity);
     return NULL;
 }
 

@@ -32,6 +32,7 @@
 #include "gch.h"
 #include "Table.h"
 #include "TransactionAgent.h"
+#include "Actor.h"
 
 /** 
  * @brief user password
@@ -59,10 +60,10 @@ typedef boost::unordered_map<int64_t, int64_t> domainIdToNextUserIdMap;
  *
  * @param myIdentityArg how to identify this 
  */
-class UserSchemaMgr
+class UserSchemaMgr : public Actor
 {
 public:
-    UserSchemaMgr(Topology::partitionAddress *myIdentityArg);
+    UserSchemaMgr(Topology::actorIdentity *myIdentityArg);
     virtual ~UserSchemaMgr();
 
     // pubic for replyTa:
@@ -73,14 +74,14 @@ public:
     int64_t status;
     int64_t tainstance;
     //public for createSchema:
-    class Message *msgrcv;
-    REUSEMESSAGES
-        domainidToSchemaMap domainidsToSchemata;
-    class Mboxes mboxes;
-    Topology::partitionAddress myIdentity;
+//    class Message *msgrcv;
+//    REUSEMESSAGES
+    domainidToSchemaMap domainidsToSchemata;
+//    class Mboxes mboxes;
+//    Topology::actorIdentity myIdentity;
 
 private:
-    class Topology myTopology;
+//    class Topology myTopology;
     /** 
      * @brief generate unique, ever-increasing domain identifier
      *
@@ -185,7 +186,6 @@ private:
     //private:
     int64_t argsize;
     int64_t instance;
-    class Mbox *mymboxPtr;
     domainNameToDomainIdMap domainNameToDomainId;
     domainNameToDomainIdMap::iterator domainNameToDomainIdIterator;
     domainIdToUserNamesMap domainIdToUserNames;

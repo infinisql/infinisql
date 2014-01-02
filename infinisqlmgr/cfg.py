@@ -98,9 +98,6 @@ class node:
       print 'node ' + str(self.id) + ' problem setanonymousping'
     if self.setbadloginmessages():
       print 'node ' + str(self.id) + ' problem setbadloginmessages'
-    if topo.deadlockmgrnode==self.id:
-      if self.startdeadlockmgr():
-        print 'node ' + str(self.id) + ' problem startdeadlockmgr'
     if topo.userschemamgrnode==self.id:
       if self.startuserschemamgr():
         print 'node ' + str(self.id) + ' problem startuserschemamgr'
@@ -204,19 +201,6 @@ class node:
     self.globalupdate()
     return 0
 
-  def startdeadlockmgr(self):
-    returnit = sendcmd(self, serialize( [cfgenum.cfgforwarddict['CMDSTART'],
-      cfgenum.cfgforwarddict['CMDDEADLOCKMGR'], 2] ))
-    if cfgenum.cfgreversedict[returnit.next()] != 'CMDOK':
-      return 1
-    mboxptr = returnit.next()
-    self.addactor(2, cfgenum.actortypesforwarddict['ACTOR_DEADLOCKMGR'],
-        -1, mboxptr)
-    self.nodeupdate()
-    topo.deadlockmgrmboxptr = mboxptr
-    self.globalupdate()
-    return 0
-
   def starttransactionagent(self):
     actorid = self.getnextactorid()
     instance = self.getnexttainstance()
@@ -313,7 +297,6 @@ class node:
         vector = [ cfgenum.cfgforwarddict['CMDGLOBALCONFIG'],
             topo.activereplica, replicaids, nodeids, actorids,
             ibgatewaynodes, ibgatewayinstances, ibgatewayhostports,
-            topo.deadlockmgrnode, topo.deadlockmgrmboxptr,
             topo.userschemamgrnode, topo.userschemamgrmboxptr,
             len(topo.replicamembers) ]
         for x in topo.replicamembers:
@@ -351,7 +334,6 @@ def cfg(cfgfile):
   config.read(cfgfile)
   global nodes
 
-  topo.deadlockmgrnode = config.getint('global', 'deadlockmgrnode')
   topo.userschemamgrnode = config.getint('global', 'userschemamgrnode')
   topo.activereplica = config.getint('global', 'activereplica')
 

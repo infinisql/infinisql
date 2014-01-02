@@ -21,8 +21,6 @@ class globaltopology:
   def __init__(self):
     self.partitions = []
     self.ibgateways = []
-    self.deadlockmgrnode = 0
-    self.deadlockmgrmboxptr = 0
     self.userschemamgrnode = 0
     self.userschemamgrmboxptr = 0
     self.nextpartitionid = 0

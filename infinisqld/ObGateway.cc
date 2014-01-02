@@ -30,13 +30,16 @@
 #include "ObGateway.h"
 #line 32 "ObGateway.cc"
 
-ObGateway::ObGateway(Topology::partitionAddress *myIdentityArg) :
-    myIdentity(*myIdentityArg), so_sndbuf(16777216), ismultinode(false)
+ObGateway::ObGateway(Topology::actorIdentity *myIdentityArg) :
+    so_sndbuf(16777216), ismultinode(false)
 {
+    init(myIdentityArg);
+    /*
     delete myIdentityArg;
 
     mboxes.nodeid = myIdentity.address.nodeid;
     mboxes.update(myTopology);
+    */
     updateRemoteGateways();
 
     optlen=sizeof(so_sndbuf);
@@ -273,7 +276,7 @@ void ObGateway::updateRemoteGateways()
 // launcher, regular function
 void *obGateway(void *identity)
 {
-    new ObGateway((Topology::partitionAddress *)identity);
+    new ObGateway((Topology::actorIdentity *)identity);
     while (1)
     {
         sleep(150000);

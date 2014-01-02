@@ -32,13 +32,16 @@
 
 #define EPOLLEVENTS 1024
 
-IbGateway::IbGateway(Topology::partitionAddress *myIdentityArg) :
-    myIdentity(*myIdentityArg), fds(NULL), nfds(0), ismultinode(false)
+IbGateway::IbGateway(Topology::actorIdentity *myIdentityArg) :
+    fds(NULL), nfds(0), ismultinode(false)
 {
+    init(myIdentityArg);
+    /*
     delete myIdentityArg;
 
     mboxes.nodeid = myIdentity.address.nodeid;
     mboxes.update(myTopology);
+    */
   
     size_t found = myIdentity.argstring.find(':');
     string node = myIdentity.argstring.substr(0, found);
@@ -419,7 +422,7 @@ void IbGateway::removefds()
 // launcher, regular function
 void *ibGateway(void *identity)
 {
-    new IbGateway((Topology::partitionAddress *)identity);
+    new IbGateway((Topology::actorIdentity *)identity);
     while (1)
     {
         sleep(500000);

@@ -45,7 +45,7 @@ void *obGateway(void *);
 
 void replyToManager(void *, msgpack::sbuffer &);
 
-TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
+TopologyMgr::TopologyMgr(Topology::actorIdentity *myIdentityArg) :
     myIdentity(*myIdentityArg)
 {
     delete myIdentityArg;
@@ -371,7 +371,7 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 obj4.convert(&instance);
 
                 newmbox = new class Mbox;
-                Topology::partitionAddress *paddr =
+                Topology::actorIdentity *paddr =
                     nodeTopology.newActor(ACTOR_TRANSACTIONAGENT,
                                           newmbox, epollfd, string(), actorid,
                                           vector<string>(),
@@ -410,7 +410,7 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 obj4.convert(&instance);
 
                 newmbox = new class Mbox;
-                Topology::partitionAddress *paddr =
+                Topology::actorIdentity *paddr =
                     nodeTopology.newActor(ACTOR_ENGINE,
                                           newmbox, epollfd, string(), actorid,
                                           vector<string>(),
@@ -449,7 +449,7 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 obj4.convert(&instance);
 
                 newmbox = new class Mbox;
-                Topology::partitionAddress *paddr =
+                Topology::actorIdentity *paddr =
                     nodeTopology.newActor(ACTOR_OBGATEWAY,
                                           newmbox, epollfd, string(), actorid,
                                           vector<string>(), vector<string>());
@@ -499,7 +499,7 @@ TopologyMgr::TopologyMgr(Topology::partitionAddress *myIdentityArg) :
                 obj5.convert(&hostport);
 
                 newmbox = new class Mbox;
-                Topology::partitionAddress *paddr =
+                Topology::actorIdentity *paddr =
                     nodeTopology.newActor(ACTOR_IBGATEWAY,
                                           newmbox, epollfd, hostport, actorid,
                                           vector<string>(), vector<string>());
@@ -573,7 +573,7 @@ TopologyMgr::~TopologyMgr()
 /** Launcher function for TopologyMgr actor */
 void *topologyMgr(void *identity)
 {
-    new TopologyMgr((Topology::partitionAddress *)identity);
+    new TopologyMgr((Topology::actorIdentity *)identity);
     while (1)
     {
         sleep(1000000);
@@ -621,7 +621,7 @@ void TopologyMgr::updateLocalConfig(msgpack::unpacker &pac,
     nodeTopology.numtransactionagents = 0;
     nodeTopology.numengines = 0;
 
-    Topology::partitionAddress addr = {};
+    Topology::actorIdentity addr = {};
     addr.address.nodeid = nodeTopology.nodeid;
     addr.epollfd = -1;
     addr.argstring = "";
@@ -711,16 +711,6 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
     obj = result.get();
     vector<string> ibgatewayhostports;
     obj.convert(&ibgatewayhostports);
-
-    pac.next(&result);
-    obj = result.get();
-    int64_t dmgrnode;
-    obj.convert(&dmgrnode);
-
-    pac.next(&result);
-    obj = result.get();
-    int64_t dmgrmboxptr;
-    obj.convert(&dmgrmboxptr);
 
     pac.next(&result);
     obj = result.get();
@@ -829,7 +819,7 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
         }
     }
 
-    vector< vector<Topology::partitionAddress> > pl(numreplicas);
+    vector< vector<Topology::actorIdentity> > pl(numreplicas);
     /*
       Topology::partitionAddress pa = {};
       vector<Topology::partitionAddress> pl2(numpartitions, pa);
@@ -845,7 +835,7 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
 
     for (size_t n=0; n < replicaids.size(); n++)
     {
-        Topology::partitionAddress addr;
+        Topology::actorIdentity addr;
         addr.address.nodeid = nodeids[n];
         addr.address.actorid = actorids[n];
         addr.epollfd = -1;
@@ -865,7 +855,7 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
         pl[replicaids[n]].push_back(addr);
     }
 
-    vector<Topology::partitionAddress> pltr;
+    vector<Topology::actorIdentity> pltr;
 
     if (myreplica >= 0)
     {
@@ -894,9 +884,6 @@ void TopologyMgr::updateGlobalConfig(msgpack::unpacker &pac,
 
     nodeTopology.userSchemaMgrNode = usmgrnode;
     nodeTopology.userSchemaMgrMbox = (class Mbox *)usmgrmboxptr;
-    nodeTopology.deadlockMgrNode = dmgrnode;
-    nodeTopology.deadlockMgrMbox = (class Mbox *)dmgrmboxptr;
-    //  nodeTopology.numpartitions = nodeTopology.partitionListThisReplica.size();
     nodeTopology.numpartitions = numpartitions;
     nodeTopology.replicaMembers.swap(replicaMembers);
     nodeTopology.tas.swap(tas);

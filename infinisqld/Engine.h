@@ -37,7 +37,7 @@
 /** 
  * @brief Engine actor. Each Engine corresponds to a data partition.
  */
-class Engine
+class Engine : public Actor
 {
 public:
     /** 
@@ -62,7 +62,7 @@ public:
      *
      * @param myIdentityArg how to indentify this
      */
-    Engine(Topology::partitionAddress *myIdentityArg);
+    Engine(Topology::actorIdentity *myIdentityArg);
     virtual ~Engine();
 
     /** 
@@ -98,11 +98,11 @@ public:
     int64_t status;
     Topology::addressStruct taAddr;
     //public for createSchema:
-    class Message *msgrcv;
-    REUSEMESSAGES
-        domainidToSchemaMap domainidsToSchemata;
-    class Mboxes mboxes;
-    Topology::partitionAddress myIdentity;
+//    class Message *msgrcv;
+//    REUSEMESSAGES
+    domainidToSchemaMap domainidsToSchemata;
+//    class Mboxes mboxes;
+//    Topology::actorIdentity myIdentity;
     int64_t partitionid;
 
 private:
@@ -178,7 +178,6 @@ private:
 
     class Topology myTopology;
 
-    class Mbox *mymboxPtr;
     int64_t argsize;
     int64_t nextsubtransactionid;
     int64_t instance;

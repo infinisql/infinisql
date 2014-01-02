@@ -31,11 +31,12 @@
 #define INFINISQLIBGATEWAY_H
 
 #include "gch.h"
+#include "Actor.h"
 
 /** 
  * @brief Inbound Gateway Actor
  */
-class IbGateway
+class IbGateway : public Actor
 {
 public:
     /** 
@@ -46,12 +47,14 @@ public:
      *
      * @param myIdentityArg how to identify this
      */
-    IbGateway(Topology::partitionAddress *myIdentityArg);
+    IbGateway(Topology::actorIdentity *myIdentityArg);
     virtual ~IbGateway();
 
-    Topology::partitionAddress myIdentity;
+    /*
+    Topology::actorIdentity myIdentity;
     class Mboxes mboxes;
     class Topology myTopology;
+    */
 
 private:
     /** 

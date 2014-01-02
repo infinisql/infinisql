@@ -53,7 +53,7 @@ void *topologyMgr(void *identity);
 class TopologyMgr
 {
 public:
-    TopologyMgr(Topology::partitionAddress *myIdentityArg);
+    TopologyMgr(Topology::actorIdentity *myIdentityArg);
     TopologyMgr(const TopologyMgr &orig);
     virtual ~TopologyMgr();
 private:
@@ -81,7 +81,7 @@ private:
      */
     void broadcastConfig();
 
-    Topology::partitionAddress myIdentity;
+    Topology::actorIdentity myIdentity;
     class Mboxes mboxes;
     class Topology myTopology;
 };

@@ -105,7 +105,7 @@ int main(int argc, char **argv)
     pthread_mutex_init(&nodeTopologyMutex, &attr);
     pthread_mutex_init(&connectionsMutex, &attr);
     pthread_t topologyMgrThread;
-    Topology::partitionAddress *arg = new Topology::partitionAddress();
+    Topology::actorIdentity *arg = new Topology::actorIdentity();
     arg->type = ACTOR_TOPOLOGYMGR;
     arg->mbox = new class Mbox;
     arg->address.nodeid = 1;

@@ -67,7 +67,7 @@ public:
     /** Actor address with pointer to Mbox and actor type. Mbox and
      * type are not necessary in message headers. This also contains
      * identification information for each actor instance's self */
-    struct partitionAddress
+    struct actorIdentity
     {
         addressStruct address;
         int64_t instance;
@@ -113,7 +113,7 @@ public:
      *
      * @return 
      */
-    partitionAddress *newActor(actortypes_e type, class Mbox *mbox, int epollfd,
+    actorIdentity *newActor(actortypes_e type, class Mbox *mbox, int epollfd,
                                const string &argstring, int64_t actorid,
                                const vector<string> &nodes,
                                const vector<string> &services);
@@ -137,8 +137,8 @@ public:
     int16_t deadlockMgrNode;
     class Mbox *deadlockMgrMbox;
     // partitionList[replicaid][partition] = {nodeid, actorid}
-    std::vector< vector<partitionAddress> > partitionList;
-    std::vector<partitionAddress> partitionListThisReplica;
+    std::vector< vector<actorIdentity> > partitionList;
+    std::vector<actorIdentity> partitionListThisReplica;
     std::map< int64_t, vector<std::string> > ibGateways;
     // allActors[nodeid][actorid] = type
     std::vector< vector<int> > allActors;

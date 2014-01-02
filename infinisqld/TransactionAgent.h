@@ -34,6 +34,7 @@
 #include "Table.h"
 #include "Schema.h"
 #include "Larxer.h"
+#include "Actor.h"
 
 /** 
  * @brief type of MessageTransaction variant. likely an orphan
@@ -137,10 +138,10 @@ msgpack::sbuffer *makeSbuf(std::map<string, string> *);
  *
  * @param myIdentityArg how to identify this
  */
-class TransactionAgent
+class TransactionAgent : public Actor
 {
 public:
-    TransactionAgent(Topology::partitionAddress *myIdentityArg);
+    TransactionAgent(Topology::actorIdentity *myIdentityArg);
     virtual ~TransactionAgent();
 
     /** 
@@ -157,9 +158,9 @@ public:
     int64_t status;
     int64_t tainstance;
     //public for createSchema:
-    class Message *msgrcv;
-    REUSEMESSAGES
-        domainidToSchemaMap domainidsToSchemata;
+//    class Message *msgrcv;
+//    REUSEMESSAGES
+    domainidToSchemaMap domainidsToSchemata;
 
     // needs to be all/mostly public for stored procedures
 
@@ -461,11 +462,10 @@ public:
         actor->mboxes.toActor(actor->myIdentity.address, dest, msg);
     }
 
-    Topology::partitionAddress myIdentity;
-    class Mboxes mboxes;
-    class Topology myTopology;
+//    Topology::actorIdentity myIdentity;
+//    class Mboxes mboxes;
+//    class Topology myTopology;
     int64_t instance;
-    class Mbox *mymboxPtr;
     int epollfd;
     int sockfd;
     char payload[PAYLOADSIZE];

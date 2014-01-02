@@ -30,14 +30,14 @@
 #include "Pg.h"
 #line 32 "TransactionAgent.cc"
 
-TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
-    myIdentity(*myIdentityArg), nexttransactionid(0), nextapplierid(0),
-    myreplica(-1), mymember(-1)
+TransactionAgent::TransactionAgent(Topology::actorIdentity *myIdentityArg) :
+    nexttransactionid(0), nextapplierid(0), myreplica(-1), mymember(-1)
 {
-    delete myIdentityArg;
+    init(myIdentityArg);
+//    delete myIdentityArg;
     epollfd = myIdentity.epollfd;
     instance = myIdentity.instance;
-    mboxes.nodeid = myIdentity.address.nodeid;
+//    mboxes.nodeid = myIdentity.address.nodeid;
 
     builtincmds_e cmd = NOCMD;
     spclasscreate spC;
@@ -79,7 +79,8 @@ TransactionAgent::TransactionAgent(Topology::partitionAddress *myIdentityArg) :
         mboxes.sendObBatch();
         for (size_t inmsg=0; inmsg < MSGRECEIVEBATCHSIZE; inmsg++)
         {
-            GETMSG(msgrcv, myIdentity.mbox, waitfor)
+//            GETMSG(msgrcv, myIdentity.mbox, waitfor)
+            getmsg(waitfor);
 
                 if (msgrcv==NULL)
                 {
@@ -632,7 +633,7 @@ int64_t TransactionAgent::readSocket()
 // launcher, regular function
 void *transactionAgent(void *identity)
 {
-    TransactionAgent((Topology::partitionAddress *)identity);
+    TransactionAgent((Topology::actorIdentity *)identity);
     return NULL;
 }
 
