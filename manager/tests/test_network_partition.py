@@ -71,6 +71,10 @@ class TestNetworkPartition(unittest.TestCase):
             self.c3.process()
 
         self.assertEqual(len(self.nodes)*3, len(self.c1.get_nodes()))
+        self.assertIsNotNone(self.c3.node_id)
+        self.assertIsNotNone(self.c1.leader_node_id)
+        self.assertIsNotNone(self.c2.leader_node_id)
+        self.assertIsNotNone(self.c3.leader_node_id)
         self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c1.leader_node_id))
         self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c2.leader_node_id))
         self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
@@ -82,9 +86,9 @@ class TestNetworkPartition(unittest.TestCase):
 
         self.assertEqual(len(self.nodes)*2, len(self.c1.get_nodes()))
         self.assertIs(None, self.c1.current_election)
-        self.assertEqual(self.c2.node_id, self.c1.leader_node_id)
-        self.assertEqual(self.c2.node_id, self.c2.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c3.leader_node_id)
+        self.assertEqual(NodeId(self.c2.node_id), NodeId(self.c1.leader_node_id))
+        self.assertEqual(NodeId(self.c2.node_id), NodeId(self.c2.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
 
     def test_heal_partition(self):
         # Run process up to settle so that an election is forced.

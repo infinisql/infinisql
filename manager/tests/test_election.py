@@ -1,7 +1,13 @@
 __author__ = 'christopher'
 
 import unittest
+from infinisqlmgr import config
 from infinisqlmgr.management import Controller, election
+from infinisqlmgr.management.nodeid import NodeId
+
+class SimpleConfig(object):
+    def __init__(self, dist_dir):
+        self.dist_dir = dist_dir
 
 node1_id = ("10.0.0.1", 11000)
 node2_id = ("10.0.0.2", 11000)
@@ -59,9 +65,18 @@ class TestElection(unittest.TestCase):
         self.assertEqual(candidate, self.election.get_winner())
 
     def test_full_election(self):
-        n1 = Controller("default_cluster", cmd_port=11000)
-        n2 = Controller("default_cluster", cmd_port=11001)
-        n3 = Controller("default_cluster", cmd_port=11002)
+        args = object()
+        co1 = config.Configuration(SimpleConfig("/tmp/i1"))
+        co2 = config.Configuration(SimpleConfig("/tmp/i2"))
+        co3 = config.Configuration(SimpleConfig("/tmp/i3"))
+
+        co1.config.set("management", "management_port", "11000")
+        co2.config.set("management", "management_port", "12000")
+        co3.config.set("management", "management_port", "13000")
+
+        n1 = Controller(co1)
+        n2 = Controller(co2)
+        n3 = Controller(co3)
 
         n1.announce_presence()
         n2.announce_presence()
@@ -74,9 +89,9 @@ class TestElection(unittest.TestCase):
             n2.process()
             n3.process()
 
-        self.assertEqual(n3.node_id, n3.leader_node_id)
-        self.assertEqual(n3.node_id, n2.leader_node_id)
-        self.assertEqual(n3.node_id, n1.leader_node_id)
+        self.assertEqual(NodeId(n3.node_id), NodeId(n3.leader_node_id))
+        self.assertEqual(NodeId(n3.node_id), NodeId(n2.leader_node_id))
+        self.assertEqual(NodeId(n3.node_id), NodeId(n1.leader_node_id))
 
         n1.shutdown()
         n2.shutdown()
