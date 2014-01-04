@@ -7,6 +7,7 @@ import signal
 import socket
 import struct
 import time
+from copy import copy
 
 import msgpack
 import tornado.ioloop
@@ -56,6 +57,7 @@ class Controller(object):
         else:
             self.nodes = {self.node_id}
 
+        self.node_id_set = copy(self.nodes)
         self.leader_node_id = None
         self.current_election = None
         self.current_cluster_time = 0
@@ -225,7 +227,8 @@ class Controller(object):
 
             logging.info("Node %s voting for %s", self.node_id, best_candidate)
             self.current_election.tally(best_candidate, self.node_id)
-            self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, self.node_id, self.current_election_id)))
+            for node_id in self.node_id_set:
+                self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, node_id, self.current_election_id)))
             return
 
         if not self.current_election.ready(self.current_node_time):
@@ -365,6 +368,8 @@ class Controller(object):
         :return: None
         """
         candidate, voter, election_id = msgpack.unpackb(m, encoding="utf8")
+
+        logging.debug("election vote for: %s from: %s (election id=%s)", candidate, voter, election_id)
 
         # If we receive an election request for an election newer than ours. Restart the election.
         if election_id > self.current_election_id:

@@ -1,6 +1,7 @@
 __author__ = 'Christopher Nelson'
 
 from collections import Counter
+import logging
 
 class Election(object):
     """
@@ -59,10 +60,12 @@ class Election(object):
 
         # No duplicate votes
         if vote_from in self.voters:
+            logging.warning("Duplicate vote from node: %s ignored.", vote_from)
             return
 
         # No unregistered voters
         if vote_from not in self.nodes:
+            logging.error("Vote from unknown node: %s", vote_from)
             return
 
         # Tally a vote

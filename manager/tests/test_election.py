@@ -5,9 +5,6 @@ from infinisqlmgr import config
 from infinisqlmgr.management import Controller, election
 from infinisqlmgr.management.nodeid import NodeId
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
 class SimpleConfig(object):
     def __init__(self, dist_dir):
         self.dist_dir = dist_dir
