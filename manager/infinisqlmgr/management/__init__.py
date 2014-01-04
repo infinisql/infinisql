@@ -56,8 +56,6 @@ class Controller(object):
         else:
             self.nodes = {self.node_id}
 
-        print(self.nodes)
-
         self.leader_node_id = None
         self.current_election = None
         self.current_cluster_time = 0
