@@ -2,6 +2,7 @@ __author__ = 'Christopher Nelson'
 
 import unittest
 from infinisqlmgr import management, config
+from infinisqlmgr.management.nodeid import NodeId
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,6 +21,8 @@ class TestNetworkPartition(unittest.TestCase):
         co1.config.set("management", "management_port", "11000")
         co2.config.set("management", "management_port", "12000")
         co3.config.set("management", "management_port", "13000")
+
+        self.nodes = {interface[0] for interface in co1.interfaces().values()}
 
         self.c1 = management.Controller(co1)
         self.c2 = management.Controller(co2)
@@ -41,10 +44,11 @@ class TestNetworkPartition(unittest.TestCase):
             self.c2.process()
             self.c3.process()
 
-        self.assertEqual(3, len(self.c1.get_nodes()))
-        self.assertEqual(self.c3.node_id, self.c1.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c2.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c3.leader_node_id)
+        print(self.c1.get_nodes())
+        self.assertEqual(len(self.nodes)*3, len(self.c1.get_nodes()))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c1.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c2.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
 
         # Now simulate a partition event by not processing a single node. The other two nodes
         # should recognize that a partition has occurred. In this case we are not partitioning
@@ -53,11 +57,11 @@ class TestNetworkPartition(unittest.TestCase):
             self.c1.process()
             self.c3.process()
 
-        self.assertEqual(2, len(self.c1.get_nodes()))
+        self.assertEqual(len(self.nodes)*2, len(self.c1.get_nodes()))
         self.assertIs(None, self.c1.current_election)
-        self.assertEqual(self.c3.node_id, self.c1.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c2.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c3.leader_node_id)
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c1.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c2.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
 
     def test_election_partition(self):
         # Run process up to settle so that an election is forced.
@@ -66,17 +70,17 @@ class TestNetworkPartition(unittest.TestCase):
             self.c2.process()
             self.c3.process()
 
-        self.assertEqual(3, len(self.c1.get_nodes()))
-        self.assertEqual(self.c3.node_id, self.c1.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c2.leader_node_id)
-        self.assertEqual(self.c3.node_id, self.c3.leader_node_id)
+        self.assertEqual(len(self.nodes)*3, len(self.c1.get_nodes()))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c1.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c2.leader_node_id))
+        self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
 
         # Now simulate a more complex partition that requires an election.
         for i in range(0, int(self.c1.node_partition_threshold*1.5)):
             self.c1.process()
             self.c2.process()
 
-        self.assertEqual(2, len(self.c1.get_nodes()))
+        self.assertEqual(len(self.nodes)*2, len(self.c1.get_nodes()))
         self.assertIs(None, self.c1.current_election)
         self.assertEqual(self.c2.node_id, self.c1.leader_node_id)
         self.assertEqual(self.c2.node_id, self.c2.leader_node_id)
@@ -89,7 +93,7 @@ class TestNetworkPartition(unittest.TestCase):
             self.c2.process()
             self.c3.process()
 
-        self.assertEqual(3, len(self.c1.get_nodes()))
+        self.assertEqual(len(self.nodes)*3, len(self.c1.get_nodes()))
         self.assertEqual(self.c3.node_id, self.c1.leader_node_id)
         self.assertEqual(self.c3.node_id, self.c2.leader_node_id)
         self.assertEqual(self.c3.node_id, self.c3.leader_node_id)
@@ -99,7 +103,7 @@ class TestNetworkPartition(unittest.TestCase):
             self.c1.process()
             self.c2.process()
 
-        self.assertEqual(2, len(self.c1.get_nodes()))
+        self.assertEqual(len(self.nodes)*2, len(self.c1.get_nodes()))
         self.assertIs(None, self.c1.current_election)
         self.assertEqual(self.c2.node_id, self.c1.leader_node_id)
         self.assertEqual(self.c2.node_id, self.c2.leader_node_id)
@@ -115,7 +119,7 @@ class TestNetworkPartition(unittest.TestCase):
             self.c2.process()
             self.c3.process()
 
-        self.assertEqual(3, len(self.c1.get_nodes()))
+        self.assertEqual(len(self.nodes)*3, len(self.c1.get_nodes()))
         self.assertIs(None, self.c1.current_election)
         self.assertEqual(self.c3.node_id, self.c1.leader_node_id)
         self.assertEqual(self.c3.node_id, self.c2.leader_node_id)

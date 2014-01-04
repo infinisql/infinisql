@@ -50,7 +50,14 @@ class Controller(object):
         self.dist_dir = config.dist_dir
 
         self.node_id = (mt["management_ip"], self.cmd_port)
-        self.nodes = {self.node_id}
+        if mt["management_ip"] == "*":
+            self.nodes = {(interface[0].ip.compressed, self.cmd_port) for interface in self.config.interfaces()
+            .values()}
+        else:
+            self.nodes = {self.node_id}
+
+        print(self.nodes)
+
         self.leader_node_id = None
         self.current_election = None
         self.current_cluster_time = 0
