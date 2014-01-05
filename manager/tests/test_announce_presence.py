@@ -16,7 +16,7 @@ class TestAnnouncePresence(unittest.TestCase):
         self.cfg2 = config.Configuration(SimpleConfig())
 
         self.cfg1.config.set("management", "management_port", "21000")
-        self.cfg1.config.set("management", "management_port", "22000")
+        self.cfg2.config.set("management", "management_port", "22000")
 
         self.c1 = management.Controller(self.cfg1)
         self.c2 = management.Controller(self.cfg2)
@@ -30,11 +30,11 @@ class TestAnnouncePresence(unittest.TestCase):
         self.c1.process()
         self.c2.process()
 
-        self.assertEqual(1, len(self.c1.get_nodes()))
-        self.assertEqual(2, len(self.c2.get_nodes()))
+        self.assertEqual(2, len(self.c1.get_nodes()))
+        self.assertEqual(4, len(self.c2.get_nodes()))
 
     def test_mutual_announce(self):
-        ip = self.cfg1.interfaces()
+        ip_list = [interface[0].ip.compressed for interface in self.cfg1.interfaces().values()]
 
         self.c1.announce_presence()
         self.c2.announce_presence()
@@ -46,11 +46,12 @@ class TestAnnouncePresence(unittest.TestCase):
         c1_nodes = self.c1.get_nodes()
         c2_nodes = self.c2.get_nodes()
 
-        self.assertEqual(2, len(c1_nodes))
-        self.assertEqual(2, len(c2_nodes))
+        self.assertEqual(4, len(c1_nodes))
+        self.assertEqual(4, len(c2_nodes))
 
-        self.assertTrue((ip, 11000) in c2_nodes)
-        self.assertTrue((ip, 12000) in c1_nodes)
+        for ip in ip_list:
+            self.assertIn((ip, 21000), c2_nodes)
+            self.assertIn((ip, 22000), c1_nodes)
 
 
 if __name__ == "__main__":

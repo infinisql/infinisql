@@ -2,21 +2,27 @@ __author__ = 'Christopher Nelson'
 
 import logging
 import unittest
-from infinisqlmgr import engine
+from infinisqlmgr import engine, config
 
 #logging.basicConfig(level=logging.DEBUG)
+
+
+class SimpleConfig(object):
+    def __init__(self, dist_dir):
+        self.dist_dir = dist_dir
 
 dist_dir = "/home/christopher/workspace/infinisql/dist"
 
 class TestDatabaseEngine(unittest.TestCase):
     def setUp(self):
-        self.c = engine.Configuration(100, dist_dir, "*", 19897)
-        self.c.start()
+        self.c = config.Configuration(SimpleConfig(dist_dir))
+        self.e = engine.Configuration(("127.0.0.1", 11000), self.c)
+        self.e.start()
 
     def tearDown(self):
-        self.c.stop()
+        self.e.stop()
 
     def test_flap_engine(self):
         for i in range(0, 10):
-            self.c.process()
+            self.e.process()
         self.assertNotEqual(0, len(self.c.state.actors))
