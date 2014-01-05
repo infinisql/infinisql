@@ -1,7 +1,6 @@
 __author__ = 'Christopher Nelson'
 
 import ipaddress
-import logging
 import select
 import signal
 import socket
@@ -18,6 +17,8 @@ import zmq.eventloop.ioloop as zmq_ioloop
 import infinisqlmgr
 from infinisqlmgr.management import msg, election, health, api
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 class Controller(object):
     # Contains the current controller instance. This is only available
@@ -252,7 +253,8 @@ class Controller(object):
         """
         self.current_node_time += 1
         if self.current_node_time % self.heartbeat_period == 0:
-            self._send(msg.HEARTBEAT, msgpack.packb((self.cluster_name, self.node_id), encoding="utf8"))
+            for node_id in self.node_id_set:
+                self._send(msg.HEARTBEAT, msgpack.packb((self.cluster_name, node_id), encoding="utf8"))
 
     def _evaluate_cluster_health(self):
         """
@@ -277,6 +279,7 @@ class Controller(object):
 
         # Remove the remote node from our registries
         for node_id in partitioned:
+            print(node_id, partitioned)
             sock = self.sub_sockets[node_id]
             self.poller.unregister(sock)
             sock.close()

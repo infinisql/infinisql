@@ -1,8 +1,5 @@
 __author__ = 'Christopher Nelson'
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
 import unittest
 from infinisqlmgr import management, config
 
