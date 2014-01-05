@@ -216,6 +216,113 @@ typedef struct
 } fieldValue_s;
 
 /** 
+ * @brief SQL field type
+ */
+class FieldType
+{
+public:
+    enum type_e
+    {
+        TYPE_NONE=0,
+        TYPE_SMALLINT,
+        TYPE_INT,
+        TYPE_BIGINT,
+        TYPE_NUMERIC,
+        TYPE_DECIMAL,
+        TYPE_REAL,
+        TYPE_DOUBLE_PRECISION,
+        TYPE_FLOAT,
+        TYPE_CHARACTER,
+        TYPE_CHARACTER_VARYING,
+        TYPE_BIT,
+        TYPE_BIT_VARYING,
+        TYPE_DATE,
+        TYPE_TIME,
+        TYPE_TIMESTAMP,
+        TYPE_TIME_WITH_TIME_ZONE,
+        TYPE_TIMESTAMP_WITH_TIME_ZONE
+    };
+    
+    FieldType();
+    FieldType(type_e typearg);
+    FieldType(type_e typearg, int64_t arg1arg);
+    FieldType(type_e typearg, int64_t arg1arg, int64_t arg2arg);
+    ~FieldType();
+
+    type_e type;
+    ssize_t size;
+    ssize_t precision;
+    ssize_t scale;
+};
+
+/** 
+ * @brief field contents
+ *
+ */
+class FieldValue
+{
+public:
+    /** 
+     * @brief type of value contained (not field type)
+     */
+    enum __attribute__ ((__packed__)) valtype_e
+    {
+        VAL_NONE=0,
+        VAL_POD,
+        VAL_NULL,
+        VAL_STRING
+    };
+
+    /** 
+     * @brief field contents, or pointer to string
+     */
+    union __attribute__ ((__packed__)) value_u
+    {
+        int16_t int2;
+        int16_t int4;
+        int64_t int8;
+        float singlefloat;
+        double doublefloat;
+        char character;
+        string *str;
+    };
+    
+    FieldValue();
+    /** 
+     * @brief populate field value from character stream
+     *
+     * intended to read a section of a Table row
+     *
+     * @param fieldTypearg field type
+     * @param inputarg input data
+     * @param len length of data read
+     */
+    FieldValue(FieldType &fieldTypearg, char *inputarg, size_t *len);
+    FieldValue(const FieldValue &orig);
+    FieldValue &operator= (const FieldValue &orig);
+    /** 
+     * @brief deep copy of FieldValue
+     *
+     * @param orig original FieldValue
+     */
+    void cp(const FieldValue &orig);
+    virtual ~FieldValue();
+
+    /** 
+     * @brief write out field contents to a row string
+     *
+     * @param fieldType field type
+     * @param output row string segment
+     *
+     * @return length of contents
+     */
+    size_t get(FieldType &fieldType, char *output);
+
+    valtype_e valtype;
+    value_u value;
+};
+
+/** 
  * @brief orphan?
  *
  *

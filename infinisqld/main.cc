@@ -29,7 +29,7 @@
 #include "version.h"
 #include "gch.h"
 #include "Topology.h"
-#line 33 "main.cc"
+#line 34 "main.cc"
 
 void *topologyMgr(void *);
 
@@ -113,6 +113,8 @@ int main(int argc, char **argv)
     arg->instance = -1;
   
     cfgs.compressgw=true;
+
+    assert(sizeof(double)==8);
 
     int rv=pthread_create(&topologyMgrThread, NULL, topologyMgr, arg);
     if (rv)

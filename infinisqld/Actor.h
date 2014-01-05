@@ -59,7 +59,7 @@ public:
      * deserialize messages from remote nodes
      *
      * @param timeout timeout parameter to MboxProducer::send
-0     */
+     */
     void getmsg(int timeout);
     
     class Message *msgrcv;

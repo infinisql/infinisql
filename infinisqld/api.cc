@@ -33,6 +33,355 @@
 #include "Asts.h"
 #line 35 "api.cc"
 
+FieldType::FieldType()
+{
+    
+}
+
+FieldType::FieldType(type_e typearg)
+    : type (typearg), size (-1), precision (-1), scale (-1)
+{
+    switch (type)
+    {
+    case TYPE_NUMERIC:
+        precision=-1;
+        scale=0;
+        break;
+
+    case TYPE_DECIMAL:
+        precision=-1;
+        scale=0;
+        break;
+        
+    case TYPE_CHARACTER:
+        size=1;
+        break;
+
+    case TYPE_BIT:
+        size=1;
+        break;
+
+    case TYPE_TIME:
+        precision=6;
+        break;
+
+    case TYPE_TIMESTAMP:
+        precision=6;
+        break;
+
+    case TYPE_TIME_WITH_TIME_ZONE:
+        precision=6;
+        break;
+
+    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
+        precision=6;
+        break;
+        
+    default:
+        fprintf(logfile, "%s %i type %i doesn't take no argument\n", __FILE__,
+                __LINE__, (int)type);
+    }
+}    
+
+
+FieldType::FieldType(type_e typearg, int64_t arg1arg)
+    : type (typearg), scale (-1)
+{
+    switch (type)
+    {
+    case TYPE_NUMERIC:
+        precision=arg1arg;
+        scale=0;
+        break;
+
+    case TYPE_DECIMAL:
+        precision=arg1arg;
+        scale=0;
+        break;
+        
+    case TYPE_CHARACTER:
+        size=arg1arg;
+        break;
+
+    case TYPE_CHARACTER_VARYING:
+        size=arg1arg;
+        break;
+
+    case TYPE_BIT:
+        size=arg1arg;
+        break;
+
+    case TYPE_BIT_VARYING:
+        size=arg1arg;
+        break;
+
+    case TYPE_TIME:
+        precision=arg1arg;
+        break;
+
+    case TYPE_TIMESTAMP:
+        precision=arg1arg;
+        break;
+
+    case TYPE_TIME_WITH_TIME_ZONE:
+        precision=arg1arg;
+        break;
+
+    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
+        precision=arg1arg;
+        
+    default:
+        fprintf(logfile, "%s %i type %i doesn't take an argument\n", __FILE__,
+                __LINE__, type);
+    }
+}
+
+FieldType::FieldType(type_e typearg, int64_t arg1arg, int64_t arg2arg)
+    : type (typearg), size (-1), precision (arg1arg), scale (arg2arg)
+{
+}
+
+FieldType::~FieldType()
+{
+    
+}
+
+FieldValue::FieldValue()
+{
+   
+}
+
+FieldValue::FieldValue(FieldType &fieldTypearg, char *inputarg, size_t *len)
+{
+    switch (fieldTypearg.type)
+    {
+    case FieldType::TYPE_SMALLINT:
+        valtype=VAL_POD;
+        *len=sizeof(value.int2);
+        memcpy(&value.int2, inputarg, *len);
+        break;
+
+    case FieldType::TYPE_INT:
+        valtype=VAL_POD;
+        *len=sizeof(value.int4);
+        memcpy(&value.int4, inputarg, *len);
+        break;
+
+    case FieldType::TYPE_BIGINT:
+        valtype=VAL_POD;
+        *len=sizeof(value.int8);
+        memcpy(&value.int8, inputarg, *len);
+        break;
+
+        /*
+    case TYPE_NUMERIC:
+        break;
+
+    case TYPE_DECIMAL:
+        break;
+        */
+
+    case FieldType::TYPE_REAL:
+        valtype=VAL_POD;
+        *len=sizeof(value.singlefloat);
+        memcpy(&value.singlefloat, inputarg, *len);
+        break;
+
+    case FieldType::TYPE_DOUBLE_PRECISION:
+        valtype=VAL_POD;
+        *len=sizeof(value.doublefloat);
+        memcpy(&value.doublefloat, inputarg, *len);
+        break;
+
+    case FieldType::TYPE_FLOAT:
+        valtype=VAL_POD;
+        *len=sizeof(value.doublefloat);
+        memcpy(&value.doublefloat, inputarg, *len);
+        break;
+
+    case FieldType::TYPE_CHARACTER:
+        if (!fieldTypearg.numargs || fieldTypearg.arg1==1)
+        {
+            valtype=VAL_POD;
+            *len=1;
+            value.character=*inputarg;
+        }
+        else
+        {
+            valtype=VAL_STRING;
+            *len=(size_t)fieldTypearg.arg1;
+            value.str=new string(inputarg, *len);
+        }
+        break;
+
+    case FieldType::TYPE_CHARACTER_VARYING:
+        if (!fieldTypearg.numargs) 
+        {
+            valtype=VAL_STRING;
+            memcpy(len, inputarg, sizeof(*len));
+            value.str=new string(inputarg+sizeof(*len), *len);
+        }
+        else if (fieldTypearg.arg1==1)
+        {
+            valtype=VAL_POD;
+            *len=1;
+            value.character=*inputarg;
+        }
+        else
+        {
+            valtype=VAL_STRING;
+            *len=(size_t)fieldTypearg.arg1;
+            value.str=new string(inputarg, *len);
+        }
+        break;
+
+        /*
+    case TYPE_BIT:
+        break;
+
+    case TYPE_BIT_VARYING:
+        break;
+
+    case TYPE_DATE:
+        break;
+
+    case TYPE_TIME:
+        break;
+
+    case TYPE_TIMESTAMP:
+        break;
+
+    case TYPE_TIME_WITH_TIME_ZONE:
+        break;
+
+    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
+        break;
+        */
+        
+    default:
+        fprintf(logfile, "field type %i not implemented\n",
+                fieldTypearg.type);
+    }
+}
+
+FieldValue::FieldValue(const FieldValue &orig)
+{
+    cp(orig);
+}
+
+FieldValue &FieldValue::operator= (const FieldValue &orig)
+{
+    cp(orig);
+    return *this;
+}
+
+void FieldValue::cp(const FieldValue &orig)
+{
+    valtype=orig.valtype;
+    if (valtype==VAL_POD)
+    {
+        value=orig.value;
+    }
+    else if (valtype==VAL_STRING)
+    {
+        value.str=new string;
+    }
+}
+
+FieldValue::~FieldValue()
+{
+    if (valtype==VAL_STRING)
+    {
+        delete value.str;
+    }
+}
+
+size_t FieldValue::get(FieldType &fieldType, char *output)
+{
+    switch (fieldType.type)
+    {
+    case FieldType::TYPE_SMALLINT:
+        memcpy(output, &value.int2, sizeof(value.int2));
+        return sizeof(value.int2);
+//        break;
+
+    case FieldType::TYPE_INT:
+        memcpy(output, &value.int4, sizeof(value.int4));
+        return sizeof(value.int4);
+//        break;
+
+    case FieldType::TYPE_BIGINT:
+        memcpy(output, &value.int8, sizeof(value.int8));
+        return sizeof(value.int8);
+//        break;
+
+        /*
+    case TYPE_NUMERIC:
+        break;
+
+    case TYPE_DECIMAL:
+        break;
+        */
+
+    case FieldType::TYPE_REAL:
+        memcpy(output, &value.singlefloat, sizeof(value.singlefloat));
+        return sizeof(value.singlefloat);
+//        break;
+
+    case FieldType::TYPE_DOUBLE_PRECISION:
+        memcpy(output, &value.doublefloat, sizeof(value.doublefloat));
+        return sizeof(value.doublefloat);
+//        break;
+
+    case FieldType::TYPE_FLOAT:
+        memcpy(output, &value.doublefloat, sizeof(value.doublefloat));
+        return sizeof(value.doublefloat);
+//        break;
+
+    case FieldType::TYPE_CHARACTER:
+        if (valtype==VAL_POD)
+        {
+            memcpy(output, &value.character, 1);
+            return 1;
+        }
+        else
+        {
+            
+        }
+        break;
+
+    case FieldType::TYPE_CHARACTER_VARYING:
+        break;
+
+        /*
+    case TYPE_BIT:
+        break;
+
+    case TYPE_BIT_VARYING:
+        break;
+
+    case TYPE_DATE:
+        break;
+
+    case TYPE_TIME:
+        break;
+
+    case TYPE_TIMESTAMP:
+        break;
+
+    case TYPE_TIME_WITH_TIME_ZONE:
+        break;
+
+    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
+        break;
+        */
+        
+    default:
+        fprintf(logfile, "field type %i not implemented\n",
+                fieldType.type);
+    }
+}
+
 void ApiInterface::deserialize2Vector()
 {
     msgpack::unpacked msg;
