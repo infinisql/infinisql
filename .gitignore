@@ -55,3 +55,4 @@ docs/.DS_Store
 docs/._.DS_Store
 docs/doxy/latex/*
 infinisqlmgr.conf
+.sconsign.dblite
