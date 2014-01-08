@@ -76,12 +76,12 @@ class TestNetworkPartition(unittest.TestCase):
         self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))
 
         # Now simulate a more complex partition that requires an election.
-        for i in range(0, int(self.c1.node_partition_threshold*1.5)):
+        for i in range(0, int(self.c1.node_partition_threshold*3)):
             self.c1.process()
             self.c2.process()
 
         self.assertEqual(len(self.nodes)*2, len(self.c1.get_nodes()))
-        self.assertIs(None, self.c1.current_election)
+        self.assertIsNone(self.c1.current_election)
         self.assertEqual(NodeId(self.c2.node_id), NodeId(self.c1.leader_node_id))
         self.assertEqual(NodeId(self.c2.node_id), NodeId(self.c2.leader_node_id))
         self.assertEqual(NodeId(self.c3.node_id), NodeId(self.c3.leader_node_id))

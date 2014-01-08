@@ -227,8 +227,9 @@ class Controller(object):
             best_candidate = self.current_election.get_best_candidate()
 
             logging.info("Node %s voting for %s", self.node_id, best_candidate)
-            self.current_election.tally(best_candidate, self.node_id)
+
             for node_id in self.node_id_set:
+                self.current_election.tally(best_candidate, node_id)
                 self._send(msg.ELECT_LEADER, msgpack.packb((best_candidate, node_id, self.current_election_id)))
             return
 
