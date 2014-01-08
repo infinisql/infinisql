@@ -1,1 +1,1 @@
-Program('infinisqld', ['main.cc'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')
+Program('infinisqld', ['main.cc', 'Field.cc'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')

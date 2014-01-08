@@ -38,6 +38,7 @@
 #include <iostream>
 #include <cerrno>
 #include <cassert>
+#include <sstream>
 
 using namespace std;
 using std::string;
@@ -45,5 +46,8 @@ using std::string;
 extern std::ofstream logfile;
 extern string zmqsocket;
 extern void *zmqcontext;
+
+#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
+    << std::endl
 
 #endif // INFINISQLMAIN_H
