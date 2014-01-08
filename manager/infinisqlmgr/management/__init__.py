@@ -18,7 +18,6 @@ import infinisqlmgr
 from infinisqlmgr.management import msg, election, health, api
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
 
 class Controller(object):
     # Contains the current controller instance. This is only available

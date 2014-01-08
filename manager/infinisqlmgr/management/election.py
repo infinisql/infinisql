@@ -72,8 +72,6 @@ class Election(object):
         current_vote = self.votes.get(vote_for, 0)
         self.votes[vote_for] = current_vote+1
         self.voters.add(vote_from)
-        print("votes:" + str(self.votes))
-
 
     def has_majority(self):
         """
