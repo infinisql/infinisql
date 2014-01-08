@@ -60,7 +60,7 @@ class Election(object):
 
         # No duplicate votes
         if vote_from in self.voters:
-            logging.warning("Duplicate vote from node: %s ignored.", vote_from)
+            logging.debug("duplicate vote from node: %s ignored.", vote_from)
             return
 
         # No unregistered voters

@@ -279,7 +279,6 @@ class Controller(object):
 
         # Remove the remote node from our registries
         for node_id in partitioned:
-            print(node_id, partitioned)
             sock = self.sub_sockets[node_id]
             self.poller.unregister(sock)
             sock.close()
