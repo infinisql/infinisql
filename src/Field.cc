@@ -28,7 +28,8 @@
 #include "Field.h"
 #line 30 "Field.cc"
 
-Field::Field()
+Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
+                 precision (-1), scale (-1)
 {
     
 }
@@ -917,4 +918,105 @@ bool FieldValue::getnull()
         return true;
     }
     return false;
+}
+
+size_t FieldValue::ser(char *output)
+{
+    switch (valtype)
+    {
+    case VAL_NONE:
+        Serdes::ser((char)valtype, output);
+        return 1;
+        break;
+
+    case VAL_POD:
+        Serdes::ser((char)valtype, output);
+        Serdes::ser(value.int8, output+1);
+        return 1+sizeof(value.int8);
+        break;
+
+    case VAL_NULL:
+        Serdes::ser((char)valtype, output);
+        return 1;
+        break;
+
+    case VAL_STRING:
+    {
+        Serdes::ser((char)valtype, output);
+        size_t s=value.str->size();
+        Serdes::ser((int64_t)s, output+1);
+        Serdes::ser(*value.str, output+1+sizeof(s));
+        return 1+sizeof(int64_t)+s;
+    }
+    break;
+
+    default:
+        LOG("can't serialize type " << valtype);
+    }
+
+    return 0;
+}
+
+size_t FieldValue::sersize()
+{
+    switch (valtype)
+    {
+    case VAL_NONE:
+        return 1;
+        break;
+
+    case VAL_POD:
+        return 1+sizeof(value.int8);
+        break;
+
+    case VAL_NULL:
+        return 1;
+        break;
+
+    case VAL_STRING:
+    {
+        return 1+sizeof(int64_t)+value.str->size();
+    }
+    break;
+
+    default:
+        LOG("can't get size of type " << valtype);
+    }
+
+    return 0;
+}
+
+size_t FieldValue::des(char *input)
+{
+    Serdes::des(input, (char *)&valtype);
+    
+    switch (valtype)
+    {
+    case VAL_NONE:
+        return 1;
+        break;
+
+    case VAL_POD:
+        Serdes::des(input+1, &value.int8);
+        return 1+sizeof(value.int8);
+        break;
+
+    case VAL_NULL:
+        return 1;
+        break;
+
+    case VAL_STRING:
+    {
+        int64_t s;
+        Serdes::des(input, &s);
+        Serdes::des(input+1+sizeof(s), *value.str);
+        return 1+sizeof(s)+s;
+    }
+    break;
+
+    default:
+        LOG("can't deserialize type " << valtype);
+    }
+
+    return 0;
 }

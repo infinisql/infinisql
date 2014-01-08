@@ -50,4 +50,7 @@ extern void *zmqcontext;
 #define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
     << std::endl
 
+/* InfiniSQL headers that most, or all parts of the project need */
+#include "Serdes.h"
+
 #endif // INFINISQLMAIN_H

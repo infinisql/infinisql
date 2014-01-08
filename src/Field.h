@@ -335,7 +335,28 @@ public:
      * @return true if null, false if not null
      */
     bool getnull();
-    
+    /** 
+     * @brief serialize to character array
+     *
+     * @param output 
+     *
+     * @return size of serialized object
+     */
+    size_t ser(char *output);
+    /** 
+     * @brief get size of object if serialized
+     *
+     * @return size if serialized
+     */
+    size_t sersize();
+    /** 
+     * @brief deserialize from character array
+     *
+     * @param input input character array
+     *
+     * @return size of serialized object read from character array
+     */
+    size_t des(char *input);
    
     valtype_e valtype;
     value_u value;
