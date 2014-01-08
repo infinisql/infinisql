@@ -145,6 +145,46 @@ Field::~Field()
     
 }
 
+size_t Field::ser(char *output)
+{
+    size_t retsize=0;
+    retsize = Serdes::ser(name, output+retsize);
+    retsize += Serdes::ser(fieldid, output+retsize);
+    retsize += Serdes::ser((char)type, output+retsize);
+    retsize += Serdes::ser((int64_t)size, output+retsize);
+    retsize += Serdes::ser((int64_t)precision, output+retsize);
+    retsize += Serdes::ser((int64_t)scale, output+retsize);
+
+    return retsize;
+}
+
+size_t Field::sersize()
+{
+    size_t retsize=0;
+    retsize = Serdes::sersize(name);
+    retsize += Serdes::sersize(fieldid);
+    retsize += Serdes::sersize((char)type);
+    retsize += Serdes::sersize((int64_t)size);
+    retsize += Serdes::sersize((int64_t)precision);
+    retsize += Serdes::sersize((int64_t)scale);
+
+    return retsize;
+}
+
+size_t Field::des(char *input, Table *tablePtrarg)
+{
+    tablePtr=tablePtrarg;
+    size_t retsize=0;
+    retsize = Serdes::des(input, name);
+    retsize += Serdes::des(input+retsize, &fieldid);
+    retsize += Serdes::des(input+retsize, (char *)&type);
+    retsize += Serdes::des(input+retsize, (int64_t *)&size);
+    retsize += Serdes::des(input+retsize, (int64_t *)&precision);
+    retsize += Serdes::des(input+retsize, (int64_t *)&scale);
+
+    return retsize;
+}
+
 FieldValue::FieldValue() : valtype (VAL_NONE)
 {
     value.int8=0;

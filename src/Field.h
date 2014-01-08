@@ -37,7 +37,7 @@ class Table;
 class Field
 {
 public:
-    enum type_e
+    enum __attribute__ ((__packed__)) type_e
     {
         TYPE_NONE=0,
         TYPE_SMALLINT,
@@ -96,6 +96,33 @@ public:
               type_e typearg, int64_t arg1arg, int64_t arg2arg);
     ~Field();
 
+    /** 
+     * @brief serialize to character array
+     *
+     * don't serialize tablePtr because that will be different next time
+     * the Field is loaded. Plus, it will be loaded after its Table
+     *
+     * @param output 
+     *
+     * @return size of serialized object
+     */
+    size_t ser(char *output);
+    /** 
+     * @brief get size of object if serialized
+     *
+     * @return size if serialized
+     */
+    size_t sersize();
+    /** 
+     * @brief deserialize from character array
+     *
+     * @param input input character array
+     * @param tablePtrarg associated Table
+     *
+     * @return size of serialized object read from character array
+     */
+    size_t des(char *input, Table *tablePtrarg);    
+    
     Table *tablePtr;
     std::string name;
     int16_t fieldid;
