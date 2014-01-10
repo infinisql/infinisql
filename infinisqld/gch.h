@@ -2,29 +2,35 @@
  * Copyright (c) 2013 Mark Travis <mtravis15432+src@gmail.com>
  * All rights reserved. No warranty, explicit or implicit, provided.
  *
- * This file is part of InfiniSQL (tm). It is available either under the
- * GNU Affero Public License or under a commercial license. Contact the
- * copyright holder for information about a commercial license if terms
- * of the GNU Affero Public License do not suit you.
- *
- * This copy of InfiniSQL is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Affero Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of InfiniSQL(tm).
+ 
+ * InfiniSQL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * InfiniSQL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero Public License
- * along with InfiniSQL. It should be in the top level of the source
- * directory in a file entitled "COPYING".
- * If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GCH_HPP
-#define GCH_HPP
+/**
+ * @file   gch.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:11:21 2013
+ * 
+ * @brief  Headers for all external dependencies.
+ *
+ * Originally so named because pre-compilation was applied to speed the build
+ * process (Global Precompiled Header). Stopped pre-compilation awhile back,
+ * but didn't change the filename.
+ */
+
+#ifndef INFINISQLGCH_H
+#define INFINISQLGCH_H
 
 // 3rd party, non-sys
 #include <boost/unordered_map.hpp>
@@ -35,7 +41,7 @@
 #include <cryptopp/sha.h>
 #include <pcrecpp.h>
 #include <zmq.h>
-#include "infinisql_spooky.h"
+#include "spooky.h"
 #include <lz4.h>
 
 // sys C++
@@ -77,7 +83,7 @@
 #include <sched.h>
 
 // project headers
-#include "infinisql_Mbox.h"
-#include "infinisql_defs.h"
+#include "Mbox.h"
+#include "defs.h"
 
-#endif // GCH_HPP
+#endif // INFINISQLGCH_H

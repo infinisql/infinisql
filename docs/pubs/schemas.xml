@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <uri resource="dev.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="reference.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="overview.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="overview.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="index.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="guide.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+  <uri resource="faq.xml" uri="../../../../DocBook/docbookxi.rnc"/>
+</locatingRules>

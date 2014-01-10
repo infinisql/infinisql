@@ -28,21 +28,8 @@ functioning InfiniSQL system up and running.
 <chapter>
   <title>License</title>
 <para>
-  InfiniSQL is dual-licensed. One option is for
-the <link xl:href="http://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License</link> (AGPL), and the other option is for a commercial license,
-which will allow you to make modifications to the source code without having
-to comply with the AGPL. Send inquiries to <email>info@infinisql.org</email>.
-The AGPL covers the source code for the <command>infinisqld</command> daemon
-process, as well as many of the scripts included in the source distribution.
-With the free license,  changes to the internals of InfiniSQL must be shared according to the terms of the AGPL.
-</para>
-<para>
-Writing custom stored procedures requires linking to the InfiniSQL library.
-This API is covered by the <link xl:href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser
-General Public License</link>. What this means is that you can create custom
-stored procedures and not have to provide the source code. No matter which
-license option you choose, your stored procedure source code will be under
-your own control.
+  InfiniSQL is free software licenced under the
+the <link xl:href="http://www.gnu.org/licenses/gpl-3.0.html">GPL version 3.</link>.
 </para>
 </chapter>
 
@@ -95,9 +82,13 @@ must be applied to PostgreSQL 9.2.4.
 <sect1>
   <title>Installing Dependencies</title>
 <para>
-  InfiniSQL has been tested on Fedora 17, Fedora 19, and Centos6.4 for
-x86_64. It should run on any x86_64 Linux distribution assuming
-the dependencies are met. This section provides some installation details
+  InfiniSQL should run on any x86_64 Linux distribution assuming
+the dependencies are met. There is a script in the source distribution
+that will install the necessary dependencies for a Debian-based system:
+<link xl:href="https://raw.github.com/infinisql/infinisql/master/scripts/install/debian-prequisites.py">https://raw.github.com/infinisql/infinisql/master/scripts/install/debian-prequisites.py</link>
+</para>
+<para>
+The remainder of this section provides some installation details
 for Centos 6, but it may be worth reading even if your preferred distribution
 is something else.
 </para>

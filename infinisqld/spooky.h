@@ -25,8 +25,16 @@
 // slower than MD5.
 //
 
-#ifndef SPOOKY_HPP
-#define SPOOKY_HPP
+/**
+ * @file   spooky.h
+ * @author Bob Jenkins
+ * @date   Tue Dec 17 13:48:30 2013
+ * 
+ * @brief  Spooky Hash from Bob Jenkins. This is public domain.
+ */
+
+#ifndef INFINISQLSPOOKY_H
+#define INFINISQLSPOOKY_H
 
 #include <stddef.h>
 
@@ -411,5 +419,5 @@ private:
   uint8  m_remainder;          // length of unhashed data stashed in m_data
 };
 
-#endif  /* SPOOKY_HPP */
+#endif  /* INFINISQLSPOOKY_H */
 

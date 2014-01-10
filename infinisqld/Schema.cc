@@ -2,29 +2,32 @@
  * Copyright (c) 2013 Mark Travis <mtravis15432+src@gmail.com>
  * All rights reserved. No warranty, explicit or implicit, provided.
  *
- * This file is part of InfiniSQL (tm). It is available either under the
- * GNU Affero Public License or under a commercial license. Contact the
- * copyright holder for information about a commercial license if terms
- * of the GNU Affero Public License do not suit you.
+ * This file is part of InfiniSQL(tm).
  *
- * This copy of InfiniSQL is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Affero Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * InfiniSQL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * InfiniSQL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero Public License
- * along with InfiniSQL. It should be in the top level of the source
- * directory in a file entitled "COPYING".
- * If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "infinisql_Schema.h"
-#line 28 "Schema.cc"
+/**
+ * @file   Schema.cc
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Tue Dec 17 13:45:59 2013
+ * 
+ * @brief  Schema class. Contains tables (fields (indices)). One schemata per
+ * domain. Corresponds to tablespace or database on other RDBMS platforms.
+ */
+
+#include "Schema.h"
+#line 31 "Schema.cc"
 
 Schema::Schema(int64_t domainidarg) : domainid(domainidarg), nexttableid(0)
 {
@@ -38,16 +41,16 @@ Schema::~Schema()
 // return status, let the caller reply to ta, or whatever
 int Schema::createTable(int64_t id)
 {
-  if (tables.count(id))   // tableid exists
-  {
-    return BUILTIN_STATUS_NOTOK;
-  }
+    if (tables.count(id))   // tableid exists
+    {
+        return BUILTIN_STATUS_NOTOK;
+    }
 
-  tables[id] = new Table(id);
-  return BUILTIN_STATUS_OK;
+    tables[id] = new Table(id);
+    return BUILTIN_STATUS_OK;
 }
 
-int64_t Schema::getnexttableid(void)
+int64_t Schema::getnexttableid()
 {
-  return ++nexttableid;
+    return ++nexttableid;
 }

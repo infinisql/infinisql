@@ -6,9 +6,17 @@
 //   Oct 31 2011: replace End, ShortMix, ShortEnd, enable ShortHash again
 //   April 10 2012: buffer overflow on platforms without unaligned reads
 
+/**
+ * @file   spooky.cc
+ * @author Bob Jenkins
+ * @date   Tue Dec 17 13:47:55 2013
+ * 
+ * @brief  Spooky Hash from Bob Jenkins. This is public domain.
+ */
+
 #include <memory.h>
-#include "infinisql_spooky.h"
-#line 12 "spooky.cc"
+#include "spooky.h"
+#line 22 "spooky.cc"
 
 #define ALLOW_UNALIGNED_READS 1
 

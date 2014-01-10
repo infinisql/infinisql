@@ -67,12 +67,8 @@ spread across commodity compute and storage resources.
   </question>
 <answer>
   <para>
-    Yes! Get it here: <link xl:href="https://github.com/infinisql/infinisql">https://github.com/infinisql/infinisql</link>. InfiniSQL is primarily released
-under the <link xl:href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL</link>, with the main exception being the API and library for
-creating stored procedures, which are under the <link xl:href="http://www.gnu.org/licenses/lgpl.html">LGPL</link>. All code is
-owned by Mark Travis. An alternative commercial license is available for
-customers who do not wish to comply with the open source license terms.
-Send inquiries to <email>info@infinisql.org</email>.
+    Yes! Get it here: <link xl:href="https://github.com/infinisql/infinisql">https://github.com/infinisql/infinisql</link>. InfiniSQL is released
+under the <link xl:href="http://www.gnu.org/licenses/gpl-3.0.html">GPL version 3.</link>
   </para>
 </answer>
 </qandaentry>
