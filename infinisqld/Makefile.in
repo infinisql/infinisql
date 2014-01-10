@@ -132,15 +132,15 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 PROGRAMS = $(sbin_PROGRAMS)
 am_infinisqld_OBJECTS = Index.$(OBJEXT) Operation.$(OBJEXT) \
-	Table.$(OBJEXT) DeadlockMgr.$(OBJEXT) main.$(OBJEXT) \
-	Schema.$(OBJEXT) TransactionAgent.$(OBJEXT) Engine.$(OBJEXT) \
-	Mbox.$(OBJEXT) spooky.$(OBJEXT) Transaction.$(OBJEXT) \
-	Field.$(OBJEXT) Message.$(OBJEXT) SubTransaction.$(OBJEXT) \
+	Table.$(OBJEXT) main.$(OBJEXT) Schema.$(OBJEXT) \
+	TransactionAgent.$(OBJEXT) Engine.$(OBJEXT) Mbox.$(OBJEXT) \
+	spooky.$(OBJEXT) Transaction.$(OBJEXT) Field.$(OBJEXT) \
+	Message.$(OBJEXT) SubTransaction.$(OBJEXT) \
 	UserSchemaMgr.$(OBJEXT) Topology.$(OBJEXT) \
 	TopologyMgr.$(OBJEXT) IbGateway.$(OBJEXT) ObGateway.$(OBJEXT) \
 	Applier.$(OBJEXT) Pg.$(OBJEXT) Listener.$(OBJEXT) \
 	lexer.$(OBJEXT) parser.$(OBJEXT) Larxer.$(OBJEXT) \
-	Asts.$(OBJEXT)
+	Asts.$(OBJEXT) Actor.$(OBJEXT)
 infinisqld_OBJECTS = $(am_infinisqld_OBJECTS)
 infinisqld_DEPENDENCIES = libinfinisql.la
 AM_V_P = $(am__v_P_@AM_V@)
@@ -364,20 +364,20 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-infinisqld_SOURCES = Index.cc Operation.cc Table.cc DeadlockMgr.cc main.cc Schema.cc TransactionAgent.cc Engine.cc Mbox.cc spooky.cc Transaction.cc Field.cc Message.cc SubTransaction.cc UserSchemaMgr.cc Topology.cc TopologyMgr.cc IbGateway.cc ObGateway.cc Applier.cc Pg.cc Listener.cc lexer.ll parser.yy Larxer.cc Asts.cc
+infinisqld_SOURCES = Index.cc Operation.cc Table.cc main.cc Schema.cc TransactionAgent.cc Engine.cc Mbox.cc spooky.cc Transaction.cc Field.cc Message.cc SubTransaction.cc UserSchemaMgr.cc Topology.cc TopologyMgr.cc IbGateway.cc ObGateway.cc Applier.cc Pg.cc Listener.cc lexer.ll parser.yy Larxer.cc Asts.cc Actor.cc
 infinisqld_LDADD = libinfinisql.la
 lib_LTLIBRARIES = libinfinisql.la
 libinfinisql_la_SOURCES = api.cc
-include_HEADERS = infinisql_api.h infinisql_Message.h infinisql_Operation.h infinisql_DeadlockMgr.h infinisql_Schema.h infinisql_defs.h infinisql_spooky.h infinisql_Engine.h infinisql_SubTransaction.h infinisql_Field.h infinisql_Table.h infinisql_gch.h infinisql_Index.h infinisql_TransactionAgent.h infinisql_Transaction.h infinisql_UserSchemaMgr.h infinisql_Mbox.h infinisql_Topology.h infinisql_TopologyMgr.h infinisql_cfgenum.h infinisql_IbGateway.h infinisql_ObGateway.h infinisql_Applier.h infinisql_Pg.h infinisql_Listener.h infinisql_Larxer.h infinisql_Asts.h larx.h parser.h
+include_HEADERS = infinisql.h
 AM_CXXFLAGS = -ggdb -O3 -finline-functions -Wall -Wno-deprecated \
     -Wno-write-strings -std=c++11 -mcx16
 
 AM_YFLAGS = -v -d
 EXTRA_DIST = ../scripts/* ../procs/*
-CLEANFILES = parser.cc parser.h parser.output lexer.cc infinisql_cfgenum.h \
+CLEANFILES = parser.cc parser.h parser.output lexer.cc cfgenum.h \
     ../infinisqlmgr/cfgenum.py ../infinisqlmgr/*.pyc ../procs/*.so
 
-BUILT_SOURCES = infinisql_cfgenum.h parser.h
+BUILT_SOURCES = cfgenum.h parser.h
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -516,9 +516,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Actor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Applier.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Asts.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DeadlockMgr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Field.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IbGateway.Po@am__quote@
@@ -815,7 +815,7 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES uninstall-sbinPROGRAMS
 
-infinisql_cfgenum.h: ../infinisqlmgr/gencfgenum.py
+cfgenum.h: ../infinisqlmgr/gencfgenum.py
 	../infinisqlmgr/gencfgenum.py
 ../infinisqlmgr/infinisql_cfgenum.py: ../infinisqlmgr/gencfgenum.py
 	../infinisqlmgr/gencfgenum.py

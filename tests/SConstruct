@@ -1,0 +1,21 @@
+import os
+
+env = Environment()
+env.Append(CCFLAGS="--std=c++11 -mcx16 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -I./")
+env.Append(LIBS = ["dl", "rt", "cryptopp", "pcrecpp", "pcre", "lz4", "msgpack", "zmq", "pthread"])
+
+infinisqld_sources = [
+'Actor.cc',    'IbGateway.cc',  'Mbox.cc',       'Schema.cc',          'TransactionAgent.cc',
+'api.cc',      'Index.cc',      'Message.cc',    'spooky.cc',          'Transaction.cc',
+'Applier.cc',  'Larxer.cc',     'ObGateway.cc',  'SubTransaction.cc',  'UserSchemaMgr.cc',
+'Asts.cc',     'Operation.cc',  'Table.cc',
+'Engine.cc',   'Listener.cc',   'Topology.cc',
+'Field.cc',    'Pg.cc',         'TopologyMgr.cc',
+'globals.cc',
+]
+
+sources = ['gtest/gtest-all.cc', 'gtest/gtest_main.cc'] +\
+ [os.path.join('..', 'infinisqld', src) for src in infinisqld_sources] +\
+ [env.CXXFile(source=os.path.join('..', 'infinisqld', src)) for src in ['lexer.ll', 'parser.yy']]
+
+env.Program('test', sources)

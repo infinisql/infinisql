@@ -631,7 +631,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_unique_file="infinisqld/infinisql_defs.h"
+ac_unique_file="infinisqld/defs.h"
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS

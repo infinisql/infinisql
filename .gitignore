@@ -1,3 +1,9 @@
+**/*.o
+**/*.lo
+**/*.so
+**/.libs
+**/.deps
+**/*.pyc
 libtool
 stamp-h1
 nbproject
@@ -9,15 +15,9 @@ config.status
 *~
 #.*#
 *.orig
-server/.deps
-server/.libs
-server/*.lo
-server/*.o
 stamp-h1
 .*.swp
 ylwrap
-*.pyc
-*.so
 docs/doxy/html/*
 docs/pubs/html/*
 docs/.DS_Store
