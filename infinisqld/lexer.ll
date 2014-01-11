@@ -52,6 +52,7 @@ AUTHORIZATION { return LARX_AUTHORIZATION; }
 AVG { return LARX_AVG; }
 BEGIN { return LARX_BEGIN; }
 BETWEEN { return LARX_BETWEEN; }
+BIGINT { return LARX_BIGINT; }
 BIT { return LARX_BIT; }
 BIT_LENGTH { return LARX_BIT_LENGTH; }
 BOOLEAN { return LARX_BOOLEAN; }
@@ -233,6 +234,7 @@ SUM { return LARX_SUM; }
 SYSTEM_USER { return LARX_SYSTEM_USER; }
 TABLE { return LARX_TABLE; }
 TEMPORARY { return LARX_TEMPORARY; }
+TEXT { return LARX_TEXT; }
 THEN { return LARX_THEN; }
 TIME { return LARX_TIME; }
 TIMESTAMP { return LARX_TIMESTAMP; }

@@ -3,7 +3,7 @@ from glob import glob
 
 env = Environment()
 env.Append(YACCFLAGS='--defines=parser.h')
-env.Append(CCFLAGS="--std=c++11 -mcx16 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -I./ -I../infinisqld")
+env.Append(CCFLAGS="-g --std=c++11 -mcx16 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -I./ -I../infinisqld")
 env.Append(LIBS = ["dl", "rt", "cryptopp", "pcrecpp", "pcre", "lz4", "msgpack", "zmq", "pthread"])
 
 infinisqld_sources = [

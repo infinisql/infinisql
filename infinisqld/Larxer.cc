@@ -180,6 +180,18 @@ void Larxer::eatstack(class TransactionAgent *taPtr, class Schema *schemaPtr)
             consumeDelete();
             break;
 
+        case TYPE_CREATE:
+        	consumeCreate();
+        	break;
+
+        case TYPE_DROP:
+        	consumeDrop();
+            break;
+
+        case TYPE_ALTER:
+        	consumeAlter();
+            break;
+
         case TYPE_storedprocedure:
             consumeStoredProcedure();
             break;
@@ -613,6 +625,7 @@ void Larxer::consumeSelect(string &columns)
 
         case TYPE_NOLOCK:
             currentQuery->hasnolock=true;
+            break;
 
         case TYPE_ORDERBY:
             consumeOrderby();
@@ -695,6 +708,45 @@ void Larxer::consumeDelete()
         }
     }
 }
+
+void Larxer::consumeCreate()
+{
+    currentQuery->type = CMD_CREATE;
+    currentQuery->locktype = WRITELOCK;
+
+    while (!parsedStack.empty())
+    {
+        stackmember_s item = popstack();
+
+
+    }
+}
+
+void Larxer::consumeDrop()
+{
+    currentQuery->type = CMD_DROP;
+    currentQuery->locktype = WRITELOCK;
+
+    while (!parsedStack.empty())
+    {
+        stackmember_s item = popstack();
+
+    }
+}
+
+
+void Larxer::consumeAlter()
+{
+    currentQuery->type = CMD_ALTER;
+    currentQuery->locktype = WRITELOCK;
+
+    while (!parsedStack.empty())
+    {
+        stackmember_s item = popstack();
+
+    }
+}
+
 
 void Larxer::consumeColumns(int64_t numcolumns)
 {

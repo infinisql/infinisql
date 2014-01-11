@@ -24,7 +24,7 @@
 #include "larx.h"
 #include "gch.h"
 #include "Larxer.h"
-
+#include "Schema.h"
 
 #define YYLEX_PARAM pld->scaninfo
 #define PUSHSTACK(X) pld->larxerPtr->pushstack(X)
@@ -63,6 +63,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_AVG
 %token LARX_BEGIN
 %token LARX_BETWEEN
+%token LARX_BIGINT
 %token LARX_BIT
 %token LARX_BIT_LENGTH
 %token LARX_BOOLEAN
@@ -294,7 +295,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %right '^'
 %nonassoc LARX_uminus LARX_uplus LARX_NOT LARX_IS
 
-%type <integer> columns aggregateexpressionlist
+%type <integer> columns aggregate_expression_list ddl_column_name data_type_name
 
 %start stmt
 
@@ -357,36 +358,36 @@ optional_work:
     ;
 
 optional_temp_clause:
-    | LARX_TEMPORARY
+    | LARX_TEMPORARY { PUSHSTACK(Larxer::TYPE_temporary_table); }
     ;
 
 optional_if_not_exists_clause:
-    | LARX_IF LARX_NOT LARX_EXISTS
+    | LARX_IF LARX_NOT LARX_EXISTS { PUSHSTACK(Larxer::TYPE_if_not_exists); }
     ;
 
-column_name_list: column_name
-    | column_name_list ',' column_name
+column_name_list: ddl_column_name
+    | column_name_list ',' ddl_column_name
     ;
 
-column_name:
-    identifier data_type_name
+ddl_column_name:
+    identifier data_type_name { PUSHSTACK2(Larxer::TYPE_data_type, $2); }
     ;
 
 set_quantifier: LARX_DISTINCT { PUSHSTACK(Larxer::TYPE_DISTINCT); }
     | LARX_ALL { PUSHSTACK(Larxer::TYPE_ALL); } ;
 
 columns: asterisk { PUSHSTACK2(Larxer::TYPE_COLUMNS, (int64_t)1); $$ = 1; }
-    | aggregateexpressionlist { PUSHSTACK2(Larxer::TYPE_COLUMNS, $1); $$ = $1; } ;
+    | aggregate_expression_list { PUSHSTACK2(Larxer::TYPE_COLUMNS, $1); $$ = $1; } ;
 
 asterisk: '*' { PUSHSTACK(Larxer::TYPE_ASTERISK); } ;
 
 from_clause: LARX_FROM identifier { PUSHSTACK(Larxer::TYPE_FROM); } ;
 
 /* each individual item already pushed */
-aggregateexpressionlist: aggregate { $$ = 1; }
+aggregate_expression_list: aggregate { $$ = 1; }
     | identifier { $$ = 1; }
-    | aggregateexpressionlist ',' aggregate { $$ = $1 + 1; }
-    | aggregateexpressionlist ',' identifier { $$ = $1 + 1; } ;
+    | aggregate_expression_list ',' aggregate { $$ = $1 + 1; }
+    | aggregate_expression_list ',' identifier { $$ = $1 + 1; } ;
 
 /* identifier already pushed */
 identifierlist: identifier
@@ -416,17 +417,18 @@ identifier: LARX_identifier
     ;
 
 data_type_name:
-      LARX_CHARACTER LARX_VARYING
-    | LARX_INTEGER
-    | LARX_INT
-    | LARX_DOUBLE
-    | LARX_FLOAT
-    | LARX_BOOLEAN
-    | LARX_DATETIME
-    | LARX_DATE
-    | LARX_DECIMAL
-    | LARX_INTERVAL
-    | LARX_TEXT
+      LARX_CHARACTER LARX_VARYING { $$ = Schema::data_type_e::CHARACTER_VARYING; }
+    | LARX_TEXT      { $$ = Schema::data_type_e::TEXT;     }
+    | LARX_BIGINT    { $$ = Schema::data_type_e::BIGINT;   }
+    | LARX_INTEGER   { $$ = Schema::data_type_e::INT;      }
+    | LARX_INT       { $$ = Schema::data_type_e::INT;      }
+    | LARX_DOUBLE    { $$ = Schema::data_type_e::DOUBLE;   }
+    | LARX_FLOAT     { $$ = Schema::data_type_e::FLOAT;    }
+    | LARX_DECIMAL   { $$ = Schema::data_type_e::DECIMAL;  }
+    | LARX_BOOLEAN   { $$ = Schema::data_type_e::BOOLEAN;  }
+    | LARX_DATETIME  { $$ = Schema::data_type_e::DATETIME; }
+    | LARX_DATE      { $$ = Schema::data_type_e::DATE;     }
+    | LARX_INTERVAL  { $$ = Schema::data_type_e::INTERVAL; }
     ;
 
 /* aggregate function and identifier already pushed */
