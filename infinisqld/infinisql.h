@@ -71,7 +71,10 @@ enum cmd_e
     CMD_COMMIT,
     CMD_ROLLBACK,
     CMD_SET,
-    CMD_STOREDPROCEDURE
+    CMD_STOREDPROCEDURE,
+    CMD_CREATE,
+    CMD_DROP,
+    CMD_ALTER
 };
 
 /** 

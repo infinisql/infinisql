@@ -42,6 +42,24 @@
 class Schema
 {
 public:
+	enum data_type_e {
+		CHARACTER_VARYING,
+		TEXT,
+
+		BIGINT,
+		INT,
+		DECIMAL,
+
+		DOUBLE,
+		FLOAT,
+
+		BOOLEAN,
+
+		DATETIME,
+		DATE,
+		INTERVAL
+	};
+
     Schema(int64_t domainidarg);
     virtual ~Schema();
 

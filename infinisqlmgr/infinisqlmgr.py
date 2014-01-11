@@ -17,14 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
 
-import cfg
 import os
+
+import cfg
+
 
 os.environ["LD_PRELOAD"] = "/usr/local/lib/libllalloc.so.1.4"
 
 # launch and configure each node
 for id in sorted(cfg.nodes):
-#  print "enable " + str(id) + ", " + str(cfg.nodes[id].id)
-  cfg.nodes[id].enable()
-#  n.enable()
+    cfg.nodes[id].enable()
+
 

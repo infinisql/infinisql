@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/usr/lib/python3.3/runpy.py", line 160, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/usr/lib/python3.3/runpy.py", line 73, in _run_code
+    exec(code, run_globals)
+  File "./infinisqlmgr/__main__.py", line 45, in <module>
+    main()
+  File "./infinisqlmgr/__main__.py", line 41, in main
+    args.func(args)
+  File "./infinisqlmgr/management_server.py", line 30, in start_management_server
+    return management_server.run()
+  File "./infinisqlmgr/management/__init__.py", line 526, in run
+    instance.add_handler(self.presence_recv_socket, self._process_presence)
+TypeError: add_handler() missing 1 required positional argument: 'events'

@@ -17,40 +17,81 @@
 # You should have received a copy of the GNU General Public License
 # along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import ConfigParser
-import subprocess
-import zmq
-import msgpack
-import sys
+
+import argparse
 import io
-import time
+import logging
+import msgpack
+import os
+import subprocess
+import types
+import zmq
 
 import cfgenum
 import topology
 
-#nodes=[]
-nodes=dict()
+
+ACTOR_NONE = 'ACTOR_NONE'
+ACTOR_OBGATEWAY = 'ACTOR_OBGATEWAY'
+ACTOR_TOPOLOGYMGR = 'ACTOR_TOPOLOGYMGR'
+ACTOR_IBGATEWAY = 'ACTOR_IBGATEWAY'
+ACTOR_ENGINE = 'ACTOR_ENGINE'
+ACTOR_TRANSACTIONAGENT = 'ACTOR_TRANSACTIONAGENT'
+ACTOR_DEADLOCKMGR = 'ACTOR_DEADLOCKMGR'
+ACTOR_USERSCHEMAMGR = 'ACTOR_USERSCHEMAMGR'
+ACTOR_LISTENER = 'ACTOR_LISTENER'
+
+CMD_SET = 'CMDSET'
+CMD_GET = 'CMDGET'
+CMD_START = 'CMDSTART'
+CMD_OK = 'CMDOK'
+
+CMD_OBGATEWAY = 'CMDOBGATEWAY'
+CMD_IBGATEWAY = 'CMDIBGATEWAY'
+CMD_ENGINE = 'CMDENGINE'
+CMD_TRANSACTIONAGENT = 'CMDTRANSACTIONAGENT'
+CMD_DEADLOCKMGR = 'CMDDEADLOCKMGR'
+CMD_USERSCHEMAMGR = 'CMDUSERSCHEMAMGR'
+CMD_PGHANDLER = 'CMDPGHANDLER'
+CMD_LISTENER = 'CMDLISTENER'
+CMD_BADLOGINMESSAGES = 'CMDBADLOGINMESSAGES'
+CMD_ANONYMOUSPING = 'CMDANONYMOUSPING'
+CMD_GETTOPOLOGYMGRMBOXPTR = 'CMDGETTOPOLOGYMGRMBOXPTR'
+CMD_LOCALCONFIG = 'CMDLOCALCONFIG'
+CMD_GLOBALCONFIG = 'CMDGLOBALCONFIG'
+
+
+nodes = {}
 
 def parseargs():
-  parser = argparse.ArgumentParser(description="InfiniSQL manager")
-  parser.add_argument("-f", "--file", help="Config file", nargs=1, 
-    default=['../etc/infinisqlmgr.conf'])
-  args = parser.parse_args()
-  return args.file[0]
+    parser = argparse.ArgumentParser(description="InfiniSQL manager")
+    parser.add_argument("-f", "--file", help="Config file", nargs=1,
+                        default=[os.path.join(os.path.dirname(__file__), '..', 'etc', 'infinisqlmgr.conf')])
+    parser.add_argument("--debug", dest="debug",
+                        default=False, action="store_true",
+                        help="Turn on debug logging.")
+    args = parser.parse_args()
+
+    format = "%(asctime)-15s %(levelname)s (%(module)s:%(lineno)s) %(message)s"
+    logging.basicConfig(level=logging.INFO if not args.debug else logging.DEBUG, format=format)
+    return args.file[0]
+
 
 def sendcmd(nodeobj, serializedmsg):
-  nodeobj.zmqsocket.send(str(serializedmsg))
-  unpacker = msgpack.Unpacker()
-  unpacker.feed(nodeobj.zmqsocket.recv())
+    nodeobj.zmq_socket.send(str(serializedmsg))
+    unpacker = msgpack.Unpacker()
+    unpacker.feed(nodeobj.zmq_socket.recv())
 
-  return unpacker.__iter__()
+    return unpacker.__iter__()
+
 
 def serialize(inlist):
-  buf = io.BytesIO()
-  for t in inlist:
-    buf.write(msgpack.packb(t))
-  return buf.getvalue()
+    buf = io.BytesIO()
+    for t in inlist:
+        buf.write(msgpack.packb(t))
+    return buf.getvalue()
+
 
 class node:
   def __init__(self, id):
@@ -370,7 +411,3 @@ def cfg(cfgfile):
 # main of this module
 topo = topology.globaltopology()
 cfg(parseargs())
-#for n in nodes:
-#  topo.addreplicamember(n.replica, n.member, n.id)
-#  print 'addreplicamember ' + str(n.id)
-
