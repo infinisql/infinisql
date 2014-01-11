@@ -25,6 +25,7 @@
 #include "gch.h"
 #include "Larxer.h"
 
+
 #define YYLEX_PARAM pld->scaninfo
 #define PUSHSTACK(X) pld->larxerPtr->pushstack(X)
 #define PUSHSTACK2(X, Y) pld->larxerPtr->pushstack(X, Y)
@@ -41,7 +42,7 @@ int yylex(YYSTYPE *, yyscan_t);
 
 %union
 {
-  int64_t integer;
+  long int integer;
   long double floating;
   char *str;
 }
@@ -64,6 +65,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_BETWEEN
 %token LARX_BIT
 %token LARX_BIT_LENGTH
+%token LARX_BOOLEAN
 %token LARX_BOTH
 %token LARX_BY
 %token LARX_CASCADE
@@ -99,6 +101,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_CURRENT_USER
 %token LARX_CURSOR
 %token LARX_DATE
+%token LARX_DATETIME
 %token LARX_DAY
 %token LARX_DEALLOCATE
 %token LARX_DEC
@@ -146,6 +149,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_HAVING
 %token LARX_HOUR
 %token LARX_IDENTITY
+%token LARX_IF
 %token LARX_IMMEDIATE
 %token LARX_IN
 %token LARX_INDICATOR
@@ -237,6 +241,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_SYSTEM_USER
 %token LARX_TABLE
 %token LARX_TEMPORARY
+%token LARX_TEXT
 %token LARX_THEN
 %token LARX_TIME
 %token LARX_TIMESTAMP
@@ -300,6 +305,9 @@ stmt: select_stmt optional_sql_terminator
     | insert_stmt optional_sql_terminator
     | update_stmt optional_sql_terminator
     | delete_stmt optional_sql_terminator
+    | create_stmt optional_sql_terminator
+    | drop_stmt optional_sql_terminator
+    | alter_stmt optional_sql_terminator
     | LARX_COMMIT optional_work optional_sql_terminator
       { PUSHSTACK(Larxer::TYPE_COMMIT); }
     | LARX_BEGIN optional_work optional_sql_terminator
@@ -324,7 +332,21 @@ update_stmt: LARX_UPDATE identifier LARX_SET setassignmentlist where_clause
     { PUSHSTACK(Larxer::TYPE_UPDATE); } ;
 
 delete_stmt: LARX_DELETE LARX_FROM identifier where_clause
-    { PUSHSTACK(Larxer::TYPE_DELETE); } ;
+    { PUSHSTACK(Larxer::TYPE_DELETE); }
+    ;
+
+create_stmt: LARX_CREATE optional_temp_clause LARX_TABLE optional_if_not_exists_clause 
+    identifier '(' column_name_list ')' 
+    { PUSHSTACK(Larxer::TYPE_CREATE); }
+    ;
+
+drop_stmt: LARX_DROP LARX_TABLE identifier
+    { PUSHSTACK(Larxer::TYPE_DROP); } 
+    ;
+
+alter_stmt: LARX_ALTER LARX_TABLE identifier
+    { PUSHSTACK(Larxer::TYPE_ALTER); } 
+    ;
 
 optional_sql_terminator:
     | ';'
@@ -332,6 +354,22 @@ optional_sql_terminator:
 
 optional_work:
     | LARX_WORK
+    ;
+
+optional_temp_clause:
+    | LARX_TEMPORARY
+    ;
+
+optional_if_not_exists_clause:
+    | LARX_IF LARX_NOT LARX_EXISTS
+    ;
+
+column_name_list: column_name
+    | column_name_list ',' column_name
+    ;
+
+column_name:
+    identifier data_type_name
     ;
 
 set_quantifier: LARX_DISTINCT { PUSHSTACK(Larxer::TYPE_DISTINCT); }
@@ -375,6 +413,20 @@ identifier: LARX_identifier
         PUSHOPERAND(OPERAND_IDENTIFIER, s.c_str());
         free($1);
       }
+    ;
+
+data_type_name:
+      LARX_CHARACTER LARX_VARYING
+    | LARX_INTEGER
+    | LARX_INT
+    | LARX_DOUBLE
+    | LARX_FLOAT
+    | LARX_BOOLEAN
+    | LARX_DATETIME
+    | LARX_DATE
+    | LARX_DECIMAL
+    | LARX_INTERVAL
+    | LARX_TEXT
     ;
 
 /* aggregate function and identifier already pushed */

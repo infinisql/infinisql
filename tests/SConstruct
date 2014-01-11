@@ -1,7 +1,9 @@
 import os
+from glob import glob
 
 env = Environment()
-env.Append(CCFLAGS="--std=c++11 -mcx16 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -I./")
+env.Append(YACCFLAGS='--defines=parser.h')
+env.Append(CCFLAGS="--std=c++11 -mcx16 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -I./ -I../infinisqld")
 env.Append(LIBS = ["dl", "rt", "cryptopp", "pcrecpp", "pcre", "lz4", "msgpack", "zmq", "pthread"])
 
 infinisqld_sources = [
@@ -14,7 +16,9 @@ infinisqld_sources = [
 'globals.cc',
 ]
 
-sources = ['gtest/gtest-all.cc', 'gtest/gtest_main.cc'] +\
+test_sources = glob("src/*.cc")
+
+sources = ['gtest/gtest-all.cc', 'gtest/gtest_main.cc'] + test_sources +\
  [os.path.join('..', 'infinisqld', src) for src in infinisqld_sources] +\
  [env.CXXFile(source=os.path.join('..', 'infinisqld', src)) for src in ['lexer.ll', 'parser.yy']]
 

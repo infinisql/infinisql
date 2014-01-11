@@ -124,7 +124,10 @@ public:
         TYPE_SET = 67,
         TYPE_storedprocedure = 68,
         TYPE_inbegin = 69,
-        TYPE_NOLOCK = 70
+        TYPE_NOLOCK = 70,
+	TYPE_CREATE = 71,
+	TYPE_DROP = 72,
+	TYPE_ALTER = 73
     };
 
     /** 
