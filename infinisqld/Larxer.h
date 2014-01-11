@@ -128,7 +128,15 @@ public:
 		TYPE_ALTER = 73,
 		TYPE_temporary_table = 74,
 		TYPE_if_not_exists = 75,
-		TYPE_data_type
+		TYPE_data_type = 76,
+		TYPE_not_null_constraint = 77,
+		TYPE_constraint_name = 78,
+		TYPE_DEFAULT,
+		TYPE_CHECK,
+		TYPE_primary_key_constraint,
+		TYPE_unique_key_constraint,
+		TYPE_references_constraint,
+		TYPE_collation
 	};
 
 	/**

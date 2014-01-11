@@ -84,6 +84,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_COLLATE
 %token LARX_COLLATION
 %token LARX_COLUMN
+%token LARX_COMMENTS
 %token LARX_COMMIT
 %token LARX_CONNECT
 %token LARX_CONNECTION
@@ -108,6 +109,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_DEC
 %token LARX_DECIMAL
 %token LARX_DECLARE
+%token LARX_DEFAULTS
 %token LARX_DEFAULT
 %token LARX_DEFERRABLE
 %token LARX_DEFERRED
@@ -127,6 +129,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_ESCAPE
 %token LARX_EXCEPT
 %token LARX_EXCEPTION
+%token LARX_EXCLUDING
 %token LARX_EXEC
 %token LARX_EXECUTE
 %token LARX_EXISTS
@@ -150,8 +153,10 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_HAVING
 %token LARX_HOUR
 %token LARX_IDENTITY
+%token LARX_INDEXES
 %token LARX_IF
 %token LARX_IMMEDIATE
+%token LARX_INCLUDING
 %token LARX_IN
 %token LARX_INDICATOR
 %token LARX_INITIALLY
@@ -237,6 +242,7 @@ int yylex(YYSTYPE *, yyscan_t);
 %token LARX_SQLCODE
 %token LARX_SQLERROR
 %token LARX_SQLSTATE
+%token LARX_STORAGE
 %token LARX_SUBSTRING
 %token LARX_SUM
 %token LARX_SYSTEM_USER
@@ -337,8 +343,11 @@ delete_stmt: LARX_DELETE LARX_FROM identifier where_clause
     ;
 
 create_stmt: LARX_CREATE optional_temp_clause LARX_TABLE optional_if_not_exists_clause 
-    identifier '(' column_name_list ')' 
-    { PUSHSTACK(Larxer::TYPE_CREATE); }
+      identifier '(' column_name_list ')'  
+      { PUSHSTACK(Larxer::TYPE_CREATE); }
+    | LARX_CREATE optional_temp_clause LARX_TABLE optional_if_not_exists_clause 
+      identifier like_table_clause
+      { PUSHSTACK(Larxer::TYPE_CREATE); }
     ;
 
 drop_stmt: LARX_DROP LARX_TABLE identifier
@@ -370,7 +379,8 @@ column_name_list: ddl_column_name
     ;
 
 ddl_column_name:
-    identifier data_type_name { PUSHSTACK2(Larxer::TYPE_data_type, $2); }
+    identifier data_type_name optional_column_constraint
+    { PUSHSTACK2(Larxer::TYPE_data_type, $2); }
     ;
 
 set_quantifier: LARX_DISTINCT { PUSHSTACK(Larxer::TYPE_DISTINCT); }
@@ -390,8 +400,8 @@ aggregate_expression_list: aggregate { $$ = 1; }
     | aggregate_expression_list ',' identifier { $$ = $1 + 1; } ;
 
 /* identifier already pushed */
-identifierlist: identifier
-    | identifierlist ',' identifier ;
+identifier_list: identifier
+    | identifier_list ',' identifier ;
 
 identifier: LARX_identifier
       {
@@ -416,6 +426,54 @@ identifier: LARX_identifier
       }
     ;
 
+optional_column_constraint:
+    | column_constraint_list
+    ;
+    
+column_constraint_list: 
+      column_constraint
+    | column_constraint_list column_constraint
+    ;
+
+column_constraint:
+      LARX_CONSTRAINT identifier  { PUSHSTACK(Larxer::TYPE_constraint_name); }
+    | LARX_COLLATE collation_name { PUSHSTACK(Larxer::TYPE_collation); }
+    | default_clause
+    | nullable_clause
+    | check_clause
+    | index_clause
+    | foreign_key_clause
+    ;
+    
+nullable_clause:
+      LARX_NOT LARX_NULL { PUSHSTACK(Larxer::TYPE_not_null_constraint); }
+    | LARX_NULL
+    ;
+    
+default_clause:
+    LARX_DEFAULT expression { PUSHSTACK(Larxer::TYPE_DEFAULT); }
+    ;
+    
+check_clause:
+    LARX_CHECK '(' expression ')' { PUSHSTACK(Larxer::TYPE_CHECK); }
+    ;
+    
+index_clause:
+      LARX_UNIQUE '(' identifier_list ')' { PUSHSTACK(Larxer::TYPE_unique_key_constraint); }
+    | LARX_UNIQUE { PUSHSTACK(Larxer::TYPE_unique_key_constraint); }
+    | LARX_PRIMARY LARX_KEY '(' identifier_list ')' { PUSHSTACK(Larxer::TYPE_primary_key_constraint); }
+    | LARX_PRIMARY LARX_KEY { PUSHSTACK(Larxer::TYPE_primary_key_constraint); }
+    ;
+    
+foreign_key_clause:
+      LARX_REFERENCES identifier '(' identifier_list ')' { PUSHSTACK(Larxer::TYPE_references_constraint); }
+    | LARX_REFERENCES identifier                         { PUSHSTACK(Larxer::TYPE_references_constraint); }
+    ;
+    
+collation_name:
+    LARX_stringval { PUSHOPERAND(OPERAND_STRING, $1); free($1); }
+    ;
+    
 data_type_name:
       LARX_CHARACTER LARX_VARYING { $$ = Schema::data_type_e::CHARACTER_VARYING; }
     | LARX_TEXT      { $$ = Schema::data_type_e::TEXT;     }
@@ -431,6 +489,32 @@ data_type_name:
     | LARX_INTERVAL  { $$ = Schema::data_type_e::INTERVAL; }
     ;
 
+like_table_clause:
+      LARX_LIKE identifier
+    | LARX_LIKE identifier like_table_include_exclude_list
+    ;
+
+like_table_include_exclude_list: like_table_include_exclude
+    | like_table_include_exclude_list like_table_include_exclude
+    ; 
+
+like_table_include_exclude:
+      LARX_INCLUDING like_table_option_list
+    | LARX_EXCLUDING like_table_option_list
+    ;
+ 
+like_table_option_list: like_table_option
+    | like_table_option_list like_table_option
+ 
+like_table_option:
+      LARX_DEFAULTS 
+    | LARX_CONSTRAINTS
+    | LARX_INDEXES
+    | LARX_STORAGE 
+    | LARX_COMMENTS 
+    | LARX_ALL
+    ;
+
 /* aggregate function and identifier already pushed */
 aggregate: LARX_AVG '(' LARX_identifier ')' { PUSHAGGREGATE(AGGREGATE_AVG, $3); free($3); }
     | LARX_COUNT '(' LARX_identifier ')' { PUSHAGGREGATE(AGGREGATE_COUNT, $3); free($3); }
@@ -443,7 +527,7 @@ where_clause:
     | LARX_WHERE search_condition { PUSHSTACK(Larxer::TYPE_WHERE); } ;
 
 group_by_clause:
-    | LARX_GROUP LARX_BY identifierlist { PUSHSTACK(Larxer::TYPE_GROUPBY); } ;
+    | LARX_GROUP LARX_BY identifier_list { PUSHSTACK(Larxer::TYPE_GROUPBY); } ;
 
 having_clause:
     | LARX_HAVING search_condition { PUSHSTACK(Larxer::TYPE_HAVING); } ;
