@@ -30,105 +30,6 @@
 
 #include "main.h"
 
-class Table;
-/** 
- * @brief SQL field type
- */
-class Field
-{
-public:
-    enum __attribute__ ((__packed__)) type_e
-    {
-        TYPE_NONE=0,
-        TYPE_SMALLINT,
-        TYPE_INT,
-        TYPE_BIGINT,
-        TYPE_BOOLEAN,
-        TYPE_NUMERIC,
-        TYPE_DECIMAL,
-        TYPE_REAL,
-        TYPE_DOUBLE_PRECISION,
-        TYPE_FLOAT,
-        TYPE_CHARACTER,
-        TYPE_CHARACTER_VARYING,
-        TYPE_BIT,
-        TYPE_BIT_VARYING,
-        TYPE_DATE,
-        TYPE_TIME,
-        TYPE_TIMESTAMP,
-        TYPE_TIME_WITH_TIME_ZONE,
-        TYPE_TIMESTAMP_WITH_TIME_ZONE
-    };
-    
-    Field();
-    /** 
-     * @brief create Field
-     *
-     * @param tablePtrarg associated with Table
-     * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
-     * @param typearg field type
-     */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
-              type_e typearg);
-    /** 
-     * @brief create Field
-     *
-     * @param tablePtrarg associated with Table
-     * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
-     * @param typearg field type
-     * @param arg1arg parameter to create field
-     */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
-              type_e typearg, int64_t arg1arg);
-    /** 
-     * @brief create Field
-     *
-     * @param tablePtrarg associated with Table
-     * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
-     * @param typearg field type
-     * @param arg1arg 1st parameter to create field
-     * @param arg2arg 2nd parameter to create field
-     */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
-              type_e typearg, int64_t arg1arg, int64_t arg2arg);
-    ~Field();
-
-    /** 
-     * @brief serialize to character array
-     *
-     * don't serialize tablePtr because that will be different next time
-     * the Field is loaded. Plus, it will be loaded after its Table
-     *
-     * @param output 
-     *
-     * @return size of serialized object
-     */
-    void ser(Serdes &output);
-    /** 
-     * @brief get size of object if serialized
-     *
-     */
-    size_t sersize();
-    /** 
-     * @brief deserialize from character array
-     *
-     * @param tablePtrarg associated Table
-     *
-     */
-    void des(Serdes &input, Table *tablePtrarg);    
-    
-    Table *tablePtr;
-    std::string name;
-    int16_t fieldid;
-    type_e type;
-    ssize_t size;
-    ssize_t precision;
-    ssize_t scale;
-};
-
 /** 
  * @brief field contents
  *
@@ -163,16 +64,6 @@ public:
     };
     
     FieldValue();
-    /** 
-     * @brief populate field value from character stream
-     *
-     * intended to read a section of a Table row
-     *
-     * @param fieldTypearg field type
-     * @param inputarg input data
-     * @param len length of data read
-     */
-    FieldValue(Field &fieldarg, char *inputarg, size_t *len);
     FieldValue(const FieldValue &orig);
     FieldValue &operator= (const FieldValue &orig);
     /** 
@@ -183,43 +74,11 @@ public:
     void cp(const FieldValue &orig);
     virtual ~FieldValue();
 
-
     /** 
      * @brief delete if value is string
      *
      */
     void deletestr();
-    /** 
-     * @brief write out field contents to a row string
-     *
-     * @param field field
-     * @param output row string segment
-     *
-     * @return length of contents
-     */
-    size_t torow(Field &field, char *output);
-    /** 
-     * @brief get the size of field contents
-     *
-     * @param field
-     * 
-     * @return length in bytes
-     */
-    size_t size(Field &field);
-    /** 
-     * @brief send field output to pg wire protocol output buffer
-     *
-     * @param field field
-     * @param outmsg output buffer
-     */
-    void pgoutput(Field &field, std::string &outmsg);
-    /** 
-     * @brief send 32bit integer to pg wire protocol output buffer
-     *
-     * @param val integer to send
-     * @param outmsg output buffer
-     */
-    void pgoutint32(int32_t val, std::string &outmsg);
     /** 
      * @ brief set field to NULL
      *
@@ -279,12 +138,6 @@ public:
      * @param val value to set
      */
     void setfalse();
-    /** 
-     * @brief convert SQL operand to relevant field type
-     *
-     * @param field 
-     */
-    void convert(Field &field);
     /** 
      * @brief retrieve 16bit int value
      *
@@ -378,9 +231,158 @@ public:
      *
      */
     void des(Serdes &input);
-   
+
+    
+    
     valtype_e valtype;
     value_u value;
+};
+
+class Table;
+/** 
+ * @brief SQL field type
+ */
+class Field
+{
+public:
+    enum __attribute__ ((__packed__)) type_e
+    {
+        TYPE_NONE=0,
+        TYPE_SMALLINT,
+        TYPE_INT,
+        TYPE_BIGINT,
+        TYPE_BOOLEAN,
+        TYPE_NUMERIC,
+        TYPE_DECIMAL,
+        TYPE_REAL,
+        TYPE_DOUBLE_PRECISION,
+        TYPE_FLOAT,
+        TYPE_CHARACTER,
+        TYPE_CHARACTER_VARYING,
+        TYPE_BIT,
+        TYPE_BIT_VARYING,
+        TYPE_DATE,
+        TYPE_TIME,
+        TYPE_TIMESTAMP,
+        TYPE_TIME_WITH_TIME_ZONE,
+        TYPE_TIMESTAMP_WITH_TIME_ZONE
+    };
+    
+    Field();
+    /** 
+     * @brief create Field
+     *
+     * @param tablePtrarg associated with Table
+     * @param namearg field name
+     * @param fieldidarg fieldid (index within table)
+     * @param typearg field type
+     */
+    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+              type_e typearg);
+    /** 
+     * @brief create Field
+     *
+     * @param tablePtrarg associated with Table
+     * @param namearg field name
+     * @param fieldidarg fieldid (index within table)
+     * @param typearg field type
+     * @param arg1arg parameter to create field
+     */
+    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+              type_e typearg, int64_t arg1arg);
+    /** 
+     * @brief create Field
+     *
+     * @param tablePtrarg associated with Table
+     * @param namearg field name
+     * @param fieldidarg fieldid (index within table)
+     * @param typearg field type
+     * @param arg1arg 1st parameter to create field
+     * @param arg2arg 2nd parameter to create field
+     */
+    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+              type_e typearg, int64_t arg1arg, int64_t arg2arg);
+    ~Field();
+
+    /** 
+     * @brief serialize to character array
+     *
+     * don't serialize tablePtr because that will be different next time
+     * the Field is loaded. Plus, it will be loaded after its Table
+     *
+     * @param output 
+     *
+     * @return size of serialized object
+     */
+    void ser(Serdes &output);
+    /** 
+     * @brief get size of object if serialized
+     *
+     */
+    size_t sersize();
+    /** 
+     * @brief deserialize from character array
+     *
+     * @param tablePtrarg associated Table
+     *
+     */
+    void des(Serdes &input, Table *tablePtrarg);
+
+    /** 
+     * @brief serialize a field value, such as into an LMDB value
+     *
+     * @param fieldValue input field value
+     * @param output output serialized object
+     */
+    void serValue(FieldValue &fieldValue, Serdes &output);
+    /** 
+     * @brief populate field value from serialized object, such as LMDB value
+     *
+     * @param input input object
+     * @param fieldValue field value to populate
+     */
+    void desValue(Serdes &input, FieldValue &fieldValue);
+    /** 
+     * @brief get length of field contents
+     *
+     * @param fieldValue field contents
+     *
+     * @return length of contents
+     */
+    size_t valueSize(FieldValue &fieldValue);
+    /** 
+     * @brief send field output to pg wire protocol output buffer
+     *
+     * @param fieldValue field value
+     * @param outmsg output buffer
+     */
+    void pgoutput(FieldValue &fieldValue, std::string &outmsg);
+    /** 
+     * @brief send 32bit integer to pg wire protocol output buffer
+     *
+     * @param val integer to send
+     * @param outmsg output buffer
+     */
+    static void pgoutint32(int32_t val, std::string &outmsg);
+    /** 
+     * @brief convert SQL operand to relevant field type
+     *
+     * @param field 
+     */
+    void convertValue(FieldValue &fieldValue);
+    
+    Table *tablePtr;
+    std::string name;
+    int16_t fieldid;
+    type_e type;
+    ssize_t size;
+    ssize_t precision;
+    ssize_t scale;
+
+    /** 
+     * @todo have methods to operate on defaultValue, but for now set as NULL
+     */
+    FieldValue defaultValue;
 };
 
 #endif // INFINISQLFIELD_H

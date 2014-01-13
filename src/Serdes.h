@@ -133,6 +133,46 @@ public:
      *
      * @param d item to serialize
      */
+    void ser(double d);
+    /** 
+     * @brief get size of item serialized
+     *
+     * @param d item to measure for serialization
+     *
+     * @return size of item when serialized
+     */
+    static size_t sersize(float d);
+    /** 
+     * @brief deserialize item
+     *
+     * @param d buffer into which to serialize item
+     */
+    void des(float *d);
+    /** 
+     * @brief serialize item
+     *
+     * @param d item to serialize
+     */
+    void ser(float d);
+    /** 
+     * @brief get size of item serialized
+     *
+     * @param d item to measure for serialization
+     *
+     * @return size of item when serialized
+     */
+    static size_t sersize(double d);
+    /** 
+     * @brief deserialize item
+     *
+     * @param d buffer into which to serialize item
+     */
+    void des(double *d);
+    /** 
+     * @brief serialize item
+     *
+     * @param d item to serialize
+     */
     void ser(char d);
     /** 
      * @brief get size of item serialized
@@ -190,6 +230,26 @@ public:
      * @param d buffer into which to serialize item
      */
     void des(std::string &d);
+    /** 
+     * @brief create string and deserialize into it
+     *
+     * @param d buffer to create and into which to deserialize
+     */
+    /** 
+     * @brief serialize string and store only the contents (not the length)
+     *
+     * @param d item to serialize
+     * @param dsize length to serialize
+     */
+    void ser(std::string &d, size_t dsize);
+    void des(std::string *d);
+    /** 
+     * @brief create string and deserialize into it, providing length
+     *
+     * @param d buffer to create and into which to deserialize
+     * @param dsize length to deserialize
+     */
+    void des(std::string *d, size_t dsize);
     /** 
      * @brief serialize byte sequence, such as packed struct
      *

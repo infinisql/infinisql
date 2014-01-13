@@ -31,7 +31,7 @@
 Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
                  precision (-1), scale (-1)
 {
-    
+    defaultValue.nullify();
 }
 
 Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
@@ -39,6 +39,8 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
       type (typearg), size (-1), precision (-1), scale (-1)
 {
+    defaultValue.nullify();
+
     switch (type)
     {
     case TYPE_NUMERIC:
@@ -85,6 +87,8 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
       type (typearg), scale (-1)
 {
+    defaultValue.nullify();
+
     switch (type)
     {
     case TYPE_NUMERIC:
@@ -138,6 +142,7 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
       type (typearg), size (-1), precision (arg1arg), scale (arg2arg)
 {
+    defaultValue.nullify();
 }
 
 Field::~Field()
@@ -179,115 +184,194 @@ void Field::des(Serdes &input, Table *tablePtrarg)
     input.des((int64_t *)&scale);
 }
 
-FieldValue::FieldValue() : valtype (VAL_NONE)
+void Field::serValue(FieldValue &fieldValue, Serdes &output)
 {
-    value.int8=0;
-}
-
-FieldValue::FieldValue(Field &fieldarg, char *inputarg, size_t *len)
-{
-    switch (fieldarg.type)
+    switch (type)
     {
-    case Field::TYPE_SMALLINT:
-        valtype=VAL_POD;
-        *len=sizeof(value.int2);
-        memcpy(&value.int2, inputarg, *len);
+    case TYPE_SMALLINT:
+        output.ser(fieldValue.value.int2);
         break;
 
-    case Field::TYPE_INT:
-        valtype=VAL_POD;
-        *len=sizeof(value.int4);
-        memcpy(&value.int4, inputarg, *len);
+    case TYPE_INT:
+        output.ser(fieldValue.value.int4);
         break;
 
-    case Field::TYPE_BIGINT:
-        valtype=VAL_POD;
-        *len=sizeof(value.int8);
-        memcpy(&value.int8, inputarg, *len);
+    case TYPE_BIGINT:
+        output.ser(fieldValue.value.int8);
         break;
 
-    case Field::TYPE_BOOLEAN:
-        valtype=VAL_POD;
-        *len=sizeof(value.boolean);
-        memcpy(&value.boolean, inputarg, *len);
-
-    case Field::TYPE_NUMERIC:
-        valtype=VAL_STRING;
-        *len=fieldarg.precision;
-        value.str=new string(inputarg, *len);
+    case TYPE_BOOLEAN:
+        output.ser(fieldValue.value.boolean);
         break;
 
-    case Field::TYPE_DECIMAL:
-        valtype=VAL_STRING;
-        *len=fieldarg.precision;
-        value.str=new string(inputarg, *len);
+    case TYPE_NUMERIC:
+        output.ser(fieldValue.value.str, precision);
         break;
 
-    case Field::TYPE_REAL:
-        valtype=VAL_POD;
-        *len=sizeof(value.singlefloat);
-        memcpy(&value.singlefloat, inputarg, *len);
+    case TYPE_DECIMAL:
+        output.ser(fieldValue.value.str, precision);
         break;
 
-    case Field::TYPE_DOUBLE_PRECISION:
-        valtype=VAL_POD;
-        *len=sizeof(value.doublefloat);
-        memcpy(&value.doublefloat, inputarg, *len);
+    case TYPE_REAL:
+        output.ser(fieldValue.value.singlefloat);
         break;
 
-    case Field::TYPE_FLOAT:
-        valtype=VAL_POD;
-        *len=sizeof(value.doublefloat);
-        memcpy(&value.doublefloat, inputarg, *len);
+    case TYPE_DOUBLE_PRECISION:
+        output.ser(fieldValue.value.doublefloat);
         break;
 
-    case Field::TYPE_CHARACTER:
-        if (fieldarg.size==1)
+    case TYPE_FLOAT:
+        output.ser(fieldValue.value.doublefloat);
+        break;
+
+    case TYPE_CHARACTER:
+        if (fieldValue.valtype==FieldValue::VAL_POD)
         {
-            valtype=VAL_POD;
-            *len=1;
-            value.character=*inputarg;
+            output.ser(fieldValue.value.character);
         }
         else
         {
-            valtype=VAL_STRING;
-            *len=fieldarg.size;
-            value.str=new string(inputarg, *len);
+            output.ser(*fieldValue.value.str, size);;
         }
         break;
 
-    case Field::TYPE_CHARACTER_VARYING:
+    case TYPE_CHARACTER_VARYING:
     {
-        valtype=VAL_STRING;
-        size_t strlength;
-        memcpy(&strlength, inputarg, sizeof(strlength));
-        *len=strlength+sizeof(strlength);
-        value.str=new string(inputarg+sizeof(strlength), strlength);
+        output.ser(*fieldValue.value.str);
     }
     break;
 
-    case Field::TYPE_BIT:
-        if (fieldarg.size <= 8)
+    case TYPE_BIT:
+        if (fieldValue.valtype==FieldValue::VAL_POD)
         {
-            valtype=VAL_POD;
-            *len=1;
-            value.character=*inputarg;
+            output.ser(fieldValue.value.character);
         }
         else
         {
-            valtype=VAL_STRING;
-            *len=(fieldarg.size+7)/8;
-            value.str=new string(inputarg, *len);
+            output.ser(*fieldValue.value.str, size);
         }
         break;
 
-    case Field::TYPE_BIT_VARYING:
+    case TYPE_BIT_VARYING:
     {
-        valtype=VAL_STRING;
-        size_t strlength;
-        memcpy(&strlength, inputarg, sizeof(strlength));
-        *len=((strlength+7)/8) + sizeof(strlength);
-        value.str=new string(inputarg+sizeof(strlength), strlength);
+        output.ser(*fieldValue.value.str);
+    }
+    break;
+
+    /**
+     * @todo date & time fields
+     * 
+     */
+
+        /*
+    case TYPE_DATE:
+        break;
+
+    case TYPE_TIME:
+        break;
+
+    case TYPE_TIMESTAMP:
+        break;
+
+    case TYPE_TIME_WITH_TIME_ZONE:
+        break;
+
+    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
+        break;
+        */
+        
+    default:
+        LOG("field type " << type << " not implemented");
+    }
+}
+
+void Field::desValue(Serdes &input, FieldValue &fieldValue)
+{
+    switch (type)
+    {
+    case TYPE_SMALLINT:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.int2);
+        break;
+
+    case TYPE_INT:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.int4);
+        break;
+
+    case TYPE_BIGINT:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.int8);
+        break;
+
+    case TYPE_BOOLEAN:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.boolean);
+        break;
+
+    case TYPE_NUMERIC:
+        fieldValue.valtype=FieldValue::VAL_STRING;
+        input.des(fieldValue.value.str, precision);
+        break;
+
+    case TYPE_DECIMAL:
+        fieldValue.valtype=FieldValue::VAL_STRING;
+        input.des(fieldValue.value.str, precision);
+        break;
+
+    case TYPE_REAL:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.singlefloat);
+        break;
+
+    case TYPE_DOUBLE_PRECISION:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.doublefloat);
+        break;
+
+    case TYPE_FLOAT:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.doublefloat);
+        break;
+
+    case TYPE_CHARACTER:
+        if (size==1)
+        {
+            fieldValue.valtype=FieldValue::VAL_POD;
+            input.des(&fieldValue.value.character);
+        }
+        else
+        {
+            fieldValue.valtype=FieldValue::VAL_STRING;
+            input.des(fieldValue.value.str, size);
+        }
+        break;
+
+    case TYPE_CHARACTER_VARYING:
+    {
+        fieldValue.valtype=FieldValue::VAL_STRING;
+        input.des(fieldValue.value.str);
+    }
+    break;
+
+    case TYPE_BIT:
+        if (size <= 8)
+        {
+            fieldValue.valtype=FieldValue::VAL_POD;
+            input.des(&fieldValue.value.character);
+        }
+        else
+        {
+            fieldValue.valtype=FieldValue::VAL_STRING;
+            size_t len=(size+7)/8;
+            input.des(fieldValue.value.str, len);
+        }
+        break;
+
+    case TYPE_BIT_VARYING:
+    {
+        fieldValue.valtype=FieldValue::VAL_STRING;
+        input.des(fieldValue.value.str);
     }
     break;
 
@@ -319,185 +403,25 @@ FieldValue::FieldValue(Field &fieldarg, char *inputarg, size_t *len)
         */
         
     default:
-        LOG("field type " << fieldarg.type << " not implemented");
-    }
+        LOG("field type " << type << " not implemented");
+    }    
 }
 
-FieldValue::FieldValue(const FieldValue &orig)
+size_t Field::valueSize(FieldValue &fieldValue)
 {
-    cp(orig);
-}
-
-FieldValue &FieldValue::operator= (const FieldValue &orig)
-{
-    cp(orig);
-    return *this;
-}
-
-void FieldValue::cp(const FieldValue &orig)
-{
-    valtype=orig.valtype;
-    if (valtype==VAL_POD)
+    switch (type)
     {
-        value=orig.value;
-    }
-    else if (valtype==VAL_STRING)
-    {
-        value.str=new string;
-    }
-}
-
-FieldValue::~FieldValue()
-{
-    deletestr();
-}
-
-void FieldValue::deletestr()
-{
-    if (valtype==VAL_STRING)
-    {
-        delete value.str;
-    }
-}
-
-size_t FieldValue::torow(Field &field, char *output)
-{
-    switch (field.type)
-    {
-    case Field::TYPE_SMALLINT:
-        memcpy(output, &value.int2, sizeof(value.int2));
-        return sizeof(value.int2);
-//        break;
-
-    case Field::TYPE_INT:
-        memcpy(output, &value.int4, sizeof(value.int4));
-        return sizeof(value.int4);
-//        break;
-
-    case Field::TYPE_BIGINT:
-        memcpy(output, &value.int8, sizeof(value.int8));
-        return sizeof(value.int8);
-//        break;
-
-    case Field::TYPE_BOOLEAN:
-        memcpy(output, &value.boolean, sizeof(value.boolean));
-        return sizeof(value.boolean);
-//        break;
-
-    case Field::TYPE_NUMERIC:
-        value.str->copy(output, field.precision, 0);
-        return field.precision;
-//        break;
-
-    case Field::TYPE_DECIMAL:
-        value.str->copy(output, field.precision, 0);
-        return field.precision;
-//        break;
-
-    case Field::TYPE_REAL:
-        memcpy(output, &value.singlefloat, sizeof(value.singlefloat));
-        return sizeof(value.singlefloat);
-//        break;
-
-    case Field::TYPE_DOUBLE_PRECISION:
-        memcpy(output, &value.doublefloat, sizeof(value.doublefloat));
-        return sizeof(value.doublefloat);
-//        break;
-
-    case Field::TYPE_FLOAT:
-        memcpy(output, &value.doublefloat, sizeof(value.doublefloat));
-        return sizeof(value.doublefloat);
-//        break;
-
-    case Field::TYPE_CHARACTER:
-        if (valtype==VAL_POD)
-        {
-            memcpy(output, &value.character, 1);
-            return 1;
-        }
-        else
-        {
-            value.str->copy(output, field.size, 0);
-            return field.size;
-        }
-//        break;
-
-    case Field::TYPE_CHARACTER_VARYING:
-    {
-        size_t strlength=value.str->size();
-        memcpy(output, &strlength, sizeof(strlength));
-        value.str->copy(output+sizeof(strlength), value.str->size(), 0);
-        return value.str->size() + sizeof(strlength);
-    }
-//    break;
-
-    case Field::TYPE_BIT:
-        if (valtype==VAL_POD)
-        {
-            memcpy(output, &value.character, 1);
-            return 1;
-        }
-        else
-        {
-            value.str->copy(output, field.size, 0);
-            return field.size;
-        }
-//        break;
-
-    case Field::TYPE_BIT_VARYING:
-    {
-        size_t strlength=value.str->size();
-        memcpy(output, &strlength, sizeof(strlength));
-        value.str->copy(output+sizeof(strlength), value.str->size(), 0);
-        return value.str->size() + sizeof(strlength);
-    }
-//    break;
-
-
-    /**
-     * @todo date & time fields
-     * 
-     */
-
-        /*
-    case TYPE_DATE:
-        break;
-
-    case TYPE_TIME:
-        break;
-
-    case TYPE_TIMESTAMP:
-        break;
-
-    case TYPE_TIME_WITH_TIME_ZONE:
-        break;
-
-    case TYPE_TIMESTAMP_WITH_TIME_ZONE:
-        break;
-        */
+    case TYPE_SMALLINT:
+        return sizeof(fieldValue.value.int2);
         
-    default:
-        LOG("field type " << field.type << " not implemented");
-    }
-
-    return 0;
-}
-
-size_t FieldValue::size(Field &field)
-{
-    switch (field.type)
-    {
-    case Field::TYPE_SMALLINT:
-        return sizeof(value.int2);
+    case TYPE_INT:
+        return sizeof(fieldValue.value.int4);
         
-    case Field::TYPE_INT:
-        return sizeof(value.int4);
+    case TYPE_BIGINT:
+        return sizeof(fieldValue.value.int8);
         
-    case Field::TYPE_BIGINT:
-        return sizeof(value.int8);
-        
-    case Field::TYPE_BOOLEAN:
-        return sizeof(value.boolean);
+    case TYPE_BOOLEAN:
+        return sizeof(fieldValue.value.boolean);
 
         /**
          * @todo NUMERIC and DECIMAL types
@@ -508,26 +432,26 @@ size_t FieldValue::size(Field &field)
     case TYPE_NUMERIC:
     case TYPE_DECIMAL:
         */
-    case Field::TYPE_REAL:
-        return sizeof(value.singlefloat);
+    case TYPE_REAL:
+        return sizeof(fieldValue.value.singlefloat);
         
-    case Field::TYPE_DOUBLE_PRECISION:
-        return sizeof(value.doublefloat);
+    case TYPE_DOUBLE_PRECISION:
+        return sizeof(fieldValue.value.doublefloat);
         
-    case Field::TYPE_FLOAT:
-        return sizeof(value.doublefloat);
+    case TYPE_FLOAT:
+        return sizeof(fieldValue.value.doublefloat);
         
-    case Field::TYPE_CHARACTER:
-        return field.size;
+    case TYPE_CHARACTER:
+        return size;
         
-    case Field::TYPE_CHARACTER_VARYING:
-        return value.str->size();
+    case TYPE_CHARACTER_VARYING:
+        return fieldValue.value.str->size();
         
-    case Field::TYPE_BIT:
-        return field.size;
+    case TYPE_BIT:
+        return (size+7)/8;
         
-    case Field::TYPE_BIT_VARYING:
-        return value.str->size();
+    case TYPE_BIT_VARYING:
+        return fieldValue.value.str->size();
 
         /**
          * @todo date & time types
@@ -543,51 +467,51 @@ size_t FieldValue::size(Field &field)
         */
         
     default:
-        LOG("can't get size of field type" << field.type);
+        LOG("can't get size of field type" << type);
     }
 
-    return -1;
+    return -1;    
 }
 
-void FieldValue::pgoutput(Field &field, std::string &outmsg)
+void Field::pgoutput(FieldValue &fieldValue, std::string &outmsg)
 {
-    if (valtype==VAL_NULL)
+    if (fieldValue.valtype==FieldValue::VAL_NULL)
     {
         pgoutint32(-1, outmsg);
         return;
     }
     
-    switch (field.type)
+    switch (type)
     {
-    case Field::TYPE_SMALLINT:
+    case TYPE_SMALLINT:
     {
         char val[7];  // length of largest int16_t plus - and \n
-        int32_t len=sprintf(val, "%i", value.int2);
+        int32_t len=sprintf(val, "%i", fieldValue.value.int2);
         pgoutint32(len, outmsg);
         outmsg.append(val);
     }
         
-    case Field::TYPE_INT:
+    case TYPE_INT:
     {
         char val[12]; // length of largest int32_t plus - and \n
-        int32_t len=sprintf(val, "%i", value.int4);
+        int32_t len=sprintf(val, "%i", fieldValue.value.int4);
         pgoutint32(len, outmsg);
         outmsg.append(val);
     }
     break;
         
-    case Field::TYPE_BIGINT:
+    case TYPE_BIGINT:
     {
         char val[21]; // length of largest int64_t plus - and \n
-        int32_t len=sprintf(val, "%li", value.int8);
+        int32_t len=sprintf(val, "%li", fieldValue.value.int8);
         pgoutint32(len, outmsg);
         outmsg.append(val);
     }
     break;
         
-    case Field::TYPE_BOOLEAN:
-        pgoutint32((int32_t)sizeof(value.boolean), outmsg);
-        if (value.boolean==true)
+    case TYPE_BOOLEAN:
+        pgoutint32((int32_t)sizeof(fieldValue.value.boolean), outmsg);
+        if (fieldValue.value.boolean==true)
         {
             outmsg.append(1, 't');
         }
@@ -606,12 +530,13 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
     case TYPE_NUMERIC:
     case TYPE_DECIMAL:
         */
-    case Field::TYPE_REAL:
+    case TYPE_REAL:
     {
         std::stringstream val;
-        val << value.singlefloat;
+        val << fieldValue.value.singlefloat;
 
-        if (value.singlefloat / (int64_t)value.singlefloat == 1)
+        if (fieldValue.value.singlefloat /
+            (int64_t)fieldValue.value.singlefloat == 1)
         {
             val << ".0";
         }
@@ -622,12 +547,13 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
     }
     break;
         
-    case Field::TYPE_DOUBLE_PRECISION:
+    case TYPE_DOUBLE_PRECISION:
     {
         std::stringstream val;
-        val << value.doublefloat;
+        val << fieldValue.value.doublefloat;
 
-        if (value.doublefloat / (int64_t)value.doublefloat == 1)
+        if (fieldValue.value.doublefloat /
+            (int64_t)fieldValue.value.doublefloat == 1)
         {
             val << ".0";
         }
@@ -638,12 +564,13 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
     }
     break;
         
-    case Field::TYPE_FLOAT:
+    case TYPE_FLOAT:
     {
         std::stringstream val;
-        val << value.doublefloat;
+        val << fieldValue.value.doublefloat;
 
-        if (value.doublefloat / (int64_t)value.doublefloat == 1)
+        if (fieldValue.value.doublefloat /
+            (int64_t)fieldValue.value.doublefloat == 1)
         {
             val << ".0";
         }
@@ -654,21 +581,21 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
     }
     break;
         
-    case Field::TYPE_CHARACTER:
-        pgoutint32(field.size, outmsg);
-        if (field.size==1)
+    case TYPE_CHARACTER:
+        pgoutint32(size, outmsg);
+        if (size==1)
         {
-            outmsg.append(1, value.character);
+            outmsg.append(1, fieldValue.value.character);
         }
         else
         {
-            outmsg.append(*value.str);
+            outmsg.append(*fieldValue.value.str);
         }
         break;
         
-    case Field::TYPE_CHARACTER_VARYING:
-        pgoutint32(value.str->size(), outmsg);
-        outmsg.append(*value.str);
+    case TYPE_CHARACTER_VARYING:
+        pgoutint32(fieldValue.value.str->size(), outmsg);
+        outmsg.append(*fieldValue.value.str);
         break;
 
         /**
@@ -696,16 +623,132 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
         */
         
     default:
-        LOG("can't output field type" << field.type);
+        LOG("can't output field type" << type);
     }    
 }
 
-void FieldValue::pgoutint32(int32_t val, std::string &outmsg)
+void Field::pgoutint32(int32_t val, std::string &outmsg)
 {
     size_t curpos=outmsg.size();
     outmsg.resize(curpos + sizeof(int32_t));
     val=htobe32(val);
     memcpy(&outmsg[curpos], &val, sizeof(int32_t));    
+}
+
+void Field::convertValue(FieldValue &fieldValue)
+{
+    switch (fieldValue.valtype)
+    {
+    case FieldValue::VAL_NULL:
+        break;
+
+    case FieldValue::VAL_STRING:
+        switch (type)
+        {
+        case TYPE_REAL:
+        {
+            float singlefloat=std::stof(*fieldValue.value.str, NULL);
+            fieldValue.deletestr();
+            fieldValue.valtype=FieldValue::VAL_POD;
+            fieldValue.value.singlefloat=singlefloat;
+        }
+        break;
+
+        case TYPE_DOUBLE_PRECISION:
+        {
+            float doublefloat=std::stod(*fieldValue.value.str, NULL);
+            fieldValue.deletestr();
+            fieldValue.valtype=FieldValue::VAL_POD;
+            fieldValue.value.doublefloat=doublefloat;
+        }
+        break;
+        
+        case TYPE_FLOAT:
+        {
+            float doublefloat=std::stod(*fieldValue.value.str, NULL);
+            fieldValue.deletestr();
+            fieldValue.valtype=FieldValue::VAL_POD;
+            fieldValue.value.doublefloat=doublefloat;
+        }
+        break;
+
+        default:
+            ;
+        }
+
+    case FieldValue::VAL_POD:
+        switch (type)
+        {
+        case TYPE_REAL:
+        {
+            float singlefloat=fieldValue.value.int8;
+            fieldValue.value.singlefloat=singlefloat;
+        }
+        break;
+        
+        case TYPE_DOUBLE_PRECISION:
+        {
+            float doublefloat=fieldValue.value.int8;
+            fieldValue.value.doublefloat=doublefloat;
+        }
+        break;
+
+        case TYPE_FLOAT:
+        {
+            float doublefloat=fieldValue.value.int8;
+            fieldValue.value.doublefloat=doublefloat;
+        }
+        break;
+
+        default:
+            ;
+        }
+
+    default:
+        LOG("no way to convert type " << fieldValue.valtype);
+    }
+}
+
+FieldValue::FieldValue() : valtype (VAL_NONE)
+{
+    value.int8=0;
+}
+
+FieldValue::FieldValue(const FieldValue &orig)
+{
+    cp(orig);
+}
+
+FieldValue &FieldValue::operator= (const FieldValue &orig)
+{
+    cp(orig);
+    return *this;
+}
+
+void FieldValue::cp(const FieldValue &orig)
+{
+    valtype=orig.valtype;
+    if (valtype==VAL_POD)
+    {
+        value=orig.value;
+    }
+    else if (valtype==VAL_STRING)
+    {
+        value.str=new (std::nothrow) std::string;
+    }
+}
+
+FieldValue::~FieldValue()
+{
+    deletestr();
+}
+
+void FieldValue::deletestr()
+{
+    if (valtype==VAL_STRING)
+    {
+        delete value.str;
+    }
 }
 
 void FieldValue::nullify()
@@ -775,81 +818,6 @@ void FieldValue::setfalse()
     deletestr();
     valtype=VAL_POD;
     value.boolean=false;
-}
-
-void FieldValue::convert(Field &field)
-{
-    switch (valtype)
-    {
-    case VAL_NULL:
-        break;
-
-    case VAL_STRING:
-        switch (field.type)
-        {
-        case Field::TYPE_REAL:
-        {
-            float singlefloat=std::stof(*value.str, NULL);
-            deletestr();
-            valtype=VAL_POD;
-            value.singlefloat=singlefloat;
-        }
-        break;
-
-        case Field::TYPE_DOUBLE_PRECISION:
-        {
-            float doublefloat=std::stod(*value.str, NULL);
-            deletestr();
-            valtype=VAL_POD;
-            value.doublefloat=doublefloat;
-        }
-        break;
-        
-        case Field::TYPE_FLOAT:
-        {
-            float doublefloat=std::stod(*value.str, NULL);
-            deletestr();
-            valtype=VAL_POD;
-            value.doublefloat=doublefloat;
-        }
-        break;
-
-        default:
-            ;
-        }
-
-    case VAL_POD:
-        switch (field.type)
-        {
-        case Field::TYPE_REAL:
-        {
-            float singlefloat=value.int8;
-            value.singlefloat=singlefloat;
-        }
-        break;
-        
-        case Field::TYPE_DOUBLE_PRECISION:
-        {
-            float doublefloat=value.int8;
-            value.doublefloat=doublefloat;
-        }
-        break;
-
-        case Field::TYPE_FLOAT:
-        {
-            float doublefloat=value.int8;
-            value.doublefloat=doublefloat;
-        }
-        break;
-
-        default:
-            ;
-        }
-        
-
-    default:
-        LOG("no way to convert type " << valtype);
-    }
 }
 
 int16_t FieldValue::get(int16_t *val, bool *isnull)

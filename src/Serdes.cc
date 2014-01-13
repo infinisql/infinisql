@@ -110,6 +110,40 @@ void Serdes::des(int64_t *d)
     pos+=sersize(*d);
 }
 
+void Serdes::ser(float d)
+{
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
+}
+
+size_t Serdes::sersize(float d)
+{
+    return sizeof(d);
+}
+
+void Serdes::des(float *d)
+{
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
+}
+
+void Serdes::ser(double d)
+{
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
+}
+
+size_t Serdes::sersize(double d)
+{
+    return sizeof(d);
+}
+
+void Serdes::des(double *d)
+{
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
+}
+
 void Serdes::ser(char d)
 {
     memcpy(val.mv_data, &d, sizeof(d));
@@ -148,8 +182,7 @@ void Serdes::ser(std::string &d)
 {
     size_t s=d.size();
     ser((int64_t)s);
-    d.copy((char *)val.mv_data, s, 0);
-    pos+=s;
+    ser(d, s);
 }
 
 size_t Serdes::sersize(std::string &d)
@@ -163,6 +196,28 @@ void Serdes::des(std::string &d)
     des(&s);
     d.assign((char *)val.mv_data, s);
     pos+=s;
+}
+
+void Serdes::ser(std::string &d, size_t dsize)
+{
+    d.copy((char *)val.mv_data, dsize, 0);
+    pos+=dsize;
+}
+
+void Serdes::des(std::string *d)
+{
+    int64_t s;
+    des(&s);
+    des(d, (size_t)s);
+}
+
+void Serdes::des(std::string *d, size_t dsize)
+{
+    d=new (std::nothrow) std::string((char *)val.mv_data, dsize);
+    if (d != NULL)
+    {
+        pos+=dsize;
+    }
 }
 
 void Serdes::ser(void *d, size_t dsize)
