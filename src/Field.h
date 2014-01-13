@@ -231,8 +231,6 @@ public:
      *
      */
     void des(Serdes &input);
-
-    
     
     valtype_e valtype;
     value_u value;

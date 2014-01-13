@@ -28,6 +28,308 @@
 #include "Field.h"
 #line 30 "Field.cc"
 
+FieldValue::FieldValue() : valtype (VAL_NONE)
+{
+    value.int8=0;
+}
+
+FieldValue::FieldValue(const FieldValue &orig)
+{
+    cp(orig);
+}
+
+FieldValue &FieldValue::operator= (const FieldValue &orig)
+{
+    cp(orig);
+    return *this;
+}
+
+void FieldValue::cp(const FieldValue &orig)
+{
+    valtype=orig.valtype;
+    if (valtype==VAL_POD)
+    {
+        value=orig.value;
+    }
+    else if (valtype==VAL_STRING)
+    {
+        value.str=new (std::nothrow) std::string;
+    }
+}
+
+FieldValue::~FieldValue()
+{
+    deletestr();
+}
+
+void FieldValue::deletestr()
+{
+    if (valtype==VAL_STRING)
+    {
+        delete value.str;
+    }
+}
+
+void FieldValue::nullify()
+{
+    deletestr();
+    valtype=VAL_NULL;
+}
+
+void FieldValue::set(std::string &val)
+{
+    deletestr();
+    valtype=VAL_STRING;
+    value.str=new string(val);
+}
+
+void FieldValue::set(int16_t val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.int2=val;
+}
+
+void FieldValue::set(int32_t val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.int4=val;
+}
+
+void FieldValue::set(int64_t val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.int8=val;
+}
+
+void FieldValue::set(float val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.singlefloat=val;
+}
+
+void FieldValue::set(double val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.doublefloat=val;
+}
+
+void FieldValue::set(char val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.character=val;
+}
+
+void FieldValue::settrue()
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.boolean=true;
+}
+
+void FieldValue::setfalse()
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.boolean=false;
+}
+
+int16_t FieldValue::get(int16_t *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.int2;
+    return value.int2;
+}
+
+int32_t FieldValue::get(int32_t *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.int4;
+    return value.int4;
+}
+
+int64_t FieldValue::get(int64_t *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.int8;
+    return value.int8;
+}
+
+float FieldValue::get(float *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.singlefloat;
+    return value.singlefloat;
+}
+
+double FieldValue::get(double *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.doublefloat;
+    return value.doublefloat;
+}
+
+char FieldValue::get(char *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return (char)0;
+    }
+    *isnull=false;
+    *val=value.character;
+    return value.character;
+}
+
+void FieldValue::get(std::string &val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+    }
+    *isnull=false;
+    val=*value.str;
+}
+
+bool FieldValue::getbool(bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return false;
+    }
+    *isnull=false;
+    return value.boolean;
+}
+
+bool FieldValue::getnull()
+{
+    if (valtype==VAL_NULL)
+    {
+        return true;
+    }
+    return false;
+}
+
+void FieldValue::ser(Serdes &output)
+{
+    switch (valtype)
+    {
+    case VAL_NONE:
+        output.ser((char)valtype);
+        break;
+
+    case VAL_POD:
+        output.ser((char)valtype);
+        output.ser(value.int8);
+        break;
+
+    case VAL_NULL:
+        output.ser((char)valtype);
+        break;
+
+    case VAL_STRING:
+    {
+        output.ser((char)valtype);
+        size_t s=value.str->size();
+        output.ser((int64_t)s);
+        output.ser(*value.str);
+    }
+    break;
+
+    default:
+        LOG("can't serialize type " << valtype);
+    }
+}
+
+size_t FieldValue::sersize()
+{
+    switch (valtype)
+    {
+    case VAL_NONE:
+        return 1;
+        break;
+
+    case VAL_POD:
+        return 1+sizeof(value.int8);
+        break;
+
+    case VAL_NULL:
+        return 1;
+        break;
+
+    case VAL_STRING:
+    {
+        return 1+sizeof(int64_t)+value.str->size();
+    }
+    break;
+
+    default:
+        LOG("can't get size of type " << valtype);
+    }
+
+    return 0;
+}
+
+void FieldValue::des(Serdes &input)
+{
+    input.des((char *)&valtype);
+    
+    switch (valtype)
+    {
+    case VAL_NONE:
+        break;
+
+    case VAL_POD:
+        input.des(&value.int8);
+        break;
+
+    case VAL_NULL:
+        break;
+
+    case VAL_STRING:
+    {
+        int64_t s;
+        input.des(&s);
+        input.des(*value.str);
+    }
+    break;
+
+    default:
+        LOG("can't deserialize type " << valtype);
+    }
+}
+
 Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
                  precision (-1), scale (-1)
 {
@@ -158,6 +460,7 @@ void Field::ser(Serdes &output)
     output.ser((int64_t)size);
     output.ser((int64_t)precision);
     output.ser((int64_t)scale);
+    defaultValue.ser(output);
 }
 
 size_t Field::sersize()
@@ -169,6 +472,7 @@ size_t Field::sersize()
     retsize += Serdes::sersize((int64_t)size);
     retsize += Serdes::sersize((int64_t)precision);
     retsize += Serdes::sersize((int64_t)scale);
+    retsize += defaultValue.sersize();
 
     return retsize;
 }
@@ -182,6 +486,7 @@ void Field::des(Serdes &input, Table *tablePtrarg)
     input.des((int64_t *)&size);
     input.des((int64_t *)&precision);
     input.des((int64_t *)&scale);
+    defaultValue.des(input);
 }
 
 void Field::serValue(FieldValue &fieldValue, Serdes &output)
@@ -709,304 +1014,3 @@ void Field::convertValue(FieldValue &fieldValue)
     }
 }
 
-FieldValue::FieldValue() : valtype (VAL_NONE)
-{
-    value.int8=0;
-}
-
-FieldValue::FieldValue(const FieldValue &orig)
-{
-    cp(orig);
-}
-
-FieldValue &FieldValue::operator= (const FieldValue &orig)
-{
-    cp(orig);
-    return *this;
-}
-
-void FieldValue::cp(const FieldValue &orig)
-{
-    valtype=orig.valtype;
-    if (valtype==VAL_POD)
-    {
-        value=orig.value;
-    }
-    else if (valtype==VAL_STRING)
-    {
-        value.str=new (std::nothrow) std::string;
-    }
-}
-
-FieldValue::~FieldValue()
-{
-    deletestr();
-}
-
-void FieldValue::deletestr()
-{
-    if (valtype==VAL_STRING)
-    {
-        delete value.str;
-    }
-}
-
-void FieldValue::nullify()
-{
-    deletestr();
-    valtype=VAL_NULL;
-}
-
-void FieldValue::set(std::string &val)
-{
-    deletestr();
-    valtype=VAL_STRING;
-    value.str=new string(val);
-}
-
-void FieldValue::set(int16_t val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.int2=val;
-}
-
-void FieldValue::set(int32_t val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.int4=val;
-}
-
-void FieldValue::set(int64_t val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.int8=val;
-}
-
-void FieldValue::set(float val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.singlefloat=val;
-}
-
-void FieldValue::set(double val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.doublefloat=val;
-}
-
-void FieldValue::set(char val)
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.character=val;
-}
-
-void FieldValue::settrue()
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.boolean=true;
-}
-
-void FieldValue::setfalse()
-{
-    deletestr();
-    valtype=VAL_POD;
-    value.boolean=false;
-}
-
-int16_t FieldValue::get(int16_t *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return 0;
-    }
-    *isnull=false;
-    *val=value.int2;
-    return value.int2;
-}
-
-int32_t FieldValue::get(int32_t *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return 0;
-    }
-    *isnull=false;
-    *val=value.int4;
-    return value.int4;
-}
-
-int64_t FieldValue::get(int64_t *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return 0;
-    }
-    *isnull=false;
-    *val=value.int8;
-    return value.int8;
-}
-
-float FieldValue::get(float *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return 0;
-    }
-    *isnull=false;
-    *val=value.singlefloat;
-    return value.singlefloat;
-}
-
-double FieldValue::get(double *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return 0;
-    }
-    *isnull=false;
-    *val=value.doublefloat;
-    return value.doublefloat;
-}
-
-char FieldValue::get(char *val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return (char)0;
-    }
-    *isnull=false;
-    *val=value.character;
-    return value.character;
-}
-
-void FieldValue::get(std::string &val, bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-    }
-    *isnull=false;
-    val=*value.str;
-}
-
-bool FieldValue::getbool(bool *isnull)
-{
-    if (valtype==VAL_NULL)
-    {
-        *isnull=true;
-        return false;
-    }
-    *isnull=false;
-    return value.boolean;
-}
-
-bool FieldValue::getnull()
-{
-    if (valtype==VAL_NULL)
-    {
-        return true;
-    }
-    return false;
-}
-
-void FieldValue::ser(Serdes &output)
-{
-    switch (valtype)
-    {
-    case VAL_NONE:
-        output.ser((char)valtype);
-        break;
-
-    case VAL_POD:
-        output.ser((char)valtype);
-        output.ser(value.int8);
-        break;
-
-    case VAL_NULL:
-        output.ser((char)valtype);
-        break;
-
-    case VAL_STRING:
-    {
-        output.ser((char)valtype);
-        size_t s=value.str->size();
-        output.ser((int64_t)s);
-        output.ser(*value.str);
-    }
-    break;
-
-    default:
-        LOG("can't serialize type " << valtype);
-    }
-}
-
-size_t FieldValue::sersize()
-{
-    switch (valtype)
-    {
-    case VAL_NONE:
-        return 1;
-        break;
-
-    case VAL_POD:
-        return 1+sizeof(value.int8);
-        break;
-
-    case VAL_NULL:
-        return 1;
-        break;
-
-    case VAL_STRING:
-    {
-        return 1+sizeof(int64_t)+value.str->size();
-    }
-    break;
-
-    default:
-        LOG("can't get size of type " << valtype);
-    }
-
-    return 0;
-}
-
-void FieldValue::des(Serdes &input)
-{
-    input.des((char *)&valtype);
-    
-    switch (valtype)
-    {
-    case VAL_NONE:
-        break;
-
-    case VAL_POD:
-        input.des(&value.int8);
-        break;
-
-    case VAL_NULL:
-        break;
-
-    case VAL_STRING:
-    {
-        int64_t s;
-        input.des(&s);
-        input.des(*value.str);
-    }
-    break;
-
-    default:
-        LOG("can't deserialize type " << valtype);
-    }
-}
