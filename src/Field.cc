@@ -331,7 +331,7 @@ void FieldValue::des(Serdes &input)
 }
 
 Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
-                 precision (-1), scale (-1)
+                 precision (-1), scale (-1), nullconstraint (false)
 {
     defaultValue.nullify();
 }
@@ -339,7 +339,8 @@ Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
 Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
                      type_e typearg)
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
-      type (typearg), size (-1), precision (-1), scale (-1)
+      type (typearg), size (-1), precision (-1), scale (-1),
+      nullconstraint (false)
 {
     defaultValue.nullify();
 
@@ -387,7 +388,7 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
 Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
                      type_e typearg, int64_t arg1arg)
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
-      type (typearg), scale (-1)
+      type (typearg), scale (-1), nullconstraint (false)
 {
     defaultValue.nullify();
 
@@ -442,7 +443,8 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
 Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
                      type_e typearg, int64_t arg1arg, int64_t arg2arg)
     : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
-      type (typearg), size (-1), precision (arg1arg), scale (arg2arg)
+      type (typearg), size (-1), precision (arg1arg), scale (arg2arg),
+      nullconstraint (false)
 {
     defaultValue.nullify();
 }
@@ -493,6 +495,10 @@ void Field::serValue(FieldValue &fieldValue, Serdes &output)
 {
     switch (type)
     {
+    case TYPE_TINYINT:
+        output.ser(fieldValue.value.int1);
+        break;
+        
     case TYPE_SMALLINT:
         output.ser(fieldValue.value.int2);
         break;
@@ -594,6 +600,11 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
 {
     switch (type)
     {
+    case TYPE_TINYINT:
+        fieldValue.valtype=FieldValue::VAL_POD;
+        input.des(&fieldValue.value.int1);
+        break;
+    
     case TYPE_SMALLINT:
         fieldValue.valtype=FieldValue::VAL_POD;
         input.des(&fieldValue.value.int2);
@@ -716,6 +727,9 @@ size_t Field::valueSize(FieldValue &fieldValue)
 {
     switch (type)
     {
+    case TYPE_TINYINT:
+        return sizeof(fieldValue.value.int1);
+        
     case TYPE_SMALLINT:
         return sizeof(fieldValue.value.int2);
         
@@ -788,6 +802,15 @@ void Field::pgoutput(FieldValue &fieldValue, std::string &outmsg)
     
     switch (type)
     {
+    case TYPE_TINYINT:
+    {
+        char val[5]; // length of largest int8_t plus - and \n
+        int32_t len=sprintf(val, "%i", fieldValue.value.int1);
+        pgoutint32(len, outmsg);
+        outmsg.append(val);
+    }
+    break;
+    
     case TYPE_SMALLINT:
     {
         char val[7];  // length of largest int16_t plus - and \n
@@ -795,6 +818,7 @@ void Field::pgoutput(FieldValue &fieldValue, std::string &outmsg)
         pgoutint32(len, outmsg);
         outmsg.append(val);
     }
+    break;
         
     case TYPE_INT:
     {

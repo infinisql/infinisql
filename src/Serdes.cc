@@ -59,6 +59,23 @@ Serdes::~Serdes()
     }
 }
 
+void Serdes::ser(int8_t d)
+{
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
+}
+
+size_t Serdes::sersize(int8_t d)
+{
+    return sizeof(d);
+}
+
+void Serdes::des(int8_t *d)
+{
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
+}
+
 void Serdes::ser(int16_t d)
 {
     memcpy(val.mv_data, &d, sizeof(d));

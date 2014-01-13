@@ -53,6 +53,7 @@ public:
      */
     union __attribute__ ((__packed__)) value_u
     {
+        int8_t int1;
         int16_t int2;
         int32_t int4;
         int64_t int8;
@@ -246,6 +247,7 @@ public:
     enum __attribute__ ((__packed__)) type_e
     {
         TYPE_NONE=0,
+        TYPE_TINYINT,
         TYPE_SMALLINT,
         TYPE_INT,
         TYPE_BIGINT,
@@ -377,10 +379,8 @@ public:
     ssize_t precision;
     ssize_t scale;
 
-    /** 
-     * @todo have methods to operate on defaultValue, but for now set as NULL
-     */
     FieldValue defaultValue;
+    bool nullconstraint;
 };
 
 #endif // INFINISQLFIELD_H

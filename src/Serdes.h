@@ -73,6 +73,26 @@ public:
      *
      * @param d item to serialize
      */
+    void ser(int8_t d);
+    /** 
+     * @brief get size of item serialized
+     *
+     * @param d item to measure for serialization
+     *
+     * @return size of item when serialized
+     */
+    static size_t sersize(int8_t d);
+    /** 
+     * @brief deserialize item
+     *
+     * @param d buffer into which to serialize item
+     */
+    void des(int8_t *d);
+    /** 
+     * @brief serialize item
+     *
+     * @param d item to serialize
+     */
     void ser(int16_t d);
     /** 
      * @brief get size of item serialized
