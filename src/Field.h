@@ -92,6 +92,12 @@ public:
      */
     void set(std::string &val);
     /** 
+     * @brief set value to 8bit int
+     *
+     * @param val value to set
+     */
+    void set(int8_t val);
+    /** 
      * @brief set value to 16bit int
      *
      * @param val value to set
@@ -139,6 +145,14 @@ public:
      * @param val value to set
      */
     void setfalse();
+    /** 
+     * @brief retrieve 8bit int value
+     *
+     * @param val returned value
+     *
+     * @return 8bit int
+     */
+    int8_t get(int8_t *val, bool *isnull);
     /** 
      * @brief retrieve 16bit int value
      *

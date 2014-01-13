@@ -83,6 +83,13 @@ void FieldValue::set(std::string &val)
     value.str=new string(val);
 }
 
+void FieldValue::set(int8_t val)
+{
+    deletestr();
+    valtype=VAL_POD;
+    value.int1=val;
+}
+
 void FieldValue::set(int16_t val)
 {
     deletestr();
@@ -137,6 +144,18 @@ void FieldValue::setfalse()
     deletestr();
     valtype=VAL_POD;
     value.boolean=false;
+}
+
+int8_t FieldValue::get(int8_t *val, bool *isnull)
+{
+    if (valtype==VAL_NULL)
+    {
+        *isnull=true;
+        return 0;
+    }
+    *isnull=false;
+    *val=value.int1;
+    return value.int1;
 }
 
 int16_t FieldValue::get(int16_t *val, bool *isnull)
