@@ -1,5 +1,6 @@
 *~
 \#*#
+.\#*
 aclocal.m4
 autom4te.cache
 benchmark/.deps
@@ -57,3 +58,5 @@ docs/doxy/latex/*
 infinisqlmgr.conf
 .sconsign.dblite
 core.*
+src/infinisqld
+.scon*

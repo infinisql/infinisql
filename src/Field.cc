@@ -145,17 +145,14 @@ Field::~Field()
     
 }
 
-size_t Field::ser(char *output)
+void Field::ser(Serdes &output)
 {
-    size_t retsize=0;
-    retsize = Serdes::ser(name, output+retsize);
-    retsize += Serdes::ser(fieldid, output+retsize);
-    retsize += Serdes::ser((char)type, output+retsize);
-    retsize += Serdes::ser((int64_t)size, output+retsize);
-    retsize += Serdes::ser((int64_t)precision, output+retsize);
-    retsize += Serdes::ser((int64_t)scale, output+retsize);
-
-    return retsize;
+    output.ser(name);
+    output.ser(fieldid);
+    output.ser((char)type);
+    output.ser((int64_t)size);
+    output.ser((int64_t)precision);
+    output.ser((int64_t)scale);
 }
 
 size_t Field::sersize()
@@ -171,18 +168,15 @@ size_t Field::sersize()
     return retsize;
 }
 
-size_t Field::des(char *input, Table *tablePtrarg)
+void Field::des(Serdes &input, Table *tablePtrarg)
 {
     tablePtr=tablePtrarg;
-    size_t retsize=0;
-    retsize = Serdes::des(input, name);
-    retsize += Serdes::des(input+retsize, &fieldid);
-    retsize += Serdes::des(input+retsize, (char *)&type);
-    retsize += Serdes::des(input+retsize, (int64_t *)&size);
-    retsize += Serdes::des(input+retsize, (int64_t *)&precision);
-    retsize += Serdes::des(input+retsize, (int64_t *)&scale);
-
-    return retsize;
+    input.des(name);
+    input.des(&fieldid);
+    input.des((char *)&type);
+    input.des((int64_t *)&size);
+    input.des((int64_t *)&precision);
+    input.des((int64_t *)&scale);
 }
 
 FieldValue::FieldValue() : valtype (VAL_NONE)
@@ -575,7 +569,7 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
         
     case Field::TYPE_INT:
     {
-        char val[12]={}; // length of largest int32_t plus - and \n
+        char val[12]; // length of largest int32_t plus - and \n
         int32_t len=sprintf(val, "%i", value.int4);
         pgoutint32(len, outmsg);
         outmsg.append(val);
@@ -584,7 +578,7 @@ void FieldValue::pgoutput(Field &field, std::string &outmsg)
         
     case Field::TYPE_BIGINT:
     {
-        char val[21]={}; // length of largest int64_t plus - and \n
+        char val[21]; // length of largest int64_t plus - and \n
         int32_t len=sprintf(val, "%li", value.int8);
         pgoutint32(len, outmsg);
         outmsg.append(val);
@@ -960,41 +954,35 @@ bool FieldValue::getnull()
     return false;
 }
 
-size_t FieldValue::ser(char *output)
+void FieldValue::ser(Serdes &output)
 {
     switch (valtype)
     {
     case VAL_NONE:
-        Serdes::ser((char)valtype, output);
-        return 1;
+        output.ser((char)valtype);
         break;
 
     case VAL_POD:
-        Serdes::ser((char)valtype, output);
-        Serdes::ser(value.int8, output+1);
-        return 1+sizeof(value.int8);
+        output.ser((char)valtype);
+        output.ser(value.int8);
         break;
 
     case VAL_NULL:
-        Serdes::ser((char)valtype, output);
-        return 1;
+        output.ser((char)valtype);
         break;
 
     case VAL_STRING:
     {
-        Serdes::ser((char)valtype, output);
+        output.ser((char)valtype);
         size_t s=value.str->size();
-        Serdes::ser((int64_t)s, output+1);
-        Serdes::ser(*value.str, output+1+sizeof(s));
-        return 1+sizeof(int64_t)+s;
+        output.ser((int64_t)s);
+        output.ser(*value.str);
     }
     break;
 
     default:
         LOG("can't serialize type " << valtype);
     }
-
-    return 0;
 }
 
 size_t FieldValue::sersize()
@@ -1026,37 +1014,31 @@ size_t FieldValue::sersize()
     return 0;
 }
 
-size_t FieldValue::des(char *input)
+void FieldValue::des(Serdes &input)
 {
-    Serdes::des(input, (char *)&valtype);
+    input.des((char *)&valtype);
     
     switch (valtype)
     {
     case VAL_NONE:
-        return 1;
         break;
 
     case VAL_POD:
-        Serdes::des(input+1, &value.int8);
-        return 1+sizeof(value.int8);
+        input.des(&value.int8);
         break;
 
     case VAL_NULL:
-        return 1;
         break;
 
     case VAL_STRING:
     {
         int64_t s;
-        Serdes::des(input, &s);
-        Serdes::des(input+1+sizeof(s), *value.str);
-        return 1+sizeof(s)+s;
+        input.des(&s);
+        input.des(*value.str);
     }
     break;
 
     default:
         LOG("can't deserialize type " << valtype);
     }
-
-    return 0;
 }

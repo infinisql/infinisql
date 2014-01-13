@@ -28,20 +28,41 @@
 #include "Serdes.h"
 #line 30 "Serdes.cc"
 
-Serdes::Serdes()
+Serdes::Serdes() : isreadonly (false), pos (0), val ({0, NULL})
+{
+    
+}
+
+Serdes::Serdes(size_t mv_sizearg) : isreadonly (false), pos (0)
+{
+    val.mv_data=new (std::nothrow) char[mv_sizearg];
+    if (val.mv_data != NULL)
+    {
+        val.mv_size=mv_sizearg;
+    }
+    else
+    {
+        val.mv_size=0;
+    }
+}
+
+Serdes::Serdes(MDB_val &valarg) : isreadonly (true), pos (0), val (valarg)
 {
     
 }
 
 Serdes::~Serdes()
 {
-    
+    if (isreadonly==false)
+    {
+        delete (char *)val.mv_data;
+    }
 }
 
-size_t Serdes::ser(int16_t d, char *output)
+void Serdes::ser(int16_t d)
 {
-    memcpy(output, &d, sizeof(d));
-    return sizeof(d);
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
 }
 
 size_t Serdes::sersize(int16_t d)
@@ -49,16 +70,16 @@ size_t Serdes::sersize(int16_t d)
     return sizeof(d);
 }
 
-size_t Serdes::des(char *input, int16_t *d)
+void Serdes::des(int16_t *d)
 {
-    memcpy(d, input, sizeof(*d));
-    return sizeof(*d);
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
 }
 
-size_t Serdes::ser(int32_t d, char *output)
+void Serdes::ser(int32_t d)
 {
-    memcpy(output, &d, sizeof(d));
-    return sizeof(d);
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
 }
 
 size_t Serdes::sersize(int32_t d)
@@ -66,16 +87,16 @@ size_t Serdes::sersize(int32_t d)
     return sizeof(d);
 }
 
-size_t Serdes::des(char *input, int32_t *d)
+void Serdes::des(int32_t *d)
 {
-    memcpy(d, input, sizeof(*d));
-    return sizeof(*d);
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
 }
 
-size_t Serdes::ser(int64_t d, char *output)
+void Serdes::ser(int64_t d)
 {
-    memcpy(output, &d, sizeof(d));
-    return sizeof(d);
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
 }
 
 size_t Serdes::sersize(int64_t d)
@@ -83,16 +104,16 @@ size_t Serdes::sersize(int64_t d)
     return sizeof(d);
 }
 
-size_t Serdes::des(char *input, int64_t *d)
+void Serdes::des(int64_t *d)
 {
-    memcpy(d, input, sizeof(*d));
-    return sizeof(*d);
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
 }
 
-size_t Serdes::ser(char d, char *output)
+void Serdes::ser(char d)
 {
-    memcpy(output, &d, sizeof(d));
-    return sizeof(d);
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
 }
 
 size_t Serdes::sersize(char d)
@@ -100,16 +121,16 @@ size_t Serdes::sersize(char d)
     return sizeof(d);
 }
 
-size_t Serdes::des(char *input, char *d)
+void Serdes::des(char *d)
 {
-    memcpy(d, input, sizeof(*d));
-    return sizeof(*d);
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
 }
 
-size_t Serdes::ser(bool d, char *output)
+void Serdes::ser(bool d)
 {
-    memcpy(output, &d, sizeof(d));
-    return sizeof(d);
+    memcpy(val.mv_data, &d, sizeof(d));
+    pos+=sersize(d);
 }
 
 size_t Serdes::sersize(bool d)
@@ -117,18 +138,18 @@ size_t Serdes::sersize(bool d)
     return sizeof(d);
 }
 
-size_t Serdes::des(char *input, bool *d)
+void Serdes::des(bool *d)
 {
-    memcpy(d, input, sizeof(*d));
-    return sizeof(*d);
+    memcpy(d, val.mv_data, sizeof(*d));
+    pos+=sersize(*d);
 }
 
-size_t Serdes::ser(std::string &d, char *output)
+void Serdes::ser(std::string &d)
 {
     size_t s=d.size();
-    ser((int64_t)s, output);
-    d.copy(output+sizeof(int64_t), s, 0);
-    return sizeof(int64_t)+s;
+    ser((int64_t)s);
+    d.copy((char *)val.mv_data, s, 0);
+    pos+=s;
 }
 
 size_t Serdes::sersize(std::string &d)
@@ -136,10 +157,41 @@ size_t Serdes::sersize(std::string &d)
     return sizeof(int64_t)+d.size();
 }
 
-size_t Serdes::des(char *input, std::string &d)
+void Serdes::des(std::string &d)
 {
     int64_t s;
-    des(input, &s);
-    d.assign(input+sizeof(s), s);
-    return sizeof(s)+s;
+    des(&s);
+    d.assign((char *)val.mv_data, s);
+    pos+=s;
+}
+
+void Serdes::ser(void *d, size_t dsize)
+{
+    memcpy(val.mv_data, d, dsize);
+}
+
+void Serdes::des(void *d, size_t dsize)
+{
+    memcpy(d, val.mv_data, dsize);
+    pos+=dsize;
+}
+
+void Serdes::rewind()
+{
+    pos=0;
+}
+
+void Serdes::ffwd()
+{
+    pos=val.mv_size-1;
+}
+
+bool Serdes::isbegin()
+{
+    return pos==0 ? true : false;
+}
+
+bool Serdes::isend()
+{
+    return pos==val.mv_size-1 ? true : false;
 }

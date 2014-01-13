@@ -34,7 +34,8 @@
 
 #include "version.h"
 #include "main.h"
-#line 38 "main.cc"
+#include "Lightning.h"
+#line 39 "main.cc"
 
 std::ofstream logfile;
 string zmqsocket;
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
 
     logfile << "yo" << std::endl;
     LOG("haha" << "hoho" << 73);
+    Lightning l;
 
     while (1)
     {

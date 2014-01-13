@@ -106,22 +106,19 @@ public:
      *
      * @return size of serialized object
      */
-    size_t ser(char *output);
+    void ser(Serdes &output);
     /** 
      * @brief get size of object if serialized
      *
-     * @return size if serialized
      */
     size_t sersize();
     /** 
      * @brief deserialize from character array
      *
-     * @param input input character array
      * @param tablePtrarg associated Table
      *
-     * @return size of serialized object read from character array
      */
-    size_t des(char *input, Table *tablePtrarg);    
+    void des(Serdes &input, Table *tablePtrarg);    
     
     Table *tablePtr;
     std::string name;
@@ -369,21 +366,18 @@ public:
      *
      * @return size of serialized object
      */
-    size_t ser(char *output);
+    void ser(Serdes &output);
     /** 
      * @brief get size of object if serialized
      *
-     * @return size if serialized
      */
     size_t sersize();
     /** 
-     * @brief deserialize from character array
      *
-     * @param input input character array
+     * @param input input serialized object
      *
-     * @return size of serialized object read from character array
      */
-    size_t des(char *input);
+    void des(Serdes &input);
    
     valtype_e valtype;
     value_u value;

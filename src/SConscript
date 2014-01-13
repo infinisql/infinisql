@@ -1,1 +1,8 @@
-Program('infinisqld', ['main.cc', 'Field.cc', 'Serdes.cc'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')
+Program('infinisqld', ['main.cc', 'Field.cc', 'Serdes.cc', 'Lightning.cc'], LIBS=['lmdb'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')
+
+env = Environment()
+conf = Configure(env)
+if not conf.CheckLibWithHeader('lmdb', 'lmdb.h', 'c++'):
+   print 'Did not find either lmdb library, header or both, exiting!'
+   Exit(1)
+env = conf.Finish()

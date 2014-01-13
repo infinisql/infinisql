@@ -17,41 +17,25 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLMAIN_H
-#define INFINISQLMAIN_H
-
 /**
- * @file   main.h
+ * @file   Lightning.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan  6 14:20:07 2014
+ * @date   Tue Jan  7 23:41:14 2014
  * 
- * @brief  widely used headers and global declarations
+ * @brief  interface to Symas' Lightning MDB
+ * 
  */
 
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <ios>
-#include <unistd.h>
-#include <ostream>
-#include <cstring>
-#include <iostream>
-#include <cerrno>
-#include <cassert>
-#include <sstream>
-#include <sys/stat.h>
+#ifndef INFINISQLLIGHTNING_H
+#define INFINISQLLIGHTNING_H
 
-using namespace std;
-using std::string;
+#include <lmdb.h>
 
-extern std::ofstream logfile;
-extern string zmqsocket;
-extern void *zmqcontext;
+class Lightning
+{
+public:
+    Lightning();
+    ~Lightning();
+};
 
-#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
-    << std::endl
-
-/* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
-
-#endif // INFINISQLMAIN_H
+#endif // INFINISQLLIGHTNING_H
