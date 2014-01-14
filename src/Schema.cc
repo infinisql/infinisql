@@ -17,43 +17,48 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLMAIN_H
-#define INFINISQLMAIN_H
-
 /**
- * @file   main.h
+ * @file   Schema.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan  6 14:20:07 2014
+ * @date   Mon Jan 13 13:04:58 2014
  * 
- * @brief  widely used headers and global declarations
+ * @brief  schema is a collection of tables and indices
  */
 
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <ios>
-#include <unistd.h>
-#include <ostream>
-#include <cstring>
-#include <iostream>
-#include <cerrno>
-#include <cassert>
-#include <sstream>
-#include <sys/stat.h>
-#include <lmdb.h>
-#include <boost/unordered_map.hpp>
+#include "Schema.h"
+#include "Catalog.h"
+#line 31 "Schema.cc"
 
-using namespace std;
-using std::string;
+Schema::Schema() : Metadata(-1, "", NULL, NULL, NULL, -1, -1, -1)
+{
+    
+}
 
-extern std::ofstream logfile;
-extern string zmqsocket;
-extern void *zmqcontext;
+Schema::~Schema()
+{
+    
+}
 
-#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
-    << std::endl
+void Schema::ser(Serdes &output)
+{
+    Metadata::ser(output);
+}
 
-/* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
+size_t Schema::sersize()
+{
+    return Metadata::sersize();
+}
 
-#endif // INFINISQLMAIN_H
+void Schema::des(Serdes &input)
+{
+    Metadata::des(input);
+}
+
+void Schema::getparents()
+{
+    parentSchema=NULL;
+    parentTable=NULL;
+    parentcatalogid=parentCatalog->id;
+    parentschemaid=-1;
+    parenttableid=-1;
+}

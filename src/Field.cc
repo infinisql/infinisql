@@ -26,7 +26,8 @@
  */
 
 #include "Field.h"
-#line 30 "Field.cc"
+#include "Table.h"
+#line 31 "Field.cc"
 
 FieldValue::FieldValue() : valtype (VAL_NONE)
 {
@@ -322,7 +323,7 @@ size_t FieldValue::sersize()
 
 void FieldValue::des(Serdes &input)
 {
-    input.des((char *)&valtype);
+    input.des((char &)valtype);
     
     switch (valtype)
     {
@@ -330,7 +331,7 @@ void FieldValue::des(Serdes &input)
         break;
 
     case VAL_POD:
-        input.des(&value.int8);
+        input.des(value.int8);
         break;
 
     case VAL_NULL:
@@ -339,7 +340,7 @@ void FieldValue::des(Serdes &input)
     case VAL_STRING:
     {
         int64_t s;
-        input.des(&s);
+        input.des(s);
         input.des(*value.str);
     }
     break;
@@ -349,15 +350,16 @@ void FieldValue::des(Serdes &input)
     }
 }
 
-Field::Field() : tablePtr (NULL), fieldid (-1), type (TYPE_NONE), size (-1),
-                 precision (-1), scale (-1), nullconstraint (false)
+Field::Field() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1),
+                 type (TYPE_NONE), size (-1), precision (-1), scale (-1),
+                 nullconstraint (false)
 {
     defaultValue.nullify();
 }
 
-Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
                      type_e typearg)
-    : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
+    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
       type (typearg), size (-1), precision (-1), scale (-1),
       nullconstraint (false)
 {
@@ -404,9 +406,9 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
     }
 }    
 
-Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
                      type_e typearg, int64_t arg1arg)
-    : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
+    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
       type (typearg), scale (-1), nullconstraint (false)
 {
     defaultValue.nullify();
@@ -459,9 +461,9 @@ Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
     }
 }
 
-Field::Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
                      type_e typearg, int64_t arg1arg, int64_t arg2arg)
-    : tablePtr (tablePtrarg), name (namearg), fieldid (fieldidarg),
+    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
       type (typearg), size (-1), precision (arg1arg), scale (arg2arg),
       nullconstraint (false)
 {
@@ -473,10 +475,18 @@ Field::~Field()
     
 }
 
+void Field::getparents()
+{
+    parentCatalog=parentTable->parentCatalog;
+    parentSchema=parentTable->parentSchema;
+    parentcatalogid=parentTable->parentcatalogid;
+    parentschemaid=parentTable->parentschemaid;
+    parenttableid=parentTable->id;
+}
+
 void Field::ser(Serdes &output)
 {
-    output.ser(name);
-    output.ser(fieldid);
+    Metadata::ser(output);
     output.ser((char)type);
     output.ser((int64_t)size);
     output.ser((int64_t)precision);
@@ -486,9 +496,7 @@ void Field::ser(Serdes &output)
 
 size_t Field::sersize()
 {
-    size_t retsize=0;
-    retsize = Serdes::sersize(name);
-    retsize += Serdes::sersize(fieldid);
+    size_t retsize=Metadata::sersize();
     retsize += Serdes::sersize((char)type);
     retsize += Serdes::sersize((int64_t)size);
     retsize += Serdes::sersize((int64_t)precision);
@@ -498,15 +506,13 @@ size_t Field::sersize()
     return retsize;
 }
 
-void Field::des(Serdes &input, Table *tablePtrarg)
+void Field::des(Serdes &input)
 {
-    tablePtr=tablePtrarg;
-    input.des(name);
-    input.des(&fieldid);
-    input.des((char *)&type);
-    input.des((int64_t *)&size);
-    input.des((int64_t *)&precision);
-    input.des((int64_t *)&scale);
+    Metadata::des(input);
+    input.des((char &)type);
+    input.des((int64_t &)size);
+    input.des((int64_t &)precision);
+    input.des((int64_t &)scale);
     defaultValue.des(input);
 }
 
@@ -621,27 +627,27 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
     {
     case TYPE_TINYINT:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.int1);
+        input.des(fieldValue.value.int1);
         break;
     
     case TYPE_SMALLINT:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.int2);
+        input.des(fieldValue.value.int2);
         break;
 
     case TYPE_INT:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.int4);
+        input.des(fieldValue.value.int4);
         break;
 
     case TYPE_BIGINT:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.int8);
+        input.des(fieldValue.value.int8);
         break;
 
     case TYPE_BOOLEAN:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.boolean);
+        input.des(fieldValue.value.boolean);
         break;
 
     case TYPE_NUMERIC:
@@ -656,24 +662,24 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
 
     case TYPE_REAL:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.singlefloat);
+        input.des(fieldValue.value.singlefloat);
         break;
 
     case TYPE_DOUBLE_PRECISION:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.doublefloat);
+        input.des(fieldValue.value.doublefloat);
         break;
 
     case TYPE_FLOAT:
         fieldValue.valtype=FieldValue::VAL_POD;
-        input.des(&fieldValue.value.doublefloat);
+        input.des(fieldValue.value.doublefloat);
         break;
 
     case TYPE_CHARACTER:
         if (size==1)
         {
             fieldValue.valtype=FieldValue::VAL_POD;
-            input.des(&fieldValue.value.character);
+            input.des(fieldValue.value.character);
         }
         else
         {
@@ -685,7 +691,7 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
     case TYPE_CHARACTER_VARYING:
     {
         fieldValue.valtype=FieldValue::VAL_STRING;
-        input.des(fieldValue.value.str);
+        input.des(*fieldValue.value.str);
     }
     break;
 
@@ -693,7 +699,7 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
         if (size <= 8)
         {
             fieldValue.valtype=FieldValue::VAL_POD;
-            input.des(&fieldValue.value.character);
+            input.des(fieldValue.value.character);
         }
         else
         {
@@ -706,7 +712,7 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
     case TYPE_BIT_VARYING:
     {
         fieldValue.valtype=FieldValue::VAL_STRING;
-        input.des(fieldValue.value.str);
+        input.des(*fieldValue.value.str);
     }
     break;
 

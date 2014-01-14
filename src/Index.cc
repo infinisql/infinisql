@@ -17,43 +17,48 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLMAIN_H
-#define INFINISQLMAIN_H
-
 /**
- * @file   main.h
+ * @file   Index.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan  6 14:20:07 2014
+ * @date   Mon Jan 13 13:45:59 2014
  * 
- * @brief  widely used headers and global declarations
+ * @brief  index
  */
 
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <ios>
-#include <unistd.h>
-#include <ostream>
-#include <cstring>
-#include <iostream>
-#include <cerrno>
-#include <cassert>
-#include <sstream>
-#include <sys/stat.h>
-#include <lmdb.h>
-#include <boost/unordered_map.hpp>
+#include "Index.h"
+#include "Catalog.h"
+#include "Table.h"
+#line 32 "Index.cc"
 
-using namespace std;
-using std::string;
+Index::Index() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1)
+{
+    
+}
 
-extern std::ofstream logfile;
-extern string zmqsocket;
-extern void *zmqcontext;
+Index::~Index()
+{
+}
 
-#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
-    << std::endl
+void Index::ser(Serdes &output)
+{
+    Metadata::ser(output);
+}
 
-/* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
+size_t Index::sersize()
+{
+    return Metadata::sersize();
+}
 
-#endif // INFINISQLMAIN_H
+void Index::des(Serdes &input)
+{
+    Metadata::des(input);
+}
+
+void Index::getparents()
+{
+    parentCatalog=parentTable->parentCatalog;
+    parentSchema=parentTable->parentSchema;
+    parentcatalogid=parentTable->parentcatalogid;
+    parentschemaid=parentTable->parentschemaid;
+    parenttableid=parentTable->id;
+}

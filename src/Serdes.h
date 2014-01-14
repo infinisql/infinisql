@@ -87,7 +87,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(int8_t *d);
+    void des(int8_t &d);
     /** 
      * @brief serialize item
      *
@@ -107,7 +107,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(int16_t *d);
+    void des(int16_t &d);
     /** 
      * @brief serialize item
      *
@@ -127,7 +127,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(int32_t *d);
+    void des(int32_t &d);
     /** 
      * @brief serialize item
      *
@@ -147,7 +147,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(int64_t *d);
+    void des(int64_t &d);
     /** 
      * @brief serialize item
      *
@@ -167,7 +167,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(float *d);
+    void des(float &d);
     /** 
      * @brief serialize item
      *
@@ -187,7 +187,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(double *d);
+    void des(double &d);
     /** 
      * @brief serialize item
      *
@@ -207,7 +207,7 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(char *d);
+    void des(char &d);
     /** 
      * @brief serialize item
      *
@@ -227,34 +227,29 @@ public:
      *
      * @param d buffer into which to serialize item
      */
-    void des(bool *d);
+    void des(bool &d);
 
     // containers
     /** 
-     * @brief serialize item
+     * @brief serialize string prepend length in the output stream
      *
-     * @param d item to serialize
+     * @param d string to serialize
      */
     void ser(std::string &d);
     /** 
-     * @brief get size of item serialized
+     * @brief get size of string if serialized, plus room to hold length
      *
      * @param d item to measure for serialization
      *
-     * @return size of item when serialized
+     * @return size of item when serialized plus room to hold length
      */
     static size_t sersize(std::string &d);
     /** 
-     * @brief deserialize item
+     * @brief deserialize string with length in object before string
      *
      * @param d buffer into which to serialize item
      */
     void des(std::string &d);
-    /** 
-     * @brief create string and deserialize into it
-     *
-     * @param d buffer to create and into which to deserialize
-     */
     /** 
      * @brief serialize string and store only the contents (not the length)
      *
@@ -262,7 +257,6 @@ public:
      * @param dsize length to serialize
      */
     void ser(std::string &d, size_t dsize);
-    void des(std::string *d);
     /** 
      * @brief create string and deserialize into it, providing length
      *

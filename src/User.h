@@ -17,43 +17,36 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLMAIN_H
-#define INFINISQLMAIN_H
-
 /**
- * @file   main.h
+ * @file   User.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan  6 14:20:07 2014
+ * @date   Mon Jan 13 14:40:39 2014
  * 
- * @brief  widely used headers and global declarations
+ * @brief  user record
  */
 
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <ios>
-#include <unistd.h>
-#include <ostream>
-#include <cstring>
-#include <iostream>
-#include <cerrno>
-#include <cassert>
-#include <sstream>
-#include <sys/stat.h>
-#include <lmdb.h>
-#include <boost/unordered_map.hpp>
+#ifndef INFINISQLUSER_H
+#define INFINISQLUSER_H
 
-using namespace std;
-using std::string;
+#include "Metadata.h"
 
-extern std::ofstream logfile;
-extern string zmqsocket;
-extern void *zmqcontext;
+class User : Metadata
+{
+public:
+    User();
+    User(Catalog *catalogPtrarg, std::string namearg, std::string &passwordarg);
+    ~User();
+    
+    void ser(Serdes &output);
+    size_t sersize();
+    void des(Serdes &input);
+    /** 
+     * @brief get metadata parent information from parentTable
+     *
+     */
+    void getparents();
 
-#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
-    << std::endl
+    std::string password;
+};
 
-/* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
-
-#endif // INFINISQLMAIN_H
+#endif // INFINISQLUSER_H

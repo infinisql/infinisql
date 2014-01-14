@@ -1,4 +1,4 @@
-Program('infinisqld', ['main.cc', 'Field.cc', 'Serdes.cc', 'Lightning.cc'], LIBS=['lmdb'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')
+Program('infinisqld', ['main.cc', 'Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc'], LIBS=['lmdb'], CXXFLAGS='-ggdb -O3 -finline-functions -Wall -Wno-deprecated -Wno-write-strings -std=c++11 -mcx16')
 
 env = Environment()
 conf = Configure(env)

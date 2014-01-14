@@ -28,7 +28,7 @@
 #ifndef INFINISQLFIELD_H
 #define INFINISQLFIELD_H
 
-#include "main.h"
+#include "Metadata.h"
 
 /** 
  * @brief field contents
@@ -51,7 +51,7 @@ public:
     /** 
      * @brief field contents, or pointer to string
      */
-    union __attribute__ ((__packed__)) value_u
+    union value_u
     {
         int8_t int1;
         int16_t int2;
@@ -59,7 +59,7 @@ public:
         int64_t int8;
         float singlefloat;
         double doublefloat;
-        char character;
+        int32_t character;
         bool boolean;
         std::string *str;
     };
@@ -255,7 +255,7 @@ class Table;
 /** 
  * @brief SQL field type
  */
-class Field
+class Field : public Metadata
 {
 public:
     enum __attribute__ ((__packed__)) type_e
@@ -286,38 +286,41 @@ public:
     /** 
      * @brief create Field
      *
-     * @param tablePtrarg associated with Table
      * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
+     * @param idarg fieldid (index within table)
      * @param typearg field type
      */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
               type_e typearg);
     /** 
      * @brief create Field
      *
-     * @param tablePtrarg associated with Table
      * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
+     * @param idarg fieldid (index within table)
      * @param typearg field type
      * @param arg1arg parameter to create field
      */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
               type_e typearg, int64_t arg1arg);
     /** 
      * @brief create Field
      *
-     * @param tablePtrarg associated with Table
      * @param namearg field name
-     * @param fieldidarg fieldid (index within table)
+     * @param idarg fieldid (index within table)
      * @param typearg field type
      * @param arg1arg 1st parameter to create field
      * @param arg2arg 2nd parameter to create field
      */
-    Field(Table *tablePtrarg, std::string namearg, int16_t fieldidarg,
+    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
               type_e typearg, int64_t arg1arg, int64_t arg2arg);
     ~Field();
 
+    /** 
+     * @brief get metadata parent information from parentTable
+     *
+     */
+    void getparents();
+    
     /** 
      * @brief serialize to character array
      *
@@ -335,12 +338,12 @@ public:
      */
     size_t sersize();
     /** 
-     * @brief deserialize from character array
+     * @brief deserialize from byte array
      *
-     * @param tablePtrarg associated Table
+     * @param input array to deserialize from
      *
      */
-    void des(Serdes &input, Table *tablePtrarg);
+    void des(Serdes &input);
 
     /** 
      * @brief serialize a field value, such as into an LMDB value
@@ -385,9 +388,6 @@ public:
      */
     void convertValue(FieldValue &fieldValue);
     
-    Table *tablePtr;
-    std::string name;
-    int16_t fieldid;
     type_e type;
     ssize_t size;
     ssize_t precision;
