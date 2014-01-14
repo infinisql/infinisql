@@ -29,9 +29,34 @@
 #include "Catalog.h"
 #line 31 "Schema.cc"
 
-Schema::Schema() : Metadata(-1, "", NULL, NULL, NULL, -1, -1, -1)
+Schema::Schema() : Metadata()
 {
     
+}
+
+Schema::Schema(Catalog *parentCatalogarg, std::string namearg)
+{
+    if (parentCatalogarg->schemaName2Id.count(namearg))
+    {
+        id=-1;
+        return;
+    }
+    parentCatalog=parentCatalogarg;
+    getparents();
+    id=parentCatalog->getnextschemaid();
+    name=namearg;
+    parentCatalog->schemaName2Id[name]=id;
+    parentCatalog->schemaid2Schema[id]=this;    
+}
+
+Schema::Schema(const Schema &orig) : Metadata (orig)
+{
+}
+
+Schema &Schema::operator= (const Schema &orig)
+{
+    (Metadata)*this=Metadata(orig);
+    return *this;
 }
 
 Schema::~Schema()

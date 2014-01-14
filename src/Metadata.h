@@ -44,6 +44,7 @@ public:
              Schema *parentSchemaarg, Table *parentTablearg,
              int16_t parentcatalogid, int16_t parentschemaid,
         int16_t parenttableid);
+    Metadata(const Metadata &orig);
     ~Metadata();
 
     void ser(Serdes &output);

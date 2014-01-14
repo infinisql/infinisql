@@ -39,6 +39,9 @@ class Schema : public Metadata
 {
 public:
     Schema();
+    Schema(Catalog *parentCatalogarg, std::string namearg);
+    Schema(const Schema &orig);
+    Schema &operator= (const Schema &orig);
     ~Schema();
 
     void ser(Serdes &output);

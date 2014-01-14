@@ -287,34 +287,50 @@ public:
      * @brief create Field
      *
      * @param namearg field name
-     * @param idarg fieldid (index within table)
      * @param typearg field type
      */
-    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-              type_e typearg);
+    Field(Table *parentTablearg, std::string namearg, type_e typearg);
     /** 
      * @brief create Field
      *
      * @param namearg field name
-     * @param idarg fieldid (index within table)
      * @param typearg field type
      * @param arg1arg parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-              type_e typearg, int64_t arg1arg);
+    Field(Table *parentTablearg, std::string namearg, type_e typearg,
+          int64_t arg1arg);
     /** 
      * @brief create Field
      *
      * @param namearg field name
-     * @param idarg fieldid (index within table)
      * @param typearg field type
      * @param arg1arg 1st parameter to create field
      * @param arg2arg 2nd parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-              type_e typearg, int64_t arg1arg, int64_t arg2arg);
+    Field(Table *parentTablearg, std::string namearg, type_e typearg,
+          int64_t arg1arg, int64_t arg2arg);
+    Field(const Field &orig);
+    Field &operator= (const Field &orig);
+    /** 
+     * @brief copy sufficient for reproduction elsewhere
+     *
+     * requires post-processing for destination actors' pointers to related
+     * objects
+     *
+     * @param orig 
+     */
+    void cp(const Field &orig);
     ~Field();
 
+    /** 
+     * @brief intialize field parents and maps, get fieldid
+     *
+     * @param parentTablearg parent table
+     * @param namearg name
+     * 
+     * @return 
+     */
+    bool initializer(Table *parentTablearg, std::string namearg);
     /** 
      * @brief get metadata parent information from parentTable
      *

@@ -34,7 +34,28 @@ class User : Metadata
 {
 public:
     User();
-    User(Catalog *catalogPtrarg, std::string namearg, std::string &passwordarg);
+    /** 
+     * @brief first instantiation from UserSchemaMgr
+     *
+     * @param parentCatalogarg parent Catalog
+     * @param namearg username
+     * @param passwordarg password
+     *
+     * @return 
+     */
+    User(Catalog *parentCatalogarg, std::string namearg,
+         std::string &passwordarg);
+    User(const User &orig);
+    User &operator= (const User &orig);
+    /** 
+     * @brief copy sufficient for reproduction elsewhere
+     *
+     * requires post-processing for destination actors' pointers to related
+     * objects
+     *
+     * @param orig 
+     */
+    void cp(const User &orig);
     ~User();
     
     void ser(Serdes &output);

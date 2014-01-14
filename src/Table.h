@@ -37,6 +37,18 @@ class Table : public Metadata
 {
 public:
     Table();
+    Table(Schema *parentSchemaarg, std::string namearg);
+    Table(const Table &orig);
+    Table &operator= (const Table &orig);
+    /** 
+     * @brief copy sufficient for reproduction elsewhere
+     *
+     * requires post-processing for destination actors' pointers to related
+     * objects
+     *
+     * @param orig 
+     */
+    void cp(const Table &orig);
     ~Table();
 
     void ser(Serdes &output);

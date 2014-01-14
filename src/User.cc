@@ -29,17 +29,43 @@
 #include "Catalog.h"
 #line 31 "User.cc"
 
-User::User() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1), password ("")
+User::User() : Metadata ()
 {
     
 }
 
-User::User(Catalog *catalogPtrarg, std::string namearg, std::string &passwordarg)
+User::User(Catalog *parentCatalogarg, std::string namearg,
+           std::string &passwordarg)
     : password (passwordarg)
 {
-    parentCatalog=catalogPtrarg;
+    if (parentCatalogarg->userName2Id.count(namearg))
+    {
+        id=-1;
+        return;
+    }
+    parentCatalog=parentCatalogarg;
     getparents();
     id=parentCatalog->getnextuserid();
+    name=namearg;
+    parentCatalog->userName2Id[name]=id;
+    parentCatalog->userid2User[id]=this;
+}
+
+User::User(const User &orig) : Metadata (orig)
+{
+    cp(orig);
+}
+
+User &User::operator= (const User &orig)
+{
+    (Metadata)*this=Metadata(orig);
+    cp(orig);
+    return *this;
+}
+
+void User::cp(const User &orig)
+{
+    password=orig.password;
 }
 
 User::~User()
@@ -55,10 +81,7 @@ void User::ser(Serdes &output)
 
 size_t User::sersize()
 {
-    size_t retval=Metadata::sersize();
-    retval+=Serdes::sersize(password);
-
-    return retval;
+    return Metadata::sersize() + Serdes::sersize(password);
 }
 
 void User::des(Serdes &input)

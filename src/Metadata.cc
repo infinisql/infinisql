@@ -30,7 +30,7 @@
 #include "Metadata.h"
 #line 32 "Metadata.cc"
 
-Metadata::Metadata() : id (0), parentCatalog (NULL), parentSchema (NULL),
+Metadata::Metadata() : id (-1), parentCatalog (NULL), parentSchema (NULL),
                        parentTable (NULL), parentcatalogid (-1),
                        parentschemaid (-1), parenttableid (-1)
 {
@@ -49,6 +49,18 @@ Metadata::Metadata(int16_t idarg, std::string namearg, Catalog *parentCatalogarg
     
 }
 
+Metadata::Metadata(const Metadata &orig)
+{
+    id=orig.id;
+    name=orig.name;
+    parentCatalog=NULL;
+    parentSchema=NULL;
+    parentTable=NULL;
+    parentcatalogid=orig.parentcatalogid;
+    parentschemaid=orig.parentschemaid;
+    parenttableid=orig.parenttableid;
+}
+
 Metadata::~Metadata()
 {
     
@@ -58,15 +70,23 @@ void Metadata::ser(Serdes &output)
 {
     output.ser(id);
     output.ser(name);
+    output.ser(parentcatalogid);
+    output.ser(parentschemaid);
+    output.ser(parenttableid);
 }
 
 size_t Metadata::sersize()
 {
-    return Serdes::sersize(id) + Serdes::sersize(name);
+    return Serdes::sersize(id) + Serdes::sersize(name) +
+        Serdes::sersize(parentcatalogid) + Serdes::sersize(parentschemaid) +
+        Serdes::sersize(parenttableid);
 }
 
 void Metadata::des(Serdes &input)
 {
     input.des(id);
     input.des(name);
+    input.des(parentcatalogid);
+    input.des(parentschemaid);
+    input.des(parenttableid);
 }

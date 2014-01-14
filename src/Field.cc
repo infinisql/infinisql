@@ -350,20 +350,20 @@ void FieldValue::des(Serdes &input)
     }
 }
 
-Field::Field() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1),
-                 type (TYPE_NONE), size (-1), precision (-1), scale (-1),
-                 nullconstraint (false)
+Field::Field() : Metadata (), type (TYPE_NONE), size (-1), precision (-1),
+                 scale (-1), nullconstraint (false)
 {
     defaultValue.nullify();
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-                     type_e typearg)
-    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
-      type (typearg), size (-1), precision (-1), scale (-1),
+Field::Field(Table *parentTablearg, std::string namearg, type_e typearg)
+    : Metadata (), type (typearg), size (-1), precision (-1), scale (-1),
       nullconstraint (false)
 {
-    defaultValue.nullify();
+    if (initializer(parentTablearg, namearg)==false)
+    {
+        return;
+    }
 
     switch (type)
     {
@@ -406,12 +406,14 @@ Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
     }
 }    
 
-Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-                     type_e typearg, int64_t arg1arg)
-    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
-      type (typearg), scale (-1), nullconstraint (false)
+Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
+             int64_t arg1arg)
+      : Metadata (), type (typearg), scale (-1), nullconstraint (false)
 {
-    defaultValue.nullify();
+    if (initializer(parentTablearg, namearg)==false)
+    {
+        return;
+    }
 
     switch (type)
     {
@@ -461,18 +463,60 @@ Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
     }
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, int16_t idarg,
-                     type_e typearg, int64_t arg1arg, int64_t arg2arg)
-    : Metadata (idarg, namearg, NULL, NULL, parentTablearg, -1, -1, -1),
-      type (typearg), size (-1), precision (arg1arg), scale (arg2arg),
-      nullconstraint (false)
+Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
+             int64_t arg1arg, int64_t arg2arg)
+        : Metadata (), type (typearg), size (-1), precision (arg1arg),
+        scale (arg2arg), nullconstraint (false)
 {
-    defaultValue.nullify();
+    if (initializer(parentTablearg, namearg)==false)
+    {
+        return;
+    }
+}
+
+Field::Field(const Field &orig) : Metadata (orig)
+{
+    cp(orig);
+}
+
+Field &Field::operator= (const Field &orig)
+{
+    (Metadata)*this=Metadata(orig);
+    cp(orig);
+    return *this;
+}
+
+void Field::cp(const Field &orig)
+{
+    type=orig.type;
+    size=orig.size;
+    precision=orig.precision;
+    scale=orig.scale;
+    defaultValue=orig.defaultValue;
+    nullconstraint=orig.nullconstraint;
 }
 
 Field::~Field()
 {
     
+}
+
+bool Field::initializer(Table *parentTablearg, std::string namearg)
+{
+    if (parentTablearg->fieldName2Id.count(namearg))
+    {
+        id=-1;
+        return false;
+    }
+    parentTable=parentTablearg;
+    getparents();
+    id=parentTable->getnextfieldid();
+    name=namearg;
+    parentTable->fieldName2Id[name]=id;
+    parentTable->fieldid2Field[id]=this;
+    defaultValue.nullify();
+
+    return true;
 }
 
 void Field::getparents()

@@ -27,12 +27,48 @@
 
 #include "Index.h"
 #include "Catalog.h"
+#include "Schema.h"
 #include "Table.h"
 #line 32 "Index.cc"
 
-Index::Index() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1)
+Index::Index() : Metadata ()
 {
     
+}
+
+Index::Index(Table *parentTablearg, std::string namearg)
+{
+    if (parentTablearg->parentCatalog->indexName2Id.count(namearg))
+    {
+        id=-1;
+        return;
+    }
+    parentTable=parentTablearg;
+    getparents();
+    id=parentCatalog->getnextindexid();
+    name=namearg;
+    parentCatalog->indexName2Id[name]=id;
+    parentCatalog->indexid2Index[id]=this;
+    parentSchema->indexName2Id[name]=id;
+    parentSchema->indexid2Index[id]=this;    
+    parentTable->indexName2Id[name]=id;
+    parentTable->indexid2Index[id]=this;    
+}
+
+Index::Index(const Index &orig) : Metadata (orig)
+{
+    cp(orig);
+}
+
+Index &Index::operator= (const Index &orig)
+{
+    (Metadata)*this=Metadata(orig);
+    cp(orig);
+    return *this;
+}
+
+void Index::cp(const Index &orig)
+{
 }
 
 Index::~Index()

@@ -34,6 +34,18 @@ class Index : public Metadata
 {
 public:
     Index();
+    Index(Table *parentTablearg, std::string namearg);
+    Index(const Index &orig);
+    Index &operator= (const Index &orig);
+    /** 
+     * @brief copy sufficient for reproduction elsewhere
+     *
+     * requires post-processing for destination actors' pointers to related
+     * objects
+     *
+     * @param orig 
+     */
+    void cp(const Index &orig);
     ~Index();
 
     void ser(Serdes &output);

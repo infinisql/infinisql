@@ -30,10 +30,43 @@
 #include "Schema.h"
 #line 32 "Table.cc"
 
-Table::Table() : Metadata (-1, "", NULL, NULL, NULL, -1, -1, -1),
-                     nextfieldid (-1)
+Table::Table() : Metadata (), nextfieldid (-1)
 {
     
+}
+
+Table::Table(Schema *parentSchemaarg, std::string namearg) : nextfieldid (-1)
+{
+    if (parentSchemaarg->parentCatalog->tableName2Id.count(namearg))
+    {
+        id=-1;
+        return;
+    }
+    parentSchema=parentSchemaarg;
+    getparents();
+    id=parentCatalog->getnexttableid();
+    name=namearg;
+    parentCatalog->tableName2Id[name]=id;
+    parentCatalog->tableid2Table[id]=this;
+    parentSchema->tableName2Id[name]=id;
+    parentSchema->tableid2Table[id]=this;
+}
+
+Table::Table(const Table &orig) : Metadata (orig)
+{
+    cp(orig);
+}
+
+Table &Table::operator= (const Table &orig)
+{
+    (Metadata)*this=Metadata(orig);
+    cp(orig);
+    return *this;
+}
+
+void Table::cp(const Table &orig)
+{
+    nextfieldid=orig.nextfieldid;
 }
 
 Table::~Table()
