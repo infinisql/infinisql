@@ -115,3 +115,55 @@ int16_t Catalog::getnextindexid()
 {
     return ++nextindexid;
 }
+
+int Catalog::openEnvironment(std::string path)
+{
+    int retval=mdb_env_create(&lmdbinfo.env);
+    if (retval)
+    {
+        return retval;
+    }
+    /* 96 bytes overhed per LMDB database per thread, according to
+     * https://github.com/skydb/sky/pull/103
+     * each table and index are a database
+     */
+    retval=mdb_env_set_maxdbs(lmdbinfo.env, 16384);
+    if (retval)
+    {
+        mdb_env_close(lmdbinfo.env);
+        lmdbinfo.env=NULL;
+        return retval;
+    }
+    retval=mdb_env_open(lmdbinfo.env, path.c_str(), MDB_WRITEMAP,
+                        S_IRUSR|S_IWUSR);
+    if (retval)
+    {
+        mdb_env_close(lmdbinfo.env);
+        lmdbinfo.env=NULL;
+    }
+    
+    return retval;
+}
+
+void Catalog::closeEnvironment()
+{
+    mdb_env_close(lmdbinfo.env);
+    lmdbinfo.env=NULL;
+}
+
+int Catalog::deleteEnvironment(std::string path)
+{
+    string p=path;
+    if (p.size() && p[p.size()-1] != '/')
+    {
+        p.append(1, '/');
+    }
+    string data=p + "data.mdb";
+    int retval=remove(data.c_str());
+    if (retval)
+    {
+        return retval;
+    }
+    string lock=p + "lock.mdb";
+    return remove(lock.c_str());
+}

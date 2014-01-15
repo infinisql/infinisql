@@ -56,6 +56,13 @@ public:
      *
      */
     void getparents();    
+    /** 
+     * @brief open index database
+     *
+     *
+     * @return return value from mdb_dbi_open()
+     */
+    int dbOpen();
 };
 
 #endif // INFINISQLINDEX_H

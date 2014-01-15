@@ -106,3 +106,8 @@ int16_t Table::getnextfieldid()
 {
     return ++nextfieldid;
 }
+
+int Table::dbOpen()
+{
+    return Metadata::dbOpen(0);
+}

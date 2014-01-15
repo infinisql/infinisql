@@ -96,6 +96,34 @@ public:
      */
     int16_t getnextindexid();
 
+    /** 
+     * @brief create and open LMDB environment
+     *
+     * @param path filesystem path for environment
+     *
+     * @return 0 for success, otherwise result from mdb_env_create() or
+     * mdb_env_open()
+     */
+    int openEnvironment(std::string path);
+    /** 
+     * @brief close LMDB environment
+     *
+     * from the FM: "All transactions, databases, and cursors must already be
+     * closed before calling this function. Attempts to use any such handles
+     * after calling this function will cause a SIGSEGV."
+     */
+    void closeEnvironment();
+    /** 
+     * @brief delete data and lock files in LMDB environment directory
+     *
+     * the environment must not be open
+     *
+     * @param path filesystem path of LMDB environment
+     *
+     * @return status from remove() for either of the files
+     */
+    int deleteEnvironment(std::string path);
+    
     int16_t nextuserid;
     int16_t nextschemaid;
     int16_t nexttableid;

@@ -39,17 +39,52 @@ class Table;
 class Metadata
 {
 public:
+    /** 
+     * @brief environment and database handles for LMDB instance
+     *
+     */
+    struct lmdbinfo_s
+    {
+        MDB_env *env;
+        MDB_txn *txn;
+        MDB_cursor *cursor;
+        MDB_dbi dbi;
+    };
+    
     Metadata();
-    Metadata(int16_t idarg, std::string namearg, Catalog *parentCatalogarg,
-             Schema *parentSchemaarg, Table *parentTablearg,
-             int16_t parentcatalogid, int16_t parentschemaid,
-        int16_t parenttableid);
     Metadata(const Metadata &orig);
     ~Metadata();
 
     void ser(Serdes &output);
     size_t sersize();
     void des(Serdes &input);
+
+    /** 
+     * @brief create new or open existing database for table
+     *
+     * called by Table and Index dbopens
+     *
+     * @param flags flags to append to mdb_dbi_open() flags
+     *
+     * @return return value from mdb_dbi_open(), or transaction problem
+     */
+    int dbOpen(unsigned int flags);
+    /** 
+     * @brief close database
+     */
+    void dbClose();
+    /** 
+     * @brief empty database
+     *
+     * @return return value from mdb_drop()
+     */
+    int dbEmpty();
+    /** 
+     * @brief drop database and close it
+     *
+     * @return return value from mdb_drop()
+     */
+    int dbDrop();
     
     int16_t id;
     std::string name;
@@ -60,6 +95,8 @@ public:
     int16_t parentcatalogid;
     int16_t parentschemaid;
     int16_t parenttableid;
+
+    lmdbinfo_s lmdbinfo;
 };
 
 #include "Catalog.h"

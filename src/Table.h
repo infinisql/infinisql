@@ -66,7 +66,14 @@ public:
      * @brief get metadata parent information from parentSchema
      *
      */
-    void getparents();    
+    void getparents();
+    /** 
+     * @brief open table database
+     *
+     *
+     * @return return value from mdb_dbi_open()
+     */
+    int dbOpen();
 
     int16_t nextfieldid;
 

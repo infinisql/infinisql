@@ -98,3 +98,8 @@ void Index::getparents()
     parentschemaid=parentTable->parentschemaid;
     parenttableid=parentTable->id;
 }
+
+int Index::dbOpen()
+{
+    return Metadata::dbOpen(MDB_DUPSORT);
+}

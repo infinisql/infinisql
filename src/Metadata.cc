@@ -32,19 +32,8 @@
 
 Metadata::Metadata() : id (-1), parentCatalog (NULL), parentSchema (NULL),
                        parentTable (NULL), parentcatalogid (-1),
-                       parentschemaid (-1), parenttableid (-1)
-{
-    
-}
-
-Metadata::Metadata(int16_t idarg, std::string namearg, Catalog *parentCatalogarg,
-                   Schema *parentSchemaarg, Table *parentTablearg,
-    int16_t parentcatalogidarg, int16_t parentschemaidarg,
-                   int16_t parenttableidarg)
-    : id (idarg), name (namearg), parentCatalog (parentCatalogarg),
-      parentSchema (parentSchemaarg), parentTable (parentTablearg),
-      parentcatalogid (parentcatalogidarg), parentschemaid (parentschemaidarg),
-      parenttableid (parenttableidarg)
+                       parentschemaid (-1), parenttableid (-1),
+                       lmdbinfo ({NULL, NULL, NULL, 0})
 {
     
 }
@@ -89,4 +78,65 @@ void Metadata::des(Serdes &input)
     input.des(parentcatalogid);
     input.des(parentschemaid);
     input.des(parenttableid);
+}
+
+int Metadata::dbOpen(unsigned int flags)
+{
+    char dbname[sizeof(parentcatalogid)+sizeof(parentschemaid)+sizeof(id)+1]={};
+    memcpy(dbname, &parentcatalogid, sizeof(parentcatalogid));
+    memcpy(dbname+sizeof(parentcatalogid), &parentschemaid,
+           sizeof(parentschemaid));
+    memcpy(dbname+sizeof(parentcatalogid)+sizeof(parentschemaid), &id,
+           sizeof(id));
+
+    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_dbi_open(lmdbinfo.txn, dbname, MDB_CREATE | flags,
+                        &lmdbinfo.dbi);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_txn_commit(lmdbinfo.txn);
+    return retval;
+}
+
+void Metadata::dbClose()
+{
+    mdb_dbi_close(lmdbinfo.env, lmdbinfo.dbi);
+}
+
+int Metadata::dbEmpty()
+{
+    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_drop(lmdbinfo.txn, lmdbinfo.dbi, 0);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_txn_commit(lmdbinfo.txn);
+    return retval;    
+}
+
+int Metadata::dbDrop()
+{
+    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_drop(lmdbinfo.txn, lmdbinfo.dbi, 1);
+    if (retval)
+    {
+        return retval;
+    }
+    retval=mdb_txn_commit(lmdbinfo.txn);
+    return retval;    
 }

@@ -39,6 +39,7 @@
 #include <cerrno>
 #include <cassert>
 #include <sstream>
+#include <cstdio>
 #include <sys/stat.h>
 #include <lmdb.h>
 #include <boost/unordered_map.hpp>
