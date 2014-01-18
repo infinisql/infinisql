@@ -10,5 +10,5 @@ lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc',
 server_source = ['main.cc']
 
 lib = isql_env.Library('infinisql', lib_source)
-isql_env.Append(LIBS=[lib])
+isql_env.Prepend(LIBS=[lib])
 isql_env.Program('infinisqld', server_source)

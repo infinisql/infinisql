@@ -54,7 +54,6 @@ def lmdb(archive_path):
     os.system('tar -C "%s" -xzf "%s"' % (archive_folder, archive_path))
     os.chdir(os.path.join(archive_folder, "mdb-mdb", "libraries", "liblmdb"))
     os.system("make")
-    copy_lib(os.path.join(os.getcwd(), "liblmdb.so"))
     copy_lib(os.path.join(os.getcwd(), "liblmdb.a"))
     copy_inc(os.path.join(os.getcwd(), "lmdb.h"), "lmdb.h")
     
