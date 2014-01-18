@@ -2,14 +2,14 @@ import os
 from glob import glob
 
 Import('env')
-env.Append(CCFLAGS="-g --std=c++11 -mcx16 -finline-functions "
-                   "-Wall -Wno-deprecated -Wno-write-strings " 
-                   "-I./ -I../src ")
-
-env.Append(LIBS = ["infinisql", "tbb", "lmdb"])
+test_env = env.Clone()
+test_env.Append(CPPATH=["gtest"])
+test_env.Append(LIBPATH=["#src"])
+test_env.Append(CXXFLAGS="-g -finline-functions ")
+test_env.Append(LIBS = ["infinisql", "tbb", "lmdb", "pthread"])
 
 test_sources = [] #glob("src/*.cc")
 
 sources = ['gtest/gtest-all.cc', 'gtest/gtest_main.cc'] + test_sources
 
-env.Program('test', sources)
+test_env.Program('test', sources)

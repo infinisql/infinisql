@@ -28,7 +28,7 @@
  */
 
 #ifndef INFINISQLSERDES_H
-#define INFINISALSERDES_H
+#define INFINISQLSERDES_H
 
 #include <cstdint>
 #include <cstdlib>
