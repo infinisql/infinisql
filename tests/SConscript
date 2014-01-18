@@ -1,13 +1,11 @@
 import os
 from glob import glob
 
-env = Environment()
-env['ENV']['TERM'] = os.environ['TERM']
-env.Replace(CXX="clang++")
+Import('env')
 env.Append(CCFLAGS="-g --std=c++11 -mcx16 -finline-functions "
                    "-Wall -Wno-deprecated -Wno-write-strings " 
-                   "-I./ -I../src -I../deps/include")
-env.Append(LIBPATH="../lib")
+                   "-I./ -I../src ")
+
 env.Append(LIBS = ["infinisql", "tbb", "lmdb"])
 
 test_sources = [] #glob("src/*.cc")

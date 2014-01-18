@@ -1,4 +1,5 @@
-env = Environment()
+Import('env')
+
 env.Append(LIBS=['infinisql', 'tbb', 'lmdb'])
 env.Append(CXXFLAGS='-std=c++11 -ggdb -O3 -finline-functions '
                     '-Wall -Wno-deprecated -Wno-write-strings -mcx16')
@@ -10,9 +11,3 @@ server_source = ['main.cc']
 
 Library('infinisql', lib_source)
 Program('infinisqld', server_source)
-
-conf = Configure(env)
-if not conf.CheckLibWithHeader('lmdb', 'lmdb.h', 'c++'):
-   print 'Did not find either lmdb library, header or both, exiting!'
-   Exit(1)
-env = conf.Finish()
