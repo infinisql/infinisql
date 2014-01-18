@@ -129,14 +129,14 @@ public:
     int16_t nexttableid;
     int16_t nextindexid;
 
-    std::unordered_map<std::string, int16_t> userName2Id; /**< userName2Id[name]=userid */
-    std::unordered_map<int16_t, User *> userid2User; /**< userid2User[userid]=User* */
-    std::unordered_map<std::string, int16_t> schemaName2Id; /**< schemaName2Id[name]=schemaid */
-    std::unordered_map<int16_t, Schema *> schemaid2Schema; /**< schemaid2Schema[schemaid]=Schema* */
-    std::unordered_map<std::string, int16_t> tableName2Id; /**< tableName2Id[name]=tableid */
-    std::unordered_map<int16_t, Table *> tableid2Table; /**< tableid2Table[tableid]=Table* */
-    std::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
-    std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
+    boost::unordered_map<std::string, int16_t> userName2Id; /**< userName2Id[name]=userid */
+    boost::unordered_map<int16_t, User *> userid2User; /**< userid2User[userid]=User* */
+    boost::unordered_map<std::string, int16_t> schemaName2Id; /**< schemaName2Id[name]=schemaid */
+    boost::unordered_map<int16_t, Schema *> schemaid2Schema; /**< schemaid2Schema[schemaid]=Schema* */
+    boost::unordered_map<std::string, int16_t> tableName2Id; /**< tableName2Id[name]=tableid */
+    boost::unordered_map<int16_t, Table *> tableid2Table; /**< tableid2Table[tableid]=Table* */
+    boost::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
+    boost::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
 
 #endif // INFINISQLCATALOG_H

@@ -77,10 +77,10 @@ public:
 
     int16_t nextfieldid;
 
-    std::unordered_map<std::string, int16_t> fieldName2Id; /**< fieldName2Id[name]=fieldid */
-    std::unordered_map<int16_t, Field *> fieldid2Field; /**< fieldid2Field[fieldid]=Field* */
-    std::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
-    std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
+    boost::unordered_map<std::string, int16_t> fieldName2Id; /**< fieldName2Id[name]=fieldid */
+    boost::unordered_map<int16_t, Field *> fieldid2Field; /**< fieldid2Field[fieldid]=Field* */
+    boost::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
+    boost::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
 
 #endif // INFINISQLTABLE_H

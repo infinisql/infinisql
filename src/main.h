@@ -43,6 +43,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
+#include <boost/unordered_map.hpp>
 
 using namespace std;
 using std::string;

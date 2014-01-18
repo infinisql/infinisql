@@ -60,3 +60,5 @@ infinisqlmgr.conf
 core.*
 src/infinisqld
 .scon*
+src/libinfinisql.a
+tests/test
