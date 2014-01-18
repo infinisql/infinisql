@@ -44,7 +44,7 @@ public:
     {
         VAL_NONE=0,
         VAL_POD,
-        VAL_nullptr,
+        VAL_NULL,
         VAL_STRING
     };
 
