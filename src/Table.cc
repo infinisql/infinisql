@@ -96,7 +96,7 @@ void Table::des(Serdes &input)
 void Table::getparents()
 {
     parentCatalog=parentSchema->parentCatalog;
-    parentTable=NULL;
+    parentTable=nullptr;
     parentcatalogid=parentSchema->parentcatalogid;
     parentschemaid=parentSchema->id;
     parenttableid=-1;

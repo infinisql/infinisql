@@ -74,7 +74,7 @@ void FieldValue::deletestr()
 void FieldValue::nullify()
 {
     deletestr();
-    valtype=VAL_NULL;
+    valtype=VAL_nullptr;
 }
 
 void FieldValue::set(std::string &val)
@@ -149,7 +149,7 @@ void FieldValue::setfalse()
 
 int8_t FieldValue::get(int8_t *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -161,7 +161,7 @@ int8_t FieldValue::get(int8_t *val, bool *isnull)
 
 int16_t FieldValue::get(int16_t *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -173,7 +173,7 @@ int16_t FieldValue::get(int16_t *val, bool *isnull)
 
 int32_t FieldValue::get(int32_t *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -185,7 +185,7 @@ int32_t FieldValue::get(int32_t *val, bool *isnull)
 
 int64_t FieldValue::get(int64_t *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -197,7 +197,7 @@ int64_t FieldValue::get(int64_t *val, bool *isnull)
 
 float FieldValue::get(float *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -209,7 +209,7 @@ float FieldValue::get(float *val, bool *isnull)
 
 double FieldValue::get(double *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return 0;
@@ -221,7 +221,7 @@ double FieldValue::get(double *val, bool *isnull)
 
 char FieldValue::get(char *val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return (char)0;
@@ -233,7 +233,7 @@ char FieldValue::get(char *val, bool *isnull)
 
 void FieldValue::get(std::string &val, bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
     }
@@ -243,7 +243,7 @@ void FieldValue::get(std::string &val, bool *isnull)
 
 bool FieldValue::getbool(bool *isnull)
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         *isnull=true;
         return false;
@@ -254,7 +254,7 @@ bool FieldValue::getbool(bool *isnull)
 
 bool FieldValue::getnull()
 {
-    if (valtype==VAL_NULL)
+    if (valtype==VAL_nullptr)
     {
         return true;
     }
@@ -274,7 +274,7 @@ void FieldValue::ser(Serdes &output)
         output.ser(value.int8);
         break;
 
-    case VAL_NULL:
+    case VAL_nullptr:
         output.ser((char)valtype);
         break;
 
@@ -304,7 +304,7 @@ size_t FieldValue::sersize()
         return 1+sizeof(value.int8);
         break;
 
-    case VAL_NULL:
+    case VAL_nullptr:
         return 1;
         break;
 
@@ -334,7 +334,7 @@ void FieldValue::des(Serdes &input)
         input.des(value.int8);
         break;
 
-    case VAL_NULL:
+    case VAL_nullptr:
         break;
 
     case VAL_STRING:
@@ -863,7 +863,7 @@ size_t Field::valueSize(FieldValue &fieldValue)
 
 void Field::pgoutput(FieldValue &fieldValue, std::string &outmsg)
 {
-    if (fieldValue.valtype==FieldValue::VAL_NULL)
+    if (fieldValue.valtype==FieldValue::VAL_nullptr)
     {
         pgoutint32(-1, outmsg);
         return;
@@ -1037,7 +1037,7 @@ void Field::convertValue(FieldValue &fieldValue)
 {
     switch (fieldValue.valtype)
     {
-    case FieldValue::VAL_NULL:
+    case FieldValue::VAL_nullptr:
         break;
 
     case FieldValue::VAL_STRING:
@@ -1045,7 +1045,7 @@ void Field::convertValue(FieldValue &fieldValue)
         {
         case TYPE_REAL:
         {
-            float singlefloat=std::stof(*fieldValue.value.str, NULL);
+            float singlefloat=std::stof(*fieldValue.value.str, nullptr);
             fieldValue.deletestr();
             fieldValue.valtype=FieldValue::VAL_POD;
             fieldValue.value.singlefloat=singlefloat;
@@ -1054,7 +1054,7 @@ void Field::convertValue(FieldValue &fieldValue)
 
         case TYPE_DOUBLE_PRECISION:
         {
-            float doublefloat=std::stod(*fieldValue.value.str, NULL);
+            float doublefloat=std::stod(*fieldValue.value.str, nullptr);
             fieldValue.deletestr();
             fieldValue.valtype=FieldValue::VAL_POD;
             fieldValue.value.doublefloat=doublefloat;
@@ -1063,7 +1063,7 @@ void Field::convertValue(FieldValue &fieldValue)
         
         case TYPE_FLOAT:
         {
-            float doublefloat=std::stod(*fieldValue.value.str, NULL);
+            float doublefloat=std::stod(*fieldValue.value.str, nullptr);
             fieldValue.deletestr();
             fieldValue.valtype=FieldValue::VAL_POD;
             fieldValue.value.doublefloat=doublefloat;

@@ -131,7 +131,7 @@ int Catalog::openEnvironment(std::string path)
     if (retval)
     {
         mdb_env_close(lmdbinfo.env);
-        lmdbinfo.env=NULL;
+        lmdbinfo.env=nullptr;
         return retval;
     }
     retval=mdb_env_open(lmdbinfo.env, path.c_str(), MDB_WRITEMAP,
@@ -139,7 +139,7 @@ int Catalog::openEnvironment(std::string path)
     if (retval)
     {
         mdb_env_close(lmdbinfo.env);
-        lmdbinfo.env=NULL;
+        lmdbinfo.env=nullptr;
     }
     
     return retval;
@@ -148,7 +148,7 @@ int Catalog::openEnvironment(std::string path)
 void Catalog::closeEnvironment()
 {
     mdb_env_close(lmdbinfo.env);
-    lmdbinfo.env=NULL;
+    lmdbinfo.env=nullptr;
 }
 
 int Catalog::deleteEnvironment(std::string path)

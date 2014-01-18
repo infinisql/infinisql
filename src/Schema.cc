@@ -81,8 +81,8 @@ void Schema::des(Serdes &input)
 
 void Schema::getparents()
 {
-    parentSchema=NULL;
-    parentTable=NULL;
+    parentSchema=nullptr;
+    parentTable=nullptr;
     parentcatalogid=parentCatalog->id;
     parentschemaid=-1;
     parenttableid=-1;

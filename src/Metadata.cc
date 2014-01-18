@@ -30,10 +30,10 @@
 #include "Metadata.h"
 #line 32 "Metadata.cc"
 
-Metadata::Metadata() : id (-1), parentCatalog (NULL), parentSchema (NULL),
-                       parentTable (NULL), parentcatalogid (-1),
+Metadata::Metadata() : id (-1), parentCatalog (nullptr), parentSchema (NULL),
+                       parentTable (nullptr), parentcatalogid (-1),
                        parentschemaid (-1), parenttableid (-1),
-                       lmdbinfo ({NULL, NULL, NULL, 0})
+                       lmdbinfo ({nullptr, NULL, NULL, 0})
 {
     
 }
@@ -42,9 +42,9 @@ Metadata::Metadata(const Metadata &orig)
 {
     id=orig.id;
     name=orig.name;
-    parentCatalog=NULL;
-    parentSchema=NULL;
-    parentTable=NULL;
+    parentCatalog=nullptr;
+    parentSchema=nullptr;
+    parentTable=nullptr;
     parentcatalogid=orig.parentcatalogid;
     parentschemaid=orig.parentschemaid;
     parenttableid=orig.parenttableid;
@@ -89,7 +89,7 @@ int Metadata::dbOpen(unsigned int flags)
     memcpy(dbname+sizeof(parentcatalogid)+sizeof(parentschemaid), &id,
            sizeof(id));
 
-    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    int retval=mdb_txn_begin(lmdbinfo.env, nullptr, 0, &lmdbinfo.txn);
     if (retval)
     {
         return retval;
@@ -111,7 +111,7 @@ void Metadata::dbClose()
 
 int Metadata::dbEmpty()
 {
-    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    int retval=mdb_txn_begin(lmdbinfo.env, nullptr, 0, &lmdbinfo.txn);
     if (retval)
     {
         return retval;
@@ -127,7 +127,7 @@ int Metadata::dbEmpty()
 
 int Metadata::dbDrop()
 {
-    int retval=mdb_txn_begin(lmdbinfo.env, NULL, 0, &lmdbinfo.txn);
+    int retval=mdb_txn_begin(lmdbinfo.env, nullptr, 0, &lmdbinfo.txn);
     if (retval)
     {
         return retval;

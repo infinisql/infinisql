@@ -35,11 +35,11 @@ Lightning::Lightning()
     LOG("mdb_env_create results: " << mdb_env_create(&env));
     LOG("mdb_env_open results: " << mdb_env_open(env, "/tmp/lmdb", 0, S_IRUSR|S_IWUSR));
     MDB_txn *txn;
-    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, NULL, 0, &txn));
+    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, nullptr, 0, &txn));
     MDB_dbi dbi;
-    LOG("mdb_dbi_open results: " << mdb_dbi_open(txn, NULL, 0, &dbi));
+    LOG("mdb_dbi_open results: " << mdb_dbi_open(txn, nullptr, 0, &dbi));
     LOG("mdb_txn_commit results: " << mdb_txn_commit(txn));
-    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, NULL, 0, &txn));
+    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, nullptr, 0, &txn));
     MDB_val mkey, mval;
     string key="haha";
     string val="hoho";
@@ -53,12 +53,12 @@ Lightning::Lightning()
     mkey.mv_size=key2.size();
     mkey.mv_data=(void *)key2.c_str();
     mval.mv_size=0;
-    mval.mv_data=NULL;
-    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, NULL, 0, &txn));
+    mval.mv_data=nullptr;
+    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, nullptr, 0, &txn));
     LOG("mdb_put results: " << mdb_put(txn, dbi, &mkey, &mval, 0));
     LOG("mdb_txn_commit results: " << mdb_txn_commit(txn));
     
-    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, NULL, 0, &txn));
+    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, nullptr, 0, &txn));
     mkey.mv_size=key.size();
     mkey.mv_data=(void *)key.c_str();
     LOG("mdb_get results: " << mdb_get(txn, dbi, &mkey, &mval));
@@ -66,7 +66,7 @@ Lightning::Lightning()
     string res((const char *)mval.mv_data, mval.mv_size);
     LOG("val: " << res);
     
-    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, NULL, 0, &txn));
+    LOG("mdb_txn_begin results: " << mdb_txn_begin(env, nullptr, 0, &txn));
     mkey.mv_size=key2.size();
     mkey.mv_data=(void *)key2.c_str();
     LOG("mdb_get results: " << mdb_get(txn, dbi, &mkey, &mval));

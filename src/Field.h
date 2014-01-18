@@ -44,7 +44,7 @@ public:
     {
         VAL_NONE=0,
         VAL_POD,
-        VAL_NULL,
+        VAL_nullptr,
         VAL_STRING
     };
 
@@ -81,7 +81,7 @@ public:
      */
     void deletestr();
     /** 
-     * @ brief set field to NULL
+     * @ brief set field to nullptr
      *
      */
     void nullify();

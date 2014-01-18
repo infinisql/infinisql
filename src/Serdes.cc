@@ -28,7 +28,7 @@
 #include "Serdes.h"
 #line 30 "Serdes.cc"
 
-Serdes::Serdes() : isreadonly (false), pos (0), val ({0, NULL})
+Serdes::Serdes() : isreadonly (false), pos (0), val ({0, nullptr})
 {
     
 }
@@ -36,7 +36,7 @@ Serdes::Serdes() : isreadonly (false), pos (0), val ({0, NULL})
 Serdes::Serdes(size_t mv_sizearg) : isreadonly (false), pos (0)
 {
     val.mv_data=new (std::nothrow) char[mv_sizearg];
-    if (val.mv_data != NULL)
+    if (val.mv_data != nullptr)
     {
         val.mv_size=mv_sizearg;
     }
@@ -224,7 +224,7 @@ void Serdes::ser(std::string &d, size_t dsize)
 void Serdes::des(std::string *d, size_t dsize)
 {
     d=new (std::nothrow) std::string((char *)val.mv_data, dsize);
-    if (d != NULL)
+    if (d != nullptr)
     {
         pos+=dsize;
     }
