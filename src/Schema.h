@@ -53,10 +53,10 @@ public:
      */
     void getparents();
     
-    boost::unordered_map<std::string, int16_t> tableName2Id; /**< tableName2Id[name]=tableid */
-    boost::unordered_map<int16_t, Table *> tableid2Table; /**< tableid2Table[tableid]=Table* */
-    boost::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
-    boost::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
+    std::unordered_map<std::string, int16_t> tableName2Id; /**< tableName2Id[name]=tableid */
+    std::unordered_map<int16_t, Table *> tableid2Table; /**< tableid2Table[tableid]=Table* */
+    std::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
+    std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
 
 #endif // INFINISQLSCHEMA_H

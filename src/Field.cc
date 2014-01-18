@@ -761,12 +761,12 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue)
     break;
 
     /**
-     * @todo date & time functions, likely use boost::date_time
+     * @todo date & time functions, likely use std::date_time
      * 
      */
 
         /*
-          // probably use boost::date_time 8 bytes without tz
+          // probably use std::date_time 8 bytes without tz
           // mm-dd-yyyy
     case TYPE_DATE:
         break;

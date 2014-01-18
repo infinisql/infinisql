@@ -28,21 +28,21 @@
  * @brief  widely used headers and global declarations
  */
 
+#include <cassert>
+#include <cerrno>
+#include <cstdio>
 #include <cstdlib>
-#include <string>
+#include <cstring>
 #include <fstream>
 #include <ios>
-#include <unistd.h>
-#include <ostream>
-#include <cstring>
 #include <iostream>
-#include <cerrno>
-#include <cassert>
+#include <ostream>
 #include <sstream>
-#include <cstdio>
+#include <string>
+#include <unordered_map>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <lmdb.h>
-#include <boost/unordered_map.hpp>
 
 using namespace std;
 using std::string;
