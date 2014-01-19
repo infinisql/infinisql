@@ -1,11 +1,15 @@
 
 #include <gtest/gtest.h>
+#include "Catalog.h"
+#include "Schema.h"
 #include "Table.h"
 #include "Field.h"
 
 
 TEST(FieldTest, SetType_tinyint) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_TINYINT};
     
 	{
@@ -154,7 +158,9 @@ TEST(FieldTest, SetType_tinyint) {
 
 
 TEST(FieldTest, SetType_smallint) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_SMALLINT};
     
 	{
@@ -303,7 +309,9 @@ TEST(FieldTest, SetType_smallint) {
 
 
 TEST(FieldTest, SetType_int) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_INT};
     
 	{
@@ -452,7 +460,9 @@ TEST(FieldTest, SetType_int) {
 
 
 TEST(FieldTest, SetType_bigint) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_BIGINT};
     
 	{
@@ -601,7 +611,9 @@ TEST(FieldTest, SetType_bigint) {
 
 
 TEST(FieldTest, SetType_boolean) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_BOOLEAN};
     
 	{
@@ -750,7 +762,9 @@ TEST(FieldTest, SetType_boolean) {
 
 
 TEST(FieldTest, SetType_numeric) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_NUMERIC};
     
 	{
@@ -899,7 +913,9 @@ TEST(FieldTest, SetType_numeric) {
 
 
 TEST(FieldTest, SetType_decimal) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_DECIMAL};
     
 	{
@@ -1048,7 +1064,9 @@ TEST(FieldTest, SetType_decimal) {
 
 
 TEST(FieldTest, SetType_real) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_REAL};
     
 	{
@@ -1197,7 +1215,9 @@ TEST(FieldTest, SetType_real) {
 
 
 TEST(FieldTest, SetType_double_precision) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_DOUBLE_PRECISION};
     
 	{
@@ -1346,7 +1366,9 @@ TEST(FieldTest, SetType_double_precision) {
 
 
 TEST(FieldTest, SetType_float) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_FLOAT};
     
 	{
@@ -1495,7 +1517,9 @@ TEST(FieldTest, SetType_float) {
 
 
 TEST(FieldTest, SetType_character) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_CHARACTER};
     
 	{
@@ -1644,7 +1668,9 @@ TEST(FieldTest, SetType_character) {
 
 
 TEST(FieldTest, SetType_character_varying) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_CHARACTER_VARYING};
     
 	{
@@ -1793,7 +1819,9 @@ TEST(FieldTest, SetType_character_varying) {
 
 
 TEST(FieldTest, SetType_bit) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_BIT};
     
 	{
@@ -1942,7 +1970,9 @@ TEST(FieldTest, SetType_bit) {
 
 
 TEST(FieldTest, SetType_bit_varying) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_BIT_VARYING};
     
 	{
@@ -2091,7 +2121,9 @@ TEST(FieldTest, SetType_bit_varying) {
 
 
 TEST(FieldTest, SetType_date) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_DATE};
     
 	{
@@ -2240,7 +2272,9 @@ TEST(FieldTest, SetType_date) {
 
 
 TEST(FieldTest, SetType_time) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_TIME};
     
 	{
@@ -2389,7 +2423,9 @@ TEST(FieldTest, SetType_time) {
 
 
 TEST(FieldTest, SetType_timestamp) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_TIMESTAMP};
     
 	{
@@ -2538,7 +2574,9 @@ TEST(FieldTest, SetType_timestamp) {
 
 
 TEST(FieldTest, SetType_time_with_time_zone) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_TIME_WITH_TIME_ZONE};
     
 	{
@@ -2687,7 +2725,9 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 
 
 TEST(FieldTest, SetType_timestamp_with_time_zone) {
-    auto t = std::make_shared<Table>();
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
     Field f{t, "test_field", Field::type_e::TYPE_TIMESTAMP_WITH_TIME_ZONE};
     
 	{
