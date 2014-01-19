@@ -27,17 +27,17 @@
 
 #include "Serdes.h"
 
-Serdes::Serdes() : isreadonly(false), pos(0), val({0, nullptr})
+Serdes::Serdes() : isreadonly (false), pos (0), val ({0, nullptr})
 {
     
 }
 
-Serdes::Serdes(size_t mv_size) : isreadonly(false), pos(0)
+Serdes::Serdes(size_t mv_sizearg) : Serdes()
 {
-    val.mv_data=new (std::nothrow) char[mv_size];
+    val.mv_data=new (std::nothrow) char[mv_sizearg];
     if (val.mv_data != nullptr)
     {
-        val.mv_size=mv_size;
+        val.mv_size=mv_sizearg;
     }
     else
     {
@@ -45,12 +45,7 @@ Serdes::Serdes(size_t mv_size) : isreadonly(false), pos(0)
     }
 }
 
-Serdes::Serdes(MDB_val &valarg) : isreadonly(true), pos(0), val(valarg)
-{
-    
-}
-
-Serdes::Serdes(MDB_val *valarg) : isreadonly(false), pos(0), val(*valarg)
+Serdes::Serdes(MDB_val &valarg) : isreadonly (true), pos (0), val (valarg)
 {
     
 }
@@ -59,7 +54,7 @@ Serdes::~Serdes()
 {
     if (isreadonly==false)
     {
-        delete [] (const char *)val.mv_data;
+        delete (char *)val.mv_data;
     }
 }
 
