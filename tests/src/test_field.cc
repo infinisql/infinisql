@@ -3,7 +3,7 @@
 #include "Field.h"
 
 
-TEST(FieldValueTest, Setint8_t) {
+TEST(FieldValueTest, SetInt8_t) {
     FieldValue fv;
     int8_t miv { std::numeric_limits<int8_t>::min() },
      	   mav { std::numeric_limits<int8_t>::max() };
@@ -23,7 +23,7 @@ TEST(FieldValueTest, Setint8_t) {
 
 
 
-TEST(FieldValueTest, Setint16_t) {
+TEST(FieldValueTest, SetInt16_t) {
     FieldValue fv;
     int16_t miv { std::numeric_limits<int16_t>::min() },
      	    mav { std::numeric_limits<int16_t>::max() };
@@ -43,7 +43,7 @@ TEST(FieldValueTest, Setint16_t) {
 
 
 
-TEST(FieldValueTest, Setint32_t) {
+TEST(FieldValueTest, SetInt32_t) {
     FieldValue fv;
     int32_t miv { std::numeric_limits<int32_t>::min() },
      	    mav { std::numeric_limits<int32_t>::max() };
@@ -63,7 +63,7 @@ TEST(FieldValueTest, Setint32_t) {
 
 
 
-TEST(FieldValueTest, Setint64_t) {
+TEST(FieldValueTest, SetInt64_t) {
     FieldValue fv;
     int64_t miv { std::numeric_limits<int64_t>::min() },
      	    mav { std::numeric_limits<int64_t>::max() };
@@ -83,7 +83,7 @@ TEST(FieldValueTest, Setint64_t) {
 
 
 
-TEST(FieldValueTest, Setfloat) {
+TEST(FieldValueTest, SetFloat) {
     FieldValue fv;
     float miv { std::numeric_limits<float>::min() },
      	  mav { std::numeric_limits<float>::max() };
@@ -103,7 +103,7 @@ TEST(FieldValueTest, Setfloat) {
 
 
 
-TEST(FieldValueTest, Setdouble) {
+TEST(FieldValueTest, SetDouble) {
     FieldValue fv;
     double miv { std::numeric_limits<double>::min() },
     	   mav { std::numeric_limits<double>::max() };
@@ -123,7 +123,7 @@ TEST(FieldValueTest, Setdouble) {
 
 
 
-TEST(FieldValueTest, Setbool) {
+TEST(FieldValueTest, SetBool) {
     FieldValue fv;
     bool miv { true }, mav { false };
     bool tv  { false };
@@ -140,7 +140,7 @@ TEST(FieldValueTest, Setbool) {
     ASSERT_FALSE(is_null);
 }
 
-TEST(FieldValueTest, Setstring) {
+TEST(FieldValueTest, SetString) {
     FieldValue fv;
     std::string miv{ "a" }, mav { "a longer string" };
     std::string tv{};
