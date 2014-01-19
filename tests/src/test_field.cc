@@ -515,9 +515,11 @@ TEST(FieldValueTest, Setbool) {
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
 }
-	{
-	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
-	FieldValue fv, tv1, tv2;
+
+TEST(FieldValueTest, Setstring) {
+    FieldValue fv;
+    std::string miv{ "a" }, mav { "a longer string" };
+    std::string tv{};
     bool is_null { false };
 	std::string rv1, rv2;
 	std::string miv { std::to_string(std::numeric_limits<int16_t>::min()) };
@@ -614,7 +616,7 @@ TEST(FieldValueTest, Setbool) {
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
-	}
-    
+}
+
 }
 
