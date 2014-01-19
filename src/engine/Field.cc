@@ -28,7 +28,6 @@
 #include "Field.h"
 #include "Table.h"
 #include "decimal/decnum.h"
-#line 32 "Field.cc"
 
 FieldValue::FieldValue() :
 		valtype(VAL_NONE) {
@@ -276,7 +275,7 @@ void FieldValue::ser(Serdes &output) {
 		output.ser((int64_t) s);
 		output.ser(*value.str);
 	}
-	break;
+		break;
 
 	case VAL_DECIMAL: {
 		output.ser((char) valtype);
@@ -308,7 +307,7 @@ size_t FieldValue::sersize() {
 
 	case VAL_STRING: {
 		return 1 + sizeof(int64_t) + value.str->size();
-		}
+	}
 		break;
 
 	case VAL_DECIMAL: {
@@ -338,10 +337,10 @@ void FieldValue::des(Serdes &input) {
 		break;
 
 	case VAL_STRING: {
-			int64_t s;
-			value.str = new std::string { };
-			input.des(s);
-			input.des(*(value.str));
+		int64_t s;
+		value.str = new std::string { };
+		input.des(s);
+		input.des(*(value.str));
 		}
 		break;
 
@@ -351,7 +350,7 @@ void FieldValue::des(Serdes &input) {
 			input.des(s);
 			input.des(st);
 			value.dec = new decimal{ st };
-		}
+	}
 		break;
 
 	default:

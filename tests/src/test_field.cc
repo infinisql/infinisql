@@ -23,7 +23,7 @@ TEST(FieldTest, SetType_tinyint) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	int8_t rv1, rv2;
 	int8_t miv { std::numeric_limits<int8_t>::min() };
 	int8_t mav { std::numeric_limits<int8_t>::max() };
@@ -40,7 +40,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
 	}
-    
+
 }
 
 
@@ -57,7 +57,7 @@ TEST(FieldTest, SetType_smallint) {
 	int8_t rv1, rv2;
 	int8_t miv { std::numeric_limits<int8_t>::min() };
 	int8_t mav { std::numeric_limits<int8_t>::max() };
-	fv.set(miv);
+    fv.set(miv);
 	f.serValue(fv, sd1);
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
@@ -104,7 +104,7 @@ TEST(FieldValueTest, Setint16_t) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	int8_t rv1, rv2;
 	int8_t miv { std::numeric_limits<int8_t>::min() };
 	int8_t mav { std::numeric_limits<int8_t>::max() };
@@ -161,7 +161,7 @@ TEST(FieldValueTest, Setint16_t) {
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
 	}
-    
+
 }
 
 
@@ -178,7 +178,7 @@ TEST(FieldTest, SetType_bigint) {
 	int8_t rv1, rv2;
 	int8_t miv { std::numeric_limits<int8_t>::min() };
 	int8_t mav { std::numeric_limits<int8_t>::max() };
-	fv.set(miv);
+    fv.set(miv);
 	f.serValue(fv, sd1);
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
@@ -265,7 +265,7 @@ TEST(FieldValueTest, Setint32_t) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	bool rv1, rv2;
 	bool miv { std::numeric_limits<bool>::min() };
 	bool mav { std::numeric_limits<bool>::max() };
@@ -282,7 +282,7 @@ TEST(FieldValueTest, Setint32_t) {
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
 	}
-    
+
 }
 
 
@@ -299,7 +299,7 @@ TEST(FieldTest, SetType_real) {
 	float rv1, rv2;
 	float miv { std::numeric_limits<float>::min() };
 	float mav { std::numeric_limits<float>::max() };
-	fv.set(miv);
+    fv.set(miv);
 	f.serValue(fv, sd1);
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
@@ -326,7 +326,7 @@ TEST(FieldValueTest, Setint64_t) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	float rv1, rv2;
 	float miv { std::numeric_limits<float>::min() };
 	float mav { std::numeric_limits<float>::max() };
@@ -377,7 +377,7 @@ TEST(FieldValueTest, Setfloat) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	float rv1, rv2;
 	float miv { std::numeric_limits<float>::min() };
 	float mav { std::numeric_limits<float>::max() };
@@ -408,7 +408,7 @@ TEST(FieldValueTest, Setdouble) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	std::string rv1, rv2;
 	std::string miv { std::to_string(std::numeric_limits<int8_t>::min()) };
 	std::string mav { std::to_string(std::numeric_limits<int8_t>::max()) };

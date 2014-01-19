@@ -86,7 +86,7 @@ public:
      */
     void cleanup_pointers();
     /** 
-     * @ brief set field to nullptr
+     * @ brief set field to NULL
      *
      */
     void nullify();
