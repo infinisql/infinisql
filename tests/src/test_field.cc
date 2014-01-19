@@ -5,6 +5,8 @@
 #include "Table.h"
 #include "Field.h"
 
+const size_t serdes_test_buffer_size = 1024;
+
 
 TEST(FieldTest, SetType_tinyint) {
     auto c = std::make_shared<Catalog>(0, "test_catalog");
@@ -13,7 +15,7 @@ TEST(FieldTest, SetType_tinyint) {
     Field f{t, "test_field", Field::type_e::TYPE_TINYINT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -33,7 +35,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -53,7 +55,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -73,7 +75,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -93,7 +95,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -113,7 +115,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -133,7 +135,7 @@ TEST(FieldTest, SetType_tinyint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -154,7 +156,6 @@ TEST(FieldTest, SetType_tinyint) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_smallint) {
@@ -164,7 +165,7 @@ TEST(FieldTest, SetType_smallint) {
     Field f{t, "test_field", Field::type_e::TYPE_SMALLINT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -184,7 +185,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -204,7 +205,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -224,7 +225,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -244,7 +245,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -264,7 +265,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -284,7 +285,7 @@ TEST(FieldTest, SetType_smallint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -305,7 +306,6 @@ TEST(FieldTest, SetType_smallint) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_int) {
@@ -315,7 +315,7 @@ TEST(FieldTest, SetType_int) {
     Field f{t, "test_field", Field::type_e::TYPE_INT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -335,7 +335,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -355,7 +355,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -375,7 +375,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -395,7 +395,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -415,7 +415,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -435,7 +435,7 @@ TEST(FieldTest, SetType_int) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -456,7 +456,6 @@ TEST(FieldTest, SetType_int) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_bigint) {
@@ -466,7 +465,7 @@ TEST(FieldTest, SetType_bigint) {
     Field f{t, "test_field", Field::type_e::TYPE_BIGINT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -486,7 +485,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -506,7 +505,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -526,7 +525,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -546,7 +545,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -566,7 +565,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -586,7 +585,7 @@ TEST(FieldTest, SetType_bigint) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -607,7 +606,6 @@ TEST(FieldTest, SetType_bigint) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_boolean) {
@@ -617,7 +615,7 @@ TEST(FieldTest, SetType_boolean) {
     Field f{t, "test_field", Field::type_e::TYPE_BOOLEAN};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -637,7 +635,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -657,7 +655,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -677,7 +675,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -697,7 +695,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -717,7 +715,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -737,7 +735,7 @@ TEST(FieldTest, SetType_boolean) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -758,7 +756,6 @@ TEST(FieldTest, SetType_boolean) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_numeric) {
@@ -768,7 +765,7 @@ TEST(FieldTest, SetType_numeric) {
     Field f{t, "test_field", Field::type_e::TYPE_NUMERIC};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -788,7 +785,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -808,7 +805,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -828,7 +825,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -848,7 +845,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -868,7 +865,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -888,7 +885,7 @@ TEST(FieldTest, SetType_numeric) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -909,7 +906,6 @@ TEST(FieldTest, SetType_numeric) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_decimal) {
@@ -919,7 +915,7 @@ TEST(FieldTest, SetType_decimal) {
     Field f{t, "test_field", Field::type_e::TYPE_DECIMAL};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -939,7 +935,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -959,7 +955,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -979,7 +975,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -999,7 +995,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1019,7 +1015,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1039,7 +1035,7 @@ TEST(FieldTest, SetType_decimal) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1060,7 +1056,6 @@ TEST(FieldTest, SetType_decimal) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_real) {
@@ -1070,7 +1065,7 @@ TEST(FieldTest, SetType_real) {
     Field f{t, "test_field", Field::type_e::TYPE_REAL};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1090,7 +1085,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1110,7 +1105,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1130,7 +1125,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1150,7 +1145,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1170,7 +1165,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1190,7 +1185,7 @@ TEST(FieldTest, SetType_real) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1211,7 +1206,6 @@ TEST(FieldTest, SetType_real) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_double_precision) {
@@ -1221,7 +1215,7 @@ TEST(FieldTest, SetType_double_precision) {
     Field f{t, "test_field", Field::type_e::TYPE_DOUBLE_PRECISION};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1241,7 +1235,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1261,7 +1255,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1281,7 +1275,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1301,7 +1295,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1321,7 +1315,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1341,7 +1335,7 @@ TEST(FieldTest, SetType_double_precision) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1362,7 +1356,6 @@ TEST(FieldTest, SetType_double_precision) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_float) {
@@ -1372,7 +1365,7 @@ TEST(FieldTest, SetType_float) {
     Field f{t, "test_field", Field::type_e::TYPE_FLOAT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1392,7 +1385,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1412,7 +1405,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1432,7 +1425,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1452,7 +1445,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1472,7 +1465,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1492,7 +1485,7 @@ TEST(FieldTest, SetType_float) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1513,7 +1506,6 @@ TEST(FieldTest, SetType_float) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_character) {
@@ -1523,7 +1515,7 @@ TEST(FieldTest, SetType_character) {
     Field f{t, "test_field", Field::type_e::TYPE_CHARACTER};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1543,7 +1535,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1563,7 +1555,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1583,7 +1575,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1603,7 +1595,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1623,7 +1615,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1643,7 +1635,7 @@ TEST(FieldTest, SetType_character) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1664,7 +1656,6 @@ TEST(FieldTest, SetType_character) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_character_varying) {
@@ -1674,7 +1665,7 @@ TEST(FieldTest, SetType_character_varying) {
     Field f{t, "test_field", Field::type_e::TYPE_CHARACTER_VARYING};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1694,7 +1685,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1714,7 +1705,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1734,7 +1725,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1754,7 +1745,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1774,7 +1765,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1794,7 +1785,7 @@ TEST(FieldTest, SetType_character_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1815,7 +1806,6 @@ TEST(FieldTest, SetType_character_varying) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_bit) {
@@ -1825,7 +1815,7 @@ TEST(FieldTest, SetType_bit) {
     Field f{t, "test_field", Field::type_e::TYPE_BIT};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1845,7 +1835,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -1865,7 +1855,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -1885,7 +1875,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -1905,7 +1895,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -1925,7 +1915,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -1945,7 +1935,7 @@ TEST(FieldTest, SetType_bit) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -1966,7 +1956,6 @@ TEST(FieldTest, SetType_bit) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_bit_varying) {
@@ -1976,7 +1965,7 @@ TEST(FieldTest, SetType_bit_varying) {
     Field f{t, "test_field", Field::type_e::TYPE_BIT_VARYING};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -1996,7 +1985,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2016,7 +2005,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2036,7 +2025,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2056,7 +2045,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2076,7 +2065,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2096,7 +2085,7 @@ TEST(FieldTest, SetType_bit_varying) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -2117,7 +2106,6 @@ TEST(FieldTest, SetType_bit_varying) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_date) {
@@ -2127,7 +2115,7 @@ TEST(FieldTest, SetType_date) {
     Field f{t, "test_field", Field::type_e::TYPE_DATE};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -2147,7 +2135,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2167,7 +2155,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2187,7 +2175,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2207,7 +2195,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2227,7 +2215,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2247,7 +2235,7 @@ TEST(FieldTest, SetType_date) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -2268,7 +2256,6 @@ TEST(FieldTest, SetType_date) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_time) {
@@ -2278,7 +2265,7 @@ TEST(FieldTest, SetType_time) {
     Field f{t, "test_field", Field::type_e::TYPE_TIME};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -2298,7 +2285,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2318,7 +2305,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2338,7 +2325,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2358,7 +2345,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2378,7 +2365,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2398,7 +2385,7 @@ TEST(FieldTest, SetType_time) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -2419,7 +2406,6 @@ TEST(FieldTest, SetType_time) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_timestamp) {
@@ -2429,7 +2415,7 @@ TEST(FieldTest, SetType_timestamp) {
     Field f{t, "test_field", Field::type_e::TYPE_TIMESTAMP};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -2449,7 +2435,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2469,7 +2455,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2489,7 +2475,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2509,7 +2495,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2529,7 +2515,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2549,7 +2535,7 @@ TEST(FieldTest, SetType_timestamp) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -2570,7 +2556,6 @@ TEST(FieldTest, SetType_timestamp) {
 	}
 
 }
-
 
 
 TEST(FieldTest, SetType_time_with_time_zone) {
@@ -2580,7 +2565,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
     Field f{t, "test_field", Field::type_e::TYPE_TIME_WITH_TIME_ZONE};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -2600,7 +2585,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2620,7 +2605,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2640,7 +2625,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2660,7 +2645,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2680,7 +2665,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2700,7 +2685,7 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
@@ -2723,7 +2708,6 @@ TEST(FieldTest, SetType_time_with_time_zone) {
 }
 
 
-
 TEST(FieldTest, SetType_timestamp_with_time_zone) {
     auto c = std::make_shared<Catalog>(0, "test_catalog");
     auto s = std::make_shared<Schema>(c, "test_schema");
@@ -2731,7 +2715,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
     Field f{t, "test_field", Field::type_e::TYPE_TIMESTAMP_WITH_TIME_ZONE};
     
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int8_t rv1, rv2;
@@ -2751,7 +2735,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int16_t rv1, rv2;
@@ -2771,7 +2755,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int32_t rv1, rv2;
@@ -2791,7 +2775,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	int64_t rv1, rv2;
@@ -2811,7 +2795,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	float rv1, rv2;
@@ -2831,7 +2815,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	double rv1, rv2;
@@ -2851,7 +2835,7 @@ TEST(FieldTest, SetType_timestamp_with_time_zone) {
 	EXPECT_FALSE(is_null);
 	}
 	{
-	Serdes sd1, sd2;
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
 	bool rv1, rv2;
