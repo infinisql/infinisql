@@ -5,7 +5,6 @@ Import('env')
 test_env = env.Clone()
 test_env.Append(CPPPATH=["#tests/gtest", "#src"])
 test_env.Append(LIBPATH=["#src"])
-test_env.Append(CXXFLAGS="-g -finline-functions ")
 test_env.Append(LIBS = ["infinisql", "tbb", "lmdb", "pthread"])
 
 test_sources = ['src/test_field_value.cc', 'src/test_field.cc', 'src/test_table.cc',] #glob("src/*.cc")

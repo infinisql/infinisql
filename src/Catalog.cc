@@ -29,20 +29,19 @@
 
 #include "Catalog.h"
 
-Catalog::Catalog() : Metadata(), nextuserid(0), nextschemaid(0),
-                     nexttableid(0), nextindexid(0)
+Catalog::Catalog() : Metadata (), nextuserid (0), nextschemaid (0),
+                     nexttableid (0), nextindexid (0)
 {
     
 }
 
-Catalog::Catalog(int16_t id, std::string name)
-    : Metadata(id, name), nextuserid(0), nextschemaid(0), nexttableid(0),
-      nextindexid(0)
+Catalog::Catalog(int16_t idarg, const std::string& namearg)
+    : Catalog()
 {
     
 }
 
-Catalog::Catalog(const Catalog &orig) : Metadata(orig)
+Catalog::Catalog(const Catalog &orig) : Metadata (orig)
 {
     cp(orig);
 }
