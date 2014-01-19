@@ -135,6 +135,12 @@ public:
      */
     void set(char val);
     /** 
+     * @brief set value to bool
+     *
+     * @param val value to set
+     */
+    void set(bool val);
+    /**
      * @brief set value to boolean true
      *
      * @param val value to set
@@ -215,6 +221,13 @@ public:
      */
     void get(std::string &val, bool &isnull);
     /** 
+	 * @brief retrieve bool value
+	 *
+	 * @param val returned value
+	 * @param isnull whether is null or not
+	 */
+	void get(bool &val, bool &isnull);
+    /**
      * @brief return boolean value
      *
      * @param isnull whether is null or not
