@@ -156,3 +156,9 @@ TEST(FieldValueTest, Setstring) {
     ASSERT_EQ(tv, mav);
     ASSERT_FALSE(is_null);
 }
+
+TEST(FieldValueTest, SetNull) {
+	FieldValue fv;
+	fv.nullify();
+	ASSERT_TRUE(fv.getnull());
+}
