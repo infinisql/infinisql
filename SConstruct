@@ -17,7 +17,7 @@ if ARGUMENTS.get('verbose') != "1":
     env['ARCOMSTR'] = "Archiving $TARGET"
     env['RANLIBCOMSTR'] = "Making library $TARGET"
 env['ENV']['TERM'] = os.environ['TERM']
-          
+
 if ARGUMENTS.get('analyze') == "1":
     print("Enabling scan-build analyzer")
     if ARGUMENTS.get('verbose') != "1":
@@ -34,7 +34,7 @@ if ARGUMENTS.get('asan') != "1":
 else:
     env.Append(CXXFLAGS="-g -fsanitize=address")
     env.Append(LINKFLAGS="-fsanitize=address")
-
+          
 env.Append(CPPPATH=["#deps/include", "#src"])
 env.Append(LIBPATH="#deps/lib")
 env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings -Qunused-arguments ')
