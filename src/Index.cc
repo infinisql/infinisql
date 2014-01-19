@@ -36,7 +36,7 @@ Index::Index() : Metadata ()
     
 }
 
-Index::Index(Table *parentTablearg, std::string namearg)
+Index::Index(std::shared_ptr<Table> parentTablearg, const std::string &namearg)
 {
     if (parentTablearg->parentCatalog->indexName2Id.count(namearg))
     {

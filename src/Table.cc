@@ -35,7 +35,7 @@ Table::Table() : Metadata (), nextfieldid (-1)
     
 }
 
-Table::Table(Schema *parentSchemaarg, std::string namearg) : nextfieldid (-1)
+Table::Table(std::shared_ptr<Schema> parentSchemaarg, const std::string &namearg) : nextfieldid (-1)
 {
     if (parentSchemaarg->parentCatalog->tableName2Id.count(namearg))
     {

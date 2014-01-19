@@ -34,7 +34,7 @@ User::User() : Metadata ()
     
 }
 
-User::User(Catalog *parentCatalogarg, std::string namearg,
+User::User(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg,
            std::string &passwordarg)
     : password (passwordarg)
 {

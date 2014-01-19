@@ -39,7 +39,7 @@ class Schema : public Metadata
 {
 public:
     Schema();
-    Schema(Catalog *parentCatalogarg, std::string namearg);
+    Schema(std::shared_ptr<Catalog> parentCatalogarg, const std::string& namearg);
     Schema(const Schema &orig);
     Schema &operator= (const Schema &orig);
     ~Schema();

@@ -34,7 +34,7 @@ Schema::Schema() : Metadata()
     
 }
 
-Schema::Schema(Catalog *parentCatalogarg, std::string namearg)
+Schema::Schema(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg)
 {
     if (parentCatalogarg->schemaName2Id.count(namearg))
     {

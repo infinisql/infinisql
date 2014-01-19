@@ -34,7 +34,7 @@ class Index : public Metadata
 {
 public:
     Index();
-    Index(Table *parentTablearg, std::string namearg);
+    Index(std::shared_ptr<Table> parentTableArg, const std::string& namearg);
     Index(const Index &orig);
     Index &operator= (const Index &orig);
     /** 

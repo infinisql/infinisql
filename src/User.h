@@ -43,7 +43,7 @@ public:
      *
      * @return 
      */
-    User(Catalog *parentCatalogarg, std::string namearg,
+    User(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg,
          std::string &passwordarg);
     User(const User &orig);
     User &operator= (const User &orig);
