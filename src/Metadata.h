@@ -30,7 +30,8 @@
 #ifndef INFINISQLMETADATA_H
 #define INFINISQLMETADATA_H
 
-#include "global.h"
+#include <memory>
+#include "main.h"
 
 class Catalog;
 class Schema;
@@ -90,9 +91,9 @@ public:
     int16_t id;
     std::string name;
 
-    Catalog *parentCatalog;
-    Schema *parentSchema;
-    Table *parentTable;
+    std::shared_ptr<Catalog> parentCatalog;
+    std::shared_ptr<Schema> parentSchema;
+    std::shared_ptr<Table> parentTable;
     int16_t parentcatalogid;
     int16_t parentschemaid;
     int16_t parenttableid;
