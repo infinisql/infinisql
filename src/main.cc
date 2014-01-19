@@ -38,9 +38,9 @@
 #include "Metadata.h"
 #include "global.h"
 
-std::ofstream logfile;
-string zmqsocket;
-void *zmqcontext;
+extern std::ofstream logfile;
+extern std::string zmqsocket;
+extern void *zmqcontext;
 
 int main(int argc, char **argv)
 {
