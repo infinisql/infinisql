@@ -28,13 +28,15 @@
 #include "User.h"
 #include "Catalog.h"
 
+
 User::User() : Metadata ()
 {
     
 }
 
-User::User(Catalog *parentCatalogarg, std::string namearg,
-           std::string &password) : password(password)
+User::User(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg,
+           std::string &passwordarg)
+    : password (passwordarg)
 {
     if (parentCatalogarg->userName2Id.count(namearg))
     {

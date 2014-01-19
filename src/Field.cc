@@ -324,7 +324,7 @@ Field::Field() :
 	defaultValue.nullify();
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) :
+Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg) :
 		Field() {
 	type = typearg;
 
@@ -372,7 +372,7 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) 
 	}
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
+Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg) :
 		Field() {
 	type = typearg;
@@ -428,7 +428,7 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 	}
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
+Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg, int64_t arg2arg) :
 		Field() {
 	type = typearg;
@@ -464,7 +464,7 @@ Field::~Field() {
 
 }
 
-bool Field::initializer(Table *parentTablearg, const std::string& namearg) {
+bool Field::initializer(std::shared_ptr<Table> parentTablearg, const std::string& namearg) {
 	if (parentTablearg->fieldName2Id.count(namearg)) {
 		id = -1;
 		return false;
