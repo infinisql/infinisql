@@ -116,6 +116,7 @@ void FieldValue::set(char val) {
 }
 
 void FieldValue::set(bool val) {
+
 	deletestr();
 	valtype = VAL_POD;
 	value.boolean = val;
