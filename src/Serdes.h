@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <fstream>
 #include <lmdb.h>
@@ -252,7 +253,7 @@ public:
      *
      * @param d string to serialize
      */
-    void ser(std::string &d);
+    void ser(const std::string &d);
     /** 
      * @brief get size of string if serialized, plus room to hold length
      *
@@ -260,7 +261,7 @@ public:
      *
      * @return size of item when serialized plus room to hold length
      */
-    static size_t sersize(std::string &d);
+    static size_t sersize(const std::string &d);
     /** 
      * @brief deserialize string with length in object before string
      *
@@ -273,14 +274,14 @@ public:
      * @param d item to serialize
      * @param dsize length to serialize
      */
-    void ser(std::string &d, size_t dsize);
+    void ser(const std::string &d, size_t dsize);
     /** 
      * @brief create string and deserialize into it, providing length
      *
      * @param d buffer to create and into which to deserialize
      * @param dsize length to deserialize
      */
-    void des(std::string *d, size_t dsize);
+    void des(std::shared_ptr<std::string> &d, size_t dsize);
     /** 
      * @brief serialize byte sequence, such as packed struct
      *
