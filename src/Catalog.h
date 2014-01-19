@@ -40,7 +40,7 @@ class Catalog : public Metadata
 public:
     Catalog();
     /** 
-     * @brief first instantiatiation from UserSchemaMgr
+     * @brief first instantiation from UserSchemaMgr
      *
      * UserSchemaMgr needs to make sure there's no duplicate name
      * or id, and to populate its catalog maps

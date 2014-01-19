@@ -195,14 +195,14 @@ void Serdes::des(bool &d)
     pos+=sersize(d);
 }
 
-void Serdes::ser(std::string &d)
+void Serdes::ser(const std::string &d)
 {
     size_t s=d.size();
     ser((int64_t)s);
     ser(d, s);
 }
 
-size_t Serdes::sersize(std::string &d)
+size_t Serdes::sersize(const std::string &d)
 {
     return sizeof(int64_t)+d.size();
 }
@@ -215,15 +215,15 @@ void Serdes::des(std::string &d)
     pos+=s;
 }
 
-void Serdes::ser(std::string &d, size_t dsize)
+void Serdes::ser(const std::string &d, size_t dsize)
 {
     d.copy((char *)val.mv_data, dsize, 0);
     pos+=dsize;
 }
 
-void Serdes::des(std::string *d, size_t dsize)
+void Serdes::des(std::shared_ptr<std::string> &d, size_t dsize)
 {
-    d=new (std::nothrow) std::string((char *)val.mv_data, dsize);
+    d=std::make_shared<std::string>((const char *)val.mv_data, dsize);
     if (d != nullptr)
     {
         pos+=dsize;

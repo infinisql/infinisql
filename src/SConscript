@@ -5,7 +5,8 @@ isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread'])
 isql_env.Append(CXXFLAGS='-g -O3 -finline-functions ')
 
 lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
-              'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc']
+              'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
+              'globals.cc']
           
 server_source = ['main.cc']
 

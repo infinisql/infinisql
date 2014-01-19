@@ -28,6 +28,7 @@
 #ifndef INFINISQLFIELD_H
 #define INFINISQLFIELD_H
 
+#include <memory>
 #include "Metadata.h"
 
 /** 
@@ -61,7 +62,7 @@ public:
         double doublefloat;
         int32_t character;
         bool boolean;
-        std::string *str;
+        std::string* str;
     };
     
     FieldValue();
@@ -90,7 +91,7 @@ public:
      *
      * @param val value to set
      */
-    void set(std::string &val);
+    void set(const std::string &val);
     /** 
      * @brief set value to 8bit int
      *
@@ -152,7 +153,7 @@ public:
      *
      * @return 8bit int
      */
-    int8_t get(int8_t *val, bool *isnull);
+    int8_t get(int8_t &val, bool &isnull);
     /** 
      * @brief retrieve 16bit int value
      *
@@ -160,7 +161,7 @@ public:
      *
      * @return 16bit int
      */
-    int16_t get(int16_t *val, bool *isnull);
+    int16_t get(int16_t &val, bool &isnull);
     /** 
      * @brief retrieve 32bit int value
      *
@@ -169,7 +170,7 @@ public:
      *
      * @return 32bit int
      */
-    int32_t get(int32_t *val, bool *isnull);
+    int32_t get(int32_t &val, bool &isnull);
     /** 
      * @brief retrieve 64bit int value
      *
@@ -178,7 +179,7 @@ public:
      *
      * @return 64bit int
      */
-    int64_t get(int64_t *val, bool *isnull);
+    int64_t get(int64_t &val, bool &isnull);
     /** 
      * @brief retrieve float value
      *
@@ -187,7 +188,7 @@ public:
      *
      * @return float
      */
-    float get(float *val, bool *isnull);
+    float get(float &val, bool &isnull);
     /** 
      * @brief retrieve double value
      *
@@ -196,7 +197,7 @@ public:
      *
      * @return double
      */
-    double get(double *val, bool *isnull);
+    double get(double &val, bool &isnull);
     /** 
      * @brief retrieve single char value
      *
@@ -205,14 +206,14 @@ public:
      *
      * @return single char
      */
-    char get(char *val, bool *isnull);
+    char get(char &val, bool &isnull);
     /** 
      * @brief retrieve string value
      *
      * @param val returned value
      * @param isnull whether is null or not
      */
-    void get(std::string &val, bool *isnull);
+    void get(std::string &val, bool &isnull);
     /** 
      * @brief return boolean value
      *
@@ -220,7 +221,7 @@ public:
      *
      * @return true if true, false if false
      */
-    bool getbool(bool *isnull);
+    bool getbool(bool &isnull);
     /** 
      * @brief check if null or not
      *
@@ -289,7 +290,7 @@ public:
      * @param namearg field name
      * @param typearg field type
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg);
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg);
     /** 
      * @brief create Field
      *
@@ -297,7 +298,7 @@ public:
      * @param typearg field type
      * @param arg1arg parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg,
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg);
     /** 
      * @brief create Field
@@ -307,7 +308,7 @@ public:
      * @param arg1arg 1st parameter to create field
      * @param arg2arg 2nd parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg,
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg, int64_t arg2arg);
     Field(const Field &orig);
     Field &operator= (const Field &orig);
@@ -330,7 +331,7 @@ public:
      * 
      * @return 
      */
-    bool initializer(Table *parentTablearg, std::string namearg);
+    bool initializer(Table *parentTablearg, const std::string& namearg);
     /** 
      * @brief get metadata parent information from parentTable
      *

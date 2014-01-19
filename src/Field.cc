@@ -31,7 +31,7 @@
 
 FieldValue::FieldValue() : valtype (VAL_NONE)
 {
-    value.int8=0;
+    value.int8 = 0;
 }
 
 FieldValue::FieldValue(const FieldValue &orig)
@@ -54,7 +54,7 @@ void FieldValue::cp(const FieldValue &orig)
     }
     else if (valtype==VAL_STRING)
     {
-        value.str=new (std::nothrow) std::string;
+        value.str = new std::string{*orig.value.str};
     }
 }
 
@@ -77,11 +77,11 @@ void FieldValue::nullify()
     valtype=VAL_NULL;
 }
 
-void FieldValue::set(std::string &val)
+void FieldValue::set(const std::string &val)
 {
     deletestr();
     valtype=VAL_STRING;
-    value.str=new string(val);
+    value.str=new std::string{val};
 }
 
 void FieldValue::set(int8_t val)
@@ -147,108 +147,108 @@ void FieldValue::setfalse()
     value.boolean=false;
 }
 
-int8_t FieldValue::get(int8_t *val, bool *isnull)
+int8_t FieldValue::get(int8_t &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.int1;
+    isnull=false;
+    val=value.int1;
     return value.int1;
 }
 
-int16_t FieldValue::get(int16_t *val, bool *isnull)
+int16_t FieldValue::get(int16_t &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.int2;
+    isnull=false;
+    val=value.int2;
     return value.int2;
 }
 
-int32_t FieldValue::get(int32_t *val, bool *isnull)
+int32_t FieldValue::get(int32_t &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.int4;
+    isnull=false;
+    val=value.int4;
     return value.int4;
 }
 
-int64_t FieldValue::get(int64_t *val, bool *isnull)
+int64_t FieldValue::get(int64_t &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.int8;
+    isnull=false;
+    val=value.int8;
     return value.int8;
 }
 
-float FieldValue::get(float *val, bool *isnull)
+float FieldValue::get(float &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.singlefloat;
+    isnull=false;
+    val=value.singlefloat;
     return value.singlefloat;
 }
 
-double FieldValue::get(double *val, bool *isnull)
+double FieldValue::get(double &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return 0;
     }
-    *isnull=false;
-    *val=value.doublefloat;
+    isnull=false;
+    val=value.doublefloat;
     return value.doublefloat;
 }
 
-char FieldValue::get(char *val, bool *isnull)
+char FieldValue::get(char &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return (char)0;
     }
-    *isnull=false;
-    *val=value.character;
+    isnull=false;
+    val=value.character;
     return value.character;
 }
 
-void FieldValue::get(std::string &val, bool *isnull)
+void FieldValue::get(std::string &val, bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
     }
-    *isnull=false;
+    isnull=false;
     val=*value.str;
 }
 
-bool FieldValue::getbool(bool *isnull)
+bool FieldValue::getbool(bool &isnull)
 {
     if (valtype==VAL_NULL)
     {
-        *isnull=true;
+        isnull=true;
         return false;
     }
-    *isnull=false;
+    isnull=false;
     return value.boolean;
 }
 
@@ -340,8 +340,10 @@ void FieldValue::des(Serdes &input)
     case VAL_STRING:
     {
         int64_t s;
+        value.str = new std::string{};
         input.des(s);
-        input.des(*value.str);
+        input.des(*(value.str));
+
     }
     break;
 
@@ -356,7 +358,7 @@ Field::Field() : Metadata (), type (TYPE_NONE), size (-1), precision (-1),
     defaultValue.nullify();
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg)
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg)
     : Metadata (), type (typearg), size (-1), precision (-1), scale (-1),
       nullconstraint (false)
 {
@@ -406,7 +408,7 @@ Field::Field(Table *parentTablearg, std::string namearg, type_e typearg)
     }
 }    
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
              int64_t arg1arg)
       : Metadata (), type (typearg), scale (-1), nullconstraint (false)
 {
@@ -463,7 +465,7 @@ Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
     }
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
              int64_t arg1arg, int64_t arg2arg)
         : Metadata (), type (typearg), size (-1), precision (arg1arg),
         scale (arg2arg), nullconstraint (false)
@@ -501,7 +503,7 @@ Field::~Field()
     
 }
 
-bool Field::initializer(Table *parentTablearg, std::string namearg)
+bool Field::initializer(Table *parentTablearg, const std::string& namearg)
 {
     if (parentTablearg->fieldName2Id.count(namearg))
     {
@@ -585,11 +587,11 @@ void Field::serValue(FieldValue &fieldValue, Serdes &output)
         break;
 
     case TYPE_NUMERIC:
-        output.ser(fieldValue.value.str, precision);
+        output.ser(*(fieldValue.value.str), precision);
         break;
 
     case TYPE_DECIMAL:
-        output.ser(fieldValue.value.str, precision);
+        output.ser(*(fieldValue.value.str), precision);
         break;
 
     case TYPE_REAL:
