@@ -65,7 +65,7 @@ public:
         double doublefloat;
         int32_t character;
         bool boolean;
-        std::string* str;
+        std::string *str;
         decimal *dec;
     };
     
@@ -86,7 +86,7 @@ public:
      */
     void cleanup_pointers();
     /** 
-     * @ brief set field to NULL
+     * @ brief set field to nullptr
      *
      */
     void nullify();
@@ -144,7 +144,7 @@ public:
      * @param val value to set
      */
     void set(bool val);
-    /**
+    /** 
      * @brief set value to boolean true
      *
      * @param val value to set
@@ -231,7 +231,7 @@ public:
 	 * @param isnull whether is null or not
 	 */
 	void get(bool &val, bool &isnull);
-    /**
+    /** 
      * @brief return boolean value
      *
      * @param isnull whether is null or not
@@ -304,26 +304,26 @@ public:
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
+     * @param name field name
+     * @param type field type
      */
     Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg);
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
-     * @param arg1arg parameter to create field
+     * @param name field name
+     * @param type field type
+     * @param arg1 parameter to create field
      */
     Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg);
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
-     * @param arg1arg 1st parameter to create field
-     * @param arg2arg 2nd parameter to create field
+     * @param name field name
+     * @param type field type
+     * @param arg1 1st parameter to create field
+     * @param arg2 2nd parameter to create field
      */
     Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg, int64_t arg2arg);
@@ -343,8 +343,8 @@ public:
     /** 
      * @brief intialize field parents and maps, get fieldid
      *
-     * @param parentTablearg parent table
-     * @param namearg name
+     * @param parentTable parent table
+     * @param name name
      * 
      * @return 
      */

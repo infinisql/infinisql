@@ -275,7 +275,7 @@ public:
      * @param dsize length to serialize
      */
     void ser(const std::string &d, size_t dsize);
-    /**
+    /** 
      * @brief create string and deserialize into it, providing length
      *
      * @param d buffer to create and into which to deserialize
