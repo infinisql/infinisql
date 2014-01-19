@@ -17,6 +17,12 @@ if ARGUMENTS.get('verbose') != "1":
     env['ARCOMSTR'] = "Archiving $TARGET"
     env['RANLIBCOMSTR'] = "Making library $TARGET"
 env['ENV']['TERM'] = os.environ['TERM']
+
+if ARGUMENTS.get('asan') != "1":
+    env.Append(CXXFLAGS='-g -O3 -finline-functions ')
+else:
+    env.Append(CXXFLAGS="-g -fsanitize=address")
+    env.Append(LINKFLAGS="-fsanitize=address")
           
 env.Replace(CXX=which('clang++'))
 env.Append(CPPPATH="#deps/include")
