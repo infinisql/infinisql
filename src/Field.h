@@ -82,7 +82,7 @@ public:
      */
     void deletestr();
     /** 
-     * @ brief set field to nullptr
+     * @ brief set field to NULL
      *
      */
     void nullify();
