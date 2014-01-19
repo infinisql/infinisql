@@ -125,9 +125,9 @@ TEST(FieldValueTest, Setdouble) {
 
 TEST(FieldValueTest, Setbool) {
     FieldValue fv;
-    bool miv = true, mav = false;
-    bool tv = false;
-    bool is_null = false;
+    bool miv { true }, mav { false };
+    bool tv  { false };
+    bool is_null { false };
 
     fv.set(miv);
     fv.get(tv, is_null);
@@ -140,3 +140,19 @@ TEST(FieldValueTest, Setbool) {
     ASSERT_FALSE(is_null);
 }
 
+TEST(FieldValueTest, Setstring) {
+    FieldValue fv;
+    std::string miv{ "a" }, mav { "a longer string" };
+    std::string tv{};
+    bool is_null { false };
+
+    fv.set(miv);
+    fv.get(tv, is_null);
+    ASSERT_EQ(tv, miv);
+    ASSERT_FALSE(is_null);
+
+    fv.set(mav);
+    fv.get(tv, is_null);
+    ASSERT_EQ(tv, mav);
+    ASSERT_FALSE(is_null);
+}
