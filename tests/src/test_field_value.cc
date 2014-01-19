@@ -1,5 +1,6 @@
 #include <limits>
 #include <gtest/gtest.h>
+#include "Table.h"
 #include "Field.h"
 
 
@@ -22,7 +23,6 @@ TEST(FieldValueTest, SetInt8_t) {
 }
 
 
-
 TEST(FieldValueTest, SetInt16_t) {
     FieldValue fv;
     int16_t miv { std::numeric_limits<int16_t>::min() },
@@ -40,7 +40,6 @@ TEST(FieldValueTest, SetInt16_t) {
     ASSERT_EQ(tv, mav);    
     ASSERT_FALSE(is_null);
 }
-
 
 
 TEST(FieldValueTest, SetInt32_t) {
@@ -62,7 +61,6 @@ TEST(FieldValueTest, SetInt32_t) {
 }
 
 
-
 TEST(FieldValueTest, SetInt64_t) {
     FieldValue fv;
     int64_t miv { std::numeric_limits<int64_t>::min() },
@@ -80,7 +78,6 @@ TEST(FieldValueTest, SetInt64_t) {
     ASSERT_EQ(tv, mav);    
     ASSERT_FALSE(is_null);
 }
-
 
 
 TEST(FieldValueTest, SetFloat) {
@@ -102,7 +99,6 @@ TEST(FieldValueTest, SetFloat) {
 }
 
 
-
 TEST(FieldValueTest, SetDouble) {
     FieldValue fv;
     double miv { std::numeric_limits<double>::min() },
@@ -120,7 +116,6 @@ TEST(FieldValueTest, SetDouble) {
     ASSERT_EQ(tv, mav);    
     ASSERT_FALSE(is_null);
 }
-
 
 
 TEST(FieldValueTest, SetBool) {
@@ -161,4 +156,8 @@ TEST(FieldValueTest, SetNull) {
 	FieldValue fv;
 	fv.nullify();
 	ASSERT_TRUE(fv.getnull());
+}
+
+TEST(FieldTest, Create) {
+	Field f;
 }

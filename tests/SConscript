@@ -8,7 +8,7 @@ test_env.Append(LIBPATH=["#src"])
 test_env.Append(CXXFLAGS="-g -finline-functions ")
 test_env.Append(LIBS = ["infinisql", "tbb", "lmdb", "pthread"])
 
-test_sources = ['src/test_field.cc'] #glob("src/*.cc")
+test_sources = ['src/test_field_value.cc', 'src/test_field.cc', 'src/test_table.cc',] #glob("src/*.cc")
 
 sources = ['gtest/gtest-all.cc', 'gtest/gtest_main.cc'] + test_sources
 
