@@ -325,8 +325,9 @@ Field::Field() :
 }
 
 Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) :
-		Metadata(), type(typearg), size(-1), precision(-1), scale(-1), nullconstraint(
-				false) {
+		Field() {
+	type = typearg;
+
 	if (initializer(parentTablearg, namearg) == false) {
         return;
     }
@@ -373,7 +374,9 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) 
 
 Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg) :
-		Metadata(), type(typearg), scale(-1), nullconstraint(false) {
+		Field() {
+	type = typearg;
+
 	if (initializer(parentTablearg, namearg) == false) {
         return;
     }
@@ -427,8 +430,11 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 
 Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg, int64_t arg2arg) :
-		Metadata(), type(typearg), size(-1), precision(arg1arg), scale(arg2arg), nullconstraint(
-				false) {
+		Field() {
+	type = typearg;
+	precision = arg1arg;
+	scale = arg2arg;
+
 	if (initializer(parentTablearg, namearg) == false) {
         return;
     }
