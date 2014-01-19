@@ -7,6 +7,12 @@
 
 const size_t serdes_test_buffer_size = 1024;
 
+TEST(FieldValueTest, Setint8_t) {
+    FieldValue fv;
+    int8_t miv = std::numeric_limits<int8_t>::min(),
+     	   mav = std::numeric_limits<int8_t>::max();
+    int8_t tv = 0;
+    bool is_null = false;
 
 TEST(FieldTest, SetType_tinyint) {
     auto c = std::make_shared<Catalog>(0, "test_catalog");
@@ -88,11 +94,12 @@ TEST(FieldTest, SetType_smallint) {
 }
 
 
-TEST(FieldTest, SetType_int) {
-    auto c = std::make_shared<Catalog>(0, "test_catalog");
-    auto s = std::make_shared<Schema>(c, "test_schema");
-    auto t = std::make_shared<Table>(s, "test_table");
-    Field f{t, "test_field", Field::type_e::TYPE_INT};
+TEST(FieldValueTest, Setint16_t) {
+    FieldValue fv;
+    int16_t miv = std::numeric_limits<int16_t>::min(),
+     	    mav = std::numeric_limits<int16_t>::max();
+    int16_t tv = 0;
+    bool is_null = false;
 
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
@@ -248,11 +255,12 @@ TEST(FieldTest, SetType_bigint) {
 }
 
 
-TEST(FieldTest, SetType_boolean) {
-    auto c = std::make_shared<Catalog>(0, "test_catalog");
-    auto s = std::make_shared<Schema>(c, "test_schema");
-    auto t = std::make_shared<Table>(s, "test_table");
-    Field f{t, "test_field", Field::type_e::TYPE_BOOLEAN};
+TEST(FieldValueTest, Setint32_t) {
+    FieldValue fv;
+    int32_t miv = std::numeric_limits<int32_t>::min(),
+     	    mav = std::numeric_limits<int32_t>::max();
+    int32_t tv = 0;
+    bool is_null = false;
 
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
@@ -308,11 +316,12 @@ TEST(FieldTest, SetType_real) {
 }
 
 
-TEST(FieldTest, SetType_double_precision) {
-    auto c = std::make_shared<Catalog>(0, "test_catalog");
-    auto s = std::make_shared<Schema>(c, "test_schema");
-    auto t = std::make_shared<Table>(s, "test_table");
-    Field f{t, "test_field", Field::type_e::TYPE_DOUBLE_PRECISION};
+TEST(FieldValueTest, Setint64_t) {
+    FieldValue fv;
+    int64_t miv = std::numeric_limits<int64_t>::min(),
+     	    mav = std::numeric_limits<int64_t>::max();
+    int64_t tv = 0;
+    bool is_null = false;
 
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
@@ -358,11 +367,12 @@ TEST(FieldTest, SetType_double_precision) {
 }
 
 
-TEST(FieldTest, SetType_float) {
-    auto c = std::make_shared<Catalog>(0, "test_catalog");
-    auto s = std::make_shared<Schema>(c, "test_schema");
-    auto t = std::make_shared<Table>(s, "test_table");
-    Field f{t, "test_field", Field::type_e::TYPE_FLOAT};
+TEST(FieldValueTest, Setfloat) {
+    FieldValue fv;
+    float miv = std::numeric_limits<float>::min(),
+     	  mav = std::numeric_limits<float>::max();
+    float tv = 0;
+    bool is_null = false;
 
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
@@ -388,11 +398,12 @@ TEST(FieldTest, SetType_float) {
 }
 
 
-TEST(FieldTest, SetType_numeric) {
-    auto c = std::make_shared<Catalog>(0, "test_catalog");
-    auto s = std::make_shared<Schema>(c, "test_schema");
-    auto t = std::make_shared<Table>(s, "test_table");
-    Field f{t, "test_field", Field::type_e::TYPE_NUMERIC, 128};
+TEST(FieldValueTest, Setdouble) {
+    FieldValue fv;
+    double miv = std::numeric_limits<double>::min(),
+    	   mav = std::numeric_limits<double>::max();
+    double tv = 0;
+    bool is_null = false;
 
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
@@ -487,7 +498,7 @@ TEST(FieldValueTest, Setbool) {
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	std::string rv1, rv2;
 	std::string miv { std::to_string(std::numeric_limits<int8_t>::min()) };
 	std::string mav { std::to_string(std::numeric_limits<int8_t>::max()) };
@@ -497,33 +508,33 @@ TEST(FieldValueTest, Setbool) {
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
-	fv.set(mav);
+    fv.set(mav);
 	f.serValue(fv, sd2);
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
-	}
+}
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
-	bool is_null { false };
+    bool is_null { false };
 	std::string rv1, rv2;
 	std::string miv { std::to_string(std::numeric_limits<int16_t>::min()) };
 	std::string mav { std::to_string(std::numeric_limits<int16_t>::max()) };
-	fv.set(miv);
+    fv.set(miv);
 	f.serValue(fv, sd1);
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
-	fv.set(mav);
+    fv.set(mav);
 	f.serValue(fv, sd2);
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
 	EXPECT_FALSE(is_null);
-	}
+}
 	{
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
