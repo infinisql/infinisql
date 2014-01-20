@@ -387,3 +387,123 @@ TEST(FieldTest, SetType_float) {
 
 }
 
+
+TEST(FieldTest, SetType_numeric) {
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
+    Field f{t, "test_field", Field::type_e::TYPE_NUMERIC};
+    
+	{
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
+	FieldValue fv, tv1, tv2;
+	bool is_null { false };
+	std::string rv1, rv2;
+	std::string miv { std::to_string(std::numeric_limits<int8_t>::min()) };
+	std::string mav { std::to_string(std::numeric_limits<int8_t>::max()) };
+	fv.set(miv);
+	f.serValue(fv, sd1);
+	f.desValue(sd1, tv1);
+	tv1.get(rv1, is_null);
+	EXPECT_EQ(miv, rv1);
+	EXPECT_FALSE(is_null);
+	fv.set(mav);
+	f.serValue(fv, sd2);
+	f.desValue(sd2, tv2);
+	tv2.get(rv2, is_null);
+	EXPECT_EQ(mav, rv2);
+	EXPECT_FALSE(is_null);
+	}
+	{
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
+	FieldValue fv, tv1, tv2;
+	bool is_null { false };
+	std::string rv1, rv2;
+	std::string miv { std::to_string(std::numeric_limits<int16_t>::min()) };
+	std::string mav { std::to_string(std::numeric_limits<int16_t>::max()) };
+	fv.set(miv);
+	f.serValue(fv, sd1);
+	f.desValue(sd1, tv1);
+	tv1.get(rv1, is_null);
+	EXPECT_EQ(miv, rv1);
+	EXPECT_FALSE(is_null);
+	fv.set(mav);
+	f.serValue(fv, sd2);
+	f.desValue(sd2, tv2);
+	tv2.get(rv2, is_null);
+	EXPECT_EQ(mav, rv2);
+	EXPECT_FALSE(is_null);
+	}
+	{
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
+	FieldValue fv, tv1, tv2;
+	bool is_null { false };
+	std::string rv1, rv2;
+	std::string miv { std::to_string(std::numeric_limits<int32_t>::min()) };
+	std::string mav { std::to_string(std::numeric_limits<int32_t>::max()) };
+	fv.set(miv);
+	f.serValue(fv, sd1);
+	f.desValue(sd1, tv1);
+	tv1.get(rv1, is_null);
+	EXPECT_EQ(miv, rv1);
+	EXPECT_FALSE(is_null);
+	fv.set(mav);
+	f.serValue(fv, sd2);
+	f.desValue(sd2, tv2);
+	tv2.get(rv2, is_null);
+	EXPECT_EQ(mav, rv2);
+	EXPECT_FALSE(is_null);
+	}
+	{
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
+	FieldValue fv, tv1, tv2;
+	bool is_null { false };
+	std::string rv1, rv2;
+	std::string miv { std::to_string(std::numeric_limits<int64_t>::min()) };
+	std::string mav { std::to_string(std::numeric_limits<int64_t>::max()) };
+	fv.set(miv);
+	f.serValue(fv, sd1);
+	f.desValue(sd1, tv1);
+	tv1.get(rv1, is_null);
+	EXPECT_EQ(miv, rv1);
+	EXPECT_FALSE(is_null);
+	fv.set(mav);
+	f.serValue(fv, sd2);
+	f.desValue(sd2, tv2);
+	tv2.get(rv2, is_null);
+	EXPECT_EQ(mav, rv2);
+	EXPECT_FALSE(is_null);
+	}
+
+}
+
+
+TEST(FieldTest, SetType_decimal) {
+    auto c = std::make_shared<Catalog>(0, "test_catalog");
+    auto s = std::make_shared<Schema>(c, "test_schema");
+    auto t = std::make_shared<Table>(s, "test_table");
+    Field f{t, "test_field", Field::type_e::TYPE_DECIMAL};
+    
+	{
+	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
+	FieldValue fv, tv1, tv2;
+	bool is_null { false };
+	std::string rv1, rv2;
+	std::string miv { std::to_string(std::numeric_limits<int8_t>::min()) };
+	std::string mav { std::to_string(std::numeric_limits<int8_t>::max()) };
+	fv.set(miv);
+	f.serValue(fv, sd1);
+	f.desValue(sd1, tv1);
+	tv1.get(rv1, is_null);
+	EXPECT_EQ(miv, rv1);
+	EXPECT_FALSE(is_null);
+	fv.set(mav);
+	f.serValue(fv, sd2);
+	f.desValue(sd2, tv2);
+	tv2.get(rv2, is_null);
+	EXPECT_EQ(mav, rv2);
+	EXPECT_FALSE(is_null);
+	}
+
+}
+
