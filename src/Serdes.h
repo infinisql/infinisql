@@ -258,13 +258,13 @@ public:
      * @param dsize length to serialize
      */
     void ser(const std::string &d, size_t dsize);
-    /** 
+    /**
      * @brief create string and deserialize into it, providing length
      *
      * @param d buffer to create and into which to deserialize
      * @param dsize length to deserialize
      */
-    void des(std::shared_ptr<std::string> &d, size_t dsize);
+    void des(std::string *d, size_t dsize);
     /** 
      * @brief serialize byte sequence, such as packed struct
      *

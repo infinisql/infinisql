@@ -209,6 +209,9 @@ void FieldValue::get(std::string &val, bool &isnull) {
 		isnull = true;
 	}
 	isnull = false;
+	if (value.str==nullptr) {
+		return;
+	}
 	val = *value.str;
 }
 
