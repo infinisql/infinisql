@@ -281,7 +281,7 @@ public:
      * @param d buffer to create and into which to deserialize
      * @param dsize length to deserialize
      */
-    void des(std::string *d, size_t dsize);
+    void des(std::string *&d, size_t dsize);
     /** 
      * @brief serialize byte sequence, such as packed struct
      *

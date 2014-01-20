@@ -225,9 +225,9 @@ void Serdes::ser(const std::string &d, size_t dsize)
     pos+=dsize;
 }
 
-void Serdes::des(std::string *d, size_t dsize)
+void Serdes::des(std::string *&d, size_t dsize)
 {
-    d=new std::string{(const char *)val.mv_data, dsize};
+    d = new std::string{(const char *)val.mv_data, dsize};
     if (d != nullptr)
     {
         pos+=dsize;
