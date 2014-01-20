@@ -62,3 +62,4 @@ src/infinisqld
 .scon*
 src/libinfinisql.a
 tests/test
+deps/
