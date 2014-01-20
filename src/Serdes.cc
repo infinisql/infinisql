@@ -217,9 +217,6 @@ void Serdes::des(std::string &d)
 
 void Serdes::ser(const std::string &d, size_t dsize)
 {
-	if (val.mv_data==nullptr) {
-		return;
-	}
     d.copy((char *)val.mv_data, dsize, 0);
     pos+=dsize;
 }
