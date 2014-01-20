@@ -54,7 +54,7 @@ Serdes::~Serdes()
 {
     if (isreadonly==false)
     {
-        delete [] (const char *)val.mv_data;
+        delete [] (const char*)val.mv_data;
     }
 }
 
