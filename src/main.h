@@ -46,7 +46,7 @@
 #include <unordered_map>
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
-#endif // _BSD_SOURCE
+#endif
 #include <endian.h>
 
 using namespace std;
