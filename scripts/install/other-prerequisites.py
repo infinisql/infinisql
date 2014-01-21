@@ -79,13 +79,17 @@ def coco(archive_path):
    os.chdir(source_path)
    os.system("make && mv Coco coco")
    copy_bin(os.path.join(source_path, "coco"))
+   copy_var(os.path.join(source_path, "Scanner.frame"), "coco")
+   copy_var(os.path.join(source_path, "Parser.frame"), "coco")
+         
     
 #===============================================================================
 packages = [("https://www.threadingbuildingblocks.org/sites/default/files/software_releases/source/tbb42_20131118oss_src.tgz",
              tbb),
             ("https://gitorious.org/mdb/mdb/archive/aa3463ec7c5e979420b13c8f37caa377ed2c1cf1.tar.gz",
              lmdb),
-            ("http://www.ssw.uni-linz.ac.at/Coco/CPP/CocoSourcesCPP.zip", coco)]
+            ("http://www.ssw.uni-linz.ac.at/Coco/CPP/CocoSourcesCPP.zip", coco),
+            ]
 
 #===============================================================================
 tmp_folder = os.environ.get("TEMP", "/tmp") 
