@@ -73,6 +73,11 @@ decimal::to_int32() const {
 	return decNumberToInt32(&number, context.get());
 }
 
+bool
+decimal::isnan() const {
+	return decNumberIsNaN(&number) == 1;
+}
+
 int
 decimal::compare(const decimal& rhs) const {
 	number_type r;

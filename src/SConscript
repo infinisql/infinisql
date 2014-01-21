@@ -1,14 +1,8 @@
-Import('env')
+Import(['env', 'libraries'])
 
 isql_env = env.Clone()
-isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread'])
-
-lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
-              'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
-              'globals.cc']
+isql_env.Append(LIBS=libraries + ['tbb', 'lmdb', 'pthread'])
           
 server_source = ['main.cc']
 
-lib = isql_env.Library('infinisql', lib_source)
-isql_env.Prepend(LIBS=[lib])
 isql_env.Program('infinisqld', server_source)
