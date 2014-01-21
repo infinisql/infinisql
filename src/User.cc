@@ -27,7 +27,6 @@
 
 #include "User.h"
 #include "Catalog.h"
-#line 31 "User.cc"
 
 User::User() : Metadata ()
 {

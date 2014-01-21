@@ -28,7 +28,6 @@
 #include "Table.h"
 #include "Catalog.h"
 #include "Schema.h"
-#line 32 "Table.cc"
 
 Table::Table() : Metadata (), nextfieldid (-1)
 {

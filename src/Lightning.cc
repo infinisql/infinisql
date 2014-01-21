@@ -27,7 +27,6 @@
 
 #include "Lightning.h"
 #include "main.h"
-#line 31 "Lightning.cc"
 
 Lightning::Lightning()
 {

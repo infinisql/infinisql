@@ -36,7 +36,6 @@
 #include "main.h"
 #include "Lightning.h"
 #include "Metadata.h"
-#line 40 "main.cc"
 
 std::ofstream logfile;
 string zmqsocket;

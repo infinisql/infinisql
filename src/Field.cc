@@ -27,7 +27,6 @@
 
 #include "Field.h"
 #include "Table.h"
-#line 31 "Field.cc"
 
 FieldValue::FieldValue() : valtype(VAL_NONE)
 {

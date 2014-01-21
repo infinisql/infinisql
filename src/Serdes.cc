@@ -26,7 +26,6 @@
  */
 
 #include "Serdes.h"
-#line 30 "Serdes.cc"
 
 Serdes::Serdes() : isreadonly(false), pos(0), val({0, nullptr})
 {

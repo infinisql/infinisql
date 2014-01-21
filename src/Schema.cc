@@ -27,7 +27,6 @@
 
 #include "Schema.h"
 #include "Catalog.h"
-#line 31 "Schema.cc"
 
 Schema::Schema() : Metadata()
 {

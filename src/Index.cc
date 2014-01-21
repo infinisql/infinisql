@@ -29,7 +29,6 @@
 #include "Catalog.h"
 #include "Schema.h"
 #include "Table.h"
-#line 33 "Index.cc"
 
 Index::Index() : Metadata ()
 {
