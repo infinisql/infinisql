@@ -44,6 +44,10 @@
 #include <unistd.h>
 #include <lmdb.h>
 #include <unordered_map>
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif // _BSD_SOURCE
+#include <endian.h>
 
 using namespace std;
 using std::string;

@@ -51,7 +51,7 @@ class Serdes
 {
 public:
     Serdes();
-    Serdes(size_t mv_sizearg);
+    Serdes(size_t mv_size);
     /** 
      * @brief create object to deserialize from an MDB_val
      *

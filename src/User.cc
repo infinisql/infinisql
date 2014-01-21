@@ -35,8 +35,7 @@ User::User() : Metadata ()
 }
 
 User::User(Catalog *parentCatalogarg, std::string namearg,
-           std::string &passwordarg)
-    : password (passwordarg)
+           std::string &password) : password(password)
 {
     if (parentCatalogarg->userName2Id.count(namearg))
     {

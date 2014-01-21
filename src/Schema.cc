@@ -49,7 +49,7 @@ Schema::Schema(Catalog *parentCatalogarg, std::string namearg)
     parentCatalog->schemaid2Schema[id]=this;    
 }
 
-Schema::Schema(const Schema &orig) : Metadata (orig)
+Schema::Schema(const Schema &orig) : Metadata(orig)
 {
 }
 

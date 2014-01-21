@@ -29,7 +29,7 @@
 #include "Catalog.h"
 #include "Schema.h"
 #include "Table.h"
-#line 32 "Index.cc"
+#line 33 "Index.cc"
 
 Index::Index() : Metadata ()
 {
@@ -55,21 +55,23 @@ Index::Index(Table *parentTablearg, std::string namearg)
     parentTable->indexid2Index[id]=this;    
 }
 
-Index::Index(const Index &orig) : Metadata (orig)
+Index::Index(const Index &orig) : Metadata(orig)
 {
-    cp(orig);
+//    cp(orig);
 }
 
 Index &Index::operator= (const Index &orig)
 {
     (Metadata)*this=Metadata(orig);
-    cp(orig);
+//    cp(orig);
     return *this;
 }
 
+/*
 void Index::cp(const Index &orig)
 {
 }
+*/
 
 Index::~Index()
 {

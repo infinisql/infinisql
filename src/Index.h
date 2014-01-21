@@ -45,7 +45,7 @@ public:
      *
      * @param orig 
      */
-    void cp(const Index &orig);
+//    void cp(const Index &orig);
     ~Index();
 
     void ser(Serdes &output);

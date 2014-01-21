@@ -30,20 +30,20 @@
 #include "Catalog.h"
 #line 32 "Catalog.cc"
 
-Catalog::Catalog() : Metadata (), nextuserid (0), nextschemaid (0),
-                     nexttableid (0), nextindexid (0)
+Catalog::Catalog() : Metadata(), nextuserid(0), nextschemaid(0),
+                     nexttableid(0), nextindexid(0)
 {
     
 }
 
-Catalog::Catalog(int16_t idarg, std::string namearg)
-    : Metadata (), nextuserid (0), nextschemaid (0), nexttableid (0),
-      nextindexid (0)
+Catalog::Catalog(int16_t id, std::string name)
+    : Metadata(id, name), nextuserid(0), nextschemaid(0), nexttableid(0),
+      nextindexid(0)
 {
     
 }
 
-Catalog::Catalog(const Catalog &orig) : Metadata (orig)
+Catalog::Catalog(const Catalog &orig) : Metadata(orig)
 {
     cp(orig);
 }

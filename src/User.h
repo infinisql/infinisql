@@ -43,8 +43,7 @@ public:
      *
      * @return 
      */
-    User(Catalog *parentCatalogarg, std::string namearg,
-         std::string &passwordarg);
+    User(Catalog *parentCatalogarg, std::string namearg, std::string &password);
     User(const User &orig);
     User &operator= (const User &orig);
     /** 

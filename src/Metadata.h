@@ -52,6 +52,7 @@ public:
     };
     
     Metadata();
+    Metadata(int16_t id, std::string name);
     Metadata(const Metadata &orig);
     ~Metadata();
 

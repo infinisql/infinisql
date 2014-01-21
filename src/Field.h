@@ -286,29 +286,28 @@ public:
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
+     * @param name field name
+     * @param type field type
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg);
+    Field(Table *parentTable, std::string name, type_e type);
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
-     * @param arg1arg parameter to create field
+     * @param name field name
+     * @param type field type
+     * @param arg1 parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg,
-          int64_t arg1arg);
+    Field(Table *parentTable, std::string name, type_e type, int64_t arg1);
     /** 
      * @brief create Field
      *
-     * @param namearg field name
-     * @param typearg field type
-     * @param arg1arg 1st parameter to create field
-     * @param arg2arg 2nd parameter to create field
+     * @param name field name
+     * @param type field type
+     * @param arg1 1st parameter to create field
+     * @param arg2 2nd parameter to create field
      */
-    Field(Table *parentTablearg, std::string namearg, type_e typearg,
-          int64_t arg1arg, int64_t arg2arg);
+    Field(Table *parentTable, std::string name, type_e type,
+          int64_t arg1, int64_t arg2);
     Field(const Field &orig);
     Field &operator= (const Field &orig);
     /** 
@@ -325,12 +324,12 @@ public:
     /** 
      * @brief intialize field parents and maps, get fieldid
      *
-     * @param parentTablearg parent table
-     * @param namearg name
+     * @param parentTable parent table
+     * @param name name
      * 
      * @return 
      */
-    bool initializer(Table *parentTablearg, std::string namearg);
+    bool initializer(Table *parentTablearg, std::string name);
     /** 
      * @brief get metadata parent information from parentTable
      *

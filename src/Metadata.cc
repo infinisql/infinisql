@@ -30,10 +30,18 @@
 #include "Metadata.h"
 #line 32 "Metadata.cc"
 
-Metadata::Metadata() : id (-1), parentCatalog (nullptr), parentSchema (nullptr),
-                       parentTable (nullptr), parentcatalogid (-1),
-                       parentschemaid (-1), parenttableid (-1),
-                       lmdbinfo ({nullptr, nullptr, nullptr, 0})
+Metadata::Metadata() : id(-1), parentCatalog(nullptr), parentSchema(nullptr),
+                       parentTable(nullptr), parentcatalogid(-1),
+                       parentschemaid(-1), parenttableid(-1),
+                       lmdbinfo({nullptr, nullptr, nullptr, 0})
+{
+    
+}
+
+Metadata::Metadata(int16_t id, std::string name)
+    : id(id), name(name), parentCatalog(nullptr), parentSchema(nullptr),
+      parentTable(nullptr), parentcatalogid(-1), parentschemaid(-1),
+      parenttableid(-1), lmdbinfo({nullptr, nullptr, nullptr, 0})
 {
     
 }

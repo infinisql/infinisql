@@ -29,7 +29,7 @@
 #include "Table.h"
 #line 31 "Field.cc"
 
-FieldValue::FieldValue() : valtype (VAL_NONE)
+FieldValue::FieldValue() : valtype(VAL_NONE)
 {
     value.int8=0;
 }
@@ -350,17 +350,17 @@ void FieldValue::des(Serdes &input)
     }
 }
 
-Field::Field() : Metadata (), type (TYPE_NONE), size (-1), precision (-1),
-                 scale (-1), nullconstraint (false)
+Field::Field() : Metadata(), type(TYPE_NONE), size(-1), precision(-1),
+                 scale(-1), nullconstraint(false)
 {
     defaultValue.nullify();
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg)
-    : Metadata (), type (typearg), size (-1), precision (-1), scale (-1),
-      nullconstraint (false)
+Field::Field(Table *parentTable, std::string name, type_e type)
+    : Metadata(), type(type), size(-1), precision(-1), scale(-1),
+      nullconstraint(false)
 {
-    if (initializer(parentTablearg, namearg)==false)
+    if (initializer(parentTable, name)==false)
     {
         return;
     }
@@ -406,11 +406,11 @@ Field::Field(Table *parentTablearg, std::string namearg, type_e typearg)
     }
 }    
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
-             int64_t arg1arg)
-      : Metadata (), type (typearg), scale (-1), nullconstraint (false)
+Field::Field(Table *parentTable, std::string name, type_e type,
+             int64_t arg1)
+      : Metadata(), type(type), scale(-1), nullconstraint(false)
 {
-    if (initializer(parentTablearg, namearg)==false)
+    if (initializer(parentTable, name)==false)
     {
         return;
     }
@@ -418,63 +418,63 @@ Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
     switch (type)
     {
     case TYPE_NUMERIC:
-        precision=arg1arg;
+        precision=arg1;
         scale=0;
         break;
 
     case TYPE_DECIMAL:
-        precision=arg1arg;
+        precision=arg1;
         scale=0;
         break;
         
     case TYPE_CHARACTER:
-        size=arg1arg;
+        size=arg1;
         break;
 
     case TYPE_CHARACTER_VARYING:
-        size=arg1arg;
+        size=arg1;
         break;
 
     case TYPE_BIT:
-        size=arg1arg;
+        size=arg1;
         break;
 
     case TYPE_BIT_VARYING:
-        size=arg1arg;
+        size=arg1;
         break;
 
     case TYPE_TIME:
-        precision=arg1arg;
+        precision=arg1;
         break;
 
     case TYPE_TIMESTAMP:
-        precision=arg1arg;
+        precision=arg1;
         break;
 
     case TYPE_TIME_WITH_TIME_ZONE:
-        precision=arg1arg;
+        precision=arg1;
         break;
 
     case TYPE_TIMESTAMP_WITH_TIME_ZONE:
-        precision=arg1arg;
+        precision=arg1;
         
     default:
         LOG("type " << type << " doesn't take a single argument");
     }
 }
 
-Field::Field(Table *parentTablearg, std::string namearg, type_e typearg,
-             int64_t arg1arg, int64_t arg2arg)
-        : Metadata (), type (typearg), size (-1), precision (arg1arg),
-        scale (arg2arg), nullconstraint (false)
+Field::Field(Table *parentTable, std::string name, type_e type,
+             int64_t arg1, int64_t arg2)
+        : Metadata(), type(type), size(-1), precision(arg1),
+          scale(arg2), nullconstraint(false)
 {
-    if (initializer(parentTablearg, namearg)==false)
+    if (initializer(parentTable, name)==false)
     {
         return;
     }
 }
 
-Field::Field(const Field &orig) : Metadata (orig)
+Field::Field(const Field &orig) : Metadata(orig)
 {
     cp(orig);
 }
@@ -501,9 +501,9 @@ Field::~Field()
     
 }
 
-bool Field::initializer(Table *parentTablearg, std::string namearg)
+bool Field::initializer(Table *parentTablearg, std::string name)
 {
-    if (parentTablearg->fieldName2Id.count(namearg))
+    if (parentTable->fieldName2Id.count(name))
     {
         id=-1;
         return false;
@@ -511,7 +511,7 @@ bool Field::initializer(Table *parentTablearg, std::string namearg)
     parentTable=parentTablearg;
     getparents();
     id=parentTable->getnextfieldid();
-    name=namearg;
+    name=name;
     parentTable->fieldName2Id[name]=id;
     parentTable->fieldid2Field[id]=this;
     defaultValue.nullify();
@@ -1106,4 +1106,3 @@ void Field::convertValue(FieldValue &fieldValue)
         LOG("no way to convert type " << fieldValue.valtype);
     }
 }
-

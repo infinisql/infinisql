@@ -35,7 +35,7 @@ Table::Table() : Metadata (), nextfieldid (-1)
     
 }
 
-Table::Table(Schema *parentSchemaarg, std::string namearg) : nextfieldid (-1)
+Table::Table(Schema *parentSchemaarg, std::string namearg) : nextfieldid(-1)
 {
     if (parentSchemaarg->parentCatalog->tableName2Id.count(namearg))
     {
@@ -52,7 +52,7 @@ Table::Table(Schema *parentSchemaarg, std::string namearg) : nextfieldid (-1)
     parentSchema->tableid2Table[id]=this;
 }
 
-Table::Table(const Table &orig) : Metadata (orig)
+Table::Table(const Table &orig) : Metadata(orig)
 {
     cp(orig);
 }
