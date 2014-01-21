@@ -27,7 +27,8 @@
 
 #include "Field.h"
 #include "Table.h"
-#line 31 "Field.cc"
+#include "decimal/decnum.h"
+#line 32 "Field.cc"
 
 FieldValue::FieldValue() :
 		valtype(VAL_NONE) {
@@ -45,91 +46,106 @@ FieldValue &FieldValue::operator=(const FieldValue &orig) {
 
 void FieldValue::cp(const FieldValue &orig) {
 	valtype = orig.valtype;
-	if (valtype == VAL_POD) {
+	switch(valtype) {
+	default:
+		break;
+	case VAL_POD:
 		value = orig.value;
-	} else if (valtype == VAL_STRING) {
+		break;
+	case VAL_STRING:
 		value.str = new std::string { *orig.value.str };
+		break;
+	case VAL_DECIMAL:
+		value.dec = new decimal { orig.value.dec };
+		break;
 	}
 }
 
 FieldValue::~FieldValue() {
-	deletestr();
+	cleanup_pointers();
 }
 
-void FieldValue::deletestr() {
-	if (valtype == VAL_STRING) {
+void FieldValue::cleanup_pointers() {
+	switch (valtype) {
+	default:
+		break;
+	case VAL_STRING:
 		delete value.str;
+		break;
+	case VAL_DECIMAL:
+		delete value.dec;
+		break;
 	}
 }
 
 void FieldValue::nullify() {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_NULL;
 }
 
 void FieldValue::set(const std::string &val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_STRING;
 	value.str = new std::string { val };
 }
 
 void FieldValue::set(int8_t val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.int1 = val;
 }
 
 void FieldValue::set(int16_t val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.int2 = val;
 }
 
 void FieldValue::set(int32_t val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.int4 = val;
 }
 
 void FieldValue::set(int64_t val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.int8 = val;
 }
 
 void FieldValue::set(float val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.singlefloat = val;
 }
 
 void FieldValue::set(double val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.doublefloat = val;
 }
 
 void FieldValue::set(char val) {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.character = val;
 }
 
 void FieldValue::set(bool val) {
 
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.boolean = val;
 }
 
 void FieldValue::settrue() {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.boolean = true;
 }
 
 void FieldValue::setfalse() {
-	deletestr();
+	cleanup_pointers();
 	valtype = VAL_POD;
 	value.boolean = false;
 }
@@ -260,7 +276,16 @@ void FieldValue::ser(Serdes &output) {
 		output.ser((int64_t) s);
 		output.ser(*value.str);
 	}
-		break;
+	break;
+
+	case VAL_DECIMAL: {
+		output.ser((char) valtype);
+		const std::string st { value.dec->to_string() };
+		size_t s = st.size();
+		output.ser((int64_t) s);
+		output.ser(st);
+	};
+	break;
 
 	default:
 		LOG("can't serialize type " << valtype);
@@ -283,7 +308,12 @@ size_t FieldValue::sersize() {
 
 	case VAL_STRING: {
 		return 1 + sizeof(int64_t) + value.str->size();
-	}
+		}
+		break;
+
+	case VAL_DECIMAL: {
+			return 1 + sizeof(int64_t) + value.dec->to_string().size();
+		}
 		break;
 
 	default:
@@ -308,12 +338,20 @@ void FieldValue::des(Serdes &input) {
 		break;
 
 	case VAL_STRING: {
-		int64_t s;
-		value.str = new std::string { };
-		input.des(s);
-		input.des(*(value.str));
+			int64_t s;
+			value.str = new std::string { };
+			input.des(s);
+			input.des(*(value.str));
+		}
+		break;
 
-	}
+	case VAL_DECIMAL: {
+			int64_t s;
+			std::string st;
+			input.des(s);
+			input.des(st);
+			value.dec = new decimal{ st };
+		}
 		break;
 
 	default:
@@ -425,6 +463,7 @@ Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, 
 
 	case TYPE_TIMESTAMP_WITH_TIME_ZONE:
 		precision = arg1arg;
+		break;
 
 	default:
 		LOG("type " << type << " doesn't take a single argument");
@@ -547,7 +586,7 @@ void Field::serValue(FieldValue &fieldValue, Serdes &output) {
 		break;
 
 	case TYPE_DECIMAL:
-		output.ser(*(fieldValue.value.str), precision);
+		output.ser(*(fieldValue.value.dec), precision);
 		break;
 
 	case TYPE_REAL:
@@ -567,7 +606,6 @@ void Field::serValue(FieldValue &fieldValue, Serdes &output) {
 			output.ser(fieldValue.value.character);
 		} else {
 			output.ser(*fieldValue.value.str, size);
-			;
 		}
 		break;
 
@@ -644,8 +682,8 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue) {
 		break;
 
 	case TYPE_NUMERIC:
-		fieldValue.valtype = FieldValue::VAL_STRING;
-		input.des(fieldValue.value.str, precision);
+		fieldValue.valtype = FieldValue::VAL_DECIMAL;
+		input.des(fieldValue.value.dec, precision);
 		break;
 
 	case TYPE_DECIMAL:
@@ -961,7 +999,7 @@ void Field::convertValue(FieldValue &fieldValue) {
 		switch (type) {
 		case TYPE_REAL: {
 			float singlefloat = std::stof(*fieldValue.value.str, nullptr);
-			fieldValue.deletestr();
+			fieldValue.cleanup_pointers();
 			fieldValue.valtype = FieldValue::VAL_POD;
 			fieldValue.value.singlefloat = singlefloat;
 		}
@@ -969,7 +1007,7 @@ void Field::convertValue(FieldValue &fieldValue) {
 
 		case TYPE_DOUBLE_PRECISION: {
 			float doublefloat = std::stod(*fieldValue.value.str, nullptr);
-			fieldValue.deletestr();
+			fieldValue.cleanup_pointers();
 			fieldValue.valtype = FieldValue::VAL_POD;
 			fieldValue.value.doublefloat = doublefloat;
 		}
@@ -977,7 +1015,7 @@ void Field::convertValue(FieldValue &fieldValue) {
 
 		case TYPE_FLOAT: {
 			float doublefloat = std::stod(*fieldValue.value.str, nullptr);
-			fieldValue.deletestr();
+			fieldValue.cleanup_pointers();
 			fieldValue.valtype = FieldValue::VAL_POD;
 			fieldValue.value.doublefloat = doublefloat;
 		}

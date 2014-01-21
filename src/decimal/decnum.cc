@@ -25,7 +25,7 @@
  * @brief  decimal math wrapper for the decNumber C library
  */
 
-#include "decimal.h"
+#include "decnum.h"
 
 void
 decimal::_initialize_context(int precision) {
@@ -54,6 +54,10 @@ decimal::decimal(int32_t value) :
 }
 
 decimal::decimal(context_type context):context(context) {
+}
+
+decimal::decimal(const decimal *other):context(other->context) {
+	decNumberCopy(&number, &other->number);
 }
 
 decimal::decimal() :

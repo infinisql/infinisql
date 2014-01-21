@@ -1,6 +1,6 @@
 #include <limits>
 #include <gtest/gtest.h>
-#include "decimal/decimal.h"
+#include "decimal/decnum.h"
 
 TEST(DecimalTest, CreateFromInt32) {
 	decimal d{10};

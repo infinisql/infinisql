@@ -49,6 +49,7 @@ protected:
 
 public:
 	decimal();
+	decimal(const decimal *other);
 	decimal(context_type context);
 	decimal(int32_t value);
 	decimal(int32_t value, int precision);

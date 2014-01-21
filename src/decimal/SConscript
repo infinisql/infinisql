@@ -2,7 +2,7 @@
 Import('env')
 lib_env = env.Clone()
 
-sources = ['decimal.cc', 'decNumber.c', 'decContext.c']
+sources = ['decnum.cc', 'decNumber.c', 'decContext.c']
 
 lib = lib_env.Library('decnum', sources)
 Return('lib')
