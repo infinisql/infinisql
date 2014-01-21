@@ -32,10 +32,10 @@
  * http://www.infinisql.org
  */
 
-#include "version.h"
-#include "main.h"
-#include "Lightning.h"
-#include "Metadata.h"
+#include "engine/version.h"
+#include "engine/common.h"
+#include "engine/Lightning.h"
+#include "engine/Metadata.h"
 #line 40 "main.cc"
 
 extern std::ofstream logfile;

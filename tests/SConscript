@@ -1,11 +1,11 @@
 import os
 from glob import glob
 
-Import('env')
+Import(['env', 'libraries'])
 test_env = env.Clone()
 test_env.Append(CPPPATH=["#tests/gtest", "#src"])
 test_env.Append(LIBPATH=["#src", "#src/decimal"])
-test_env.Append(LIBS = ["decnum", "infinisql", "tbb", "lmdb", "pthread"])
+test_env.Append(LIBS = libraries + ["tbb", "lmdb", "pthread"])
 
 test_sources = ['src/test_field_value.cc', 'src/test_field.cc', 
                'src/test_table.cc', 'src/test_decimal.cc'] #glob("src/*.cc")

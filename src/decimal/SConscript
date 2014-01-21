@@ -4,4 +4,5 @@ lib_env = env.Clone()
 
 sources = ['decimal.cc', 'decNumber.c', 'decContext.c']
 
-lib_env.Library('decnum', sources)
+lib = lib_env.Library('decnum', sources)
+Return('lib')
