@@ -40,7 +40,7 @@ public:
     /** 
      * @brief type of value contained (not field type)
      */
-    enum __attribute__ ((__packed__)) valtype_e
+    enum valtype_e : uint8_t
     {
         VAL_NONE=0,
         VAL_POD,
@@ -258,7 +258,7 @@ class Table;
 class Field : public Metadata
 {
 public:
-    enum __attribute__ ((__packed__)) type_e
+    enum type_e : uint8_t
     {
         TYPE_NONE=0,
         TYPE_TINYINT,

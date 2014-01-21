@@ -21,7 +21,7 @@ env['ENV']['TERM'] = os.environ['TERM']
 env.Replace(CXX=which('clang++'))
 env.Append(CPPPATH="#deps/include")
 env.Append(LIBPATH="#deps/lib")
-env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings ')
+env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings -Qunused-arguments ')
 
 if not env.GetOption('clean'):
     # Perform configuration checks
