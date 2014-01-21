@@ -50,16 +50,26 @@ Serdes::Serdes(MDB_val &valarg) : isreadonly(true), pos(0), val(valarg)
     
 }
 
+Serdes::Serdes(MDB_val *valarg) : isreadonly(false), pos(0), val(*valarg)
+{
+    
+}
+
 Serdes::~Serdes()
 {
     if (isreadonly==false)
     {
-        delete (char *)val.mv_data;
+        delete [] (const char *)val.mv_data;
     }
 }
 
 void Serdes::ser(int8_t d)
 {
+    if (val.mv_data==nullptr)
+    {
+        LOG("shouldn't try to serialize to NULL object");
+        return;
+    }
     memcpy(val.mv_data, &d, sizeof(d));
     pos+=sersize(d);
 }

@@ -54,7 +54,7 @@ public:
     Metadata();
     Metadata(int16_t id, std::string name);
     Metadata(const Metadata &orig);
-    ~Metadata();
+    virtual ~Metadata();
 
     void ser(Serdes &output);
     size_t sersize();

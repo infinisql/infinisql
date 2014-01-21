@@ -6,7 +6,7 @@ isql_env.Append(CXXFLAGS='-g -O3 -finline-functions ')
 
 lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
               'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
-              'Actor.cc']
+              'Actor.cc', 'Message.cc']
           
 server_source = ['main.cc']
 

@@ -34,7 +34,7 @@ class Actor
 {
 public:
     Actor();
-    ~Actor();
+    virtual ~Actor();
 };
 
 #endif // INFINISQLACTOR_H

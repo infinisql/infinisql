@@ -34,7 +34,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <fstream>
 #include <lmdb.h>
+
+extern std::ofstream logfile;
+#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
+    << std::endl
 
 /** 
  * @brief object to serialize anything
@@ -55,16 +60,28 @@ public:
     /** 
      * @brief create object to deserialize from an MDB_val
      *
-     * The MDB_val.mv_data item will not be deleted when this object
+     * The MDB_val.mv_data item WILL NOT be deleted when this object
      * ends. This is intented to deserialize from an LMDB key or value without
      * having to first copy it.
      *
      * If the item is not in an LMDB database, and needs to be deleted when
-     * finished, then set isreadonly to true.
+     * finished, then call with a pointer to valarg
      *
      * @param valarg 
      */
     Serdes(MDB_val &valarg);
+    /** 
+     * @brief create object to deserialize from an MDB_val
+     *
+     * The MDB_val.mv_data item WILL be deleted when this object
+     * ends. This is intented to deserialize to a Message
+     *
+     * If the item is in an LMDB database, and must not be deleted when
+     * finished, then call with a reference to valarg
+     *
+     * @param valarg 
+     */
+    Serdes(MDB_val *valarg);
     ~Serdes();
 
     // pods
@@ -277,8 +294,7 @@ public:
      * @param d region to deserialize into
      * @param dsize size of region to deserialize
      */
-    void des(void *d, size_t dsize);
-    
+    void des(void *d, size_t dsize);    
 
     /** 
      * @brief set position to beginning of data

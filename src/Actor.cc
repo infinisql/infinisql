@@ -31,8 +31,3 @@ Actor::Actor()
 {
     
 }
-
-Actor::~Actor()
-{
-    
-}
