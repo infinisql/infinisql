@@ -62,5 +62,69 @@ TEST(DecimalTest, Divide) {
 	ASSERT_EQ(s1, d3.to_string());
 }
 
+TEST(DecimalTest, Lt) {
+	std::string s1{"1.2"};
+	std::string s2{"2.9"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d1 < d2);
+}
+
+TEST(DecimalTest, Gt) {
+	std::string s1{"1.2"};
+	std::string s2{"2.9"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d2 > d1);
+}
+
+TEST(DecimalTest, Lte) {
+	std::string s1{"1.2"};
+	std::string s2{"2.9"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d1 <= d2);
+	ASSERT_TRUE(d1 <= d1);
+}
+
+TEST(DecimalTest, Gte) {
+	std::string s1{"1.2"};
+	std::string s2{"2.9"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d2 >= d1);
+	ASSERT_TRUE(d2 >= d2);
+}
+
+TEST(DecimalTest, Eq) {
+	std::string s1{"1.2"};
+	std::string s2{"1.2"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d1 == d2);
+	ASSERT_FALSE(d1 != d2);
+}
+
+TEST(DecimalTest, Ne) {
+	std::string s1{"1.2"};
+	std::string s2{"2.9"};
+
+	decimal d1{s1};
+	decimal d2{s2};
+
+	ASSERT_TRUE(d1 != d2);
+	ASSERT_FALSE(d1 == d2);
+}
+
 
 

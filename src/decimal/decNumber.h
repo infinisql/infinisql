@@ -40,7 +40,7 @@
   /* constant.  This must not be changed without recompiling the      */
   /* decNumber library modules. */
 
-  #define DECDPUN 3           /* DECimal Digits Per UNit [must be >0  */
+  #define DECDPUN 8           /* DECimal Digits Per UNit [must be >0  */
                               /* and <10; 3 or powers of 2 are best]. */
 
   /* DECNUMDIGITS is the default number of digits that can be held in */

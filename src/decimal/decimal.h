@@ -55,13 +55,21 @@ public:
 	decimal(const std::string& value);
 	decimal(const std::string& value, int precision);
 
-	std::string to_string();
-	int32_t to_int32();
+	std::string to_string() const;
+	int32_t to_int32() const;
+	int compare(const decimal& rhs) const;
 
 	decimal operator+(const decimal& rhs) const;
 	decimal operator-(const decimal& rhs) const;
 	decimal operator*(const decimal& rhs) const;
 	decimal operator/(const decimal& rhs) const;
+
+	bool operator<(const decimal& rhs) const;
+	bool operator>(const decimal& rhs) const;
+	bool operator<=(const decimal& rhs) const;
+	bool operator>=(const decimal& rhs) const;
+	bool operator==(const decimal& rhs) const;
+	bool operator!=(const decimal& rhs) const;
 
 };
 
