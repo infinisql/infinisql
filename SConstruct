@@ -63,4 +63,4 @@ if not env.GetOption('clean'):
     env = conf.Finish()
 
 env.Clean('distclean', ['.sconsign.dblite', '.sconf_temp', 'config.log'])
-env.SConscript(['src/SConscript', 'tests/SConscript'], exports='env')
+env.SConscript(['src/decimal/SConscript', 'src/SConscript', 'tests/SConscript'], exports='env')
