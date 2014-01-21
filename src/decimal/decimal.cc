@@ -61,7 +61,7 @@ decimal::decimal() :
 }
 
 std::string
-decimal::to_string() {
+decimal::to_string() const {
 	// As per the decNumber spec.
 	char buffer[context->digits+14];
 	decNumberToString(&number, buffer);
@@ -69,8 +69,15 @@ decimal::to_string() {
 }
 
 int32_t
-decimal::to_int32() {
+decimal::to_int32() const {
 	return decNumberToInt32(&number, context.get());
+}
+
+int
+decimal::compare(const decimal& rhs) const {
+	number_type r;
+	decNumberCompare(&r, &number, &rhs.number, context.get());
+	return decNumberToInt32(&r, context.get());
 }
 
 decimal
@@ -101,3 +108,27 @@ decimal::operator/(const decimal& rhs) const {
 	return r;
 }
 
+bool
+decimal::operator<(const decimal& rhs) const {
+	return compare(rhs)<0;
+}
+
+bool decimal::operator>(const decimal& rhs) const{
+	return compare(rhs)>0;
+}
+
+bool decimal::operator<=(const decimal& rhs) const{
+	return compare(rhs)<=0;
+}
+
+bool decimal::operator>=(const decimal& rhs) const{
+	return compare(rhs)>=0;
+}
+
+bool decimal::operator==(const decimal& rhs) const {
+	return compare(rhs)==0;
+}
+
+bool decimal::operator!=(const decimal& rhs) const {
+	return compare(rhs)!=0;
+}
