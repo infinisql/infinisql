@@ -1,9 +1,9 @@
 
 #include <gtest/gtest.h>
-#include "Catalog.h"
-#include "Schema.h"
-#include "Table.h"
-#include "Field.h"
+#include "engine/Catalog.h"
+#include "engine/Schema.h"
+#include "engine/Table.h"
+#include "engine/Field.h"
 
 const size_t serdes_test_buffer_size = 1024;
 

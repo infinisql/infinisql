@@ -57,7 +57,9 @@ public:
 
 	std::string to_string() const;
 	int32_t to_int32() const;
+
 	int compare(const decimal& rhs) const;
+	bool isnan() const;
 
 	decimal operator+(const decimal& rhs) const;
 	decimal operator-(const decimal& rhs) const;

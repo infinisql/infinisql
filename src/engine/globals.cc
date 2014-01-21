@@ -1,5 +1,5 @@
 #include "version.h"
-#include "main.h"
+#include "common.h"
 #include "Lightning.h"
 #include "Metadata.h"
 

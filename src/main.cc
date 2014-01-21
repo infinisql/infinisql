@@ -32,11 +32,10 @@
  * http://www.infinisql.org
  */
 
-#include "main.h"
-#include "version.h"
-#include "Lightning.h"
-#include "Metadata.h"
-#include "global.h"
+#include "engine/version.h"
+#include "engine/common.h"
+#include "engine/Lightning.h"
+#include "engine/Metadata.h"
 
 extern std::ofstream logfile;
 extern std::string zmqsocket;
