@@ -28,7 +28,7 @@
 #ifndef INFINISQLACTOR_H
 #define INFINISQLACTOR_H
 
-#include "main.h"
+#include "global.h"
 
 class Actor
 {

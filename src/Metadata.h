@@ -30,7 +30,7 @@
 #ifndef INFINISQLMETADATA_H
 #define INFINISQLMETADATA_H
 
-#include "main.h"
+#include "global.h"
 
 class Catalog;
 class Schema;

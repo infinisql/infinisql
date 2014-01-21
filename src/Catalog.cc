@@ -28,7 +28,6 @@
  */
 
 #include "Catalog.h"
-#line 32 "Catalog.cc"
 
 Catalog::Catalog() : Metadata(), nextuserid(0), nextschemaid(0),
                      nexttableid(0), nextindexid(0)

@@ -17,15 +17,49 @@
  * along with InfiniSQL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFINISQLMAIN_H
-#define INFINISQLMAIN_H
+#ifndef INFINISQLGLOBAL_H
+#define INFINISQLGLOBAL_H
 
 /**
- * @file   main.h
+ * @file   global.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
  * @date   Mon Jan  6 14:20:07 2014
  * 
- * @brief  header for main source file
+ * @brief  widely used headers and global declarations
  */
 
-#endif // INFINISQLMAIN_H
+#include <cassert>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <lmdb.h>
+#include <unordered_map>
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+#include <endian.h>
+
+using namespace std;
+using std::string;
+
+extern std::ofstream logfile;
+extern string zmqsocket;
+extern void *zmqcontext;
+
+#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
+    << std::endl
+
+/* InfiniSQL headers that most, or all parts of the project need */
+#include "Serdes.h"
+
+#endif // INFINISQLGLOBAL_H
