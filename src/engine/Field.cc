@@ -284,7 +284,7 @@ void FieldValue::ser(Serdes &output) {
 		output.ser((int64_t) s);
 		output.ser(st);
 	};
-	break;
+		break;
 
 	default:
 		LOG("can't serialize type " << valtype);
