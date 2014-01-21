@@ -35,7 +35,7 @@ else:
     env.Append(CXXFLAGS="-g -fsanitize=address")
     env.Append(LINKFLAGS="-fsanitize=address")
 
-env.Append(CPPPATH="#deps/include")
+env.Append(CPPPATH=["#deps/include", "#src"])
 env.Append(LIBPATH="#deps/lib")
 env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings ')
 

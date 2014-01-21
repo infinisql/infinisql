@@ -31,6 +31,8 @@
 #include <memory>
 #include "Metadata.h"
 
+class decimal;
+
 /** 
  * @brief field contents
  *
@@ -46,7 +48,8 @@ public:
         VAL_NONE=0,
         VAL_POD,
         VAL_NULL,
-        VAL_STRING
+        VAL_STRING,
+        VAL_DECIMAL
     };
 
     /** 
@@ -63,6 +66,7 @@ public:
         int32_t character;
         bool boolean;
         std::string* str;
+        decimal *dec;
     };
     
     FieldValue();
@@ -80,7 +84,7 @@ public:
      * @brief delete if value is string
      *
      */
-    void deletestr();
+    void cleanup_pointers();
     /** 
      * @ brief set field to NULL
      *
