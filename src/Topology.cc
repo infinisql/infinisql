@@ -18,33 +18,18 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   Topology.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Wed Jan 22 09:06:10 2014
  * 
- * @brief  base class for Actors
+ * @brief Topology class has all of the actors, their types, and dynamic
+ * configuration values. Each actor maintains a Topology object which gives
+ * it a common view for the whole node and, as necessary, the whole cluster.
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#include "Topology.h"
 
-#include "global.h"
-
-class Actor
+Topology::Topology()
 {
-public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
-    {
-        Message::address_s address;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
-};
-
-#endif // INFINISQLACTOR_H
+    
+}

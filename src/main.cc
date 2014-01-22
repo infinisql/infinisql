@@ -36,6 +36,7 @@
 #include "version.h"
 #include "Lightning.h"
 #include "Metadata.h"
+#include "TopologyManager.h"
 #include "global.h"
 
 std::ofstream logfile;
@@ -106,14 +107,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    logfile << "yo" << std::endl;
-    LOG("haha" << "hoho" << 73);
-    Lightning l;
+    Actor::identity_s id;
+    id.address.nodeid=nodeid;
+    id.address.actorid=1;
+    TopologyManager tm(id);
+    tm();
 
-    while (1)
-    {
-        sleep(10);
-    }
-    
     return 0;
 }

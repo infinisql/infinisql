@@ -27,7 +27,14 @@
 
 #include "Actor.h"
 
-Actor::Actor()
+Actor::Actor(identity_s identity) : identity(identity)
 {
-    
+}
+
+void Actor::operator()() const
+{
+}
+
+Actor::~Actor()
+{    
 }
