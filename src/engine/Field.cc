@@ -19,7 +19,7 @@
 
 /**
  * @file   Field.cc
- * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @author Mark Travis <mtravis15432DE+src@gmail.com>
  * @date   Tue Jan  7 02:51:34 2014
  * 
  * @brief  classes pertaining to data fields
@@ -603,11 +603,11 @@ void Field::serValue(FieldValue &fieldValue, Serdes &output) {
 		break;
 
 	case TYPE_NUMERIC:
-		output.ser(*(fieldValue.value.dec), precision);
+		output.ser(*(fieldValue.value.dec));
 		break;
 
 	case TYPE_DECIMAL:
-		output.ser(*(fieldValue.value.dec), precision);
+		output.ser(*(fieldValue.value.dec));
 		break;
 
 	case TYPE_REAL:
@@ -704,12 +704,12 @@ void Field::desValue(Serdes &input, FieldValue &fieldValue) {
 
 	case TYPE_NUMERIC:
 		fieldValue.valtype = FieldValue::VAL_DECIMAL;
-		input.des(fieldValue.value.dec, precision);
+		input.des(fieldValue.value.dec);
 		break;
 
 	case TYPE_DECIMAL:
-		fieldValue.valtype = FieldValue::VAL_STRING;
-		input.des(fieldValue.value.dec, precision);
+		fieldValue.valtype = FieldValue::VAL_DECIMAL;
+		input.des(fieldValue.value.dec);
 		break;
 
 	case TYPE_REAL:
