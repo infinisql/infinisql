@@ -234,20 +234,16 @@ void Serdes::des(std::string *&d, size_t dsize)
     }
 }
 
-void Serdes::ser(const decimal &d, size_t dsize)
+void Serdes::ser(const decimal &d)
 {
-	d.to_string().copy((char *)val.mv_data, dsize, 0);
-    pos+=dsize;
+	ser(d.to_string());
 }
 
-void Serdes::des(decimal *&d, size_t dsize)
+void Serdes::des(decimal *&d)
 {
-	std::string st{(const char *)val.mv_data, dsize};
-    d = new decimal(st);
-    if (d != nullptr)
-    {
-        pos+=dsize;
-    }
+	std::string st;
+	des(st);
+    d = new decimal{st};
 }
 
 

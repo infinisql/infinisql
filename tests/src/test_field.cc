@@ -23,12 +23,14 @@ TEST(FieldTest, SetType_tinyint) {
 	int8_t mav { std::numeric_limits<int8_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -53,12 +55,14 @@ TEST(FieldTest, SetType_smallint) {
 	int8_t mav { std::numeric_limits<int8_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -73,12 +77,14 @@ TEST(FieldTest, SetType_smallint) {
 	int16_t mav { std::numeric_limits<int16_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -103,12 +109,14 @@ TEST(FieldTest, SetType_int) {
 	int8_t mav { std::numeric_limits<int8_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -123,12 +131,14 @@ TEST(FieldTest, SetType_int) {
 	int16_t mav { std::numeric_limits<int16_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -143,12 +153,14 @@ TEST(FieldTest, SetType_int) {
 	int32_t mav { std::numeric_limits<int32_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -173,12 +185,14 @@ TEST(FieldTest, SetType_bigint) {
 	int8_t mav { std::numeric_limits<int8_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -193,12 +207,14 @@ TEST(FieldTest, SetType_bigint) {
 	int16_t mav { std::numeric_limits<int16_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -213,12 +229,14 @@ TEST(FieldTest, SetType_bigint) {
 	int32_t mav { std::numeric_limits<int32_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -233,12 +251,14 @@ TEST(FieldTest, SetType_bigint) {
 	int64_t mav { std::numeric_limits<int64_t>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -263,12 +283,14 @@ TEST(FieldTest, SetType_boolean) {
 	bool mav { std::numeric_limits<bool>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -293,12 +315,14 @@ TEST(FieldTest, SetType_real) {
 	float mav { std::numeric_limits<float>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -323,12 +347,14 @@ TEST(FieldTest, SetType_double_precision) {
 	float mav { std::numeric_limits<float>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -343,12 +369,14 @@ TEST(FieldTest, SetType_double_precision) {
 	double mav { std::numeric_limits<double>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -373,12 +401,14 @@ TEST(FieldTest, SetType_float) {
 	float mav { std::numeric_limits<float>::max() };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
 	EXPECT_EQ(mav, rv2);
@@ -403,15 +433,17 @@ TEST(FieldTest, SetType_numeric) {
 	decimal mav { std::to_string(std::numeric_limits<int8_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -423,15 +455,17 @@ TEST(FieldTest, SetType_numeric) {
 	decimal mav { std::to_string(std::numeric_limits<int16_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -443,15 +477,17 @@ TEST(FieldTest, SetType_numeric) {
 	decimal mav { std::to_string(std::numeric_limits<int32_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -463,15 +499,17 @@ TEST(FieldTest, SetType_numeric) {
 	decimal mav { std::to_string(std::numeric_limits<int64_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 
@@ -493,15 +531,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<int8_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -513,15 +553,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<int16_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -533,15 +575,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<int32_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -553,15 +597,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<int64_t>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -573,15 +619,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<float>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 	{
@@ -593,15 +641,17 @@ TEST(FieldTest, SetType_decimal) {
 	decimal mav { std::to_string(std::numeric_limits<double>::max()) };
 	fv.set(miv);
 	f.serValue(fv, sd1);
+	sd1.rewind();
 	f.desValue(sd1, tv1);
 	tv1.get(rv1, is_null);
 	EXPECT_EQ(miv, rv1);
 	EXPECT_FALSE(is_null);
 	fv.set(mav);
 	f.serValue(fv, sd2);
+	sd2.rewind();
 	f.desValue(sd2, tv2);
 	tv2.get(rv2, is_null);
-	EXPECT_EQ(mav, rv2);
+	EXPECT_EQ(mav.to_string(), rv2.to_string());
 	EXPECT_FALSE(is_null);
 	}
 
