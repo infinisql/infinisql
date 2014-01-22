@@ -37,8 +37,7 @@ class decimal;
  * @brief field contents
  *
  */
-class FieldValue
-{
+class FieldValue {
 public:
     /** 
      * @brief type of value contained (not field type)
@@ -96,6 +95,12 @@ public:
      * @param val value to set
      */
     void set(const std::string &val);
+    /**
+	 * @brief set value to a decimal value
+	 *
+	 * @param val value to set
+	 */
+	void set(const decimal &val);
     /** 
      * @brief set value to 8bit int
      *
@@ -224,6 +229,13 @@ public:
      * @param isnull whether is null or not
      */
     void get(std::string &val, bool &isnull);
+    /**
+	 * @brief retrieve decimal value
+	 *
+	 * @param val returned value
+	 * @param isnull whether is null or not
+	 */
+	void get(decimal &val, bool &isnull);    
     /** 
 	 * @brief retrieve bool value
 	 *

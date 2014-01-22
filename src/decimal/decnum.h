@@ -55,8 +55,11 @@ public:
 	decimal(int32_t value, int precision);
 	decimal(const std::string& value);
 	decimal(const std::string& value, int precision);
+	~decimal()=default;
 
 	std::string to_string() const;
+	void from_string(const std::string& value);
+
 	int32_t to_int32() const;
 
 	int compare(const decimal& rhs) const;

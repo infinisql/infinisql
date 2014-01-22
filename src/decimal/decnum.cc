@@ -37,7 +37,7 @@ decimal::_initialize_context(int precision) {
 
 decimal::decimal(const std::string& value, int precision) {
 	_initialize_context(precision);
-	decNumberFromString(&number, value.c_str(), context.get());
+	from_string(value);
 }
 
 decimal::decimal(const std::string& value) :
@@ -70,6 +70,11 @@ decimal::to_string() const {
 	char buffer[context->digits+14];
 	decNumberToString(&number, buffer);
 	return std::string{buffer};
+}
+
+void
+decimal::from_string(const std::string& value) {
+	decNumberFromString(&number, value.c_str(), context.get());
 }
 
 int32_t
