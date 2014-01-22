@@ -31,7 +31,7 @@
 #define INFINISQLMETADATA_H
 
 #include <memory>
-#include "common.h"
+#include "global.h"
 
 class Catalog;
 class Schema;

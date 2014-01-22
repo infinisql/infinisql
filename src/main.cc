@@ -33,7 +33,7 @@
  */
 
 #include "engine/version.h"
-#include "engine/common.h"
+#include "engine/global.h"
 #include "engine/Lightning.h"
 #include "engine/Metadata.h"
 

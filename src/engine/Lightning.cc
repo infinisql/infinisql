@@ -26,7 +26,7 @@
  */
 
 #include "Lightning.h"
-#include "common.h"
+#include "global.h"
 
 Lightning::Lightning()
 {

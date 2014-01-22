@@ -57,6 +57,9 @@ Metadata::Metadata(const Metadata &orig)
     parenttableid=orig.parenttableid;
 }
 
+Metadata::~Metadata() {
+}
+
 void Metadata::ser(Serdes &output)
 {
     output.ser(id);

@@ -43,7 +43,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
-#include <unordered_map>
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -60,7 +59,7 @@ extern void *zmqcontext;
     << std::endl
 
 /* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
-#include "Message.h"
+#include "engine/Serdes.h"
+//#include "engine/Message.h"
 
 #endif // INFINISQLGLOBAL_H

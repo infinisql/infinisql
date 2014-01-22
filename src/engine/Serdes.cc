@@ -62,7 +62,7 @@ void Serdes::ser(int8_t d)
 {
     if (val.mv_data==nullptr)
     {
-        LOG("shouldn't try to serialize to NULL object");
+        //LOG("shouldn't try to serialize to NULL object");
         return;
     }
     memcpy(val.mv_data, &d, sizeof(d));
