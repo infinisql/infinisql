@@ -398,7 +398,7 @@ TEST(FieldTest, SetType_numeric) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int8_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int8_t>::max()) };
 	fv.set(miv);
@@ -418,7 +418,7 @@ TEST(FieldTest, SetType_numeric) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int16_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int16_t>::max()) };
 	fv.set(miv);
@@ -438,7 +438,7 @@ TEST(FieldTest, SetType_numeric) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int32_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int32_t>::max()) };
 	fv.set(miv);
@@ -458,7 +458,7 @@ TEST(FieldTest, SetType_numeric) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int64_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int64_t>::max()) };
 	fv.set(miv);
@@ -488,7 +488,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int8_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int8_t>::max()) };
 	fv.set(miv);
@@ -508,7 +508,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int16_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int16_t>::max()) };
 	fv.set(miv);
@@ -528,7 +528,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int32_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int32_t>::max()) };
 	fv.set(miv);
@@ -548,7 +548,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<int64_t>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<int64_t>::max()) };
 	fv.set(miv);
@@ -568,7 +568,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<float>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<float>::max()) };
 	fv.set(miv);
@@ -588,7 +588,7 @@ TEST(FieldTest, SetType_decimal) {
 	Serdes sd1{serdes_test_buffer_size}, sd2{serdes_test_buffer_size};
 	FieldValue fv, tv1, tv2;
 	bool is_null { false };
-	std::string rv1, rv2;
+	decimal rv1, rv2;
 	decimal miv { std::to_string(std::numeric_limits<double>::min()) };
 	decimal mav { std::to_string(std::numeric_limits<double>::max()) };
 	fv.set(miv);
