@@ -255,6 +255,20 @@ public:
      */
     void des(std::string &d);
     /** 
+	 * @brief serialize decimal and store only the contents (not the length)
+	 *
+	 * @param d item to serialize
+	 *
+	 */
+	void ser(const decimal &d);
+	/**
+	 * @brief create decimal and deserialize into it, providing length
+	 *
+	 * @param d buffer to create and into which to deserialize
+	 *
+	 */
+	void des(decimal *&d);
+	/**
      * @brief serialize string and store only the contents (not the length)
      *
      * @param d item to serialize
@@ -268,18 +282,6 @@ public:
      * @param dsize length to deserialize
      */
     void des(std::string *&d, size_t dsize);
-	/**
-	 * @brief serialize decimal, storing length.
-	 *
-	 * @param d item to serialize
-	 */
-	void ser(const decimal &d);
-	/**
-	 * @brief create decmial and deserialize into it
-	 *
-	 * @param d buffer to create and into which to deserialize
-	 */
-	void des(decimal *&d);
     /** 
      * @brief serialize byte sequence, such as packed struct
      *
@@ -293,7 +295,7 @@ public:
      * @param d region to deserialize into
      * @param dsize size of region to deserialize
      */
-    void des(void *d, size_t dsize); 
+    void des(void *d, size_t dsize);
 
     /** 
      * @brief set position to beginning of data
