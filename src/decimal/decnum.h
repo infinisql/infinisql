@@ -55,7 +55,7 @@ public:
 	decimal(int32_t value, int precision);
 	decimal(const std::string& value);
 	decimal(const std::string& value, int precision);
-	~decimal()=default;
+	virtual ~decimal();
 
 	std::string to_string() const;
 	void from_string(const std::string& value);

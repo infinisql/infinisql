@@ -152,6 +152,24 @@ TEST(FieldValueTest, SetString) {
     ASSERT_FALSE(is_null);
 }
 
+TEST(FieldValueTest, SetDecimal) {
+    FieldValue fv;
+    decimal miv{ "10.5" }, mav { "100.95" };
+    decimal tv{};
+    bool is_null { false };
+
+    fv.set(miv);
+    fv.get(tv, is_null);
+    ASSERT_EQ(tv, miv);
+    ASSERT_FALSE(is_null);
+
+    fv.set(mav);
+    fv.get(tv, is_null);
+    ASSERT_EQ(tv, mav);
+    ASSERT_FALSE(is_null);
+}
+
+
 TEST(FieldValueTest, SetNull) {
 	FieldValue fv;
 	fv.nullify();
