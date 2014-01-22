@@ -89,6 +89,8 @@ public:
     uint64_t counter;
 };
 
+class Mboxes;
+
 class MboxProducer
 {
 public:
@@ -110,10 +112,22 @@ public:
     Mbox *mbox;
     int16_t nodeid;
     MessageBatch *obBatchMsg;
+    Mboxes *mboxes;
+};
+
+class Mboxes
+{
+public:
+    Mboxes();
+    Mboxes(int16_t nodeid);
+
     /**
-     * @todo uncomment when mboxes is up
+     * @brief send batched Message objects destined to remote nodes
      */
-     // Mboxes *mboxes;
+    void sendObBatch();
+    
+    int16_t nodeid;
+    MboxProducer *obGatewayPtr;
 };
 
 #endif // INFINISQLMBOX_H

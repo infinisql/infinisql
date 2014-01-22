@@ -138,10 +138,7 @@ void MboxProducer::sendMsg(Message &msgsnd)
         delete &msgsnd;
         if (obBatchMsg->nmsgs==OBGWMSGBATCHSIZE)
         {
-            /** 
-             * @todo remember to come back here once mboxes is up
-             */
-//            mboxes->sendObBatch();
+            mboxes->sendObBatch();
         }
         return;
     }
@@ -179,4 +176,26 @@ void MboxProducer::sendMsg(Message &msgsnd)
     }
 
     __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+}
+
+Mboxes::Mboxes() : Mboxes(0)
+{
+    
+}
+
+Mboxes::Mboxes(int16_t nodeid) : nodeid(nodeid), obGatewayPtr(nullptr)
+{
+    
+}
+
+void Mboxes::sendObBatch()
+{
+    if (obGatewayPtr != nullptr)
+    {
+        if (obGatewayPtr->obBatchMsg != nullptr)
+        {
+            obGatewayPtr->sendMsg(*obGatewayPtr->obBatchMsg);
+            obGatewayPtr->obBatchMsg=nullptr;
+        }
+    }
 }
