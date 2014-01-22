@@ -49,3 +49,11 @@ infinisqlmgr.conf
 core.*
 src/infinisqld
 .scon*
+.cproject
+.idea/
+.project
+.pydevproject
+deps/
+infinisqld/
+test
+

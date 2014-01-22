@@ -37,7 +37,8 @@ class decimal;
  * @brief field contents
  *
  */
-class FieldValue {
+class FieldValue
+{
 public:
     /** 
      * @brief type of value contained (not field type)
@@ -64,7 +65,7 @@ public:
         double doublefloat;
         int32_t character;
         bool boolean;
-        std::string* str;
+        std::string *str;
         decimal *dec;
     };
     
@@ -149,7 +150,7 @@ public:
      * @param val value to set
      */
     void set(bool val);
-    /**
+    /** 
      * @brief set value to boolean true
      *
      * @param val value to set
@@ -243,7 +244,7 @@ public:
 	 * @param isnull whether is null or not
 	 */
 	void get(bool &val, bool &isnull);
-    /**
+    /** 
      * @brief return boolean value
      *
      * @param isnull whether is null or not

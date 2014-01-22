@@ -64,9 +64,6 @@ decimal::decimal() :
 		decimal(0) {
 }
 
-decimal::~decimal() {
-}
-
 std::string
 decimal::to_string() const {
 	// As per the decNumber spec.
