@@ -18,10 +18,14 @@ if ARGUMENTS.get('verbose') != "1":
     env['RANLIBCOMSTR'] = "Making library $TARGET"
 env['ENV']['TERM'] = os.environ['TERM']
           
-env.Replace(CXX=which('clang++'))
+if ARGUMENTS.get('gcc') != "1":
+    env.Replace(CXX=which('clang++'))
+else:
+    env.Replace(CXX=None)
+
 env.Append(CPPPATH="#deps/include")
 env.Append(LIBPATH="#deps/lib")
-env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings -Qunused-arguments ')
+env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings ')
 
 if not env.GetOption('clean'):
     # Perform configuration checks
@@ -31,7 +35,7 @@ if not env.GetOption('clean'):
     if not conf.CheckCXX():
         print("Unable to find clang, checking for g++ instead.")
         env.Replace(CXX=which('g++'))
-        env.Append(CXXFLAGS='-mcx16')
+        env.Append(CXXFLAGS='-mcx16 ')
         if not conf.CheckCXX():
             print('Unable to find a configured C++ compiler.')
             Exit(1)

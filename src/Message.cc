@@ -48,6 +48,38 @@ size_t Message::sersize()
     return sizeof(message);
 }
 
+Serdes *Message::sermsg()
+{
+    Serdes *serobj;
+    switch (message.payloadtype)
+    {
+    case PAYLOAD_MESSAGE:
+        serobj=new (std::nothrow) Serdes(sersize());
+        if (serobj != NULL)
+        {
+            ser(*serobj);
+        }
+        break;
+
+    case PAYLOAD_SOCKET:
+    {
+        MessageSocket &msgRef=*(MessageSocket *)this;
+        serobj=new (std::nothrow) Serdes(msgRef.sersize());
+        if (serobj != NULL)
+        {
+            msgRef.ser(*serobj);
+        }
+    }
+    break;
+        
+    default:
+        LOG("can't serialize payloadtype " << message.payloadtype);
+        serobj=nullptr;
+    }
+
+    return serobj;
+}
+
 Message *Message::deserialize(Serdes &input)
 {
     message_s messagedata;
