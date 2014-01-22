@@ -1,7 +1,7 @@
 Import('env')
 
 isql_env = env.Clone()
-isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread'])
+isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread', 'msgpack', 'zmq'])
 isql_env.Append(CXXFLAGS='-g -O3 -finline-functions ')
 
 lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
