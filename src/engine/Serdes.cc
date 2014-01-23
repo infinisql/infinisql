@@ -93,7 +93,7 @@ size_t Serdes::sersize(int16_t d)
 
 void Serdes::des(int16_t &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 

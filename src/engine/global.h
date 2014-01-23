@@ -60,6 +60,6 @@ extern void *zmqcontext;
 
 /* InfiniSQL headers that most, or all parts of the project need */
 #include "engine/Serdes.h"
-//#include "engine/Message.h"
+#include "engine/Message.h"
 
 #endif // INFINISQLGLOBAL_H

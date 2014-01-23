@@ -28,6 +28,10 @@ if ARGUMENTS.get('analyze') == "1":
     env["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 else:
     env.Replace(CXX=which('clang++'))
+    if ARGUMENTS.get('gcc') != "1":
+        env.Replace(CXX=which('clang++'))
+    else:
+        env.Replace(CXX=None)
     
 if ARGUMENTS.get('asan') != "1":
     env.Append(CXXFLAGS='-g -O3 -finline-functions ')
@@ -37,7 +41,7 @@ else:
 
 env.Append(CPPPATH=["#deps/include", "#src"])
 env.Append(LIBPATH="#deps/lib")
-env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings -Qunused-arguments ')
+env.Append(CXXFLAGS='-std=c++11 -Wall -Wno-deprecated -Wno-write-strings ')
 
 if not env.GetOption('clean'):
     # Perform configuration checks
@@ -47,10 +51,13 @@ if not env.GetOption('clean'):
     if not conf.CheckCXX():
         print("Unable to find clang, checking for g++ instead.")
         env.Replace(CXX=which('g++'))
+        print "CXX: ", env['CXX']
         env.Append(CXXFLAGS='-mcx16')
         if not conf.CheckCXX():
             print('Unable to find a configured C++ compiler.')
             Exit(1)
+    else:
+        env.Append(CXXFLAGS='-Qunused-arguments ')
             
     # Check for lmdb
     if not conf.CheckCXXHeader('lmdb.h'):
