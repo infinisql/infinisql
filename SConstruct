@@ -27,7 +27,7 @@ if ARGUMENTS.get('analyze') == "1":
     env["CXX"] = os.getenv("CXX") or env["CXX"]
     env["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 else:
-env.Replace(CXX=which('clang++'))
+    env.Replace(CXX=which('clang++'))
     
 if ARGUMENTS.get('asan') != "1":
     env.Append(CXXFLAGS='-g -O3 -finline-functions ')
