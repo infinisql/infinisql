@@ -5,5 +5,4 @@ isql_env.Append(LIBS=libraries + ['tbb', 'lmdb', 'pthread'])
           
 server_source = ['main.cc']
 
-lib = isql_env.Library('infinisql', lib_source)
 isql_env.Program('infinisqld', server_source)
