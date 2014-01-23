@@ -38,7 +38,7 @@
 #include <fstream>
 #include <lmdb.h>
 
-#include "decimal/decnum.h"
+#include "../decimal/decnum.h"
 
 extern std::ofstream logfile;
 #define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \

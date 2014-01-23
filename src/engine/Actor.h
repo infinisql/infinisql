@@ -30,6 +30,8 @@
 
 #include "global.h"
 
+class Mbox;
+
 class Actor
 {
 public:
@@ -39,6 +41,9 @@ public:
     struct identity_s
     {
         Message::address_s address;
+        int16_t instance;
+        Mbox *mbox;
+        int epollfd;
     };
     Actor(identity_s identity);
     void operator()() const;
