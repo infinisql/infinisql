@@ -27,10 +27,6 @@ if ARGUMENTS.get('analyze') == "1":
     env["CXX"] = os.getenv("CXX") or env["CXX"]
     env["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 else:
-<<<<<<< HEAD
-=======
-    env.Replace(CXX=which('clang++'))
->>>>>>> tmp
     if ARGUMENTS.get('gcc') != "1":
         env.Replace(CXX=which('clang++'))
     else:
@@ -55,11 +51,6 @@ if not env.GetOption('clean'):
         print("Unable to find clang, checking for g++ instead.")
         env.Replace(CXX=which('g++'))
         print "CXX: ", env['CXX']
-<<<<<<< HEAD
-        env.Append(CXXFLAGS='-mcx16 ')
-=======
-        env.Append(CXXFLAGS='-mcx16')
->>>>>>> tmp
         if not conf.CheckCXX():
             print "but CXX is: ", env['CXX']
             print('Unable to find a configured C++ compiler.')

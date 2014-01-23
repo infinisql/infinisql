@@ -110,10 +110,7 @@ int main(int argc, char **argv)
     Actor::identity_s id={};
     id.address.nodeid=nodeid;
     id.address.actorid=1;
-<<<<<<< HEAD
     id.instance=0;
-=======
->>>>>>> tmp
     TopologyManager tm(id);
     tm();
     

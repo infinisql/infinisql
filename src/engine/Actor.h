@@ -45,10 +45,7 @@ public:
         Message::address_s address;
         int16_t instance;
         Mbox *mbox;
-<<<<<<< HEAD
         int epollfd;
-=======
->>>>>>> tmp
     };
     Actor(identity_s identity);
     void operator()() const;

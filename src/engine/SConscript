@@ -5,13 +5,8 @@ isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread'])
 
 lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
               'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
-<<<<<<< HEAD
-              'globals.cc', 'Mbox.cc', 'Message.cc', 'Topology.cc',
-              'TopologyManager.cc', 'Actor.cc']
-=======
               'globals.cc', 'Actor.cc', 'Message.cc', 'Mbox.cc', 'Topology.cc',
               'TopologyManager.cc']
->>>>>>> tmp
           
 lib = isql_env.Library('infinisql', lib_source)
 Return('lib')

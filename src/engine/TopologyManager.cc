@@ -43,10 +43,7 @@ void TopologyManager::operator()()
      * That will execute its constructor and its operator()
      */
     identity.mbox=new (std::nothrow) Mbox;
-<<<<<<< HEAD:src/engine/TopologyManager.cc
-=======
-    std::cout << "Mbox: " << (void *)identity.mbox;
->>>>>>> tmp:src/engine/TopologyManager.cc
+    std::cout << "Mbox: " << (void *)identity.mbox << std::endl;
     while(1)
     {
         sleep(10);
