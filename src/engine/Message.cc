@@ -38,6 +38,11 @@ Message::Message(topic_e topic, payloadtype_e payloadtype, int16_t destnodeid)
     
 }
 
+Message::~Message()
+{
+    
+}
+
 void Message::ser(Serdes &output)
 {
     output.ser((void *)&message, sizeof(message));

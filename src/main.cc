@@ -107,9 +107,10 @@ int main(int argc, char **argv)
     }
 
     Lightning l;
-    Actor::identity_s id;
+    Actor::identity_s id={};
     id.address.nodeid=nodeid;
     id.address.actorid=1;
+    id.instance=0;
     TopologyManager tm(id);
     tm();
     

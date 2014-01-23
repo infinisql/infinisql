@@ -27,7 +27,7 @@
 
 #include "Field.h"
 #include "Table.h"
-#include "decimal/decnum.h"
+#include "../decimal/decnum.h"
 
 FieldValue::FieldValue() :
 		valtype(VAL_NONE) {

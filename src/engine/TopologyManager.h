@@ -40,7 +40,7 @@ class TopologyManager : public Actor
 {
 public:
     TopologyManager(Actor::identity_s identity);
-    void operator()() const;
+    void operator()();
 };
 
 #endif // INFINISQLTOPOLOGYMANAGER_H

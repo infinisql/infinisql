@@ -29,6 +29,7 @@
 #define INFINISQLACTOR_H
 
 #include "global.h"
+#include "Mbox.h"
 
 class Mbox;
 
