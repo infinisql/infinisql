@@ -59,7 +59,12 @@ extern void *zmqcontext;
     << std::endl
 
 /* InfiniSQL headers that most, or all parts of the project need */
+<<<<<<< HEAD
 #include "Serdes.h"
 #include "Message.h"
+=======
+#include "engine/Serdes.h"
+#include "engine/Message.h"
+>>>>>>> tmp
 
 #endif // INFINISQLGLOBAL_H
