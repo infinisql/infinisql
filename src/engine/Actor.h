@@ -28,6 +28,7 @@
 #ifndef INFINISQLACTOR_H
 #define INFINISQLACTOR_H
 
+#include "Mbox.h"
 #include "global.h"
 
 class Actor
@@ -39,6 +40,8 @@ public:
     struct identity_s
     {
         Message::address_s address;
+        int16_t instance;
+        Mbox *mbox;
     };
     Actor(identity_s identity);
     void operator()() const;

@@ -36,12 +36,14 @@ TopologyManager::TopologyManager(Actor::identity_s identity) : Actor(identity)
 {
 }
 
-void TopologyManager::operator()() const
+void TopologyManager::operator()()
 {
     /* launch a thread by:
      * std::thread t{ClassName(Actor::identity_s)};
      * That will execute its constructor and its operator()
      */
+    identity.mbox=new (std::nothrow) Mbox;
+    std::cout << "Mbox: " << (void *)identity.mbox;
     while(1)
     {
         sleep(10);

@@ -60,7 +60,11 @@ class Message *Mbox::receive(int timeout)
 
     while (1)
     {
+#ifdef __clang__
+        mynext=0;
+#else
         mynext = __atomic_load_n(&(getPtr(current)->nextmsg), __ATOMIC_SEQ_CST);
+#endif
 
         if (getPtr(mynext)==nullptr)
         {
@@ -126,6 +130,9 @@ MboxProducer::MboxProducer(Mbox *mbox, int16_t nodeid)
 
 void MboxProducer::sendMsg(Message &msgsnd)
 {
+#ifdef __clang__
+        ;
+#else
     Message *msgptr;
     if (nodeid != msgsnd.message.destinationAddress.nodeid)
     { // must be sending to obgw then, so serialize here
@@ -176,6 +183,7 @@ void MboxProducer::sendMsg(Message &msgsnd)
     }
 
     __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+#endif // __clang__
 }
 
 Mboxes::Mboxes() : Mboxes(0)
