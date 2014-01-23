@@ -36,6 +36,7 @@
 #include "engine/global.h"
 #include "engine/Lightning.h"
 #include "engine/Metadata.h"
+#include "engine/TopologyManager.h"
 
 extern std::ofstream logfile;
 extern std::string zmqsocket;
@@ -106,11 +107,11 @@ int main(int argc, char **argv)
     }
 
     Lightning l;
-
-    while (1)
-    {
-        sleep(10);
-    }
+    Actor::identity_s id;
+    id.address.nodeid=nodeid;
+    id.address.actorid=1;
+    TopologyManager tm(id);
+    tm();
     
     return 0;
 }
