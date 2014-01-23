@@ -40,6 +40,10 @@
 
 #include "decimal/decnum.h"
 
+extern std::ofstream logfile;
+#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
+    << std::endl
+
 /** 
  * @brief object to serialize anything
  *
