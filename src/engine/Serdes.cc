@@ -27,7 +27,7 @@
 
 #include "Serdes.h"
 
-Serdes::Serdes() : isreadonly (false), pos (0), val ({0, nullptr})
+Serdes::Serdes() : isreadonly(false), pos(0), val({0, nullptr})
 {
     
 }
@@ -45,7 +45,7 @@ Serdes::Serdes(size_t mv_sizearg) : Serdes()
     }
 }
 
-Serdes::Serdes(MDB_val &valarg) : isreadonly (true), pos (0), val (valarg)
+Serdes::Serdes(MDB_val &valarg) : isreadonly(true), pos(0), val(valarg)
 {
     
 }
@@ -54,7 +54,7 @@ Serdes::~Serdes()
 {
     if (isreadonly==false)
     {
-        delete [] (const char*)val.mv_data;
+        delete [] (const char *)val.mv_data;
     }
 }
 
@@ -65,7 +65,7 @@ void Serdes::ser(int8_t d)
         //LOG("shouldn't try to serialize to NULL object");
         return;
     }
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -76,13 +76,13 @@ size_t Serdes::sersize(int8_t d)
 
 void Serdes::des(int8_t &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(int16_t d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -99,7 +99,7 @@ void Serdes::des(int16_t &d)
 
 void Serdes::ser(int32_t d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -110,13 +110,13 @@ size_t Serdes::sersize(int32_t d)
 
 void Serdes::des(int32_t &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(int64_t d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -127,13 +127,13 @@ size_t Serdes::sersize(int64_t d)
 
 void Serdes::des(int64_t &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(float d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -144,13 +144,13 @@ size_t Serdes::sersize(float d)
 
 void Serdes::des(float &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(double d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -161,13 +161,13 @@ size_t Serdes::sersize(double d)
 
 void Serdes::des(double &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(char d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -178,13 +178,13 @@ size_t Serdes::sersize(char d)
 
 void Serdes::des(char &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char *)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
 void Serdes::ser(bool d)
 {
-    memcpy(val.mv_data, &d, sizeof(d));
+    memcpy((char *)val.mv_data+pos, &d, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -195,7 +195,7 @@ size_t Serdes::sersize(bool d)
 
 void Serdes::des(bool &d)
 {
-    memcpy(&d, val.mv_data, sizeof(d));
+    memcpy(&d, (char*)val.mv_data+pos, sizeof(d));
     pos+=sersize(d);
 }
 
@@ -215,13 +215,13 @@ void Serdes::des(std::string &d)
 {
     int64_t s;
     des(s);
-    d.assign((const char *)val.mv_data, s);
+    d.assign((const char *)val.mv_data+pos, s);
     pos+=s;
 }
 
 void Serdes::ser(const std::string &d, size_t dsize)
 {
-    d.copy((char *)val.mv_data, dsize, 0);
+    d.copy((char *)val.mv_data+pos, dsize, 0);
     pos+=dsize;
 }
 
@@ -249,12 +249,12 @@ void Serdes::des(decimal *&d)
 
 void Serdes::ser(void *d, size_t dsize)
 {
-    memcpy(val.mv_data, d, dsize);
+    memcpy((char *)val.mv_data+pos, d, dsize);
 }
 
 void Serdes::des(void *d, size_t dsize)
 {
-    memcpy(d, val.mv_data, dsize);
+    memcpy(d, (char *)val.mv_data+pos, dsize);
     pos+=dsize;
 }
 

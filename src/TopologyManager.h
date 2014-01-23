@@ -18,33 +18,29 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   TopologyManager.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Wed Jan 22 09:11:59 2014
  * 
- * @brief  base class for Actors
+ * @brief  Actor which receives configuration commands over 0mq and MessagePack
+ * from infinisqlmgr.py.
+ * 
+ * Launches all other actors, updates Topology, and distributes configuration
+ * changes to all other actors on each node. Facilitates dynamic
+ * reconfiguration.
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#ifndef INFINISQLTOPOLOGYMANAGER_H
+#define INFINISQLTOPOLOGYMANAGER_H
 
-#include "global.h"
+#include <thread>
+#include "Actor.h"
 
-class Actor
+class TopologyManager : public Actor
 {
 public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
-    {
-        Message::address_s address;
-    };
-    Actor(identity_s identity);
+    TopologyManager(Actor::identity_s identity);
     void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
 };
 
-#endif // INFINISQLACTOR_H
+#endif // INFINISQLTOPOLOGYMANAGER_H

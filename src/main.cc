@@ -105,8 +105,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    logfile << "yo" << std::endl;
-    LOG("haha" << "hoho" << 73);
     Lightning l;
 
     while (1)

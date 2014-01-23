@@ -101,6 +101,14 @@ public:
      * @return size
      */
     size_t sersize();
+
+    /** 
+     * @brief serialize entire message, create and return object
+     *
+     *
+     * @return serialized message object
+     */
+    Serdes *sermsg();
     /** 
      * @brief deserialize entire message
      *
