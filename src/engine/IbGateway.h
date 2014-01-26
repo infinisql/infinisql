@@ -18,44 +18,25 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   IbGateway.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Sat Jan 25 08:36:23 2014
  * 
- * @brief  base class for Actors
+ * @brief  Inbound Gateway actor. Counterpart to ObGateway. Receives messages
+ * over the network from remote senders and distributes them to their
+ * destination actors on the current node.
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#ifndef INFINISQLIBGATEWAY_H
+#define INFINISQLIBGATEWAY_H
 
-#include "Mbox.h"
-#include "global.h"
-#include "Mbox.h"
-#include "Topology.h"
+#include "Actor.h"
 
-class Mbox;
-
-class Actor
+class IbGateway : public Actor
 {
 public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
-    {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
+    IbGateway(Actor::identity_s identity);
+    void operator()();
 };
 
-#endif // INFINISQLACTOR_H
+#endif // INFINISQLIBGATEWAY_H

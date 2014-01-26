@@ -18,44 +18,27 @@
  */
 
 /**
- * @file   Actor.h
- * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @file   UserSchemaManager.h
+ * @author  <infinisql@ubuntu>
+ * @date   Sat Jan 25 08:30:02 2014
  * 
- * @brief  base class for Actors
+ * @brief  Actor that maintains user and domain authentication information
+ * and schema definitions.
+ *
+ * There is 1 UserSchemaManager per replica, and the master replica's
+ * UserSchemaManager replicates to each slave.
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#ifndef INFINISQLUSERSCHEMAMANAGER_H
+#define INFINISQLUSERSCHEMAMANAGER_H
 
-#include "Mbox.h"
-#include "global.h"
-#include "Mbox.h"
-#include "Topology.h"
+#include "Actor.h"
 
-class Mbox;
-
-class Actor
+class UserSchemaManager : public Actor
 {
 public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
-    {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
+    UserSchemaManager(Actor::identity_s identity);
+    void operator()();
 };
 
-#endif // INFINISQLACTOR_H
+#endif // INFINISQLUSERSCHEMAMANAGER_H

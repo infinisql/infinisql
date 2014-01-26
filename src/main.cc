@@ -39,8 +39,6 @@
 #include "engine/TopologyManager.h"
 
 extern std::ofstream logfile;
-extern std::string zmqsocket;
-extern void *zmqcontext;
 
 int main(int argc, char **argv)
 {
@@ -48,14 +46,15 @@ int main(int argc, char **argv)
     string logfilename;
     int c;
     long nodeid=0; // this needs to be part of global topology
+    Actor::identity_s id={};
 
     while ((c = getopt(argc, argv, "l:m:n:hv")) != -1)
     {
         switch (c)
         {
         case 'm':
-            zmqsocket.assign("tcp://");
-            zmqsocket.append(optarg, strlen(optarg));
+            id.zmqhostport.assign("tcp://");
+            id.zmqhostport.append(optarg, strlen(optarg));
             break;
 
         case 'l':
@@ -80,7 +79,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!zmqsocket.size())
+    if (!id.zmqhostport.size())
     {
         std::cerr << __FILE__ << " " << __LINE__ << " management ip:port must"
                   << "be set with -m option" << std::endl;
@@ -106,11 +105,23 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    Lightning l;
-    Actor::identity_s id={};
+//    Lightning l;
+
+    if (daemon(1, 1))
+    {
+        LOG("daemon errno");
+        exit(1);
+    }    
+    
     id.address.nodeid=nodeid;
     id.address.actorid=1;
     id.instance=0;
+    id.epollfd=epoll_create(1);
+    if (id.epollfd==-1)
+    {
+        LOG("epoll_create problem. Can't listen to network.");
+        exit(1);
+    }
     TopologyManager tm(id);
     tm();
     

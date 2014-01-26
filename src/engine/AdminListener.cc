@@ -18,44 +18,43 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   AdminListener.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Thu Jan 23 02:27:09 2014
  * 
- * @brief  base class for Actors
+ * @brief  0mq listener for administrative commands from cluster manager
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#include "AdminListener.h"
+#include <zmq.h>
 
-#include "Mbox.h"
-#include "global.h"
-#include "Mbox.h"
-#include "Topology.h"
-
-class Mbox;
-
-class Actor
+AdminListener::AdminListener(Actor::identity_s identity)
+    : Actor(identity), zmqcontext(NULL), zmqresponder(NULL)
 {
-public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
+}
+
+void AdminListener::operator()()
+{
+    void *zmqcontext=zmq_ctx_new();
+    if (zmqcontext==NULL)
     {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
+        LOG("can't create 0mq context, exiting");
+        exit(1);
+    }
+    zmqresponder=zmq_socket(zmqcontext, ZMQ_REP);
+    if (zmqresponder==NULL)
+    {
+        LOG("can't create 0mq socket, exiting");
+        exit(1);
+    }
+    if (zmq_bind(zmqresponder, identity.zmqhostport.c_str())==-1)
+    {
+        LOG("can't zmq_bind, exiting");
+        exit(1);
+    }
 
-    identity_s identity;
-};
-
-#endif // INFINISQLACTOR_H
+    while(1)
+    {
+        sleep(10);
+    }
+}

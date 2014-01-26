@@ -18,44 +18,33 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   Listener.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Sat Jan 25 09:13:24 2014
  * 
- * @brief  base class for Actors
+ * @brief  On each host, this actor accepts new connections and distributes
+ * incoming network traffic from clients to Transaction Agents.
+ *
+ * There is only one listener per host. It takes a small amount of coding
+ * effort to allow for multiple listeners per host. But no workload as yet
+ * (benchmarked on 12-core Xeon) has been shown to warrant multiple listeners.
+ * It's very possible that larger hosts may benefit from distributing
+ * incoming TCP/IP traffic across multiple listeners, and the effort to allow
+ * that won't be difficult to implement.
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#include "Listener.h"
 
-#include "Mbox.h"
-#include "global.h"
-#include "Mbox.h"
-#include "Topology.h"
-
-class Mbox;
-
-class Actor
+Listener::Listener(Actor::identity_s identity)
+    : Actor(identity)
 {
-public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
+}
+
+void Listener::operator()()
+{
+
+    while(1)
     {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
-};
-
-#endif // INFINISQLACTOR_H
+        sleep(10);
+    }
+}

@@ -47,16 +47,32 @@
 #define _BSD_SOURCE
 #endif
 #include <endian.h>
+#include <sys/epoll.h>
 
 using namespace std;
 using std::string;
 
 extern std::ofstream logfile;
-extern string zmqsocket;
-extern void *zmqcontext;
 
-#define LOG(...) logfile << __FILE__ << " " << __LINE__ << ": " << __VA_ARGS__ \
-    << std::endl
+#define LOG(...) logfile << __FILE__ << " " << __LINE__ << " errno: " << errno << " '" << strerror(errno) << "' " << __VA_ARGS__ << std::endl
+
+/**
+ * @todo this should go in the generated header with common symbol
+ * defs between manager and daemon
+ */
+enum actortypes_e
+{
+    ACTOR_NONE=0,
+    ACTOR_TOPOLOGYMGR,
+    ACTOR_TRANSACTIONAGENT,
+    ACTOR_PARTITION_WRITER,
+    ACTOR_TRANSACTION_LOGGER,
+    ACTOR_USERSCHEMAMGR,
+    ACTOR_OBGATEWAY,
+    ACTOR_IBGATEWAY,
+    ACTOR_LISTENER,
+    ACTOR_ADMIN_LISTENER
+};
 
 /* InfiniSQL headers that most, or all parts of the project need */
 #include "Serdes.h"

@@ -18,44 +18,25 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   PartitionWriter.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Sat Jan 25 09:03:31 2014
  * 
- * @brief  base class for Actors
+ * @brief  Actor that performs all writes to a specific data partition
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#include "PartitionWriter.h"
 
-#include "Mbox.h"
-#include "global.h"
-#include "Mbox.h"
-#include "Topology.h"
-
-class Mbox;
-
-class Actor
+PartitionWriter::PartitionWriter(Actor::identity_s identity)
+    : Actor(identity)
 {
-public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
+}
+
+void PartitionWriter::operator()()
+{
+
+    while(1)
     {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-    };
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
-};
-
-#endif // INFINISQLACTOR_H
+        sleep(10);
+    }
+}

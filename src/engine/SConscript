@@ -1,12 +1,15 @@
 Import('env')
 
 isql_env = env.Clone()
-isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread'])
+isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread', 'zmq'])
 
 lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
               'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
               'globals.cc', 'Actor.cc', 'Message.cc', 'Mbox.cc', 'Topology.cc',
-              'TopologyManager.cc']
+              'TopologyManager.cc', 'AdminListener.cc', 'TransactionAgent.cc',
+              'PartitionWriter.cc', 'TransactionLogger.cc',
+              'UserSchemaManager.cc', 'ObGateway.cc', 'IbGateway.cc',
+              'Listener.cc']
           
 lib = isql_env.Library('infinisql', lib_source)
 Return('lib')

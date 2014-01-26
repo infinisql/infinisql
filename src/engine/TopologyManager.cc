@@ -38,14 +38,78 @@ TopologyManager::TopologyManager(Actor::identity_s identity) : Actor(identity)
 
 void TopologyManager::operator()()
 {
-    /* launch a thread by:
-     * std::thread t{ClassName(Actor::identity_s)};
-     * That will execute its constructor and its operator()
-     */
     identity.mbox=new (std::nothrow) Mbox;
-    std::cout << "Mbox: " << (void *)identity.mbox << std::endl;
+    if (identity.mbox==NULL)
+    {
+        LOG("can't create Mbox");
+        exit(1);
+    }
+
+    newActor(ACTOR_ADMIN_LISTENER, 17, 0);
+
     while(1)
     {
         sleep(10);
+    }
+}
+
+void TopologyManager::newActor(actortypes_e type, int16_t actorid,
+                               int16_t instance)
+{
+    identity_s newidentity={};
+    newidentity.address={identity.address.nodeid, actorid};
+    newidentity.instance=instance;
+    newidentity.mbox=new (std::nothrow) Mbox;
+    if (newidentity.mbox==NULL)
+    {
+        LOG("can't create Mbox");
+        exit(1);
+    }
+    newidentity.epollfd=identity.epollfd;
+    newidentity.zmqhostport=identity.zmqhostport;
+
+    std::thread t;
+
+    switch (type)
+    {
+    case ACTOR_TRANSACTIONAGENT:
+        t=std::thread{TransactionAgent(newidentity)};
+        break;
+        
+    case ACTOR_PARTITION_WRITER:
+        t=std::thread{PartitionWriter(newidentity)};
+        break;
+        
+    case ACTOR_TRANSACTION_LOGGER:
+        t=std::thread{TransactionLogger(newidentity)};
+        break;
+        
+    case ACTOR_USERSCHEMAMGR:
+        t=std::thread{UserSchemaManager(newidentity)};
+        break;
+        
+    case ACTOR_OBGATEWAY:
+        t=std::thread{ObGateway(newidentity)};
+        break;
+        
+    case ACTOR_IBGATEWAY:
+        t=std::thread{IbGateway(newidentity)};
+        break;
+        
+    case ACTOR_LISTENER:
+        t=std::thread{Listener(newidentity)};
+        break;
+        
+    case ACTOR_ADMIN_LISTENER:
+        t=std::thread{AdminListener(newidentity)};
+        break;
+
+    default:
+        LOG("don't know how to start actor type " << type);
+    }
+
+    if (t.joinable())
+    {
+        t.detach();
     }
 }

@@ -35,12 +35,30 @@
 
 #include <thread>
 #include "Actor.h"
+#include "AdminListener.h"
+#include "TransactionAgent.h"
+#include "PartitionWriter.h"
+#include "TransactionLogger.h"
+#include "UserSchemaManager.h"
+#include "ObGateway.h"
+#include "IbGateway.h"
+#include "Listener.h"
 
 class TopologyManager : public Actor
 {
 public:
     TopologyManager(Actor::identity_s identity);
     void operator()();
+
+    /** 
+     * @brief launch new actor thread
+     *
+     * @param type actor type
+     * @param actorid actorid
+     * @param instance instance of actor
+     *
+     */
+    void newActor(actortypes_e type, int16_t actorid, int16_t instance);
 };
 
 #endif // INFINISQLTOPOLOGYMANAGER_H

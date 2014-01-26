@@ -50,9 +50,8 @@ if not env.GetOption('clean'):
     if not conf.CheckCXX():
         print("Unable to find clang, checking for g++ instead.")
         env.Replace(CXX=which('g++'))
-        print "CXX: ", env['CXX']
+        env.Append(CXXFLAGS="-mcx16 ")
         if not conf.CheckCXX():
-            print "but CXX is: ", env['CXX']
             print('Unable to find a configured C++ compiler.')
             Exit(1)
     else:
@@ -65,9 +64,13 @@ if not env.GetOption('clean'):
     if not conf.CheckLib('lmdb'):
        print 'Did not find lmdb library.'
        Exit(1)
+    # Check for 0mq
+    if not conf.CheckCXXHeader('zmq.h'):
+       print 'Did not find zmq header.'
+       Exit(1)
        
     env = conf.Finish()
 
 env.Clean('distclean', ['.sconsign.dblite', '.sconf_temp', 'config.log'])
-libraries = [env.SConscript(['src/decimal/SConscript', 'src/engine/SConscript',], exports='env')]
+libraries = [env.SConscript(['src/engine/SConscript', 'src/decimal/SConscript'], exports='env')]
 env.SConscript(['src/SConscript', 'tests/SConscript'], exports=['env', 'libraries'])

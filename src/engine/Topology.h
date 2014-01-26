@@ -34,7 +34,7 @@
 
 class Topology
 {
-public:
+public:    
     Topology();
 };
 

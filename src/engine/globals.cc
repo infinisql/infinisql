@@ -4,5 +4,3 @@
 #include "Metadata.h"
 
 std::ofstream logfile;
-std::string zmqsocket;
-void *zmqcontext;
