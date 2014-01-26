@@ -18,24 +18,43 @@
  */
 
 /**
- * @file   Topology.h
+ * @file   Actor.h
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Wed Jan 22 09:05:35 2014
+ * @date   Mon Jan 20 22:14:09 2014
  * 
- * @brief Topology class has all of the actors, their types, and dynamic
- * configuration values. Each actor maintains a Topology object which gives
- * it a common view for the whole node and, as necessary, the whole cluster.
+ * @brief  base class for Actors
  */
 
-#ifndef INFINISQLTOPOLOGY_H
-#define INFINISQLTOPOLOGY_H
+#ifndef INFINISQLACTOR_H
+#define INFINISQLACTOR_H
 
-#include "global.h"
+#include "../mbox/Mbox.h"
+#include "../engine/global.h"
+#include "Topology.h"
 
-class Topology
+class Mbox;
+
+class Actor
 {
-public:    
-    Topology();
+public:
+    /** 
+     * @brief identifying characteristics for an actor
+     */
+    struct identity_s
+    {
+        Message::address_s address;
+        int16_t instance;
+        Mbox *mbox;
+        int epollfd;
+        std::string zmqhostport;
+        int sockfd;
+        MDB_env *env;
+    };
+    Actor(identity_s identity);
+    void operator()() const;
+    virtual ~Actor();
+
+    identity_s identity;
 };
 
-#endif // INFINISQLTOPOLOGY_H
+#endif // INFINISQLACTOR_H

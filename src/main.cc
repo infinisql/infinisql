@@ -36,7 +36,7 @@
 #include "engine/global.h"
 #include "engine/Lightning.h"
 #include "engine/Metadata.h"
-#include "engine/TopologyManager.h"
+#include "actors/TopologyManager.h"
 
 extern std::ofstream logfile;
 
