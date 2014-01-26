@@ -75,7 +75,7 @@ enum actortypes_e
 };
 
 /* InfiniSQL headers that most, or all parts of the project need */
-#include "Serdes.h"
-#include "Message.h"
+#include "../mbox/Serdes.h"
+#include "../mbox/Message.h"
 
 #endif // INFINISQLGLOBAL_H

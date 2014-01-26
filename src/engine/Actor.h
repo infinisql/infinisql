@@ -28,9 +28,8 @@
 #ifndef INFINISQLACTOR_H
 #define INFINISQLACTOR_H
 
-#include "Mbox.h"
+#include "../mbox/Mbox.h"
 #include "global.h"
-#include "Mbox.h"
 #include "Topology.h"
 
 class Mbox;

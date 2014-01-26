@@ -3,9 +3,9 @@ Import('env')
 isql_env = env.Clone()
 isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread', 'zmq'])
 
-lib_source = ['Field.cc', 'Serdes.cc', 'Lightning.cc', 'Catalog.cc', 
+lib_source = ['Field.cc', 'Lightning.cc', 'Catalog.cc', 
               'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
-              'globals.cc', 'Actor.cc', 'Message.cc', 'Mbox.cc', 'Topology.cc',
+              'globals.cc', 'Actor.cc', 'Topology.cc',
               'TopologyManager.cc', 'AdminListener.cc', 'TransactionAgent.cc',
               'PartitionWriter.cc', 'TransactionLogger.cc',
               'UserSchemaManager.cc', 'ObGateway.cc', 'IbGateway.cc',

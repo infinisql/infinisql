@@ -31,7 +31,7 @@
 #ifndef INFINISQLMBOX_H
 #define INFINISQLMBOX_H
 
-#include "global.h"
+#include "../engine/global.h"
 
 class Mbox
 {
