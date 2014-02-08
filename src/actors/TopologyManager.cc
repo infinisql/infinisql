@@ -32,7 +32,13 @@
 
 #include "TopologyManager.h"
 
-TopologyManager::TopologyManager(Actor::identity_s identity) : Actor(identity)
+/* this isn't that important since the AdminListener doesn't use Mbox, but
+ * all actors have an id and this is the one for AdminListener
+ */
+#define ADMINLISTENERACTORID 17
+
+TopologyManager::TopologyManager(Actor::identity_s identity)
+    : Actor(identity)
 {
 }
 
@@ -44,72 +50,317 @@ void TopologyManager::operator()()
         LOG("can't create Mbox");
         exit(1);
     }
+    startAdminListener(ADMINLISTENERACTORID, identity.zmqhostport);
 
-    newActor(ACTOR_ADMIN_LISTENER, 17, 0);
-
+    // this should be a Mbox event loop
     while(1)
     {
         sleep(10);
     }
 }
 
-void TopologyManager::newActor(actortypes_e type, int16_t actorid,
-                               int16_t instance)
+int TopologyManager::startSocket(std::string &node, std::string &service,
+    bool isibgw)
 {
-    identity_s newidentity={};
+    struct addrinfo hints = {};
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_flags = AI_PASSIVE;
+    struct addrinfo *servinfo;
+    char *nodeptr=nullptr;
+
+    if (node.size())
+    {
+        nodeptr = (char *)node.c_str();
+    }
+
+    int rv=getaddrinfo((const char *)nodeptr, service.c_str(), &hints,
+                       &servinfo);
+    if (rv)
+    {
+        LOG("getaddrinfo error " << rv << ": " << gai_strerror(rv));
+        return 0;
+    }
+    int sockfd=0;
+    int yes=1;
+    struct addrinfo *p=nullptr;
+
+    for (p = servinfo; p != nullptr; p = p->ai_next)
+    {
+        sockfd=socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+
+        if (sockfd==-1)
+        {
+            LOG("socket problem");
+            continue;
+        }
+        fcntl(sockfd, F_SETFL, O_NONBLOCK);
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))==-1)
+        {
+            LOG("setsockopt problem");
+            continue;
+        }
+        if (isibgw)
+        {
+            int so_rcvbuf=IBGWRCVBUF;
+            socklen_t optlen=sizeof(so_rcvbuf);
+            if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &so_rcvbuf,
+                           optlen)==-1)
+            {
+                LOG("setsockopt");
+                continue;
+            }
+        }
+        if (bind(sockfd, p->ai_addr, p->ai_addrlen)==-1)
+        {
+            close(sockfd);
+            LOG("bind problem");
+            continue;
+        }
+        break;
+    }
+    freeaddrinfo(servinfo);
+
+    if (p==nullptr)
+    {
+        LOG("failed to bind");
+        return 0;
+    }
+    if (listen(sockfd, 1000) == -1)
+    {
+        LOG("listen problem");
+        return 0;
+    }
+
+    return sockfd;
+}
+
+void TopologyManager::openPartition(MDB_env *env, size_t mapsize,
+                                    unsigned int readers, MDB_dbi dbs,
+                                    std::string &path)
+{
+    int retval=mdb_env_create(&env);
+    if (retval)
+    {
+        env=nullptr;
+        LOG("mdb_env_create() problem " << retval);
+        return;
+    }
+    retval=mdb_env_set_mapsize(env, mapsize);
+    if (retval)
+    {
+        mdb_env_close(env);
+        env=nullptr;
+        LOG("mdb_env_set_mapsize() problem " << retval);
+        return;
+    }
+    retval=mdb_env_set_maxreaders(env, readers);
+    if (retval)
+    {
+        mdb_env_close(env);
+        env=nullptr;
+        LOG("mdb_env_set_maxreaders() problem " << retval);
+        return;
+    }
+    retval=mdb_env_set_maxdbs(env, dbs);
+    if (retval)
+    {
+        mdb_env_close(env);
+        env=nullptr;
+        LOG("mdb_env_set_maxdbs() problem " << retval);
+        return;
+    }
+    retval=mdb_env_open(env, path.c_str(), MDB_WRITEMAP|MDB_NOTLS,
+                        S_IRUSR|S_IWUSR);
+    if (retval)
+    {
+        mdb_env_close(env);
+        env=nullptr;
+        LOG("mdb_env_open() problem " << retval);
+        return;
+    }
+}
+
+void TopologyManager::setIdentity(int16_t actorid, int16_t instance,
+    identity_s &newidentity)
+{
+    newidentity={};
     newidentity.address={identity.address.nodeid, actorid};
     newidentity.instance=instance;
     newidentity.mbox=new (std::nothrow) Mbox;
-    if (newidentity.mbox==NULL)
+    if (newidentity.mbox==nullptr)
     {
         LOG("can't create Mbox");
-        exit(1);
-    }
-    newidentity.epollfd=identity.epollfd;
-    newidentity.zmqhostport=identity.zmqhostport;
+        return;
+    }    
+}
 
-    std::thread t;
-
-    switch (type)
+bool TopologyManager::startTransactionAgent(int16_t actorid, int16_t instance)
+{
+    identity_s newidentity;
+    setIdentity(actorid, instance, newidentity);
+    if (newidentity.mbox==nullptr)
     {
-    case ACTOR_TRANSACTIONAGENT:
-        t=std::thread{TransactionAgent(newidentity)};
-        break;
-        
-    case ACTOR_PARTITION_WRITER:
-        t=std::thread{PartitionWriter(newidentity)};
-        break;
-        
-    case ACTOR_TRANSACTION_LOGGER:
-        t=std::thread{TransactionLogger(newidentity)};
-        break;
-        
-    case ACTOR_USERSCHEMAMGR:
-        t=std::thread{UserSchemaManager(newidentity)};
-        break;
-        
-    case ACTOR_OBGATEWAY:
-        t=std::thread{ObGateway(newidentity)};
-        break;
-        
-    case ACTOR_IBGATEWAY:
-        t=std::thread{IbGateway(newidentity)};
-        break;
-        
-    case ACTOR_LISTENER:
-        t=std::thread{Listener(newidentity)};
-        break;
-        
-    case ACTOR_ADMIN_LISTENER:
-        t=std::thread{AdminListener(newidentity)};
-        break;
-
-    default:
-        LOG("don't know how to start actor type " << type);
+        return false;
     }
-
-    if (t.joinable())
+    if (startThread(TransactionAgent(newidentity))==true)
     {
-        t.detach();
+        return true;
     }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startPartitionWriter(int16_t actorid, int16_t instance,
+                              size_t mapsize, unsigned int readers,
+                              MDB_dbi dbs, std::string &path)
+{
+    identity_s newidentity;
+    setIdentity(actorid, instance, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    openPartition(newidentity.env, mapsize, readers, dbs, path);
+    if (newidentity.env==nullptr)
+    {
+        delete newidentity.mbox;
+        newidentity.mbox=nullptr;
+        return false;
+    }
+    if (startThread(PartitionWriter(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startTransactionLogger(int16_t actorid, int16_t instance,
+                                             std::string &path)
+{
+    identity_s newidentity;
+    setIdentity(actorid, instance, newidentity);
+    newidentity.transactionlogpath=path;
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    if (startThread(TransactionLogger(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+
+bool TopologyManager::startUserSchemaManager(int16_t actorid,
+                                             std::string &path)
+{
+    identity_s newidentity;
+    setIdentity(actorid, 0, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    // 100MB ought to be plenty for USM LMDB environment
+    openPartition(newidentity.env, 104857600, 126, 1024, path);
+    if (newidentity.env==nullptr)
+    {
+        delete newidentity.mbox;
+        newidentity.mbox=nullptr;
+        return false;
+    }
+    if (startThread(UserSchemaManager(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startObGateway(int16_t actorid, int16_t instance)
+{
+    identity_s newidentity;
+    setIdentity(actorid, instance, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    if (startThread(ObGateway(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startIbGateway(int16_t actorid, int16_t instance,
+                                     std::string &node, std::string &service)
+{
+    identity_s newidentity;
+    setIdentity(actorid, instance, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    newidentity.epollfd=epoll_create(1);
+    if (newidentity.epollfd==-1)
+    {
+        LOG("epoll_create() problem");
+        delete newidentity.mbox;
+        return false;
+    }
+    newidentity.sockfd=startSocket(node, service, true);
+    if (startThread(IbGateway(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startListener(int16_t actorid, std::string &node,
+                                    std::string &service)
+{
+    identity_s newidentity;
+    setIdentity(actorid, 0, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    newidentity.epollfd=epoll_create(1);
+    if (newidentity.epollfd==-1)
+    {
+        LOG("epoll_create() problem");
+        delete newidentity.mbox;
+        return false;
+    }
+    newidentity.sockfd=startSocket(node, service, false);
+    if (startThread(Listener(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
+}
+
+bool TopologyManager::startAdminListener(int16_t actorid,
+                                         std::string &zmqhostport)
+{
+    identity_s newidentity;
+    setIdentity(actorid, 0, newidentity);
+    if (newidentity.mbox==nullptr)
+    {
+        return false;
+    }
+    newidentity.zmqhostport=zmqhostport;
+    if (startThread(AdminListener(newidentity))==true)
+    {
+        return true;
+    }
+    delete newidentity.mbox;
+    return false;
 }

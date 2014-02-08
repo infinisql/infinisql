@@ -18,46 +18,24 @@
  */
 
 /**
- * @file   Actor.h
+ * @file   LogPlayer.cc
  * @author Mark Travis <mtravis15432+src@gmail.com>
- * @date   Mon Jan 20 22:14:09 2014
+ * @date   Fri Feb  7 18:07:33 2014
  * 
- * @brief  base class for Actors
+ * @brief  receives replicated transaction logs and applies them to a replica
  */
 
-#ifndef INFINISQLACTOR_H
-#define INFINISQLACTOR_H
+#include "LogPlayer.h"
 
-#include <thread>
-#include "../mbox/Mbox.h"
-#include "../engine/global.h"
-#include "Topology.h"
-
-class Mbox;
-
-class Actor
+LogPlayer::LogPlayer(Actor::identity_s identity) : Actor(identity)
 {
-public:
-    /** 
-     * @brief identifying characteristics for an actor
-     */
-    struct identity_s
+   
+}
+
+void LogPlayer::operator()()
+{
+    while(1)
     {
-        Message::address_s address;
-        int16_t instance;
-        Mbox *mbox;
-        int epollfd;
-        std::string zmqhostport;
-        int sockfd;
-        MDB_env *env;
-        std::string transactionlogpath;
-    };
-
-    Actor(identity_s identity);
-    void operator()() const;
-    virtual ~Actor();
-
-    identity_s identity;
-};
-
-#endif // INFINISQLACTOR_H
+        sleep(10);
+    }
+}

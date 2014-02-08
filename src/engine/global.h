@@ -40,6 +40,8 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <system_error>
+#include <functional>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
@@ -48,6 +50,13 @@
 #endif
 #include <endian.h>
 #include <sys/epoll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#ifndef __USE_POSIX
+#define __USE_POSIX
+#endif
+#include <netdb.h>
+#include <fcntl.h>
 
 using namespace std;
 using std::string;
@@ -55,6 +64,7 @@ using std::string;
 extern std::ofstream logfile;
 
 #define LOG(...) logfile << __FILE__ << " " << __LINE__ << " errno: " << errno << " '" << strerror(errno) << "' " << __VA_ARGS__ << std::endl
+#define IBGWRCVBUF 16777216
 
 /**
  * @todo this should go in the generated header with common symbol

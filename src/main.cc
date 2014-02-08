@@ -116,12 +116,7 @@ int main(int argc, char **argv)
     id.address.nodeid=nodeid;
     id.address.actorid=1;
     id.instance=0;
-    id.epollfd=epoll_create(1);
-    if (id.epollfd==-1)
-    {
-        LOG("epoll_create problem. Can't listen to network.");
-        exit(1);
-    }
+
     TopologyManager tm(id);
     tm();
     
