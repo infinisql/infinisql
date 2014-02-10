@@ -77,6 +77,12 @@ public:
      * @return count
      */
     static uint64_t getCount(__int128 i128);
+    /**
+     * @brief produce Message onto mailbox
+     *
+     * @param msg Message
+     */
+    void sendMsg(Message &msg);
 
     Message *firstMsg;
     Message *currentMsg;
@@ -87,47 +93,6 @@ public:
     __int128 current;
     __int128 mytail;
     uint64_t counter;
-};
-
-class Mboxes;
-
-class MboxProducer
-{
-public:
-    MboxProducer();
-    /**
-     * @brief create mailbox producer
-     *
-     * @param mboxarg Mbox to put Message object onto
-     * @param nodeidarg nodeid
-     */
-    MboxProducer(Mbox *mbox, int16_t nodeid);
-    /**
-     * @brief produce Message onto mailbox
-     *
-     * @param msgsnd Message
-     */
-    void sendMsg(Message &msgsnd);
-    
-    Mbox *mbox;
-    int16_t nodeid;
-    MessageBatch *obBatchMsg;
-    Mboxes *mboxes;
-};
-
-class Mboxes
-{
-public:
-    Mboxes();
-    Mboxes(int16_t nodeid);
-
-    /**
-     * @brief send batched Message objects destined to remote nodes
-     */
-    void sendObBatch();
-    
-    int16_t nodeid;
-    MboxProducer *obGatewayPtr;
 };
 
 #endif // INFINISQLMBOX_H

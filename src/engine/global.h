@@ -39,9 +39,11 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <system_error>
 #include <functional>
+#include <mutex>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
@@ -62,9 +64,11 @@ using namespace std;
 using std::string;
 
 extern std::ofstream logfile;
+class MboxProducer;
 
 #define LOG(...) logfile << __FILE__ << " " << __LINE__ << " errno: " << errno << " '" << strerror(errno) << "' " << __VA_ARGS__ << std::endl
 #define IBGWRCVBUF 16777216
+#define NUMSOCKETS 1048576
 
 /**
  * @todo this should go in the generated header with common symbol

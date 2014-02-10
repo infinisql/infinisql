@@ -131,9 +131,8 @@ MessageSocket::MessageSocket()
 }
 
 MessageSocket::MessageSocket(topic_e topic, int16_t destnodeid, int sockfd,
-                             uint32_t events, listenertype_e listenertype)
-    : Message(topic, PAYLOAD_SOCKET, destnodeid),
-      socketdata({sockfd, events, listenertype})
+                             uint32_t events)
+    : Message(topic, PAYLOAD_SOCKET, destnodeid), socketdata({sockfd, events})
 {
     
 }

@@ -117,43 +117,11 @@ uint64_t Mbox::getCount(__int128 i128)
     return *((uint64_t *)&i128+1);
 }
 
-MboxProducer::MboxProducer()
-{
-    
-}
-
-MboxProducer::MboxProducer(Mbox *mbox, int16_t nodeid)
-    : mbox(mbox), nodeid(nodeid), obBatchMsg(nullptr)
-{
-    
-}
-
-void MboxProducer::sendMsg(Message &msgsnd)
+void Mbox::sendMsg(Message &msg)
 {
 #ifdef __clang__
         ;
 #else
-    Message *msgptr;
-    if (nodeid != msgsnd.message.destinationAddress.nodeid)
-    { // must be sending to obgw then, so serialize here
-        if (obBatchMsg==nullptr)
-        {
-            obBatchMsg=new class MessageBatch(nodeid);
-        }
-        obBatchMsg->messagebatch[obBatchMsg->nmsgs++]=
-            {msgsnd.message.destinationAddress.nodeid, msgsnd.sermsg()};
-        delete &msgsnd;
-        if (obBatchMsg->nmsgs==OBGWMSGBATCHSIZE)
-        {
-            mboxes->sendObBatch();
-        }
-        return;
-    }
-    else
-    {
-        msgptr=&msgsnd;
-    }
-    Message &msg=*msgptr;
     msg.nextmsg = Mbox::getInt128(nullptr, 5555);
 
     __int128 mytail;
@@ -161,15 +129,15 @@ void MboxProducer::sendMsg(Message &msgsnd)
 
     while (1)
     {
-        mytail = __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST);
+        mytail = __atomic_load_n(&tail, __ATOMIC_SEQ_CST);
         mynext = __atomic_load_n(&(Mbox::getPtr(mytail)->nextmsg),
                                  __ATOMIC_SEQ_CST);
 
-        if (mytail == __atomic_load_n(&mbox->tail, __ATOMIC_SEQ_CST))
+        if (mytail == __atomic_load_n(&tail, __ATOMIC_SEQ_CST))
         {
             if (Mbox::getPtr(mynext) == NULL)
             {
-                if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext, Mbox::getInt128(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+                if (__atomic_compare_exchange_n(&(Mbox::getPtr(mytail)->nextmsg), &mynext, Mbox::getInt128(&msg, __atomic_add_fetch(&counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
                 {
                     break;
                 }
@@ -177,33 +145,11 @@ void MboxProducer::sendMsg(Message &msgsnd)
             else
             {
                 // CAS(&Q->Tail, tail, <next.ptr, tail.count+1>)
-                __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128(Mbox::getPtr(mynext), __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+                __atomic_compare_exchange_n(&tail, &mytail, Mbox::getInt128(Mbox::getPtr(mynext), __atomic_add_fetch(&counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
             }
         }
     }
 
-    __atomic_compare_exchange_n(&mbox->tail, &mytail, Mbox::getInt128(&msg, __atomic_add_fetch(&mbox->counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    __atomic_compare_exchange_n(&tail, &mytail, Mbox::getInt128(&msg, __atomic_add_fetch(&counter, 1, __ATOMIC_SEQ_CST)), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 #endif // __clang__
-}
-
-Mboxes::Mboxes() : Mboxes(0)
-{
-    
-}
-
-Mboxes::Mboxes(int16_t nodeid) : nodeid(nodeid), obGatewayPtr(nullptr)
-{
-    
-}
-
-void Mboxes::sendObBatch()
-{
-    if (obGatewayPtr != nullptr)
-    {
-        if (obGatewayPtr->obBatchMsg != nullptr)
-        {
-            obGatewayPtr->sendMsg(*obGatewayPtr->obBatchMsg);
-            obGatewayPtr->obBatchMsg=nullptr;
-        }
-    }
 }

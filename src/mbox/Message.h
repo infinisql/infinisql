@@ -150,7 +150,7 @@ public:
 
     MessageSocket();
     MessageSocket(topic_e topic, int16_t destnodeid, int sockfd,
-                  uint32_t events, listenertype_e listenertype);
+                  uint32_t events);
 
     void ser(Serdes &output);
     size_t sersize();

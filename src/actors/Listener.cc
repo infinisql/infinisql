@@ -35,6 +35,8 @@
 
 #include "Listener.h"
 
+#define EPOLLEVENTS 1024
+
 Listener::Listener(Actor::identity_s identity)
     : Actor(identity)
 {
@@ -42,9 +44,69 @@ Listener::Listener(Actor::identity_s identity)
 
 void Listener::operator()()
 {
+    struct epoll_event ev={};
+    ev.events=EPOLLIN | EPOLLHUP | EPOLLET;
+    ev.data.fd=identity.sockfd;
+    if (epoll_ctl(identity.epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev)==-1)
+    {
+        LOG("epoll_ctl problem");
+        return;
+    }
+
+    struct sockaddr_in their_addr={}; // connector's address information
+    socklen_t sin_size = sizeof(their_addr);
+    int roundrobin=0;
+    struct epoll_event events[EPOLLEVENTS];
 
     while(1)
     {
-        sleep(10);
+        int eventcount=epoll_wait(identity.epollfd, events, EPOLLEVENTS, -1);
+        if (eventcount==-1)
+        {
+            LOG("epoll_wait problem");
+            continue;
+        }
+        for (int n=0; n < eventcount; ++n)
+        {
+            int fd=events[n].data.fd;
+            int event=events[n].events;
+
+            if (fd==identity.sockfd)
+            {
+                while(1)
+                {
+                    int newfd=accept(fd, (struct sockaddr *)&their_addr,
+                                     &sin_size);
+                    if (newfd==-1)
+                    {
+                        if (errno != EAGAIN && errno != EWOULDBLOCK)
+                        {
+                            LOG("accept error");
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    if (newfd > NUMSOCKETS)
+                    {
+                        LOG("too high fd: " << newfd << " NUMSOCKETS: " <<
+                            NUMSOCKETS);
+                        close(newfd);
+                        continue;
+                    }
+
+                    fcntl(newfd, F_SETFL, O_NONBLOCK);
+                    int optval=1;
+                    setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
+                               sizeof(optval));
+                    ev.data.fd=newfd;
+                    // @todo socketAffinity[newfd]=mboxes transactionagent
+                    epoll_ctl(identity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
+//                    socketAffinity[newfd]->sendMsg()
+                }
+            }
+        }
     }
 }
