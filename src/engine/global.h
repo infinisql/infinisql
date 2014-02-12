@@ -44,6 +44,7 @@
 #include <system_error>
 #include <functional>
 #include <mutex>
+#include <atomic>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
@@ -54,6 +55,8 @@
 #include <sys/epoll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #ifndef __USE_POSIX
 #define __USE_POSIX
 #endif
@@ -64,7 +67,6 @@ using namespace std;
 using std::string;
 
 extern std::ofstream logfile;
-class MboxProducer;
 
 #define LOG(...) logfile << __FILE__ << " " << __LINE__ << " errno: " << errno << " '" << strerror(errno) << "' " << __VA_ARGS__ << std::endl
 #define IBGWRCVBUF 16777216

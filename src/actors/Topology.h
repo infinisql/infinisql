@@ -32,10 +32,31 @@
 
 #include "../engine/global.h"
 
+class Mbox;
+
 class Topology
 {
-public:    
+public:
     Topology();
+    virtual ~Topology();
+
+    int16_t nodeid;
+    std::vector<Mbox *> localTransactionAgents;
+
 };
+
+/** 
+ * @brief TopologyDistinct is a specific Actor's Topology
+ */
+class TopologyDistinct : public Topology
+{
+public:
+    TopologyDistinct();
+
+    void update();
+};
+
+extern Topology nodeTopology;
+extern std::mutex nodeTopologyMutex;
 
 #endif // INFINISQLTOPOLOGY_H

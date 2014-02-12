@@ -29,7 +29,27 @@
 
 #include "Topology.h"
 
+Topology nodeTopology;
+std::mutex nodeTopologyMutex;
+
 Topology::Topology()
 {
     
+}
+
+Topology::~Topology()
+{
+    
+}
+
+TopologyDistinct::TopologyDistinct()
+{
+    
+}
+
+void TopologyDistinct::update()
+{
+    nodeTopologyMutex.lock();
+    *(Topology *)this=nodeTopology;
+    nodeTopologyMutex.unlock();
 }

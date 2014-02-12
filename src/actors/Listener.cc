@@ -53,10 +53,34 @@ void Listener::operator()()
         return;
     }
 
+    struct rlimit rlim;
+    if (getrlimit(RLIMIT_NOFILE, &rlim) != 0)
+    {
+        LOG("getrlimit RLIMIT_NOFILE problem");
+        /** 
+         * @todo this should probably be fatal for this node
+         */
+        return;
+    }
+    /**
+     * assumes socket fd is always < number of available sockets
+     */
+    socketAffinity=new (std::nothrow) std::atomic<int64_t>[rlim.rlim_max]();
+    if (socketAffinity==nullptr)
+    {
+        LOG("problem allocating for " << rlim.rlim_max);
+        /**
+         * @todo this should be fatal for the node
+         */
+        return;
+    }
+    rlim_t maxsocknum=rlim.rlim_max-1;
+    
     struct sockaddr_in their_addr={}; // connector's address information
     socklen_t sin_size = sizeof(their_addr);
     int roundrobin=0;
     struct epoll_event events[EPOLLEVENTS];
+    int optval=1;
 
     while(1)
     {
@@ -89,22 +113,34 @@ void Listener::operator()()
                             break;
                         }
                     }
-                    if (newfd > NUMSOCKETS)
+                    if (newfd > (int)maxsocknum)
                     {
-                        LOG("too high fd: " << newfd << " NUMSOCKETS: " <<
-                            NUMSOCKETS);
+                        LOG("too high fd: " << newfd << " maxsocknum: " <<
+                            maxsocknum);
                         close(newfd);
                         continue;
                     }
 
                     fcntl(newfd, F_SETFL, O_NONBLOCK);
-                    int optval=1;
                     setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                                sizeof(optval));
                     ev.data.fd=newfd;
-                    // @todo socketAffinity[newfd]=mboxes transactionagent
+                    Mbox &mboxRef=*myTopology.localTransactionAgents[++roundrobin % myTopology.localTransactionAgents.size()];                    
+                    socketAffinity[newfd]=(int64_t)&mboxRef;
                     epoll_ctl(identity.epollfd, EPOLL_CTL_ADD, newfd, &ev);
-//                    socketAffinity[newfd]->sendMsg()
+                    mboxRef.sendMsg(*(new MessageSocket(Message::TOPIC_SOCKETCONNECTED, myTopology.nodeid, newfd, event)));
+                }
+            }
+            else
+            { // already established socket
+                int64_t mboxint=socketAffinity[fd];
+                if (mboxint)
+                {
+                    ((Mbox *)mboxint)->sendMsg(*(new MessageSocket(Message::TOPIC_SOCKET, myTopology.nodeid, fd, event)));
+                }
+                else
+                {
+                    LOG("event " << event << " on spurious sockfd " << fd);
                 }
             }
         }

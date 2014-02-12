@@ -47,6 +47,8 @@ public:
     enum topic_e : uint8_t
     {
         TOPIC_NONE=0,
+            TOPIC_SOCKET,
+            TOPIC_SOCKETCONNECTED,
             TOPIC_BATCH
     };
     /** 

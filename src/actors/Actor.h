@@ -35,6 +35,9 @@
 
 class Mbox;
 
+//extern std::vector< std::atomic<int> > socketAffinity;
+extern std::atomic<int64_t> *socketAffinity;
+
 class Actor
 {
 public:
@@ -58,6 +61,7 @@ public:
     virtual ~Actor();
 
     identity_s identity;
+    TopologyDistinct myTopology;
 };
 
 #endif // INFINISQLACTOR_H
