@@ -81,6 +81,7 @@ void Listener::operator()()
     int roundrobin=0;
     struct epoll_event events[EPOLLEVENTS];
     int optval=1;
+    int transactionAgentsVersion=0;
 
     while(1)
     {
@@ -125,6 +126,12 @@ void Listener::operator()()
                     setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                                sizeof(optval));
                     ev.data.fd=newfd;
+                    int newversion=localTransactionAgentsVersion;
+                    if (transactionAgentsVersion != newversion)
+                    {
+                        myTopology.update();
+                        transactionAgentsVersion=newversion;
+                    }
                     Mbox &mboxRef=*myTopology.localTransactionAgents[++roundrobin % myTopology.localTransactionAgents.size()];                    
                     socketAffinity[newfd]=(int64_t)&mboxRef;
                     epoll_ctl(identity.epollfd, EPOLL_CTL_ADD, newfd, &ev);

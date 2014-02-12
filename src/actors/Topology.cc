@@ -31,6 +31,7 @@
 
 Topology nodeTopology;
 std::mutex nodeTopologyMutex;
+std::atomic<int> localTransactionAgentsVersion;
 
 Topology::Topology()
 {

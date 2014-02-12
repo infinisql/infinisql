@@ -41,6 +41,15 @@ public:
     virtual ~Topology();
 
     int16_t nodeid;
+    /**
+     * @todo pattern for adding a localTransactionAgent:
+     * 1) after adding it, and releasing the nodeTopologyMutex
+     * 2) increment localTransactionAgentsVersion
+     *
+     * that tells Listener to copy nodeTopology--Listener, doesn't
+     * read it's Mbox, so it needs to know about that change in
+     * Topology every time a new socket is accept()ed
+     */
     std::vector<Mbox *> localTransactionAgents;
 
 };
@@ -58,5 +67,6 @@ public:
 
 extern Topology nodeTopology;
 extern std::mutex nodeTopologyMutex;
+extern std::atomic<int> localTransactionAgentsVersion;
 
 #endif // INFINISQLTOPOLOGY_H

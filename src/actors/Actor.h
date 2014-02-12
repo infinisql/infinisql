@@ -35,7 +35,6 @@
 
 class Mbox;
 
-//extern std::vector< std::atomic<int> > socketAffinity;
 extern std::atomic<int64_t> *socketAffinity;
 
 class Actor
