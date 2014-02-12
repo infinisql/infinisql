@@ -40,6 +40,7 @@
 TopologyManager::TopologyManager(Actor::identity_s identity)
     : Actor(identity)
 {
+    nodeTopologyVersion=1;
 }
 
 void TopologyManager::operator()()

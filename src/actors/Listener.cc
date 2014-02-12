@@ -81,14 +81,17 @@ void Listener::operator()()
     int roundrobin=0;
     struct epoll_event events[EPOLLEVENTS];
     int optval=1;
-    int transactionAgentsVersion=0;
 
     while(1)
     {
-        int eventcount=epoll_wait(identity.epollfd, events, EPOLLEVENTS, -1);
+        int eventcount=epoll_wait(identity.epollfd, events, EPOLLEVENTS, 10);
+        myTopology.update();
         if (eventcount==-1)
         {
-            LOG("epoll_wait problem");
+            if (errno != EINTR)
+            {
+                LOG("epoll_wait problem");
+            }
             continue;
         }
         for (int n=0; n < eventcount; ++n)
@@ -126,12 +129,6 @@ void Listener::operator()()
                     setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &optval,
                                sizeof(optval));
                     ev.data.fd=newfd;
-                    int newversion=localTransactionAgentsVersion;
-                    if (transactionAgentsVersion != newversion)
-                    {
-                        myTopology.update();
-                        transactionAgentsVersion=newversion;
-                    }
                     Mbox &mboxRef=*myTopology.localTransactionAgents[++roundrobin % myTopology.localTransactionAgents.size()];                    
                     socketAffinity[newfd]=(int64_t)&mboxRef;
                     epoll_ctl(identity.epollfd, EPOLL_CTL_ADD, newfd, &ev);

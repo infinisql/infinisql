@@ -31,7 +31,7 @@
 
 Topology nodeTopology;
 std::mutex nodeTopologyMutex;
-std::atomic<int> localTransactionAgentsVersion;
+std::atomic<int> nodeTopologyVersion;
 
 Topology::Topology()
 {
@@ -43,14 +43,19 @@ Topology::~Topology()
     
 }
 
-TopologyDistinct::TopologyDistinct()
+TopologyDistinct::TopologyDistinct() : topologyVersion(0)
 {
     
 }
 
 void TopologyDistinct::update()
 {
-    nodeTopologyMutex.lock();
-    *(Topology *)this=nodeTopology;
-    nodeTopologyMutex.unlock();
+    if (topologyVersion != nodeTopologyVersion)
+    {
+        nodeTopologyMutex.lock();
+        *(Topology *)this=nodeTopology;
+        nodeTopologyMutex.unlock();
+
+        topologyVersion=nodeTopologyVersion;
+    }
 }

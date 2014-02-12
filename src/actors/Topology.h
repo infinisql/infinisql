@@ -63,10 +63,13 @@ public:
     TopologyDistinct();
 
     void update();
+
+    int topologyVersion;
+    
 };
 
 extern Topology nodeTopology;
 extern std::mutex nodeTopologyMutex;
-extern std::atomic<int> localTransactionAgentsVersion;
+extern std::atomic<int> nodeTopologyVersion;
 
 #endif // INFINISQLTOPOLOGY_H
