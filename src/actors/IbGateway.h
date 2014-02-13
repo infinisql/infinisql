@@ -36,7 +36,20 @@ class IbGateway : public Actor
 {
 public:
     IbGateway(Actor::identity_s identity);
+    ~IbGateway();
     void operator()();
+
+    /** 
+     * @brief decompress and distribute incoming messages
+     *
+     * @param buf bufer to read from
+     * @param bufsize size of buffer
+     */
+    void inbufhandler(const char *buf, size_t bufsize);
+
+    char *inbuf;
+    char *dcstrsmall;
+    std::unordered_map<int, std::string> pendingReads;
 };
 
 #endif // INFINISQLIBGATEWAY_H

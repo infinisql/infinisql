@@ -51,7 +51,7 @@ public:
      * Topology every time a new socket is accept()ed
      */
     std::vector<Mbox *> localTransactionAgents;
-
+    std::vector<Mbox *> actoridToMboxes;
 };
 
 /** 

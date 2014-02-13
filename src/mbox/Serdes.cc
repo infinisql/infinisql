@@ -42,12 +42,25 @@ Serdes::Serdes(size_t mv_sizearg) : Serdes()
     else
     {
         val.mv_size=0;
+        // this should result in node killing itself
     }
 }
 
 Serdes::Serdes(MDB_val &valarg) : isreadonly(true), pos(0), val(valarg)
 {
     
+}
+
+Serdes::Serdes(const char *data, size_t size) : isreadonly(false), pos(0)
+{
+    val.mv_size=size;
+    val.mv_data=new (std::nothrow) char[val.mv_size];
+    if (val.mv_data==nullptr)
+    {
+        // this should result in node killing itself
+        return;
+    }
+    memcpy(val.mv_data, data, val.mv_size);    
 }
 
 Serdes::~Serdes()

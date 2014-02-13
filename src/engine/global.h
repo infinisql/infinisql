@@ -48,6 +48,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>
+#include <lz4.h>
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -89,6 +90,8 @@ enum actortypes_e
     ACTOR_LISTENER,
     ACTOR_ADMIN_LISTENER
 };
+
+void setprio();
 
 /* InfiniSQL headers that most, or all parts of the project need */
 #include "../mbox/Serdes.h"

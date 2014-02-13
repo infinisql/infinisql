@@ -72,6 +72,17 @@ public:
      * @param valarg 
      */
     Serdes(MDB_val &valarg);
+    /** 
+     * @brief create object to deserialize from character sequence
+     *
+     * MDB_val.mv_data will be deleted when object is destroyed
+     * this is intended to carry inter-node messages from IbGateway
+     * to destination actor's mbox
+     *
+     * @param data 
+     * @param size 
+     */
+    Serdes(const char *data, size_t size);
     ~Serdes();
 
     // pods

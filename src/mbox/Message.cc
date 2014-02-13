@@ -163,3 +163,11 @@ MessageBatch::MessageBatch(int16_t destnodeid)
 {
     
 }
+
+MessageSerialized::MessageSerialized(const Serdes &serializeddata)
+    : serializeddata(serializeddata)
+{
+    memcpy(&message, serializeddata.val.mv_data, sizeof(message));
+    message.topic=TOPIC_SERIALIZED;
+    message.payloadtype=PAYLOAD_SERIALIZED;
+}
