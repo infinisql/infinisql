@@ -32,7 +32,7 @@ Serdes::Serdes() : isreadonly(false), pos(0), val({0, nullptr})
     
 }
 
-Serdes::Serdes(size_t mv_sizearg) : Serdes()
+Serdes::Serdes(size_t mv_sizearg) : isreadonly(false), pos(0)
 {
     val.mv_data=new (std::nothrow) char[mv_sizearg];
     if (val.mv_data != nullptr)

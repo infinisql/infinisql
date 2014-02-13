@@ -52,6 +52,8 @@ public:
      */
     std::vector<Mbox *> localTransactionAgents;
     std::vector<Mbox *> actoridToMboxes;
+    // nodeidToIbGateway[nodeid]={"host", "port"};
+    std::map< int16_t, std::pair<std::string, std::string> > nodeidToIbGateway;
 };
 
 /** 
@@ -62,10 +64,9 @@ class TopologyDistinct : public Topology
 public:
     TopologyDistinct();
 
-    void update();
+    bool update();
 
     int topologyVersion;
-    
 };
 
 extern Topology nodeTopology;

@@ -37,6 +37,17 @@ class ObGateway : public Actor
 public:
     ObGateway(Actor::identity_s identity);
     void operator()();
+    ~ObGateway();
+    /** 
+     * @brief connect to any new remote IbGateway instances
+     *
+     */
+    void updateRemoteGateways();
+
+    int so_sndbuf;
+    char *serstrsmall;
+    char *cstrsmall;
+    std::vector<int> nodeidToSocket;
 };
 
 #endif // INFINISQLOBGATEWAY_H

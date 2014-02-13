@@ -40,11 +40,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <system_error>
 #include <functional>
 #include <mutex>
 #include <atomic>
+#include <utility>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>

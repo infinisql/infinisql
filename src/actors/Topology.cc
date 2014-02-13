@@ -48,7 +48,7 @@ TopologyDistinct::TopologyDistinct() : topologyVersion(0)
     
 }
 
-void TopologyDistinct::update()
+bool TopologyDistinct::update()
 {
     if (topologyVersion != nodeTopologyVersion)
     {
@@ -57,5 +57,8 @@ void TopologyDistinct::update()
         nodeTopologyMutex.unlock();
 
         topologyVersion=nodeTopologyVersion;
+        return true;
     }
+
+    return false;
 }

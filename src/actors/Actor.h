@@ -33,6 +33,9 @@
 #include "../engine/global.h"
 #include "Topology.h"
 
+#define GWBUFSIZE 16777216
+#define SERIALIZEDMAXSIZE   1048576
+
 class Mbox;
 
 extern std::atomic<int64_t> *socketAffinity;
@@ -60,6 +63,7 @@ public:
     virtual ~Actor();
 
     identity_s identity;
+    Message *msgrcv;
     TopologyDistinct myTopology;
 };
 

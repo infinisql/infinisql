@@ -30,7 +30,6 @@
 #include "IbGateway.h"
 
 #define EPOLLEVENTS 1024
-#define SERIALIZEDMAXSIZE   1048576
 
 IbGateway::IbGateway(Actor::identity_s identity)
     : Actor(identity), inbuf(nullptr), dcstrsmall(nullptr)
@@ -57,7 +56,7 @@ void IbGateway::operator()()
     struct sockaddr_in their_addr={}; // connector's address information
     socklen_t sin_size=sizeof(their_addr);
     struct epoll_event events[EPOLLEVENTS];
-    int so_rcvbuf=16777216;
+    int so_rcvbuf=GWBUFSIZE;
     inbuf=new (std::nothrow) char[so_rcvbuf];
     if (inbuf==nullptr)
     {
@@ -258,7 +257,7 @@ void IbGateway::inbufhandler(const char *buf, size_t bufsize)
         break;
     }
   
-    size_t pos=sizeof(size_t); // i already know the whole size, it's bufsize
+    size_t pos=0;
     while (pos<inbuffersize)
     {
         size_t s=*(size_t *)(inbuffer+pos);

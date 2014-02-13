@@ -60,7 +60,7 @@ Serdes *Message::sermsg()
     {
     case PAYLOAD_MESSAGE:
         serobj=new (std::nothrow) Serdes(sersize());
-        if (serobj != NULL)
+        if (serobj != nullptr)
         {
             ser(*serobj);
         }
@@ -70,7 +70,7 @@ Serdes *Message::sermsg()
     {
         MessageSocket &msgRef=*(MessageSocket *)this;
         serobj=new (std::nothrow) Serdes(msgRef.sersize());
-        if (serobj != NULL)
+        if (serobj != nullptr)
         {
             msgRef.ser(*serobj);
         }
