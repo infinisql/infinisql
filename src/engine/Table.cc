@@ -77,20 +77,22 @@ void Table::ser(Serdes &output)
 {
     Metadata::ser(output);
     output.ser(nextfieldid);
+    output.ser(partitiongroupname);
+    output.ser(partitiongroupid);
 }
 
 size_t Table::sersize()
 {
-    size_t retval=Metadata::sersize();
-    retval+=Serdes::sersize(nextfieldid);
-
-    return retval;
+    return Metadata::sersize() + Serdes::sersize(nextfieldid) +
+        Serdes::sersize(partitiongroupname) + Serdes::sersize(partitiongroupid);
 }
 
 void Table::des(Serdes &input)
 {
     Metadata::des(input);
     input.des(nextfieldid);
+    input.des(partitiongroupname);
+    input.des(partitiongroupid);
 }
 
 void Table::getparents()

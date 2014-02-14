@@ -76,6 +76,8 @@ public:
     int dbOpen();
 
     int16_t nextfieldid;
+    std::string partitiongroupname;
+    int16_t partitiongroupid;
 
     std::unordered_map<std::string, int16_t> fieldName2Id; /**< fieldName2Id[name]=fieldid */
     std::unordered_map<int16_t, Field *> fieldid2Field; /**< fieldid2Field[fieldid]=Field* */
