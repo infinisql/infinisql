@@ -341,4 +341,31 @@ public:
     struct MDB_val val;
 };
 
+template < typename T >
+void serpod(T d, Serdes &output)
+{
+    memcpy((char *)output.val.mv_data+output.pos, &d, sizeof(d));
+    output.pos+=sizeof(d);
+}
+
+template < typename T >
+void despod(Serdes &input, T &d)
+{
+    memcpy(&d, (char *)input.val.mv_data+input.pos, sizeof(d));
+    input.pos+=sizeof(d);
+}
+
+void ser(int8_t d, Serdes &output);
+size_t sersize(int8_t d);
+void des(Serdes &input, int8_t &d);
+void ser(int16_t d, Serdes &output);
+size_t sersize(int16_t d);
+void des(Serdes &input, int16_t &d);
+void ser(int32_t d, Serdes &output);
+size_t sersize(int32_t d);
+void des(Serdes &input, int32_t &d);
+void ser(int64_t d, Serdes &output);
+size_t sersize(int64_t d);
+void des(Serdes &input, int64_t &d);
+
 #endif // INFINISQLSERDES_H

@@ -211,14 +211,12 @@ void MessageUserSchema::ser(Serdes &output)
     output.ser((void *)&userschemadata, sizeof(userschemadata));
     output.ser(name);
     output.ser(partitiongroupname);
-    defaultValue.ser(output);
 }
 
 size_t MessageUserSchema::sersize()
 {
     return MessageTransaction::sersize() + sizeof(userschemadata) +
-        Serdes::sersize(name) + Serdes::sersize(partitiongroupname) +
-        defaultValue.sersize();
+        Serdes::sersize(name) + Serdes::sersize(partitiongroupname);
 }
 
 void MessageUserSchema::des(Serdes &input)
@@ -227,7 +225,6 @@ void MessageUserSchema::des(Serdes &input)
     input.des((void *)&userschemadata, sizeof(userschemadata));
     input.des(name);
     input.des(partitiongroupname);
-    defaultValue.des(input);
 }
 
 MessageUserSchemaReply::MessageUserSchemaReply()
@@ -265,3 +262,4 @@ MessageSerialized::MessageSerialized(const Serdes &serializeddata)
     message.topic=TOPIC_SERIALIZED;
     message.payloadtype=PAYLOAD_SERIALIZED;
 }
+

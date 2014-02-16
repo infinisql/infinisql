@@ -47,6 +47,7 @@
 #include <mutex>
 #include <atomic>
 #include <utility>
+#include <cstdint>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <lmdb.h>

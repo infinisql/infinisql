@@ -290,3 +290,63 @@ bool Serdes::isend()
 {
     return pos==val.mv_size-1 ? true : false;
 }
+
+void ser(int8_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(int8_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, int8_t &d)
+{
+    despod(input, d);
+}
+
+void ser(int16_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(int16_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, int16_t &d)
+{
+    despod(input, d);
+}
+
+void ser(int32_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(int32_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, int32_t &d)
+{
+    despod(input, d);
+}
+
+void ser(int64_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(int64_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, int64_t &d)
+{
+    despod(input, d);
+}
