@@ -31,7 +31,14 @@
 #define INFINISQLMETADATA_H
 
 #include <memory>
-#include "global.h"
+#include "../mbox/Serdes.h"
+#include <unordered_map>
+#include <sys/stat.h>
+#include <string>
+#include <sstream>
+#include <vector>
+
+using std::string;
 
 class Catalog;
 class Schema;

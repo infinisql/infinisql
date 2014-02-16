@@ -76,6 +76,17 @@ Serdes *Message::sermsg()
         }
     }
     break;
+
+    case PAYLOAD_USERSCHEMA:
+    {
+        MessageUserSchema &msgRef=*(MessageUserSchema *)this;
+        serobj=new (std::nothrow) Serdes(msgRef.sersize());
+        if (serobj != nullptr)
+        {
+            msgRef.ser(*serobj);
+        }
+    }
+    break;
         
     default:
         LOG("can't serialize payloadtype " << message.payloadtype);
@@ -106,9 +117,19 @@ Message *Message::deserialize(Serdes &input)
         {
             MessageSocket &msgRef=*(MessageSocket *)deserializedMessage;
             msgRef.message=messagedata;
-            input.des((void *)&msgRef.socketdata, sizeof(msgRef.socketdata));
+            msgRef.des(input);
         }
-        break;        
+        break;
+
+    case PAYLOAD_USERSCHEMA:
+        deserializedMessage=(Message *)new (std::nothrow) MessageUserSchema;
+        if (deserializedMessage != nullptr)
+        {
+            MessageUserSchema &msgRef=*(MessageUserSchema *)deserializedMessage;
+            msgRef.message=messagedata;
+            msgRef.des(input);
+        }
+        break;
 
     default:
         LOG("can't deserialize message type " << messagedata.payloadtype);
@@ -153,13 +174,86 @@ void MessageSocket::des(Serdes &input)
     input.des((void *)&socketdata, sizeof(socketdata));
 }
 
-MessageBatch::MessageBatch()
+MessageTransaction::MessageTransaction()
 {
     
 }
 
-MessageBatch::MessageBatch(int16_t destnodeid)
-    : Message(TOPIC_BATCH, PAYLOAD_BATCH, destnodeid), nmsgs(0), messagebatch()
+MessageTransaction::~MessageTransaction()
+{
+    
+}
+
+void MessageTransaction::ser(Serdes &output)
+{
+    Message::ser(output);
+    output.ser((void *)&transactiondata, sizeof(transactiondata));
+}
+
+size_t MessageTransaction::sersize()
+{
+    return Message::sersize() + sizeof(transactiondata);
+}
+
+void MessageTransaction::des(Serdes &input)
+{
+    input.des((void *)&transactiondata, sizeof(transactiondata));
+}
+
+MessageUserSchema::MessageUserSchema()
+{
+    
+}
+
+void MessageUserSchema::ser(Serdes &output)
+{
+    MessageTransaction::ser(output);
+    output.ser((void *)&userschemadata, sizeof(userschemadata));
+    output.ser(name);
+    output.ser(partitiongroupname);
+    defaultValue.ser(output);
+}
+
+size_t MessageUserSchema::sersize()
+{
+    return MessageTransaction::sersize() + sizeof(userschemadata) +
+        Serdes::sersize(name) + Serdes::sersize(partitiongroupname) +
+        defaultValue.sersize();
+}
+
+void MessageUserSchema::des(Serdes &input)
+{
+    MessageTransaction::des(input);
+    input.des((void *)&userschemadata, sizeof(userschemadata));
+    input.des(name);
+    input.des(partitiongroupname);
+    defaultValue.des(input);
+}
+
+MessageUserSchemaReply::MessageUserSchemaReply()
+{
+    
+}
+
+void MessageUserSchemaReply::ser(Serdes &output)
+{
+    MessageTransaction::ser(output);
+    output.ser((void *)&userschemareplydata, sizeof(userschemareplydata));
+}
+
+size_t MessageUserSchemaReply::sersize()
+{
+    return MessageTransaction::sersize() + sizeof(userschemareplydata);
+}
+
+void MessageUserSchemaReply::des(Serdes &input)
+{
+    MessageTransaction::des(input);
+    input.des((void *)&userschemareplydata, sizeof(userschemareplydata));
+}
+
+MessageBatch::MessageBatch()
+    : Message(TOPIC_BATCH, PAYLOAD_BATCH, 0), nmsgs(0), messagebatch()
 {
     
 }

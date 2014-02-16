@@ -86,7 +86,3 @@ public:
 };
 
 #endif // INFINISQLTABLE_H
-
-
-
-

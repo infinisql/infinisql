@@ -18,29 +18,26 @@
  */
 
 /**
- * @file   UserSchemaManager.h
- * @author  <infinisql@ubuntu>
- * @date   Sat Jan 25 08:30:02 2014
+ * @file   UserSchemaOperation.h
+ * @author Mark Travis <mtravis15432+src@gmail.com>
+ * @date   Sat Feb 15 00:27:52 2014
  * 
- * @brief  Actor that maintains user and domain authentication information
- * and schema definitions.
- *
- * There is 1 UserSchemaManager per replica, and the master replica's
- * UserSchemaManager replicates to each slave.
+ * @brief  transaction handler for user & schema activities
  */
 
-#ifndef INFINISQLUSERSCHEMAMANAGER_H
-#define INFINISQLUSERSCHEMAMANAGER_H
+#ifndef INFINISQL_USERSCHEMAOPERATION_H
+#define INFINISQL_USERSCHEMAOPERATION_H
 
-#include "Actor.h"
+#include "Transaction.h"
+#include "../actors/Actor.h"
 
-class UserSchemaOperation;
-
-class UserSchemaManager : public Actor
+class UserSchemaOperation : public Transaction
 {
 public:
-    UserSchemaManager(Actor::identity_s identity);
-    void operator()();
+    UserSchemaOperation(Actor *callingActor);
+    
+    Actor *callingActor;
+    int64_t id;
 };
 
-#endif // INFINISQLUSERSCHEMAMANAGER_H
+#endif // INFINISQL_USERSCHEMAOPERATION_H

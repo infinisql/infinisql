@@ -1,0 +1,8 @@
+
+Import('env')
+lib_env = env.Clone()
+
+sources = ['UserSchemaOperation.cc']
+
+lib = lib_env.Library('transaction', sources)
+Return('lib')

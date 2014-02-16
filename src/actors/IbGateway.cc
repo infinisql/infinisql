@@ -63,10 +63,10 @@ void IbGateway::operator()()
         LOG("allocate for inbuf failed size " << so_rcvbuf);
         return; // should probably exit node
     }
-    dcstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+    dcstrsmall=new (std::nothrow) char[GWBUFSIZE];
     if (dcstrsmall==nullptr)
     {
-        LOG("can't allocate " << SERIALIZEDMAXSIZE);
+        LOG("can't allocate " << GWBUFSIZE);
         return; // should probably exit node
     }
     
@@ -229,9 +229,9 @@ void IbGateway::inbufhandler(const char *buf, size_t bufsize)
     char *dcstr;
     char *dcstrbig;
     bool isdcstrbig=false;
-    char dcstrsmall[SERIALIZEDMAXSIZE];
+    char dcstrsmall[GWBUFSIZE];
   
-    int bs=SERIALIZEDMAXSIZE;
+    int bs=GWBUFSIZE;
     dcstr=dcstrsmall;
     while(1)
     {

@@ -23,8 +23,6 @@
  * @date   Mon Jan 13 13:02:02 2014
  * 
  * @brief  schema is a collection of tables and indices
- * 
- * 
  */
 
 #ifndef INFINISQLSCHEMA_H

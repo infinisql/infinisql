@@ -31,6 +31,12 @@
 #include <cstdint>
 #include <lmdb.h>
 #include "Serdes.h"
+#include "../engine/Metadata.h"
+#include "../engine/Catalog.h"
+#include "../engine/Schema.h"
+#include "../engine/Table.h"
+#include "../engine/Field.h"
+#include "../engine/Index.h"
 
 #define OBGWMSGBATCHSIZE 5000
 
@@ -50,7 +56,9 @@ public:
             TOPIC_SOCKET,
             TOPIC_SOCKETCONNECTED,
             TOPIC_BATCH,
-            TOPIC_SERIALIZED
+            TOPIC_SERIALIZED,
+            TOPIC_USERSCHEMA,
+            TOPIC_USERSCHEMAREPLY
     };
     /** 
      * @brief type of message
@@ -61,7 +69,9 @@ public:
             PAYLOAD_MESSAGE,
             PAYLOAD_SOCKET,
             PAYLOAD_BATCH,
-            PAYLOAD_SERIALIZED
+            PAYLOAD_SERIALIZED,
+            PAYLOAD_USERSCHEMA,
+            PAYLOAD_USERSCHEMAREPLY
             };
     /** 
      * @brief address for message delivery
@@ -105,7 +115,6 @@ public:
      * @return size
      */
     size_t sersize();
-
     /** 
      * @brief serialize entire message, create and return object
      *
@@ -124,7 +133,6 @@ public:
      * @return resultant message
      */
     static Message *deserialize(Serdes &input);
-
     /** 
      * @brief set source and destination addresses for message
      *
@@ -140,16 +148,10 @@ public:
 class MessageSocket : public Message
 {
 public:
-    enum listenertype_e : uint8_t
-    {
-        LISTENER_NONE=0,
-            LISTENER_PG
-            };
     struct __attribute__ ((__packed__)) socketdata_s
     {
         int sockfd;
         uint32_t events;
-        listenertype_e listenertype;
     };
 
     MessageSocket();
@@ -163,6 +165,132 @@ public:
     socketdata_s socketdata;
 };
 
+class MessageTransaction : public Message
+{
+public:
+    struct __attribute__ ((__packed__)) continuationpoint_s
+    {
+        int64_t callerid;
+        int8_t function;
+        int8_t entrypoint;
+
+        bool operator==(const continuationpoint_s &orig) const
+        {
+            if (orig.callerid==callerid && orig.function==function &&
+                orig.entrypoint==entrypoint)
+            {
+                return true;
+            }
+            return false;
+        }
+    };
+    struct __attribute__ ((__packed__)) transactiondata_s
+    {
+        continuationpoint_s continuationpoint;
+        int64_t requestid;
+    };
+    enum status_e : int8_t
+    {
+        STATUS_NONE = 0,
+            STATUS_OK,
+            STATUS_NOK
+            };
+    enum reason_e : int8_t
+    {
+        REASON_NONE = 0,
+            REASON_GENERIC
+            };
+    
+    MessageTransaction();
+    virtual ~MessageTransaction();
+    void ser(Serdes &output);
+    size_t sersize();
+    void des(Serdes &input);
+
+    transactiondata_s transactiondata;
+};
+
+class MessageUserSchema : public MessageTransaction
+{
+public:
+    enum crud_e : uint8_t
+    {
+        CRUD_NONE = 0,
+            CRUD_CREATE,
+            CRUD_ALTER,
+            CRUD_DROP
+            };
+    enum meta_e : uint8_t
+    {
+        META_NONE = 0,
+            META_CATALOG,
+            META_SCHEMA,
+            META_TABLE,
+            META_FIELD,
+            META_INDEX,
+            META_USER
+            };
+    struct columnactivity_s
+    {
+        crud_e crud;
+        std::string name;
+        int16_t id;
+        Field::type_e type;
+        int64_t size;
+        int64_t precision;
+        int64_t scale;
+        FieldValue defaultValue;
+        bool nullconstraint;
+    };
+    struct indexactivity_s
+    {
+        std::string name;
+        int16_t id;
+        std::vector<int16_t> fieldids;
+        bool uniqueconstraint;
+    };
+    struct __attribute__ ((__packed__)) userschemadata_s
+    {
+        crud_e crud;
+        meta_e meta;
+        int16_t id;
+        int16_t parentCatalogid;
+        int16_t parentSchemaid;
+        int16_t parentTableid;
+        int16_t partitiongroupid;
+    };
+
+    MessageUserSchema();
+
+    void ser(Serdes &output);
+    size_t sersize();
+    void des(Serdes &input);
+
+    userschemadata_s userschemadata;
+
+    std::string name;
+    std::string partitiongroupname;
+
+};
+
+class MessageUserSchemaReply : public MessageTransaction
+{
+public:
+    struct userschemareplydata_s
+    {
+        status_e status;
+        reason_e reason;
+        int16_t id;
+    };
+    
+    MessageUserSchemaReply();
+    void ser(Serdes &output);
+    size_t sersize();
+    void des(Serdes &input);
+
+    userschemareplydata_s userschemareplydata;
+};
+
 class MessageBatch : public Message
 {
 public:
@@ -173,7 +301,6 @@ public:
     };
 
     MessageBatch();
-    MessageBatch(int16_t destnodeid);
 
     int16_t nmsgs;
     messagebatch_s messagebatch[OBGWMSGBATCHSIZE];

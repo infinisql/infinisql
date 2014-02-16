@@ -35,7 +35,8 @@ Catalog::Catalog() : Metadata (), nextuserid (0), nextschemaid (0),
 }
 
 Catalog::Catalog(int16_t idarg, const std::string& namearg)
-    : Catalog()
+    : Metadata(idarg, namearg), nextuserid(0), nextschemaid(0),
+      nexttableid(0), nextindexid(0)
 {
 }
 

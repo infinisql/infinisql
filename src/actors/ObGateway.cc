@@ -42,20 +42,20 @@ void ObGateway::operator()()
     char *serstrbig=nullptr;
     char *serstr=nullptr;
     bool isserstrbig=false;
-    serstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+    serstrsmall=new (std::nothrow) char[GWBUFSIZE];
     if (serstrsmall==nullptr)
     {
-        LOG("can't allocate for serstrsmall " << SERIALIZEDMAXSIZE);
+        LOG("can't allocate for serstrsmall " << GWBUFSIZE);
         return; // probably should die here
     }
     char *cstrbig=nullptr;
     char *cstr=nullptr;
     bool iscstrbig=false;
     char *sendstr=nullptr;
-    cstrsmall=new (std::nothrow) char[SERIALIZEDMAXSIZE];
+    cstrsmall=new (std::nothrow) char[GWBUFSIZE];
     if (cstrsmall==nullptr)
     {
-        LOG("can't allocate for cstrsmall " << SERIALIZEDMAXSIZE);
+        LOG("can't allocate for cstrsmall " << GWBUFSIZE);
         return; // probably should die here
     }
     size_t sendsize=0;
@@ -110,7 +110,7 @@ void ObGateway::operator()()
                 continue;
             }
             // format is: total size, [msgsize, msg]...
-            if (s>SERIALIZEDMAXSIZE)
+            if (s>GWBUFSIZE)
             {
                 serstrbig=new (std::nothrow) char[s];
                 serstr=serstrbig;
@@ -135,7 +135,7 @@ void ObGateway::operator()()
       
             // compress
             int cbound=LZ4_compressBound(s);
-            if (cbound+sizeof(size_t) > SERIALIZEDMAXSIZE)
+            if (cbound+sizeof(size_t) > GWBUFSIZE)
             {
                 cstrbig=new (std::nothrow) char[cbound+sizeof(size_t)];
                 if (cstrbig==nullptr)
@@ -158,6 +158,13 @@ void ObGateway::operator()()
             sendstr=cstr;
             sendsize=csize;
 
+            if (!nodeidToSocket[it->first])
+            {
+                if (myTopology.update()==true)
+                {
+                    updateRemoteGateways();
+                }                
+            }
             if (send(nodeidToSocket[it->first], sendstr, sendsize, 0)==-1)
             {
                 LOG("send() problem");

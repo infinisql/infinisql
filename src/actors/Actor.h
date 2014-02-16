@@ -34,11 +34,10 @@
 #include "Topology.h"
 
 #define GWBUFSIZE 16777216
-#define SERIALIZEDMAXSIZE   1048576
-
-class Mbox;
 
 extern std::atomic<int64_t> *socketAffinity;
+
+class UserSchemaOperation;
 
 class Actor
 {
@@ -62,9 +61,62 @@ public:
     void operator()() const;
     virtual ~Actor();
 
+    int64_t getnextuserschemaoperationdid();
+    /** 
+     * @brief read next available message, deserialize it if from remote node
+     *
+     * places message in msgrcv
+     *
+     * @param timeout timeout to wait in microseconds
+     */
+    void getmsg(int timeout);
+    /** 
+     * @brief send MessageBatch to ObGateway, should be called between mbox
+     * receive sets
+     */
+    void sendObBatch();
+    /** 
+     * @brief send message. if local, put in recipient's mailbox. if remote,
+     * create and/or append to batch for ObGateway
+     *
+     * @param msg message to send
+     */
+    void sendMsg(Message &msg);
+    /** 
+     * @brief set sender and destination addresses on message header
+     *
+     * @param sourceAddress sender address (this actor)
+     * @param destinationAddress destination address
+     * @param msg message
+     */
+    void setEnvelope(const Message::address_s &sourceAddress,
+                     const Message::address_s &destinationAddress,
+                     Message &msg);
+    /** 
+     * @brief send message to specific actor
+     *
+     * also populates sender address
+     *
+     * @param destinationAddress destination actor address
+     * @param msg message to send
+     */
+    void toActor(const Message::address_s &destinationAddress, Message &msg);
+    /** 
+     * @brief send message to UserSchemaManager, and populates sender address
+     *
+     * @param msg message to send
+     */
+    void toUserSchemaManager(Message &msg);
+
     identity_s identity;
     Message *msgrcv;
     TopologyDistinct myTopology;
+    int64_t nextuserschemaoperationid;
+    std::unordered_map<int64_t, UserSchemaOperation *> userSchemaOperations;
+
+    Message reuseMessage;
+    MessageSocket reuseMessageSocket;
+    MessageUserSchema reuseMessageUserSchema;
 };
 
 #endif // INFINISQLACTOR_H

@@ -43,7 +43,9 @@ Topology::~Topology()
     
 }
 
-TopologyDistinct::TopologyDistinct() : topologyVersion(0)
+TopologyDistinct::TopologyDistinct()
+    : topologyVersion(0), obGateway(nullptr), obBatch(nullptr),
+      userSchemaManager()
 {
     
 }

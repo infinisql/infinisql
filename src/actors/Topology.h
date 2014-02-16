@@ -67,6 +67,9 @@ public:
     bool update();
 
     int topologyVersion;
+    Mbox *obGateway;
+    MessageBatch *obBatch;
+    Message::address_s userSchemaManager;
 };
 
 extern Topology nodeTopology;
