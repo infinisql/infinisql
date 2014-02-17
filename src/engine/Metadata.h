@@ -98,15 +98,19 @@ public:
     int16_t id;
     std::string name;
 
-    std::shared_ptr<Catalog> parentCatalog;
-    std::shared_ptr<Schema> parentSchema;
-    std::shared_ptr<Table> parentTable;
+    Catalog *parentCatalog;
+    Schema *parentSchema;
+    Table *parentTable;
     int16_t parentcatalogid;
     int16_t parentschemaid;
     int16_t parenttableid;
 
     lmdbinfo_s lmdbinfo;
 };
+
+void ser(const Metadata &d, Serdes &output);
+size_t sersize(const Metadata &d);
+void des(Serdes &input, Metadata &d);
 
 #include "Catalog.h"
 

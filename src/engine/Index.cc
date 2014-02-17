@@ -35,7 +35,7 @@ Index::Index() : Metadata ()
     
 }
 
-Index::Index(std::shared_ptr<Table> parentTablearg, const std::string &namearg)
+Index::Index(Table *parentTablearg, const std::string &namearg)
 {
     if (parentTablearg->parentCatalog->indexName2Id.count(namearg))
     {
@@ -103,4 +103,24 @@ void Index::getparents()
 int Index::dbOpen()
 {
     return Metadata::dbOpen(MDB_DUPSORT);
+}
+
+void ser(const Index &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.fieldids, output);
+    ser(d.isunique, output);
+}
+
+size_t sersize(const Index &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.fieldids) +
+        sersize(d.isunique);
+}
+
+void des(Serdes &input, Index &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.fieldids);
+    des(input, d.isunique);
 }

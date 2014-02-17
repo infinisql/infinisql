@@ -164,3 +164,28 @@ int Catalog::deleteEnvironment(std::string path)
     string lock=p + "lock.mdb";
     return remove(lock.c_str());
 }
+
+void ser(const Catalog &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.nextuserid, output);
+    ser(d.nextschemaid, output);
+    ser(d.nexttableid, output);
+    ser(d.nextindexid, output);
+}
+
+size_t sersize(const Catalog &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.nextuserid) +
+        sersize(d.nextschemaid) + sersize(d.nexttableid) +
+        sersize(d.nextindexid);
+}
+
+void des(Serdes &input, Catalog &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.nextuserid);
+    des(input, d.nextschemaid);
+    des(input, d.nexttableid);
+    des(input, d.nextindexid);
+}

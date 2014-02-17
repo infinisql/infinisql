@@ -35,7 +35,7 @@ Table::Table() : Metadata (), nextfieldid (-1)
     
 }
 
-Table::Table(std::shared_ptr<Schema> parentSchemaarg, const std::string &namearg) : nextfieldid (-1)
+Table::Table(Schema *parentSchemaarg, const std::string &namearg) : nextfieldid (-1)
 {
     if (parentSchemaarg->parentCatalog->tableName2Id.count(namearg))
     {
@@ -112,4 +112,26 @@ int16_t Table::getnextfieldid()
 int Table::dbOpen()
 {
     return Metadata::dbOpen(0);
+}
+
+void ser(const Table &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.nextfieldid, output);
+    ser(d.partitiongroupname, output);
+    ser(d.partitiongroupid, output);
+}
+
+size_t sersize(const Table &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.nextfieldid) +
+        sersize(d.partitiongroupname) + sersize(d.partitiongroupid);
+}
+
+void des(Serdes &input, Table &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.nextfieldid);
+    des(input, d.partitiongroupname);
+    des(input, d.partitiongroupid);
 }

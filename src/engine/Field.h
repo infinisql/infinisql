@@ -320,7 +320,7 @@ public:
      * @param name field name
      * @param type field type
      */
-    Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg);
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg);
     /** 
      * @brief create Field
      *
@@ -328,7 +328,7 @@ public:
      * @param type field type
      * @param arg1 parameter to create field
      */
-    Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg);
     /** 
      * @brief create Field
@@ -338,7 +338,7 @@ public:
      * @param arg1 1st parameter to create field
      * @param arg2 2nd parameter to create field
      */
-    Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
+    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
           int64_t arg1arg, int64_t arg2arg);
     Field(const Field &orig);
     Field &operator= (const Field &orig);
@@ -361,7 +361,7 @@ public:
      * 
      * @return 
      */
-    bool initializer(std::shared_ptr<Table> parentTablearg, const std::string& namearg);
+    bool initializer(Table *parentTablearg, const std::string& namearg);
     /** 
      * @brief get metadata parent information from parentTable
      *
@@ -443,5 +443,21 @@ public:
     FieldValue defaultValue;
     bool nullconstraint;
 };
+
+void ser(FieldValue::valtype_e d, Serdes &output);
+size_t sersize(FieldValue::valtype_e d);
+void des(Serdes &input, FieldValue::valtype_e &d);
+
+void ser(const FieldValue &d, Serdes &output);
+size_t sersize(const FieldValue &d);
+void des(Serdes &input, FieldValue &d);
+
+void ser(Field::type_e d, Serdes &output);
+size_t sersize(Field::type_e d);
+void des(Serdes &input, Field::type_e &d);
+
+void ser(const Field &d, Serdes &output);
+size_t sersize(const Field &d);
+void des(Serdes &input, Field &d);
 
 #endif // INFINISQLFIELD_H

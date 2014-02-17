@@ -145,3 +145,27 @@ int Metadata::dbDrop()
     retval=mdb_txn_commit(lmdbinfo.txn);
     return retval;    
 }
+
+void ser(const Metadata &d, Serdes &output)
+{
+    ser(d.id, output);
+    ser(d.name, output);
+    ser(d.parentcatalogid, output);
+    ser(d.parentschemaid, output);
+    ser(d.parenttableid, output);
+}
+
+size_t sersize(const Metadata &d)
+{
+    return sersize(d.id) + sersize(d.name) + sersize(d.parentcatalogid) +
+        sersize(d.parentschemaid) + sersize(d.parenttableid);
+}
+
+void des(Serdes &input, Metadata &d)
+{
+    des(input, d.id);
+    des(input, d.name);
+    des(input, d.parentcatalogid);
+    des(input, d.parentschemaid);
+    des(input, d.parenttableid);
+}

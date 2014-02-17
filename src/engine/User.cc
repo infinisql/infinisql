@@ -34,7 +34,7 @@ User::User() : Metadata ()
     
 }
 
-User::User(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg,
+User::User(Catalog *parentCatalogarg, const std::string &namearg,
            std::string &passwordarg)
     : password (passwordarg)
 {
@@ -97,4 +97,21 @@ void User::getparents()
     parentcatalogid=parentCatalog->id;
     parentschemaid=-1;
     parenttableid=-1;
+}
+
+void ser(const User &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.password, output);
+}
+
+size_t sersize(const User &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.password);
+}
+
+void des(Serdes &input, User &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.password);
 }

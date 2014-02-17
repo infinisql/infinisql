@@ -34,7 +34,7 @@ class Index : public Metadata
 {
 public:
     Index();
-    Index(std::shared_ptr<Table> parentTableArg, const std::string& namearg);
+    Index(Table *parentTableArg, const std::string& namearg);
     Index(const Index &orig);
     Index &operator= (const Index &orig);
     /** 
@@ -63,6 +63,13 @@ public:
      * @return return value from mdb_dbi_open()
      */
     int dbOpen();
+
+    std::vector<int16_t> fieldids;
+    bool isunique;
 };
+
+void ser(const Index &d, Serdes &output);
+size_t sersize(const Index &d);
+void des(Serdes &input, Index &d);
 
 #endif // INFINISQLINDEX_H

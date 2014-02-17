@@ -37,7 +37,7 @@ class Schema : public Metadata
 {
 public:
     Schema();
-    Schema(std::shared_ptr<Catalog> parentCatalogarg, const std::string& namearg);
+    Schema(Catalog *parentCatalogarg, const std::string& namearg);
     Schema(const Schema &orig);
     Schema &operator= (const Schema &orig);
     ~Schema();
@@ -57,8 +57,8 @@ public:
     std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
 
+void ser(const Schema &d, Serdes &output);
+size_t sersize(const Schema &d);
+void des(Serdes &input, Schema &d);
+
 #endif // INFINISQLSCHEMA_H
-
-
-
-

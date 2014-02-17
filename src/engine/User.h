@@ -43,7 +43,7 @@ public:
      *
      * @return 
      */
-    User(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg,
+    User(Catalog *parentCatalogarg, const std::string &namearg,
          std::string &passwordarg);
     User(const User &orig);
     User &operator= (const User &orig);
@@ -69,5 +69,9 @@ public:
 
     std::string password;
 };
+
+void ser(const User &d, Serdes &output);
+size_t sersize(const User &d);
+void des(Serdes &input, User &d);
 
 #endif // INFINISQLUSER_H

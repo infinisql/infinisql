@@ -259,7 +259,6 @@ void Serdes::des(decimal *&d)
     d = new decimal{st};
 }
 
-
 void Serdes::ser(void *d, size_t dsize)
 {
     memcpy((char *)val.mv_data+pos, d, dsize);
@@ -351,17 +350,62 @@ void des(Serdes &input, int64_t &d)
     despod(input, d);
 }
 
-void ser(size_t d, Serdes &output)
+void ser(uint8_t d, Serdes &output)
 {
     serpod(d, output);
 }
 
-size_t sersize(size_t d)
+size_t sersize(uint8_t d)
 {
     return sizeof(d);
 }
 
-void des(Serdes &input, size_t &d)
+void des(Serdes &input, uint8_t &d)
+{
+    despod(input, d);
+}
+
+void ser(uint16_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(uint16_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, uint16_t &d)
+{
+    despod(input, d);
+}
+
+void ser(uint32_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(uint32_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, uint32_t &d)
+{
+    despod(input, d);
+}
+
+void ser(uint64_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(uint64_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, uint64_t &d)
 {
     despod(input, d);
 }
@@ -431,7 +475,7 @@ void ser(const std::string &d, Serdes &output)
     size_t s=d.size();
     ser(s, output);
     memcpy((char *)output.val.mv_data+output.pos, d.c_str(), s);
-    output.pos+=s;
+    output.pos += s;
 }
 
 size_t sersize(const std::string &d)
@@ -444,16 +488,29 @@ void des(Serdes &input, std::string &d)
     size_t s;
     des(input, s);
     d.assign((const char *)input.val.mv_data+input.pos, s);
-    input.pos+=s;
+    input.pos += s;
 }
 
 void ser(const std::string &d, size_t dsize, Serdes &output)
 {
-    memcpy((char *)output.val.mv_data, d.c_str(), dsize);
+    memcpy((char *)output.val.mv_data+output.pos, d.c_str(), dsize);
+    output.pos += dsize;
 }
 
 void des(Serdes &input, std::string &d, size_t dsize)
 {
     d.assign((const char *)input.val.mv_data+input.pos, dsize);
-    input.pos+=dsize;
+    input.pos += dsize;
+}
+
+void ser(const void *d, size_t dsize, Serdes &output)
+{
+    memcpy((char *)output.val.mv_data+output.pos, d, dsize);
+    output.pos += dsize;
+}
+
+void des(Serdes &input, void *d, size_t dsize)
+{
+    memcpy(d, (char *)input.val.mv_data+input.pos, dsize);
+    input.pos += dsize;
 }

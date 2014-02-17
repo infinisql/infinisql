@@ -37,7 +37,7 @@ class Table : public Metadata
 {
 public:
     Table();
-    Table(std::shared_ptr<Schema> parentSchemaarg, const std::string &namearg);
+    Table(Schema *parentSchemaarg, const std::string &namearg);
     Table(const Table &orig);
     Table &operator= (const Table &orig);
     /** 
@@ -84,5 +84,9 @@ public:
     std::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
     std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
+
+void ser(const Table &d, Serdes &output);
+size_t sersize(const Table &d);
+void des(Serdes &input, Table &d);
 
 #endif // INFINISQLTABLE_H

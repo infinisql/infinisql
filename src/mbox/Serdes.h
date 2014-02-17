@@ -370,9 +370,18 @@ void des(Serdes &input, int32_t &d);
 void ser(int64_t d, Serdes &output);
 size_t sersize(int64_t d);
 void des(Serdes &input, int64_t &d);
-void ser(size_t d, Serdes &output);
-size_t sersize(size_t d);
-void des(Serdes &input, size_t &d);
+void ser(uint8_t d, Serdes &output);
+size_t sersize(uint8_t d);
+void des(Serdes &input, uint8_t &d);
+void ser(uint16_t d, Serdes &output);
+size_t sersize(uint16_t d);
+void des(Serdes &input, uint16_t &d);
+void ser(uint32_t d, Serdes &output);
+size_t sersize(uint32_t d);
+void des(Serdes &input, uint32_t &d);
+void ser(uint64_t d, Serdes &output);
+size_t sersize(uint64_t d);
+void des(Serdes &input, uint64_t &d);
 void ser(float d, Serdes &output);
 size_t sersize(float d);
 void des(Serdes &input, float &d);
@@ -409,7 +418,7 @@ size_t sersize(std::vector<T> d)
     return retval;
 }
 
-template < typename T, typename U >
+template < typename T >
 void des(Serdes &input, std::vector<T> &d)
 {
     size_t s;
@@ -466,6 +475,49 @@ void des(Serdes &input, std::map<T, U> &d)
     }
 }
 
+template < typename T, typename U >
+void ser(std::unordered_map<T, U> d, Serdes &output)
+{
+    // nelem, item[, item, ...]
+    size_t s=d.size();
+    ser(s, output);
+    typename std::unordered_map<T, U>::iterator it;
+    for (it = d.begin(); it != d.end(); ++it)
+    {
+        ser(it->first, output);
+        ser(it->second, output);
+    }
+}
+
+template < typename T, typename U >
+size_t sersize(std::unordered_map<T, U> d)
+{
+    size_t retval=sizeof(size_t);
+    typename std::unordered_map<T, U>::iterator it;
+    for (it = d.begin(); it != d.end(); ++it)
+    {
+        retval += sersize(it->first);
+        retval += sersize(it->second);
+    }
+
+    return retval;
+}
+
+template < typename T, typename U, typename V, typename W >
+void des(Serdes &input, std::unordered_map<T, U> &d)
+{
+    size_t s;
+    des(input, s);
+    T key;
+    U val;
+    for (size_t n=0; n < s; ++n)
+    {
+        des(input, key);
+        des(input, val);
+        d[key]=val;
+    }
+}
+
 /* for string with length prepended in serialization object */
 void ser(const std::string &d, Serdes &output);
 size_t sersize(const std::string &d);
@@ -474,5 +526,9 @@ void des(Serdes &input, std::string &d);
 /* for string with length not in serialization object */
 void ser(const std::string &d, size_t dsize, Serdes &output);
 void des(Serdes &input, std::string &d, size_t dsize);
+
+/* for arbitrary data */
+void ser(const void *d, size_t dsize, Serdes &output);
+void des(Serdes &input, void *d, size_t dsize);
 
 #endif // INFINISQLSERDES_H

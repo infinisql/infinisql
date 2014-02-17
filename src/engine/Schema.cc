@@ -33,7 +33,7 @@ Schema::Schema() : Metadata()
     
 }
 
-Schema::Schema(std::shared_ptr<Catalog> parentCatalogarg, const std::string &namearg)
+Schema::Schema(Catalog *parentCatalogarg, const std::string &namearg)
 {
     if (parentCatalogarg->schemaName2Id.count(namearg))
     {
@@ -85,4 +85,19 @@ void Schema::getparents()
     parentcatalogid=parentCatalog->id;
     parentschemaid=-1;
     parenttableid=-1;
+}
+
+void ser(const Schema &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+}
+
+size_t sersize(const Schema &d)
+{
+    return sersize((const Metadata &)d);
+}
+
+void des(Serdes &input, Schema &d)
+{
+    des(input, (Metadata &)d);
 }

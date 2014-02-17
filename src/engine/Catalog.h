@@ -139,4 +139,8 @@ public:
     std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
 };
 
+void ser(const Catalog &d, Serdes &output);
+size_t sersize(const Catalog &d);
+void des(Serdes &input, Catalog &d);
+
 #endif // INFINISQLCATALOG_H

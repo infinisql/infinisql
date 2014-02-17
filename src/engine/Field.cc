@@ -382,7 +382,7 @@ Field::Field() :
 	defaultValue.nullify();
 }
 
-Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg) :
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) :
 		Field() {
 	type = typearg;
 
@@ -430,7 +430,7 @@ Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, 
 	}
 }
 
-Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg) :
 		Field() {
 	type = typearg;
@@ -487,7 +487,7 @@ Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, 
 	}
 }
 
-Field::Field(std::shared_ptr<Table> parentTablearg, const std::string& namearg, type_e typearg,
+Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 		int64_t arg1arg, int64_t arg2arg) :
 		Field() {
 	type = typearg;
@@ -523,7 +523,7 @@ Field::~Field() {
 
 }
 
-bool Field::initializer(std::shared_ptr<Table> parentTablearg, const std::string& namearg) {
+bool Field::initializer(Table *parentTablearg, const std::string& namearg) {
 	if (parentTablearg->fieldName2Id.count(namearg)) {
 		id = -1;
 		return false;
@@ -1104,3 +1104,111 @@ void Field::convertValue(FieldValue &fieldValue) {
 	}
 }
 
+void ser(FieldValue::valtype_e d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(FieldValue::valtype_e d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, FieldValue::valtype_e &d)
+{
+    despod(input, d);
+}
+
+void ser(const FieldValue &d, Serdes &output)
+{
+    ser(d.valtype, output);
+    ser(&d.value, sizeof(d.value), output);
+}
+
+size_t sersize(const FieldValue &d)
+{
+    return sersize(d.valtype) + sizeof(d.value);
+}
+
+void des(Serdes &input, FieldValue &d)
+{
+    des(input, d.valtype);
+    des(input, &d.value, sizeof(d.value));
+}
+
+void ser(Field::type_e d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(Field::type_e d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, Field::type_e &d)
+{
+    despod(input, d);
+}
+
+void ser(const Field &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.type, output);
+    ser(d.size, output);
+    ser(d.precision, output);
+    ser(d.scale, output);
+}
+
+size_t sersize(const Field &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.type) + sersize(d.size) +
+        sersize(d.precision) + sersize(d.scale);
+}
+
+void des(Serdes &input, Field &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.type);
+    des(input, d.size);
+    des(input, d.precision);
+    des(input, d.scale);
+}
+
+/*
+void ser(const FieldValue &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.type, output);
+}
+
+size_t sersize(const Field &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.password);
+}
+
+void des(Serdes &input, Field &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.password);
+}
+
+
+void ser(const FieldValue &d, Serdes &output)
+{
+    ser((const Metadata &)d, output);
+    ser(d.type, output);
+}
+
+size_t sersize(const Field &d)
+{
+    return sersize((const Metadata &)d) + sersize(d.password);
+}
+
+void des(Serdes &input, Field &d)
+{
+    des(input, (Metadata &)d);
+    des(input, d.password);
+}
+
+*/
