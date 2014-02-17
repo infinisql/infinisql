@@ -104,18 +104,6 @@ public:
     virtual ~Message();
 
     /** 
-     * @brief serialize message
-     *
-     * @param output output object
-     */
-    void ser(Serdes &output);
-    /** 
-     * @brief size of serialized message
-     *
-     * @return size
-     */
-    size_t sersize();
-    /** 
      * @brief serialize entire message, create and return object
      *
      *
@@ -133,13 +121,6 @@ public:
      * @return resultant message
      */
     static Message *deserialize(Serdes &input);
-    /** 
-     * @brief set source and destination addresses for message
-     *
-     * @param sourceAddress source address
-     * @param destinationAddress destination address
-     */
-    void setEnvelope(address_s &sourceAddress, address_s &destinationAddress);
 
     __int128 nextmsg;
     message_s message;
@@ -157,10 +138,6 @@ public:
     MessageSocket();
     MessageSocket(topic_e topic, int16_t destnodeid, int sockfd,
                   uint32_t events);
-
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
 
     socketdata_s socketdata;
 };
@@ -203,9 +180,6 @@ public:
     
     MessageTransaction();
     virtual ~MessageTransaction();
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
 
     transactiondata_s transactiondata;
 };
@@ -262,10 +236,6 @@ public:
 
     MessageUserSchema();
 
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
-
     userschemadata_s userschemadata;
 
     std::string name;
@@ -284,9 +254,6 @@ public:
     };
     
     MessageUserSchemaReply();
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
 
     userschemareplydata_s userschemareplydata;
 };
@@ -313,5 +280,25 @@ public:
 
     Serdes serializeddata;
 };
+
+void ser(const Message &d, Serdes &output);
+size_t sersize(const Message &d);
+void des(Serdes &input, Message &d);
+
+void ser(const MessageSocket &d, Serdes &output);
+size_t sersize(const MessageSocket &d);
+void des(Serdes &input, MessageSocket &d);
+
+void ser(const MessageTransaction &d, Serdes &output);
+size_t sersize(const MessageTransaction &d);
+void des(Serdes &input, MessageTransaction &d);
+
+void ser(const MessageUserSchema &d, Serdes &output);
+size_t sersize(const MessageUserSchema &d);
+void des(Serdes &input, MessageUserSchema &d);
+
+void ser(const MessageUserSchemaReply &d, Serdes &output);
+size_t sersize(const MessageUserSchemaReply &d);
+void des(Serdes &input, MessageUserSchemaReply &d);
 
 #endif // INFINISQLMESSAGE_H

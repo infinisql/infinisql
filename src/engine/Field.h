@@ -258,25 +258,6 @@ public:
      * @return true if null, false if not null
      */
     bool getnull();
-    /** 
-     * @brief serialize to character array
-     *
-     * @param output 
-     *
-     * @return size of serialized object
-     */
-    void ser(Serdes &output);
-    /** 
-     * @brief get size of object if serialized
-     *
-     */
-    size_t sersize();
-    /** 
-     *
-     * @param input input serialized object
-     *
-     */
-    void des(Serdes &input);
     
     valtype_e valtype;
     value_u value;
@@ -368,30 +349,6 @@ public:
      */
     void getparents();
     
-    /** 
-     * @brief serialize to character array
-     *
-     * don't serialize tablePtr because that will be different next time
-     * the Field is loaded. Plus, it will be loaded after its Table
-     *
-     * @param output 
-     *
-     * @return size of serialized object
-     */
-    void ser(Serdes &output);
-    /** 
-     * @brief get size of object if serialized
-     *
-     */
-    size_t sersize();
-    /** 
-     * @brief deserialize from byte array
-     *
-     * @param input array to deserialize from
-     *
-     */
-    void des(Serdes &input);
-
     /** 
      * @brief serialize a field value, such as into an LMDB value
      *

@@ -73,23 +73,6 @@ User::~User()
     
 }
 
-void User::ser(Serdes &output)
-{
-    Metadata::ser(output);
-    output.ser(password);
-}
-
-size_t User::sersize()
-{
-    return Metadata::sersize() + Serdes::sersize(password);
-}
-
-void User::des(Serdes &input)
-{
-    Metadata::des(input);
-    input.des(password);
-}
-
 void User::getparents()
 {
     parentSchema=nullptr;

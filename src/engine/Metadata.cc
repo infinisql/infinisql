@@ -60,31 +60,6 @@ Metadata::Metadata(const Metadata &orig)
 Metadata::~Metadata() {
 }
 
-void Metadata::ser(Serdes &output)
-{
-    output.ser(id);
-    output.ser(name);
-    output.ser(parentcatalogid);
-    output.ser(parentschemaid);
-    output.ser(parenttableid);
-}
-
-size_t Metadata::sersize()
-{
-    return Serdes::sersize(id) + Serdes::sersize(name) +
-        Serdes::sersize(parentcatalogid) + Serdes::sersize(parentschemaid) +
-        Serdes::sersize(parenttableid);
-}
-
-void Metadata::des(Serdes &input)
-{
-    input.des(id);
-    input.des(name);
-    input.des(parentcatalogid);
-    input.des(parentschemaid);
-    input.des(parenttableid);
-}
-
 int Metadata::dbOpen(unsigned int flags)
 {
     char dbname[sizeof(parentcatalogid)+sizeof(parentschemaid)+sizeof(id)+1]={};

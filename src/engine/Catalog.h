@@ -63,10 +63,6 @@ public:
     
     ~Catalog();
 
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
-    
     /** 
      * @brief userid generator
      *

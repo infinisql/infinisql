@@ -51,10 +51,6 @@ public:
     void cp(const Table &orig);
     ~Table();
 
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
-
     /** 
      * @brief fieldid generator
      *

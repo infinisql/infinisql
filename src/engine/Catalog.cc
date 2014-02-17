@@ -64,35 +64,6 @@ Catalog::~Catalog()
 {
 }
 
-void Catalog::ser(Serdes &output)
-{
-    Metadata::ser(output);
-    output.ser(nextuserid);
-    output.ser(nextschemaid);
-    output.ser(nexttableid);
-    output.ser(nextindexid);
-}
-
-size_t Catalog::sersize()
-{
-    size_t retval=Metadata::sersize();
-    retval+=Serdes::sersize(nextuserid);
-    retval+=Serdes::sersize(nextschemaid);
-    retval+=Serdes::sersize(nexttableid);
-    retval+=Serdes::sersize(nextindexid);
-
-    return retval;
-}
-
-void Catalog::des(Serdes &input)
-{
-    Metadata::des(input);
-    input.des(nextuserid);
-    input.des(nextschemaid);
-    input.des(nexttableid);
-    input.des(nextindexid);
-}
-
 int16_t Catalog::getnextuserid()
 {
     return ++nextuserid;

@@ -76,21 +76,6 @@ Index::~Index()
 {
 }
 
-void Index::ser(Serdes &output)
-{
-    Metadata::ser(output);
-}
-
-size_t Index::sersize()
-{
-    return Metadata::sersize();
-}
-
-void Index::des(Serdes &input)
-{
-    Metadata::des(input);
-}
-
 void Index::getparents()
 {
     parentCatalog=parentTable->parentCatalog;

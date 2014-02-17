@@ -63,21 +63,6 @@ Schema::~Schema()
     
 }
 
-void Schema::ser(Serdes &output)
-{
-    Metadata::ser(output);
-}
-
-size_t Schema::sersize()
-{
-    return Metadata::sersize();
-}
-
-void Schema::des(Serdes &input)
-{
-    Metadata::des(input);
-}
-
 void Schema::getparents()
 {
     parentSchema=nullptr;

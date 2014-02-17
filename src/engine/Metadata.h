@@ -64,10 +64,6 @@ public:
     Metadata(const Metadata &orig);
     virtual ~Metadata();
 
-    void ser(Serdes &output);
-    size_t sersize();
-    void des(Serdes &input);
-
     /** 
      * @brief create new or open existing database for table
      *

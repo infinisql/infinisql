@@ -73,28 +73,6 @@ Table::~Table()
 {
 }
 
-void Table::ser(Serdes &output)
-{
-    Metadata::ser(output);
-    output.ser(nextfieldid);
-    output.ser(partitiongroupname);
-    output.ser(partitiongroupid);
-}
-
-size_t Table::sersize()
-{
-    return Metadata::sersize() + Serdes::sersize(nextfieldid) +
-        Serdes::sersize(partitiongroupname) + Serdes::sersize(partitiongroupid);
-}
-
-void Table::des(Serdes &input)
-{
-    Metadata::des(input);
-    input.des(nextfieldid);
-    input.des(partitiongroupname);
-    input.des(partitiongroupid);
-}
-
 void Table::getparents()
 {
     parentCatalog=parentSchema->parentCatalog;
