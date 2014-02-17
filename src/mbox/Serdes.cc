@@ -350,3 +350,110 @@ void des(Serdes &input, int64_t &d)
 {
     despod(input, d);
 }
+
+void ser(size_t d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(size_t d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, size_t &d)
+{
+    despod(input, d);
+}
+
+void ser(float d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(float d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, float &d)
+{
+    despod(input, d);
+}
+
+void ser(double d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(double d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, double &d)
+{
+    despod(input, d);
+}
+
+void ser(char d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(char d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, char &d)
+{
+    despod(input, d);
+}
+
+void ser(bool d, Serdes &output)
+{
+    serpod(d, output);
+}
+
+size_t sersize(bool d)
+{
+    return sizeof(d);
+}
+
+void des(Serdes &input, bool &d)
+{
+    despod(input, d);
+}
+
+void ser(const std::string &d, Serdes &output)
+{
+    size_t s=d.size();
+    ser(s, output);
+    memcpy((char *)output.val.mv_data+output.pos, d.c_str(), s);
+    output.pos+=s;
+}
+
+size_t sersize(const std::string &d)
+{
+    return sizeof(size_t) + d.size();
+}
+
+void des(Serdes &input, std::string &d)
+{
+    size_t s;
+    des(input, s);
+    d.assign((const char *)input.val.mv_data+input.pos, s);
+    input.pos+=s;
+}
+
+void ser(const std::string &d, size_t dsize, Serdes &output)
+{
+    memcpy((char *)output.val.mv_data, d.c_str(), dsize);
+}
+
+void des(Serdes &input, std::string &d, size_t dsize)
+{
+    d.assign((const char *)input.val.mv_data+input.pos, dsize);
+    input.pos+=dsize;
+}

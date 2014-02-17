@@ -36,6 +36,9 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <vector>
+#include <map>
+#include <unordered_map>
 #include <lmdb.h>
 
 #include "../decimal/decnum.h"
@@ -367,5 +370,109 @@ void des(Serdes &input, int32_t &d);
 void ser(int64_t d, Serdes &output);
 size_t sersize(int64_t d);
 void des(Serdes &input, int64_t &d);
+void ser(size_t d, Serdes &output);
+size_t sersize(size_t d);
+void des(Serdes &input, size_t &d);
+void ser(float d, Serdes &output);
+size_t sersize(float d);
+void des(Serdes &input, float &d);
+void ser(double d, Serdes &output);
+size_t sersize(double d);
+void des(Serdes &input, double &d);
+void ser(char d, Serdes &output);
+size_t sersize(char d);
+void des(Serdes &input, char &d);
+void ser(bool d, Serdes &output);
+size_t sersize(bool d);
+void des(Serdes &input, bool &d);
+
+template < typename T >
+void ser(std::vector<T> d, Serdes &output)
+{
+    // nelem, item[, item, ...]
+    size_t s=d.size();
+    ser(s, output);
+    for (size_t n=0; n < d.size(); ++n)
+    {
+        ser(d[n], output);
+    }
+}
+
+template < typename T >
+size_t sersize(std::vector<T> d)
+{
+    size_t retval=sizeof(size_t);
+    for (size_t n=0; n < d.size(); ++n)
+    {
+        retval += sersize(d[n]);
+    }
+    return retval;
+}
+
+template < typename T, typename U >
+void des(Serdes &input, std::vector<T> &d)
+{
+    size_t s;
+    des(input, s);
+    d.reserve(s);
+    T val;
+    for (size_t n=0; n < s; ++n)
+    {
+        des(input, val);
+        d.push_back(val);
+    }
+}
+
+template < typename T, typename U >
+void ser(std::map<T, U> d, Serdes &output)
+{
+    // nelem, item[, item, ...]
+    size_t s=d.size();
+    ser(s, output);
+    typename std::map<T, U>::iterator it;
+    for (it = d.begin(); it != d.end(); ++it)
+    {
+        ser(it->first, output);
+        ser(it->second, output);
+    }
+}
+
+template < typename T, typename U >
+size_t sersize(std::map<T, U> d)
+{
+    size_t retval=sizeof(size_t);
+    typename std::map<T, U>::iterator it;
+    for (it = d.begin(); it != d.end(); ++it)
+    {
+        retval += sersize(it->first);
+        retval += sersize(it->second);
+    }
+
+    return retval;
+}
+
+template < typename T, typename U, typename V, typename W >
+void des(Serdes &input, std::map<T, U> &d)
+{
+    size_t s;
+    des(input, s);
+    T key;
+    U val;
+    for (size_t n=0; n < s; ++n)
+    {
+        des(input, key);
+        des(input, val);
+        d[key]=val;
+    }
+}
+
+/* for string with length prepended in serialization object */
+void ser(const std::string &d, Serdes &output);
+size_t sersize(const std::string &d);
+void des(Serdes &input, std::string &d);
+
+/* for string with length not in serialization object */
+void ser(const std::string &d, size_t dsize, Serdes &output);
+void des(Serdes &input, std::string &d, size_t dsize);
 
 #endif // INFINISQLSERDES_H
