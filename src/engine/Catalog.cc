@@ -23,8 +23,6 @@
  * @date   Mon Jan 13 08:14:02 2014
  * 
  * @brief  catalog is a collection of schemata and users
- * 
- * 
  */
 
 #include "Catalog.h"
@@ -139,24 +137,14 @@ int Catalog::deleteEnvironment(std::string path)
 void ser(const Catalog &d, Serdes &output)
 {
     ser((const Metadata &)d, output);
-    ser(d.nextuserid, output);
-    ser(d.nextschemaid, output);
-    ser(d.nexttableid, output);
-    ser(d.nextindexid, output);
 }
 
 size_t sersize(const Catalog &d)
 {
-    return sersize((const Metadata &)d) + sersize(d.nextuserid) +
-        sersize(d.nextschemaid) + sersize(d.nexttableid) +
-        sersize(d.nextindexid);
+    return sersize((const Metadata &)d);
 }
 
 void des(Serdes &input, Catalog &d)
 {
     des(input, (Metadata &)d);
-    des(input, d.nextuserid);
-    des(input, d.nextschemaid);
-    des(input, d.nexttableid);
-    des(input, d.nextindexid);
 }

@@ -31,7 +31,7 @@
 
 Metadata::Metadata() : id(-1), parentCatalog(nullptr), parentSchema(nullptr),
                        parentTable(nullptr), parentcatalogid(-1),
-                       parentschemaid(-1), parenttableid(-1),
+                       parentschemaid(-1), parenttableid(-1), versionid(-1),
                        lmdbinfo({nullptr, nullptr, nullptr, 0})
 {
     
@@ -40,7 +40,8 @@ Metadata::Metadata() : id(-1), parentCatalog(nullptr), parentSchema(nullptr),
 Metadata::Metadata(int16_t id, std::string name)
     : id(id), name(name), parentCatalog(nullptr), parentSchema(nullptr),
       parentTable(nullptr), parentcatalogid(-1), parentschemaid(-1),
-      parenttableid(-1), lmdbinfo({nullptr, nullptr, nullptr, 0})
+      parenttableid(-1), versionid(-1),
+      lmdbinfo({nullptr, nullptr, nullptr, 0})
 {
     
 }
@@ -55,6 +56,7 @@ Metadata::Metadata(const Metadata &orig)
     parentcatalogid=orig.parentcatalogid;
     parentschemaid=orig.parentschemaid;
     parenttableid=orig.parenttableid;
+    versionid=orig.versionid;
 }
 
 Metadata::~Metadata() {
@@ -128,12 +130,14 @@ void ser(const Metadata &d, Serdes &output)
     ser(d.parentcatalogid, output);
     ser(d.parentschemaid, output);
     ser(d.parenttableid, output);
+    ser(d.versionid, output);
 }
 
 size_t sersize(const Metadata &d)
 {
     return sersize(d.id) + sersize(d.name) + sersize(d.parentcatalogid) +
-        sersize(d.parentschemaid) + sersize(d.parenttableid);
+        sersize(d.parentschemaid) + sersize(d.parenttableid) +
+        sersize(d.versionid);
 }
 
 void des(Serdes &input, Metadata &d)
@@ -143,4 +147,5 @@ void des(Serdes &input, Metadata &d)
     des(input, d.parentcatalogid);
     des(input, d.parentschemaid);
     des(input, d.parenttableid);
+    des(input, d.versionid);
 }

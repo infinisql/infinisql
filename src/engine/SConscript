@@ -5,7 +5,7 @@ isql_env.Append(LIBS=['tbb', 'lmdb', 'pthread', 'zmq'])
 
 lib_source = ['Field.cc', 'Lightning.cc', 'Catalog.cc', 
               'Metadata.cc', 'Schema.cc', 'Table.cc', 'Index.cc', 'User.cc',
-              'globals.cc']
+              'globals.cc', 'PartitionGroup.cc']
           
 lib = isql_env.Library('infinisql', lib_source)
 Return('lib')

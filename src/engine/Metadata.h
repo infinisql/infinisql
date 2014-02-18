@@ -100,6 +100,7 @@ public:
     int16_t parentcatalogid;
     int16_t parentschemaid;
     int16_t parenttableid;
+    int16_t versionid;
 
     lmdbinfo_s lmdbinfo;
 };

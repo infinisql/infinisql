@@ -49,7 +49,7 @@ extern std::ofstream logfile;
 /** 
  * @brief object to serialize anything
  *
- * position counter moves automatically when serializing to and
+ * position counters move automatically when serializing to and
  * deserializing from. to use, first get the size of the entire object,
  * can add sersize() methods to do so. Then serialize into /
  * deserialize from. All pod and external 3rd party types should be
@@ -74,7 +74,7 @@ public:
      *
      * @param valarg 
      */
-    Serdes(MDB_val &valarg);
+    Serdes(MDB_val *valarg);
     /** 
      * @brief create object to deserialize from character sequence
      *
@@ -88,48 +88,27 @@ public:
     Serdes(const char *data, size_t size);
     ~Serdes();
 
-    /** 
-     * @brief set position to beginning of data
-     *
-     */
-    void rewind();
-    /** 
-     * @brief set position to end of data
-     *
-     */
-    void ffwd();
-    /** 
-     * @brief checks if at beginning of data
-     *
-     *
-     * @return true at beginning, false otherwise
-     */
-    bool isbegin();
-    /** 
-     * @brief checks if at end of data
-     *
-     *
-     * @return true at end, false otherwise
-     */
-    bool isend();
-
     bool isreadonly;
-    size_t pos;
+    size_t serpos;
+    size_t despos;
     struct MDB_val val;
 };
 
+/* for arbitrary data */
+void ser(const void *d, size_t dsize, Serdes &output);
+void des(Serdes &input, void *d, size_t dsize);
+
+// serialize POD types
 template < typename T >
 void serpod(T d, Serdes &output)
 {
-    memcpy((char *)output.val.mv_data+output.pos, &d, sizeof(d));
-    output.pos+=sizeof(d);
+    ser(&d, sizeof(d), output);
 }
 
 template < typename T >
 void despod(Serdes &input, T &d)
 {
-    memcpy(&d, (char *)input.val.mv_data+input.pos, sizeof(d));
-    input.pos+=sizeof(d);
+    des(input, &d, sizeof(d));
 }
 
 void ser(int8_t d, Serdes &output);
@@ -300,9 +279,5 @@ void des(Serdes &input, std::string &d);
 /* for string with length not in serialization object */
 void ser(const std::string &d, size_t dsize, Serdes &output);
 void des(Serdes &input, std::string &d, size_t dsize);
-
-/* for arbitrary data */
-void ser(const void *d, size_t dsize, Serdes &output);
-void des(Serdes &input, void *d, size_t dsize);
 
 #endif // INFINISQLSERDES_H

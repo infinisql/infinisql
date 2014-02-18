@@ -31,6 +31,7 @@
 #define INFINISQLTOPOLOGY_H
 
 #include "../engine/global.h"
+#include "UserSchemaDb.h"
 
 class Mbox;
 
@@ -54,6 +55,7 @@ public:
     std::vector<Mbox *> actoridToMboxes;
     // nodeidToIbGateway[nodeid]={"host", "port"};
     std::map< int16_t, std::pair<std::string, std::string> > nodeidToIbGateway;
+    UserSchemaDb userSchemaDb;
 };
 
 /** 

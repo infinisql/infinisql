@@ -27,12 +27,12 @@
 
 #include "Serdes.h"
 
-Serdes::Serdes() : isreadonly(false), pos(0), val({0, nullptr})
+Serdes::Serdes() : isreadonly(false), serpos(0), despos(0), val({0, nullptr})
 {
     
 }
 
-Serdes::Serdes(size_t mv_sizearg) : isreadonly(false), pos(0)
+Serdes::Serdes(size_t mv_sizearg) : isreadonly(false), serpos(0), despos(0)
 {
     val.mv_data=new (std::nothrow) char[mv_sizearg];
     if (val.mv_data != nullptr)
@@ -46,12 +46,14 @@ Serdes::Serdes(size_t mv_sizearg) : isreadonly(false), pos(0)
     }
 }
 
-Serdes::Serdes(MDB_val &valarg) : isreadonly(true), pos(0), val(valarg)
+Serdes::Serdes(MDB_val *valarg) : isreadonly(true), serpos(0), despos(0),
+                                  val(*valarg)
 {
     
 }
 
-Serdes::Serdes(const char *data, size_t size) : isreadonly(false), pos(0)
+Serdes::Serdes(const char *data, size_t size) : isreadonly(false), serpos(0),
+                                                despos(0)
 {
     val.mv_size=size;
     val.mv_data=new (std::nothrow) char[val.mv_size];
@@ -71,30 +73,6 @@ Serdes::~Serdes()
     }
 }
 
-void Serdes::rewind()
-{
-    pos=0;
-}
-
-void Serdes::ffwd()
-{
-    pos=val.mv_size ? val.mv_size-1 : 0;
-}
-
-bool Serdes::isbegin()
-{
-    return pos==0 ? true : false;
-}
-
-bool Serdes::isend()
-{
-    if (val.mv_size)
-    {
-        return pos==val.mv_size-1 ? true : false;
-    }
-    return pos==0 ? true : false;
-}
-
 // void Serdes::ser(const decimal &d)
 // {
 // 	ser(d.to_string());
@@ -106,6 +84,18 @@ bool Serdes::isend()
 // 	des(st);
 //     d = new decimal{st};
 // }
+
+void ser(const void *d, size_t dsize, Serdes &output)
+{
+    memcpy((char *)output.val.mv_data+output.serpos, d, dsize);
+    output.serpos += dsize;
+}
+
+void des(Serdes &input, void *d, size_t dsize)
+{
+    memcpy(d, (char *)input.val.mv_data+input.despos, dsize);
+    input.despos += dsize;
+}
 
 void ser(int8_t d, Serdes &output)
 {
@@ -291,8 +281,7 @@ void ser(const std::string &d, Serdes &output)
 {
     size_t s=d.size();
     ser(s, output);
-    memcpy((char *)output.val.mv_data+output.pos, d.c_str(), s);
-    output.pos += s;
+    ser(d.c_str(), s, output);
 }
 
 size_t sersize(const std::string &d)
@@ -304,30 +293,17 @@ void des(Serdes &input, std::string &d)
 {
     size_t s;
     des(input, s);
-    d.assign((const char *)input.val.mv_data+input.pos, s);
-    input.pos += s;
+    d.assign((const char *)input.val.mv_data+input.despos, s);
+    input.despos += s;
 }
 
 void ser(const std::string &d, size_t dsize, Serdes &output)
 {
-    memcpy((char *)output.val.mv_data+output.pos, d.c_str(), dsize);
-    output.pos += dsize;
+    ser(d.c_str(), dsize, output);
 }
 
 void des(Serdes &input, std::string &d, size_t dsize)
 {
-    d.assign((const char *)input.val.mv_data+input.pos, dsize);
-    input.pos += dsize;
-}
-
-void ser(const void *d, size_t dsize, Serdes &output)
-{
-    memcpy((char *)output.val.mv_data+output.pos, d, dsize);
-    output.pos += dsize;
-}
-
-void des(Serdes &input, void *d, size_t dsize)
-{
-    memcpy(d, (char *)input.val.mv_data+input.pos, dsize);
-    input.pos += dsize;
+    d.assign((const char *)input.val.mv_data+input.despos, dsize);
+    input.despos += dsize;
 }

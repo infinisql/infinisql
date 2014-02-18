@@ -1043,12 +1043,15 @@ void ser(const Field &d, Serdes &output)
     ser(d.size, output);
     ser(d.precision, output);
     ser(d.scale, output);
+    ser(d.defaultValue, output);
+    ser(d.nullconstraint, output);
 }
 
 size_t sersize(const Field &d)
 {
     return sersize((const Metadata &)d) + sersize(d.type) + sersize(d.size) +
-        sersize(d.precision) + sersize(d.scale);
+        sersize(d.precision) + sersize(d.scale) + sersize(d.defaultValue) +
+        sersize(d.nullconstraint);
 }
 
 void des(Serdes &input, Field &d)
@@ -1058,42 +1061,6 @@ void des(Serdes &input, Field &d)
     des(input, d.size);
     des(input, d.precision);
     des(input, d.scale);
+    des(input, d.defaultValue);
+    des(input, d.nullconstraint);
 }
-
-/*
-void ser(const FieldValue &d, Serdes &output)
-{
-    ser((const Metadata &)d, output);
-    ser(d.type, output);
-}
-
-size_t sersize(const Field &d)
-{
-    return sersize((const Metadata &)d) + sersize(d.password);
-}
-
-void des(Serdes &input, Field &d)
-{
-    des(input, (Metadata &)d);
-    des(input, d.password);
-}
-
-
-void ser(const FieldValue &d, Serdes &output)
-{
-    ser((const Metadata &)d, output);
-    ser(d.type, output);
-}
-
-size_t sersize(const Field &d)
-{
-    return sersize((const Metadata &)d) + sersize(d.password);
-}
-
-void des(Serdes &input, Field &d)
-{
-    des(input, (Metadata &)d);
-    des(input, d.password);
-}
-
-*/
