@@ -27,14 +27,7 @@
 
 #include "Catalog.h"
 
-Catalog::Catalog() : Metadata (), nextuserid (0), nextschemaid (0),
-                     nexttableid (0), nextindexid (0)
-{
-}
-
-Catalog::Catalog(int16_t idarg, const std::string& namearg)
-    : Metadata(idarg, namearg), nextuserid(0), nextschemaid(0),
-      nexttableid(0), nextindexid(0)
+Catalog::Catalog()
 {
 }
 
@@ -53,33 +46,10 @@ Catalog &Catalog::operator= (const Catalog &orig)
 void Catalog::cp(const Catalog &orig)
 {
     nextuserid=orig.nextuserid;
-    nextschemaid=orig.nextschemaid;
-    nexttableid=orig.nexttableid;
-    nextindexid=orig.nextindexid;
 }
 
 Catalog::~Catalog()
 {
-}
-
-int16_t Catalog::getnextuserid()
-{
-    return ++nextuserid;
-}
-
-int16_t Catalog::getnextschemaid()
-{
-    return ++nextschemaid;
-}
-
-int16_t Catalog::getnexttableid()
-{
-    return ++nexttableid;
-}
-
-int16_t Catalog::getnextindexid()
-{
-    return ++nextindexid;
 }
 
 int Catalog::openEnvironment(std::string path)

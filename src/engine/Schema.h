@@ -37,21 +37,19 @@ class Schema : public Metadata
 {
 public:
     Schema();
-    Schema(Catalog *parentCatalogarg, const std::string& namearg);
     Schema(const Schema &orig);
     Schema &operator= (const Schema &orig);
     ~Schema();
 
-    /** 
-     * @brief get metadata parent information from parentTable
-     *
-     */
-    void getparents();
-    
-    std::unordered_map<std::string, int16_t> tableName2Id; /**< tableName2Id[name]=tableid */
-    std::unordered_map<int16_t, Table *> tableid2Table; /**< tableid2Table[tableid]=Table* */
-    std::unordered_map<std::string, int16_t> indexName2Id; /**< indexName2Id[name]=indexid */
-    std::unordered_map<int16_t, Index *> indexid2Index; /**< indexid2Index[indexid]=Index* */
+    int16_t parentcatalogid;
+
+    int16_t nexttableid;
+
+    std::unordered_map<std::string, int16_t> tableName2Id;
+    std::unordered_map<std::string, int16_t> indexName2Id;
+    // tableid2Table[tableid][versionid]=Table*
+    std::unordered_map< int16_t, std::unordered_map<int16_t, Table *> >
+        tableid2Table;
 };
 
 void ser(const Schema &d, Serdes &output);

@@ -33,6 +33,13 @@ PartitionGroup::PartitionGroup(): Metadata(), currentversionid(0),
     
 }
 
+PartitionGroup::PartitionGroup(std::string &namearg, int16_t idarg)
+    : Metadata(), currentversionid(1), pendingversionid(0)
+{
+    name=namearg;
+    id=idarg;
+}
+
 void ser(const PartitionGroup &d, Serdes &output)
 {
     ser((const Metadata &)d, output);

@@ -34,9 +34,15 @@ class PartitionGroup : public Metadata
 {
 public:
     PartitionGroup();
+    PartitionGroup(std::string &namearg, int16_t idarg);
 
     int16_t currentversionid;
     int16_t pendingversionid;
+
+    /* tableids in this partition group
+     * tables[schemaid][tableid]
+     */
+    std::unordered_map< int16_t, std::unordered_set<int16_t> > tables;
 };
 
 void ser(const PartitionGroup &d, Serdes &output);

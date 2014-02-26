@@ -295,13 +295,16 @@ public:
     };
     
     Field();
+    Field(std::string &namearg, int16_t idarg,
+          type_e type, ssize_t size, ssize_t precision, ssize_t scale,
+          FieldValue &defaultValue, bool nullconstraint);
     /** 
      * @brief create Field
      *
      * @param name field name
      * @param type field type
      */
-    Field(Table *parentTablearg, const std::string& namearg, type_e typearg);
+    Field(const std::string& namearg, type_e typearg);
     /** 
      * @brief create Field
      *
@@ -309,8 +312,7 @@ public:
      * @param type field type
      * @param arg1 parameter to create field
      */
-    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
-          int64_t arg1arg);
+    Field(const std::string& namearg, type_e typearg, int64_t arg1arg);
     /** 
      * @brief create Field
      *
@@ -319,7 +321,7 @@ public:
      * @param arg1 1st parameter to create field
      * @param arg2 2nd parameter to create field
      */
-    Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
+    Field(const std::string& namearg, type_e typearg,
           int64_t arg1arg, int64_t arg2arg);
     Field(const Field &orig);
     Field &operator= (const Field &orig);
@@ -333,21 +335,6 @@ public:
      */
     void cp(const Field &orig);
     ~Field();
-
-    /** 
-     * @brief intialize field parents and maps, get fieldid
-     *
-     * @param parentTable parent table
-     * @param name name
-     * 
-     * @return 
-     */
-    bool initializer(Table *parentTablearg, const std::string& namearg);
-    /** 
-     * @brief get metadata parent information from parentTable
-     *
-     */
-    void getparents();
     
     /** 
      * @brief serialize a field value, such as into an LMDB value

@@ -58,12 +58,6 @@ void UserSchemaManager::operator()()
 
             switch(msgrcv->message.topic)
             {
-            case Message::TOPIC_USERSCHEMA:
-            {
-                MessageUserSchema &msgRef=*(MessageUserSchema *)msgrcv;
-                
-            }
-            break;                
 
             default:
                 LOG("can't handle topic " << msgrcv->message.topic);

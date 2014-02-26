@@ -30,61 +30,28 @@
 #include "Schema.h"
 #line 32 "Table.cc"
 
-Table::Table() : Metadata (), nextfieldid (-1)
+Table::Table()
 {
     
 }
 
-Table::Table(Schema *parentSchemaarg, const std::string &namearg) : nextfieldid (-1)
+Table::Table(const Table &orig) : Metadata(orig)
 {
-    if (parentSchemaarg->parentCatalog->tableName2Id.count(namearg))
-    {
-        id=-1;
-        return;
-    }
-    parentSchema=parentSchemaarg;
-    getparents();
-    id=parentCatalog->getnexttableid();
-    name=namearg;
-    parentCatalog->tableName2Id[name]=id;
-    parentCatalog->tableid2Table[id]=this;
-    parentSchema->tableName2Id[name]=id;
-    parentSchema->tableid2Table[id]=this;
-}
-
-Table::Table(const Table &orig) : Metadata (orig)
-{
-    cp(orig);
 }
 
 Table &Table::operator= (const Table &orig)
 {
     (Metadata)*this=Metadata(orig);
-    cp(orig);
     return *this;
-}
-
-void Table::cp(const Table &orig)
-{
-    nextfieldid=orig.nextfieldid;
 }
 
 Table::~Table()
 {
 }
 
-void Table::getparents()
+void Table::getdbname(char *dbname)
 {
-    parentCatalog=parentSchema->parentCatalog;
-    parentTable=nullptr;
-    parentcatalogid=parentSchema->parentcatalogid;
-    parentschemaid=parentSchema->id;
-    parenttableid=-1;
-}
-
-int16_t Table::getnextfieldid()
-{
-    return ++nextfieldid;
+    getdbname2('t', parentCatalog->id, parentSchema->id, dbname);
 }
 
 int Table::dbOpen()
@@ -95,19 +62,14 @@ int Table::dbOpen()
 void ser(const Table &d, Serdes &output)
 {
     ser((const Metadata &)d, output);
-    ser(d.partitiongroupname, output);
-    ser(d.partitiongroupid, output);
 }
 
 size_t sersize(const Table &d)
 {
-    return sersize((const Metadata &)d) + sersize(d.partitiongroupname) +
-        sersize(d.partitiongroupid);
+    return sersize((const Metadata &)d);
 }
 
 void des(Serdes &input, Table &d)
 {
     des(input, (Metadata &)d);
-    des(input, d.partitiongroupname);
-    des(input, d.partitiongroupid);
 }

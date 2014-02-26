@@ -28,28 +28,15 @@
 #include "Schema.h"
 #include "Catalog.h"
 
-Schema::Schema() : Metadata()
+Schema::Schema()
 {
     
 }
 
-Schema::Schema(Catalog *parentCatalogarg, const std::string &namearg)
-{
-    if (parentCatalogarg->schemaName2Id.count(namearg))
-    {
-        id=-1;
-        return;
-    }
-    parentCatalog=parentCatalogarg;
-    getparents();
-    id=parentCatalog->getnextschemaid();
-    name=namearg;
-    parentCatalog->schemaName2Id[name]=id;
-    parentCatalog->schemaid2Schema[id]=this;    
-}
-
 Schema::Schema(const Schema &orig) : Metadata(orig)
 {
+    (Metadata)*this=Metadata(orig);
+    parentcatalogid=orig.parentcatalogid;
 }
 
 Schema &Schema::operator= (const Schema &orig)
@@ -61,15 +48,6 @@ Schema &Schema::operator= (const Schema &orig)
 Schema::~Schema()
 {
     
-}
-
-void Schema::getparents()
-{
-    parentSchema=nullptr;
-    parentTable=nullptr;
-    parentcatalogid=parentCatalog->id;
-    parentschemaid=-1;
-    parenttableid=-1;
 }
 
 void ser(const Schema &d, Serdes &output)

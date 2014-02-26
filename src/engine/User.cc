@@ -28,27 +28,9 @@
 #include "User.h"
 #include "Catalog.h"
 
-
-User::User() : Metadata ()
+User::User()
 {
     
-}
-
-User::User(Catalog *parentCatalogarg, const std::string &namearg,
-           std::string &passwordarg)
-    : password (passwordarg)
-{
-    if (parentCatalogarg->userName2Id.count(namearg))
-    {
-        id=-1;
-        return;
-    }
-    parentCatalog=parentCatalogarg;
-    getparents();
-    id=parentCatalog->getnextuserid();
-    name=namearg;
-    parentCatalog->userName2Id[name]=id;
-    parentCatalog->userid2User[id]=this;
 }
 
 User::User(const User &orig) : Metadata (orig)
@@ -71,15 +53,6 @@ void User::cp(const User &orig)
 User::~User()
 {
     
-}
-
-void User::getparents()
-{
-    parentSchema=nullptr;
-    parentTable=nullptr;
-    parentcatalogid=parentCatalog->id;
-    parentschemaid=-1;
-    parenttableid=-1;
 }
 
 void ser(const User &d, Serdes &output)

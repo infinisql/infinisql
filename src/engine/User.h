@@ -30,21 +30,10 @@
 
 #include "Metadata.h"
 
-class User : Metadata
+class User : public Metadata
 {
 public:
     User();
-    /** 
-     * @brief first instantiation from UserSchemaMgr
-     *
-     * @param parentCatalogarg parent Catalog
-     * @param namearg username
-     * @param passwordarg password
-     *
-     * @return 
-     */
-    User(Catalog *parentCatalogarg, const std::string &namearg,
-         std::string &passwordarg);
     User(const User &orig);
     User &operator= (const User &orig);
     /** 
@@ -58,12 +47,6 @@ public:
     void cp(const User &orig);
     ~User();
     
-    /** 
-     * @brief get metadata parent information from parentTable
-     *
-     */
-    void getparents();
-
     std::string password;
 };
 

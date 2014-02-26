@@ -34,7 +34,6 @@ class Index : public Metadata
 {
 public:
     Index();
-    Index(Table *parentTableArg, const std::string& namearg);
     Index(const Index &orig);
     Index &operator= (const Index &orig);
     /** 
@@ -48,11 +47,7 @@ public:
 //    void cp(const Index &orig);
     ~Index();
 
-    /** 
-     * @brief get metadata parent information from parentTable
-     *
-     */
-    void getparents();    
+    void getdbname(char *dbname);
     /** 
      * @brief open index database
      *

@@ -272,18 +272,26 @@ bool FieldValue::getnull() {
 }
 
 Field::Field() :
-		Metadata(), type(TYPE_NONE), size(-1), precision(-1), scale(-1), nullconstraint(
-				false) {
+		Metadata(), type(TYPE_NONE), size(0), precision(0), scale(0),
+        nullconstraint(false)
+{
 	defaultValue.nullify();
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) :
-		Field() {
-	type = typearg;
 
-	if (initializer(parentTablearg, namearg) == false) {
-		return;
-	}
+Field::Field(std::string &namearg, int16_t idarg,
+          type_e type, ssize_t size, ssize_t precision, ssize_t scale,
+          FieldValue &defaultValue, bool nullconstraint)
+    : Metadata(), type(type), size(size), precision(precision), scale(scale),
+      defaultValue(defaultValue), nullconstraint(nullconstraint)
+{
+    name=namearg;
+    id=idarg;
+}
+
+Field::Field(const std::string& namearg, type_e typearg) : Field()
+{
+	type = typearg;
 
 	switch (type) {
 	case TYPE_NUMERIC:
@@ -325,14 +333,9 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg) 
 	}
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
-		int64_t arg1arg) :
+Field::Field(const std::string& namearg, type_e typearg, int64_t arg1arg) :
 		Field() {
 	type = typearg;
-
-	if (initializer(parentTablearg, namearg) == false) {
-		return;
-	}
 
 	switch (type) {
 	case TYPE_NUMERIC:
@@ -382,16 +385,12 @@ Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
 	}
 }
 
-Field::Field(Table *parentTablearg, const std::string& namearg, type_e typearg,
+Field::Field(const std::string& namearg, type_e typearg,
 		int64_t arg1arg, int64_t arg2arg) :
 		Field() {
 	type = typearg;
 	precision = arg1arg;
 	scale = arg2arg;
-
-	if (initializer(parentTablearg, namearg) == false) {
-		return;
-	}
 }
 
 Field::Field(const Field &orig) :
@@ -416,30 +415,6 @@ void Field::cp(const Field &orig) {
 
 Field::~Field() {
 
-}
-
-bool Field::initializer(Table *parentTablearg, const std::string& namearg) {
-	if (parentTablearg->fieldName2Id.count(namearg)) {
-		id = -1;
-		return false;
-	}
-	parentTable = parentTablearg;
-	getparents();
-	id = parentTable->getnextfieldid();
-	name = namearg;
-	parentTable->fieldName2Id[name] = id;
-	parentTable->fieldid2Field[id] = this;
-	defaultValue.nullify();
-
-	return true;
-}
-
-void Field::getparents() {
-	parentCatalog = parentTable->parentCatalog;
-	parentSchema = parentTable->parentSchema;
-	parentcatalogid = parentTable->parentcatalogid;
-	parentschemaid = parentTable->parentschemaid;
-	parenttableid = parentTable->id;
 }
 
 void Field::serValue(FieldValue &fieldValue, Serdes &output) {

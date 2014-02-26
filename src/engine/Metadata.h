@@ -33,13 +33,16 @@
 #include <memory>
 #include "../mbox/Serdes.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <sys/stat.h>
 #include <string>
 #include <sstream>
 #include <vector>
+#include <limits>
 
 using std::string;
 
+class PartitionGroup;
 class Catalog;
 class Schema;
 class Table;
@@ -60,10 +63,49 @@ public:
     };
     
     Metadata();
-    Metadata(int16_t id, std::string name);
     Metadata(const Metadata &orig);
     virtual ~Metadata();
 
+    template < typename T, typename U >
+    static int16_t getnextid(const T &map, U &nextid)
+    {
+        int16_t tmpid=nextid;
+        int16_t startid=nextid;
+
+        while (1)
+        {
+            if (tmpid++==0)
+            {
+                continue;
+            }
+            if (!map.count(tmpid))
+            {
+                nextid=tmpid;
+                return nextid;
+            }
+            if (startid==tmpid) // have circled around to no avail
+            {
+                LOG("no available ID's " << startid);
+                return 0;
+            }
+        }
+    }
+
+    virtual void getdbname(char *dbname) {dbname=nullptr; return;}
+    template < typename T, typename U, typename V >
+    void getdbname2(T dbtype, U catalogid, V schemaid, char *dbname)
+    {
+        dbname[0]=dbtype;
+        int pos=1;
+        memcpy(dbname+pos, &catalogid, sizeof(catalogid));
+        pos+=sizeof(catalogid);    
+        memcpy(dbname+pos, &schemaid, sizeof(schemaid));
+        pos+=sizeof(schemaid);
+        memcpy(dbname+pos, &id, sizeof(id));
+        pos+=sizeof(id);
+        memcpy(dbname+pos, &versionid, sizeof(versionid));
+        dbname[pos]='\0';
+    }
     /** 
      * @brief create new or open existing database for table
      *
@@ -93,15 +135,12 @@ public:
     
     int16_t id;
     std::string name;
+    int16_t versionid;
 
+    PartitionGroup *partitionGroup;
     Catalog *parentCatalog;
     Schema *parentSchema;
     Table *parentTable;
-    int16_t parentcatalogid;
-    int16_t parentschemaid;
-    int16_t parenttableid;
-    int16_t versionid;
-
     lmdbinfo_s lmdbinfo;
 };
 

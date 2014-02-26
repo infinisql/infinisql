@@ -30,28 +30,9 @@
 #include "Schema.h"
 #include "Table.h"
 
-Index::Index() : Metadata ()
+Index::Index()
 {
     
-}
-
-Index::Index(Table *parentTablearg, const std::string &namearg)
-{
-    if (parentTablearg->parentCatalog->indexName2Id.count(namearg))
-    {
-        id=-1;
-        return;
-    }
-    parentTable=parentTablearg;
-    getparents();
-    id=parentCatalog->getnextindexid();
-    name=namearg;
-    parentCatalog->indexName2Id[name]=id;
-    parentCatalog->indexid2Index[id]=this;
-    parentSchema->indexName2Id[name]=id;
-    parentSchema->indexid2Index[id]=this;    
-    parentTable->indexName2Id[name]=id;
-    parentTable->indexid2Index[id]=this;    
 }
 
 Index::Index(const Index &orig) : Metadata(orig)
@@ -76,13 +57,9 @@ Index::~Index()
 {
 }
 
-void Index::getparents()
+void Index::getdbname(char *dbname)
 {
-    parentCatalog=parentTable->parentCatalog;
-    parentSchema=parentTable->parentSchema;
-    parentcatalogid=parentTable->parentcatalogid;
-    parentschemaid=parentTable->parentschemaid;
-    parenttableid=parentTable->id;
+    getdbname2('t', parentCatalog->id, parentSchema->id, dbname);
 }
 
 int Index::dbOpen()
