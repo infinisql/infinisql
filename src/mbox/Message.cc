@@ -164,12 +164,12 @@ MessageSocket::MessageSocket(topic_e topic, int16_t destnodeid, int sockfd,
     
 }
 
-MessageTransaction::MessageTransaction()
+MessageRpc::MessageRpc()
 {
     
 }
 
-MessageTransaction::~MessageTransaction()
+MessageRpc::~MessageRpc()
 {
     
 }
@@ -232,25 +232,25 @@ void des(Serdes &input, MessageSocket &d)
     des(input, &d.socketdata, sizeof(d.socketdata));
 }
 
-void ser(const MessageTransaction &d, Serdes &output)
+void ser(const MessageRpc &d, Serdes &output)
 {
     ser((const Message &)d, output);
-    ser((char *)&d.transactiondata, sizeof(d.transactiondata), output);
+    ser((char *)&d.rpc, sizeof(d.rpc), output);
 }
 
-size_t sersize(const MessageTransaction &d)
+size_t sersize(const MessageRpc &d)
 {
-    return sersize((const Message &)d) + sizeof(d.transactiondata);
+    return sersize((const Message &)d) + sizeof(d.rpc);
 }
 
-void des(Serdes &input, MessageTransaction &d)
+void des(Serdes &input, MessageRpc &d)
 {
-    des(input, &d.transactiondata, sizeof(d.transactiondata));
+    des(input, &d.rpc, sizeof(d.rpc));
 }
 
 void ser(const MessageUserSchema &d, Serdes &output)
 {
-    ser((const MessageTransaction &)d, output);
+    ser((const MessageRpc &)d, output);
     ser((char *)&d.userschemadata, output);
     ser(d.name, output);
     ser(d.partitiongroupname, output);
@@ -258,13 +258,13 @@ void ser(const MessageUserSchema &d, Serdes &output)
 
 size_t sersize(const MessageUserSchema &d)
 {
-    return sersize((const MessageTransaction &)d) + sizeof(d.userschemadata) +
+    return sersize((const MessageRpc &)d) + sizeof(d.userschemadata) +
         sersize(d.name) + sersize(d.partitiongroupname);
 }
 
 void des(Serdes &input, MessageUserSchema &d)
 {
-    des(input, (MessageTransaction &)d);
+    des(input, (MessageRpc &)d);
     des(input, &d.userschemadata, sizeof(d.userschemadata));
     des(input, d.name);
     des(input, d.partitiongroupname);
@@ -272,18 +272,18 @@ void des(Serdes &input, MessageUserSchema &d)
 
 void ser(const MessageUserSchemaReply &d, Serdes &output)
 {
-    ser((const MessageTransaction &)d, output);
+    ser((const MessageRpc &)d, output);
     ser((char *)&d.userschemareplydata, output);
 }
 
 size_t sersize(const MessageUserSchemaReply &d)
 {
-    return sersize((const MessageTransaction &)d) +
+    return sersize((const MessageRpc &)d) +
         sizeof(d.userschemareplydata);
 }
 
 void des(Serdes &input, MessageUserSchemaReply &d)
 {
-    des(input, (MessageTransaction &)d);
+    des(input, (MessageRpc &)d);
     des(input, &d.userschemareplydata, sizeof(d.userschemareplydata));
 }

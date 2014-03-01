@@ -442,11 +442,8 @@ bool UserSchemaDb::stow()
     }
 */
 
-UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
-                                            int16_t &newid)
+UserSchemaDb::reason_e UserSchemaDb::create(bool checkname, createargs_s &args)
 {
-    newid=0;
-    
     // set up ptrs of related objects
     Metadata *newObjectCurrentVersion=nullptr;
     Metadata *newObjectPendingVersion=nullptr;
@@ -511,173 +508,207 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         partitionGroupptr=
             partitiongroupid2Partitiongroup[args.partitiongroupid];
     }
-
+    
     // check namespace, get newid, create object and put in maps
+    if (checkname==true)
+    {
+        args.newid=0;
+
+        switch(args.metatype)
+        {
+        case META_PARTITIONGROUP:
+            if (partitiongroupName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(partitiongroupid2Partitiongroup,
+                                           nextpartitiongroupid);
+            if (args.newid==0)
+            {
+                return REASON_NOPARTITIONGROUPIDS;
+            }
+            break;
+
+        case META_CATALOG:
+            if (catalogName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(catalogid2Catalog, nextcatalogid);
+            if (args.newid==0)
+            {
+                return REASON_NOCATALOGIDS;
+            }
+            break;
+
+        case META_USER:
+            if (parentCatalogptr->userName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(parentCatalogptr->userid2User,
+                                           parentCatalogptr->nextuserid);
+            if (args.newid==0)
+            {
+                return REASON_NOUSERIDS;
+            }
+            break;
+
+        case META_SCHEMA:
+            if (parentCatalogptr->schemaName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(schemaid2Schema, nextschemaid);
+            if (args.newid==0)
+            {
+                return REASON_NOSCHEMAIDS;
+            }
+            break;
+
+        case META_TABLE:
+            if (parentSchemaptr->tableName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(parentSchemaptr->tableid2Table,
+                                           parentSchemaptr->nexttableid);
+            if (args.newid==0)
+            {
+                return REASON_NOSCHEMAIDS;
+            }
+            break;
+        
+        case META_FIELD:
+            if (parentTableptrCurrentVersion->fieldName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            if (parentTableptrCurrentVersion->fields.size() >
+                std::numeric_limits<int16_t>::max())
+            {
+                args.newid=0;
+                return REASON_NOFIELDIDS;
+            }
+            break;
+
+        case META_INDEX:
+            if (parentSchemaptr->indexName2Id.count(args.name))
+            {
+                return REASON_DUPLICATENAME;
+            }
+            args.newid=Metadata::getnextid(parentTableptrCurrentVersion->indexid2Index, parentTableptrCurrentVersion->nextindexid);
+            if (args.newid==0)
+            {
+                return REASON_NOSCHEMAIDS;
+            }
+            break;
+
+        default:
+            LOG("no metatype " << args.metatype);
+            return REASON_BADTYPE;
+        }
+    }
+
+    // create object and put in maps
     switch(args.metatype)
     {
     case META_PARTITIONGROUP:
-        if (partitiongroupName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(partitiongroupid2Partitiongroup,
-                                       nextpartitiongroupid);
-        if (newid==0)
-        {
-            return REASON_NOPARTITIONGROUPIDS;
-        }
-        partitiongroupName2Id[args.name]=newid;
-        partitiongroups[std::vector<int16_t>({newid})]=PartitionGroup();
-        partitiongroupid2Partitiongroup[newid]=
-            &partitiongroups[std::vector<int16_t>({newid})];
-        newObjectCurrentVersion=&partitiongroups[std::vector<int16_t>({newid})];
+        partitiongroupName2Id[args.name]=args.newid;
+        partitiongroups[std::vector<int16_t>({args.newid})]=PartitionGroup();
+        partitiongroupid2Partitiongroup[args.newid]=
+            &partitiongroups[std::vector<int16_t>({args.newid})];
+        newObjectCurrentVersion=
+            &partitiongroups[std::vector<int16_t>({args.newid})];
         break;
 
     case META_CATALOG:
-        if (catalogName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(catalogid2Catalog, nextcatalogid);
-        if (newid==0)
-        {
-            return REASON_NOCATALOGIDS;
-        }
-        catalogName2Id[args.name]=newid;
-        catalogs[std::vector<int16_t>({newid})]=Catalog();
-        catalogid2Catalog[newid]=
-            &catalogs[std::vector<int16_t>({newid})];
-        newObjectCurrentVersion=&catalogs[std::vector<int16_t>({newid})];
+        catalogName2Id[args.name]=args.newid;
+        catalogs[std::vector<int16_t>({args.newid})]=Catalog();
+        catalogid2Catalog[args.newid]=
+            &catalogs[std::vector<int16_t>({args.newid})];
+        newObjectCurrentVersion=&catalogs[std::vector<int16_t>({args.newid})];
         break;
 
     case META_USER:
-        if (parentCatalogptr->userName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(parentCatalogptr->userid2User,
-            parentCatalogptr->nextuserid);
-        if (newid==0)
-        {
-            return REASON_NOUSERIDS;
-        }
-        parentCatalogptr->userName2Id[args.name]=newid;
-        users[std::vector<int16_t>({args.catalogid, newid})]=User();
-        parentCatalogptr->userid2User[newid]=
-            &users[std::vector<int16_t>({args.catalogid, newid})];
+        parentCatalogptr->userName2Id[args.name]=args.newid;
+        users[std::vector<int16_t>({args.catalogid, args.newid})]=User();
+        parentCatalogptr->userid2User[args.newid]=
+            &users[std::vector<int16_t>({args.catalogid, args.newid})];
         newObjectCurrentVersion=
-            &users[std::vector<int16_t>({args.catalogid, newid})];
+            &users[std::vector<int16_t>({args.catalogid, args.newid})];
         break;
 
     case META_SCHEMA:
-        if (parentCatalogptr->schemaName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(schemaid2Schema, nextschemaid);
-        if (newid==0)
-        {
-            return REASON_NOSCHEMAIDS;
-        }
-        parentCatalogptr->schemaName2Id[args.name]=newid;
-        schemata[std::vector<int16_t>({args.catalogid, newid})]=Schema();
-        schemaid2Schema[newid]=
-            &schemata[std::vector<int16_t>({args.catalogid, newid})];
+        parentCatalogptr->schemaName2Id[args.name]=args.newid;
+        schemata[std::vector<int16_t>({args.catalogid, args.newid})]=Schema();
+        schemaid2Schema[args.newid]=
+            &schemata[std::vector<int16_t>({args.catalogid, args.newid})];
         newObjectCurrentVersion=
-            &schemata[std::vector<int16_t>({args.catalogid, newid})];
-        schemaid2Catalogid[newid]=args.catalogid;
+            &schemata[std::vector<int16_t>({args.catalogid, args.newid})];
+
+        schemaid2Catalogid[args.newid]=args.catalogid;
         break;
 
     case META_TABLE:
-        if (parentSchemaptr->tableName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(parentSchemaptr->tableid2Table,
-                                  parentSchemaptr->nexttableid);
-        if (newid==0)
-        {
-            return REASON_NOSCHEMAIDS;
-        }
-        parentSchemaptr->tableName2Id[args.name]=newid;
-        tables[std::vector<int16_t>({args.schemaid, newid,
+        parentSchemaptr->tableName2Id[args.name]=args.newid;
+        tables[std::vector<int16_t>({args.schemaid, args.newid,
                         currentversionid})]=Table();
-        parentSchemaptr->tableid2Table[newid][currentversionid]=
-            &tables[std::vector<int16_t>({args.schemaid, newid,
+        parentSchemaptr->tableid2Table[args.newid][currentversionid]=
+            &tables[std::vector<int16_t>({args.schemaid, args.newid,
                         currentversionid})];
         newObjectCurrentVersion=&tables[std::vector<int16_t>({args.schemaid,
-                        newid, currentversionid})];
+                        args.newid, currentversionid})];
         if (pendingversionid)
         {
-            tables[std::vector<int16_t>({args.schemaid, newid,
+            tables[std::vector<int16_t>({args.schemaid, args.newid,
                             pendingversionid})]=Table();
-            parentSchemaptr->tableid2Table[newid][pendingversionid]=
-                &tables[std::vector<int16_t>({args.schemaid, newid,
+            parentSchemaptr->tableid2Table[args.newid][pendingversionid]=
+                &tables[std::vector<int16_t>({args.schemaid, args.newid,
                             pendingversionid})];
             newObjectPendingVersion=
-                &tables[std::vector<int16_t>({args.schemaid, newid,
+                &tables[std::vector<int16_t>({args.schemaid, args.newid,
                             pendingversionid})];
         }
         break;
         
     case META_FIELD:
-        if (parentTableptrCurrentVersion->fieldName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        if (parentTableptrCurrentVersion->fields.size() >
-            std::numeric_limits<int16_t>::max())
-        {
-            newid=0;
-            return REASON_NOFIELDIDS;
-        }
-        newid=parentTableptrCurrentVersion->fields.size();
-        parentTableptrCurrentVersion->fieldName2Id[args.name]=newid;
+        args.newid=parentTableptrCurrentVersion->fields.size();
+        parentTableptrCurrentVersion->fieldName2Id[args.name]=args.newid;
         fields[std::vector<int16_t>({args.schemaid, args.tableid,
-                        newid, currentversionid})]=Field();
-        parentTableptrCurrentVersion->fields[newid]=
+                        args.newid, currentversionid})]=Field();
+        parentTableptrCurrentVersion->fields[args.newid]=
             &fields[std::vector<int16_t>({args.schemaid, args.tableid,
-                        newid, currentversionid})];
+                        args.newid, currentversionid})];
         newObjectCurrentVersion=&fields[std::vector<int16_t>({args.schemaid,
-                        args.tableid, newid, currentversionid})];
+                        args.tableid, args.newid, currentversionid})];
         if (pendingversionid)
         {
             fields[std::vector<int16_t>({args.schemaid, args.tableid,
-                            newid, pendingversionid})]=Field();
-            parentTableptrPendingVersion->fields[newid]=
+                            args.newid, pendingversionid})]=Field();
+            parentTableptrPendingVersion->fields[args.newid]=
                 &fields[std::vector<int16_t>({args.schemaid, args.tableid,
-                            newid, pendingversionid})];
+                            args.newid, pendingversionid})];
             newObjectPendingVersion=&fields[std::vector<int16_t>({args.schemaid,
-                        args.tableid, newid, pendingversionid})];
+                            args.tableid, args.newid, pendingversionid})];
         }
         break;
 
     case META_INDEX:
-        if (parentSchemaptr->indexName2Id.count(args.name))
-        {
-            return REASON_DUPLICATENAME;
-        }
-        newid=Metadata::getnextid(parentTableptrCurrentVersion->indexid2Index,
-                                  parentTableptrCurrentVersion->nextindexid);
-        if (newid==0)
-        {
-            return REASON_NOSCHEMAIDS;
-        }
-        parentSchemaptr->indexName2Id[args.name]=newid;
-        indices[std::vector<int16_t>({args.schemaid, newid,
+        parentSchemaptr->indexName2Id[args.name]=args.newid;
+        indices[std::vector<int16_t>({args.schemaid, args.newid,
                         currentversionid})]=Index();
-        parentTableptrCurrentVersion->indexid2Index[newid][currentversionid]=
-            &indices[std::vector<int16_t>({args.schemaid, newid,
-                        currentversionid})];
+        parentTableptrCurrentVersion->indexid2Index[args.newid][currentversionid]=&indices[std::vector<int16_t>({args.schemaid, args.newid, currentversionid})];
         newObjectCurrentVersion=&indices[std::vector<int16_t>({args.schemaid,
-                        newid, currentversionid})];
+                        args.newid, currentversionid})];
         if (pendingversionid)
         {
-            indices[std::vector<int16_t>({args.schemaid, newid,
+            indices[std::vector<int16_t>({args.schemaid, args.newid,
                             pendingversionid})]=Index();
-            parentTableptrPendingVersion->indexid2Index[newid][pendingversionid]=&indices[std::vector<int16_t>({args.schemaid, newid, pendingversionid})];
+            parentTableptrPendingVersion->indexid2Index[args.newid][pendingversionid]=&indices[std::vector<int16_t>({args.schemaid, args.newid,
+                            pendingversionid})];
             newObjectPendingVersion=
-                &indices[std::vector<int16_t>({args.schemaid, newid,
+                &indices[std::vector<int16_t>({args.schemaid, args.newid,
                             pendingversionid})];
         }
         break;
@@ -686,10 +717,10 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         LOG("no metatype " << args.metatype);
         return REASON_BADTYPE;
     }
-
+    
     // set up objects
     newObjectCurrentVersion->name=args.name;
-    newObjectCurrentVersion->id=newid;
+    newObjectCurrentVersion->id=args.newid;
     if (newObjectPendingVersion != nullptr)
     {
         *newObjectCurrentVersion=*newObjectPendingVersion;
@@ -767,7 +798,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
     switch(args.metatype)
     {
     case META_PARTITIONGROUP:
-        if (persist(std::vector<int16_t>({newid}),
+        if (persist(std::vector<int16_t>({args.newid}),
                     *(PartitionGroup *)newObjectCurrentVersion)==false)
         {
             return REASON_CANTPERSIST;
@@ -775,7 +806,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
 
     case META_CATALOG:
-        if (persist(std::vector<int16_t>({newid}),
+        if (persist(std::vector<int16_t>({args.newid}),
                     *(Catalog *)newObjectCurrentVersion)==false)
         {
             return REASON_CANTPERSIST;
@@ -783,7 +814,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
 
     case META_USER:
-        if (persist(std::vector<int16_t>({args.catalogid, newid}),
+        if (persist(std::vector<int16_t>({args.catalogid, args.newid}),
                     *(User *)newObjectCurrentVersion)==false)
         {
             return REASON_CANTPERSIST;
@@ -791,7 +822,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
 
     case META_SCHEMA:
-        if (persist(std::vector<int16_t>({args.catalogid, newid}),
+        if (persist(std::vector<int16_t>({args.catalogid, args.newid}),
                     *(Schema *)newObjectCurrentVersion)==false)
         {
             return REASON_CANTPERSIST;
@@ -799,7 +830,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
 
     case META_TABLE:
-        if (persist(std::vector<int16_t>({args.schemaid, newid,
+        if (persist(std::vector<int16_t>({args.schemaid, args.newid,
                             currentversionid}),
                 *(Table *)newObjectCurrentVersion)==false)
         {
@@ -807,7 +838,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         }
         if (pendingversionid)
         {
-            if (persist(std::vector<int16_t>({args.schemaid, newid,
+            if (persist(std::vector<int16_t>({args.schemaid, args.newid,
                                 pendingversionid}),
                     *(Table *)newObjectPendingVersion)==false)
             {
@@ -817,8 +848,8 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
         
     case META_FIELD:
-        if (persist(std::vector<int16_t>({args.schemaid, args.tableid, newid,
-                            currentversionid}),
+        if (persist(std::vector<int16_t>({args.schemaid, args.tableid,
+                            args.newid, currentversionid}),
                 *(Field *)newObjectCurrentVersion)==false)
         {
             return REASON_CANTPERSIST;
@@ -826,7 +857,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         if (pendingversionid)
         {
             if (persist(std::vector<int16_t>({args.schemaid, args.tableid,
-                                newid, pendingversionid}),
+                                args.newid, pendingversionid}),
                     *(Field *)newObjectPendingVersion)==false)
             {
                 return REASON_CANTPERSIST;
@@ -835,7 +866,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         break;
 
     case META_INDEX:
-        if (persist(std::vector<int16_t>({args.schemaid, newid,
+        if (persist(std::vector<int16_t>({args.schemaid, args.newid,
                             currentversionid}),
                 *(Index *)newObjectCurrentVersion)==false)
         {
@@ -843,7 +874,7 @@ UserSchemaDb::reason_e UserSchemaDb::create(const createargs_s &args,
         }
         if (pendingversionid)
         {
-            if (persist(std::vector<int16_t>({args.schemaid, newid,
+            if (persist(std::vector<int16_t>({args.schemaid, args.newid,
                                 pendingversionid}),
                     *(Index *)newObjectPendingVersion)==false)
             {

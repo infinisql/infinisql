@@ -142,16 +142,16 @@ public:
     socketdata_s socketdata;
 };
 
-class MessageTransaction : public Message
+class MessageRpc : public Message
 {
 public:
-    struct __attribute__ ((__packed__)) continuationpoint_s
+    struct __attribute__ ((__packed__)) continuation_s
     {
         int64_t callerid;
         int8_t function;
         int8_t entrypoint;
 
-        bool operator==(const continuationpoint_s &orig) const
+        bool operator==(const continuation_s &orig) const
         {
             if (orig.callerid==callerid && orig.function==function &&
                 orig.entrypoint==entrypoint)
@@ -161,9 +161,9 @@ public:
             return false;
         }
     };
-    struct __attribute__ ((__packed__)) transactiondata_s
+    struct __attribute__ ((__packed__)) rpc_s
     {
-        continuationpoint_s continuationpoint;
+        continuation_s continuation;
         int64_t requestid;
     };
     enum status_e : int8_t
@@ -178,13 +178,13 @@ public:
             REASON_GENERIC
             };
     
-    MessageTransaction();
-    virtual ~MessageTransaction();
+    MessageRpc();
+    virtual ~MessageRpc();
 
-    transactiondata_s transactiondata;
+    rpc_s rpc;
 };
 
-class MessageUserSchema : public MessageTransaction
+class MessageUserSchema : public MessageRpc
 {
 public:
     enum crud_e : uint8_t
@@ -243,7 +243,7 @@ public:
 
 };
 
-class MessageUserSchemaReply : public MessageTransaction
+class MessageUserSchemaReply : public MessageRpc
 {
 public:
     struct userschemareplydata_s
@@ -289,9 +289,9 @@ void ser(const MessageSocket &d, Serdes &output);
 size_t sersize(const MessageSocket &d);
 void des(Serdes &input, MessageSocket &d);
 
-void ser(const MessageTransaction &d, Serdes &output);
-size_t sersize(const MessageTransaction &d);
-void des(Serdes &input, MessageTransaction &d);
+void ser(const MessageRpc &d, Serdes &output);
+size_t sersize(const MessageRpc &d);
+void des(Serdes &input, MessageRpc &d);
 
 void ser(const MessageUserSchema &d, Serdes &output);
 size_t sersize(const MessageUserSchema &d);

@@ -19,7 +19,7 @@
 
 /**
  * @file   UserSchemaManager.h
- * @author  <infinisql@ubuntu>
+ * @author Mark Travis <mtravis15432+src@gmail.com>
  * @date   Sat Jan 25 08:30:02 2014
  * 
  * @brief  Actor that maintains user and domain authentication information

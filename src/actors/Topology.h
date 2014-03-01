@@ -31,7 +31,7 @@
 #define INFINISQLTOPOLOGY_H
 
 #include "../engine/global.h"
-#include "UserSchemaDb.h"
+#include "../engine/UserSchemaDb.h"
 
 class Mbox;
 

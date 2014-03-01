@@ -28,14 +28,14 @@
 #ifndef INFINISQL_USERSCHEMADB_H
 #define INFINISQL_USERSCHEMADB_H
 
-#include "../engine/Metadata.h"
-#include "../engine/Catalog.h"
-#include "../engine/Schema.h"
-#include "../engine/Table.h"
-#include "../engine/Field.h"
-#include "../engine/Index.h"
-#include "../engine/User.h"
-#include "../engine/PartitionGroup.h"
+#include "Metadata.h"
+#include "Catalog.h"
+#include "Schema.h"
+#include "Table.h"
+#include "Field.h"
+#include "Index.h"
+#include "User.h"
+#include "PartitionGroup.h"
 
 #include <map>
 #include <cstdint>
@@ -139,6 +139,7 @@ public:
     {
         metatypes_e metatype;
         std::string name;
+        int16_t newid;
         int16_t catalogid;
         int16_t schemaid;
         int16_t tableid;
@@ -192,7 +193,15 @@ public:
 
     bool stow();
 
-    reason_e create(const createargs_s &createargs, int16_t &newid);
+    /** 
+     * @brief create new metadata object
+     *
+     * @param checkname check for availability of name, and produce newid
+     * @param createargs args
+     *
+     * @return return status
+     */
+    reason_e create(bool checkname, createargs_s &createargs);
 
     MDB_env *env;
     MDB_txn *txn;
