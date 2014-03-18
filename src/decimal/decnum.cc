@@ -90,6 +90,34 @@ decimal::isnan() const {
 	return decNumberIsNaN(&number) == 1;
 }
 
+decimal
+decimal::abs() const {
+	decimal r{context};
+	decNumberAbs(&r.number, &number, context.get());
+	return r;
+}
+
+decimal
+decimal::exp() const {
+	decimal r{context};
+	decNumberExp(&r.number, &number, context.get());
+	return r;
+}
+
+decimal
+decimal::invert() const {
+	decimal r{context};
+	decNumberInvert(&r.number, &number, context.get());
+	return r;
+}
+
+decimal
+decimal::ln() const {
+	decimal r{context};
+	decNumberLn(&r.number, &number, context.get());
+	return r;
+}
+
 int
 decimal::compare(const decimal& rhs) const {
 	number_type r;
@@ -122,6 +150,13 @@ decimal
 decimal::operator/(const decimal& rhs) const {
 	decimal r{context};
 	decNumberDivide(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+decimal
+decimal::operator&(const decimal& rhs) const {
+	decimal r{context};
+	decNumberAnd(&r.number, &number, &rhs.number, context.get());
 	return r;
 }
 
