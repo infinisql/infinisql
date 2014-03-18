@@ -64,11 +64,16 @@ public:
 
 	int compare(const decimal& rhs) const;
 	bool isnan() const;
+	decimal abs() const;
+	decimal exp() const;
+	decimal invert() const;
+	decimal ln() const;
 
 	decimal operator+(const decimal& rhs) const;
 	decimal operator-(const decimal& rhs) const;
 	decimal operator*(const decimal& rhs) const;
 	decimal operator/(const decimal& rhs) const;
+	decimal operator&(const decimal& rhs) const;
 
 	bool operator<(const decimal& rhs) const;
 	bool operator>(const decimal& rhs) const;
