@@ -118,11 +118,47 @@ decimal::ln() const {
 	return r;
 }
 
-int
-decimal::compare(const decimal& rhs) const {
-	number_type r;
-	decNumberCompare(&r, &number, &rhs.number, context.get());
-	return decNumberToInt32(&r, context.get());
+/* ------------------------------------------------------------------ */
+/* logB -- get adjusted exponent, by 754 rules                        */
+/*   This computes and returns adjustedexponent(number)               */
+/* ------------------------------------------------------------------ */
+decimal
+decimal::logB() const {
+	decimal r{context};
+	decNumberLogB(&r.number, &number, context.get());
+	return r;
+}
+
+decimal
+decimal::log10() const {
+	decimal r{context};
+	decNumberLog10(&r.number, &number, context.get());
+	return r;
+}
+
+decimal
+decimal::max(const decimal& rhs) const {
+	decimal r{context};
+	decNumberMax(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+decimal
+decimal::min(const decimal& rhs) const {
+	decimal r{context};
+	decNumberMin(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+/* ------------------------------------------------------------------ */
+/* power -- raise a number to a power                                 */
+/*   This computes and returns number ** rhs                          */
+/* ------------------------------------------------------------------ */
+decimal
+decimal::power(const decimal& rhs) const {
+	decimal r{context};
+	decNumberPower(&r.number, &number, &rhs.number, context.get());
+	return r;
 }
 
 decimal
@@ -158,6 +194,45 @@ decimal::operator&(const decimal& rhs) const {
 	decimal r{context};
 	decNumberAnd(&r.number, &number, &rhs.number, context.get());
 	return r;
+}
+
+decimal
+decimal::operator|(const decimal& rhs) const {
+	decimal r{context};
+	decNumberOr(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+/* ------------------------------------------------------------------ */
+/* operator ^ -- XOR two Numbers, digitwise                           */
+/*   This computes and returns number ^ rhs                           */
+/* ------------------------------------------------------------------ */
+decimal
+decimal::operator^(const decimal& rhs) const {
+	decimal r{context};
+	decNumberXor(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+decimal
+decimal::operator%(const decimal& rhs) const {
+	decimal r{context};
+	decNumberRemainder(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+decimal
+decimal::operator<<(const decimal& rhs) const {
+	decimal r{context};
+	decNumberShift(&r.number, &number, &rhs.number, context.get());
+	return r;
+}
+
+int
+decimal::compare(const decimal& rhs) const {
+	number_type r;
+	decNumberCompare(&r, &number, &rhs.number, context.get());
+	return decNumberToInt32(&r, context.get());
 }
 
 bool
