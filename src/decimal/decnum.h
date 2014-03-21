@@ -69,9 +69,9 @@ public:
 	decimal ln() const;
 	decimal logB() const;
 	decimal log10() const;
-	decimal max() const;
-	decimal min() const;
-	decimal power() const;
+	decimal max(const decimal& rhs) const;
+	decimal min(const decimal& rhs) const;
+	decimal power(const decimal& rhs) const;
 
 	decimal operator+(const decimal& rhs) const;
 	decimal operator-(const decimal& rhs) const;
