@@ -197,6 +197,7 @@ public:
     enum meta_e : uint8_t
     {
         META_NONE = 0,
+            META_PARTITIONGROUP,
             META_CATALOG,
             META_SCHEMA,
             META_TABLE,
@@ -240,7 +241,6 @@ public:
 
     std::string name;
     std::string partitiongroupname;
-
 };
 
 class MessageUserSchemaReply : public MessageRpc
@@ -257,6 +257,8 @@ public:
 
     userschemareplydata_s userschemareplydata;
 };
+
+// end of regular messages
 
 class MessageBatch : public Message
 {
