@@ -62,19 +62,28 @@ public:
 
 	int32_t to_int32() const;
 
-	int compare(const decimal& rhs) const;
 	bool isnan() const;
 	decimal abs() const;
 	decimal exp() const;
 	decimal invert() const;
 	decimal ln() const;
+	decimal logB() const;
+	decimal log10() const;
+	decimal max() const;
+	decimal min() const;
+	decimal power() const;
 
 	decimal operator+(const decimal& rhs) const;
 	decimal operator-(const decimal& rhs) const;
 	decimal operator*(const decimal& rhs) const;
 	decimal operator/(const decimal& rhs) const;
 	decimal operator&(const decimal& rhs) const;
+	decimal operator|(const decimal& rhs) const;
+	decimal operator^(const decimal& rhs) const;
+	decimal operator%(const decimal& rhs) const;
+	decimal operator<<(const decimal& rhs) const;
 
+	int compare(const decimal& rhs) const;
 	bool operator<(const decimal& rhs) const;
 	bool operator>(const decimal& rhs) const;
 	bool operator<=(const decimal& rhs) const;
